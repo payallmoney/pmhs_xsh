@@ -76,8 +76,7 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/pinyin4j-2.5.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ezmorph-1.0.6.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0"/>
-	<classpathentry kind="lib" path="H:/Web App Server/apache-tomcat-7.0.29/lib/tomcat-api.jar"/>
-	<classpathentry kind="lib" path="H:/Web App Server/apache-tomcat-7.0.29/lib/servlet-api.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="D:/lib/j2ee/j2ee.jar"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
