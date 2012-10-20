@@ -25,7 +25,7 @@ Ext.onReady(function(){
 		listWidth : 50
 	});
 	
-	app.residentPopulationPanel = new Ext.tf.SimplePanel({
+	app.doctorsPanel = new Ext.tf.SimplePanel({
 		//title : '模块管理',
 		border : false,
 		pageSize : 10,
@@ -117,7 +117,7 @@ Ext.onReady(function(){
 					"dataIndex" : "hospitalName"
 				}]
 	});
-	ModuleMgr.register(app.residentPopulationPanel);
+	ModuleMgr.register(app.doctorsPanel);
 	Ext.getCmp('hospitalName').on('select',function(){
 		Ext.getCmp('hospId').setValue(Ext.getCmp('hospitalName').getValue());
 	});

@@ -1,6 +1,6 @@
 Ext.ns("app");
 
-app.report01Panel = new Ext.tf.SimpleReportPanel({
+app.report04Panel = new Ext.tf.SimpleReportPanel({
 	title : '各卫生院汇总统计表',
 	queryUrl : ReportStat.findReport04.createDelegate(this),
 	readerConfig : [
@@ -114,5 +114,5 @@ app.report01Panel = new Ext.tf.SimpleReportPanel({
   ]
 });
 
-_tab = ModuleMgr.register(app.report01Panel);
-app.report01Panel.load();
+_tab = ModuleMgr.register(app.report04Panel);
+app.report04Panel.load();

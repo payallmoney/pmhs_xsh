@@ -1,6 +1,6 @@
 Ext.ns("app");
 
-app.childdeath01Panel = new Ext.tf.HealthPanel({
+app.childdeath02Panel = new Ext.tf.HealthPanel({
     title: '5岁以下儿童死亡调查表',
     treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
     queryUrl : UserMenuTreeService.findChildDeath02Records,
@@ -35,4 +35,4 @@ app.childdeath01Panel = new Ext.tf.HealthPanel({
                    ]
 });
 //_tab = ModuleMgr.register(app.babyvisitPanel);
-ModuleMgr.register(app.childdeath01Panel);
+ModuleMgr.register(app.childdeath02Panel);

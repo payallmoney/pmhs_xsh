@@ -634,7 +634,7 @@ var userGrid = new Ext.grid.GridPanel({
 	})
 });
 
-var panel = {
+var userMgrPanel = {
 	title : '用户和角色维护',
 	closable : true,
 	width : 800,
@@ -644,7 +644,7 @@ var panel = {
 }
 
 // _tab = ModuleMgr.register(panel);
-ModuleMgr.register(panel);
+ModuleMgr.register(userMgrPanel);
 
 // store.load();
 

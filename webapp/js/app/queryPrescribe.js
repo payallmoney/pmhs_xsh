@@ -148,7 +148,7 @@ var patientgrid = new Ext.grid.GridPanel({
 	bbar: pagingbar
 });
 
-prescribe.panel = new Ext.Panel({
+prescribe.queryPrescribePpanel = new Ext.Panel({
 	title: '处方查询',
 	width: 700,
 	height: 500,
@@ -157,4 +157,4 @@ prescribe.panel = new Ext.Panel({
 	items: [queryform,patientgrid]
 });
 
-_tab = ModuleMgr.register(prescribe.panel);
+_tab = ModuleMgr.register(prescribe.queryPrescribePpanel);

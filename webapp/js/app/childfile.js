@@ -18,7 +18,6 @@ app.childPanel = new Ext.tf.HealthPrintChildPanel({
 			}
 		}
 	},
-	title : '居民健康档案',
 	detailUrl : '/personalInfo.html',
 	queryType : 'demo',
 	recordId : 'fileNo',

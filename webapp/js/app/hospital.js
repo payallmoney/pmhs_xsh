@@ -237,7 +237,7 @@ var detail_window = new Ext.Window({
         }
     });
 
-panel2 = {
+hospitalPanel = {
     title : '住院病人管理',
     closable : true,
     width : 1000,
@@ -248,6 +248,6 @@ panel2 = {
     ]
   }
 
-  _tab = ModuleMgr.register(panel2);
+  _tab = ModuleMgr.register(hospitalPanel);
   
 }

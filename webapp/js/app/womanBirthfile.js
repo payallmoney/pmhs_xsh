@@ -1,7 +1,7 @@
 Ext.ns("app");
 
-app.childPanel = new Ext.tf.HealthPrintPanel({
-    title: '儿童健康档案管理',
+app.womanBirthfilePanel = new Ext.tf.HealthPrintPanel({
+    title: '居民健康档案',
     treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
     queryUrl : UserMenuTreeService.findWomanBirthHealthFiles,
     deleteUrl : UserMenuTreeService.removeHealthFiles,
@@ -18,7 +18,6 @@ app.childPanel = new Ext.tf.HealthPrintPanel({
       		}
       	}
       },
-      title: '居民健康档案',
       detailUrl : '/personalInfo.html',
       queryType : 'demo',
       recordId : 'fileNo',
@@ -65,4 +64,4 @@ app.childPanel = new Ext.tf.HealthPrintPanel({
        return param;
      }
 });
-ModuleMgr.register(app.childPanel);
+ModuleMgr.register(app.womanBirthfilePanel);

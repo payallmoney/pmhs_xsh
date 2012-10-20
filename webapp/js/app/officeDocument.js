@@ -103,7 +103,7 @@ var showOffice = new Ext.FormPanel({
 			+'</object>'
 });
 
-panel = new Ext.Panel({
+officeDocumentPanel = new Ext.Panel({
 	title: '行政办公',
 	width: 900,
 	closable: true,
@@ -111,4 +111,4 @@ panel = new Ext.Panel({
 	items: [trees,showOffice]
 });
 
-_tab = ModuleMgr.register(panel);
+_tab = ModuleMgr.register(officeDocumentPanel);
