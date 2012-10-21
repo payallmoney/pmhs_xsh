@@ -516,6 +516,8 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
 var navigation = new Ext.Panel({
 //	width : 1000,
 //	height : 400,
+	id : 'navigateContainerPanel',
+	title : '当前位置：',
 	bodyBorder : false,
 	html : '<div class="navigateContainer"></div>',
 	autoScroll : true
@@ -785,76 +787,88 @@ Ext.onReady(function() {
 		  var len = data.length;
 		  var lastRootCatId = '';
 		  var arrayId = [];
+		  var arraycatId = [];
 		  var $lastHtmlContent = '';
 		  var $lastTemplateId = '';
-		  for(var i = 0;i<len;){
+		  var $lastRootCatName = '';
+		  var $lastCatName = '';
+		  var $templateId = '';
+		  for(var i = 0;i<len;i++){
 			  var rootCat = data[i].rootCategory;
 			  lastRootCatId = rootCat.id;
 			  var rootCatName = rootCat.name;
-			  var cls = rootCat.clsSetting;
-			  var catItems = '<div><ul class="menu">';
+			  var catItems = '';
 			  var $htmlContent = '';
-			  var $templateId = '';
-			  for(var j = i;j<len;j++){
-				  var catParentId = data[j].category.parentId;
-				  var catName = data[j].category.name;
-				  var catId = data[j].category.id;
-				  if(catParentId == lastRootCatId){
-					  for(var k = j;k < len;k++){
-						  var mod = data[k].module;
-//						  console.log(mod);
-						  if(catId == mod.categoryId){
-							  j++;
-							  i++;
-//							  $ArrayContent.push(data[k].module);
-							  var modName = mod.name;
-							  var modId = mod.id;
-							  var url = mod.url;
-							  var modDefaultCls = '5.png';
-							  var modCls = mod.clsSetting;
-//							  console.log(modCls);
-							  if(modCls != null && modCls != ''){
-								  modDefaultCls = modCls;
+			  var num = 0;
+			  if($.inArray(lastRootCatId,arrayId) < 0){
+				  arrayId.push(lastRootCatId);
+				  for(var j = i;j<len;j++){
+					  var catParentId = data[j].category.parentId;
+					  var catId = data[j].category.id;
+					  var catName = data[j].category.name;
+					  if(catParentId == lastRootCatId && ($.inArray(catId,arraycatId) < 0)){
+						  arraycatId.push(catId);
+						  $htmlContent = '';
+						  for(var k = j;k < len;k++){
+							  var mod = data[k].module;
+							  if(catId == mod.categoryId){
+								  var modName = mod.name;
+								  var modId = mod.id;
+								  var url = mod.url;
+								  var modDefaultCls = '5.png';
+								  var modCls = mod.clsSetting;
+//								  console.log(modCls);
+								  if(modCls != null && modCls != ''){
+									  modDefaultCls = modCls;
+								  }
+								  $htmlContent = $htmlContent + modName + ',' + modId + ',' + url + ',' + modDefaultCls + ':';
 							  }
-							  $htmlContent = $htmlContent + modName + ',' + modId + ',' + url + ',' + modDefaultCls + ':';
-						  }
-						  
-					  }
-					  j--;
-					  if($.inArray(catId,arrayId) < 0){
-						  arrayId.push(catId);
-						  var catDefaultCls = 'settingsModDefault publicSettingMod';
-						  var catCls = data[j].category.clsSetting;
-						  if(catCls != null && catCls != ''){
-							  catDefaultCls = catCls;
+							  
 						  }
 						  $templateId = data[j].category.templateId;
-						  catItems = catItems + '<li class="' + catDefaultCls + '"><a class="menubar" href="#" onclick="navigateContent(\'' + 
-						  		$htmlContent + '\',\'' + $templateId + '\')">' + catName + '</a></li>';
+						  var cls = 'default_second.gif';
+						  var clscat = data[j].category.clsSetting;
+						  if(clscat != null && clscat != ''){
+							  cls = clscat;
+						  }
+						  catItems = catItems + '<div class="menu_second_div" onclick="navigateContent(\'' + 
+					  		$htmlContent + '\',\'' + $templateId + '\',\'' + rootCatName + '\',\'' + catName + '\')"><img src="../image/menu/' + 
+					  		cls + '" /><div>' + catName + '</div></div>';
 					  }
 				  }
 			  }
-			  catItems = catItems + '</ul></div>';
-			  var itemsPanel = new Ext.Panel({
-				  bodyBorder : false,
-				  html : catItems
-			  });
-			  var settings = 'settings';
-			  if(cls != null && cls != ''){
-				  settings = cls;
-			  }
-			  var isLasted = true;
-			  if(i == len){
-				  isLasted = false;
+			  if(catItems != ''){
+				  catItems = '<div class="menuContainer">' + catItems + '</div>';
+				  var itemsPanel = new Ext.Panel({
+					  bodyBorder : false,
+					  html : catItems,
+					  autoScroll : true
+				  });
+				  var settings = 'settings';
+				  var clsSetting = rootCat.clsSetting;
+				  if(clsSetting != null && clsSetting != ''){
+					  settings = clsSetting;
+				  }
 				  $lastHtmlContent = $htmlContent;
 				  $lastTemplateId = $templateId;
+				  $lastRootCatName = rootCatName;
+				  $lastCatName = catName;
+				  items[catCount] = {title : rootCatName,collapsed:true,autoScroll : true,border : false,iconCls : settings,
+						  listeners:{
+							  expand : function(){
+								  var c = $(this.body.dom.innerHTML).children('div').children('div').children('div').children('div');
+								  $(c[0]).attr('onclick')();
+//								  navigateContent($htmlContent,$templateId,rootCatName,$lastCatName);
+							  }
+						  },
+						  items : [itemsPanel]};
+//				  items[catCount].expand(function(){
+//					 alert(1); 
+//				  });
+				  catCount++;
 			  }
-			  items[catCount] = {title : rootCatName,collapsed:isLasted,autoScroll : true,border : false,iconCls : settings,
-					  items : [itemsPanel]};
-			  catCount++;
 		  }
-		  
-//		  console.log(arrayId);
+		  items[--catCount].collapsed = false;
 	  }
 //	  var items = [{title : data[0].category.name,autoScroll : true,border : false,iconCls : 'settings'}];
 //	  items[1] = {title : data[0].category.name,autoScroll : true,border : false,iconCls : 'settings'};
@@ -889,10 +903,10 @@ Ext.onReady(function() {
 		    	region : 'south',
 		    	height : 30,
 		    	frame : true,
-		    	html : '<div style="width:100%;text-align: center;"><span>XXX科技有限公司</span><span style="margin-left:10px;">版权所有©2010-2012</span></div>'
+		    	html : '<div style="width:100%;text-align: center;"><span>昆明恒辰科技有限公司</span><span style="margin-left:10px;">版权所有©2010-2012</span></div>'
 		    } ]
 		  });
-	  navigateContent($lastHtmlContent,$templateId);
+	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
   });
 }
   Ext.BLANK_IMAGE_URL = '/resources/images/default/s.gif';
@@ -988,108 +1002,12 @@ function idIsExists(id){
 	return flag;
 }
 
-function showMenu(type,val){
-	var $thisNavigate = $(val);
-	var pix = $thisNavigate.attr('coords').split(',');
-	var pos = $thisNavigate.position();
-	pos.left = pix[0];
-	pos.top = pix[1];
-    $(".navigageMenu").css({ top: pos.top - (130 + navigateContainer.scrollTop), left: pos.left - (70 + navigateContainer.scrollLeft)});
-    $('.navigageMenu').css('display','inline');
-    var $html = '';
-    if(type == 1){
-    	$html = '<a href="#" onclick="navigatorAction(\'/js/app/firstvisit.js\',\'第一次产前随访记录\')">第1次产前随访</a><br/>'+
-    		'<a href="#" onclick="navigatorAction(\'/js/app/VisitBeforeBorn.js\',\'第2至5次产前随访记录\')">第2至5次产前随访</a><br/>'+
-    		'<a href="#" onclick="navigatorAction(\'/js/app/VisitAfterBorn.js\',\'产后访视记录\')">产后访视</a><br/>'+
-    		'<a href="#" onclick="navigatorAction(\'/js/app/VisitAfterBorn42.js\',\'产后42天健康检查记录\')">产后42天健康检查</a>';
-    }else if(type == 2){
-    	$html = '<a href="#" onclick="navigatorAction(\'/js/app/useCertificate.js\',\'出生医学证明使用\')">出生医学证明使用</a><br/>' +
-    	'<a href="#" onclick="navigatorAction(\'/js/app/childfile.js\',\'儿童健康档案管理\')">儿童健康档案</a>';
-    }else if(type == 3){
-    	$html = '<a href="#" onclick="navigatorAction(\'/js/app/babyvisit.js\',\'新生儿家庭访视记录\')">新生儿家庭访视</a><br/>'+
-			'<a href="#" onclick="navigatorAction(\'/js/app/childexam1.js\',\'1岁以内儿童体检记录\')">1岁以内儿童体检</a><br/>'+
-			'<a href="#" onclick="navigatorAction(\'/js/app/childexam2.js\',\'1至2岁儿童体检记录\')">1至2岁儿童体检</a><br/>'+
-			'<a href="#" onclick="navigatorAction(\'/js/app/childexam36.js\',\'3~6岁儿童体检记录\')">3~6岁儿童体检</a>';
-    }else if(type == 4){
-    	$html = '<a href="#" onclick="navigatorAction(\'/js/app/medicalexam.js\',\'健康体检记录\')">健康体检</a><br/>'+
-		'<a href="#" onclick="navigatorAction(\'/js/app/hyp_visit.js\',\'高血压患者随访\')">高血压患者随访</a><br/>'+
-		'<a href="#" onclick="navigatorAction(\'/js/app/t2dm_visit.js\',\'2型糖尿病患者随访\')">2型糖尿病患者随访</a><br/>'+
-		'<a href="#" onclick="navigatorAction(\'/js/app/furious_visit.js\',\'重性精神疾病患者随访\')">重性精神疾病患者随访</a>';
-    }else if(type == 7){
-    	$html = '<a href="#" onclick="navigatorAction(\'/js/app/BusinessDataForPerson.js\',\'个人健康记录索引\')">个人健康记录索引</a>';
-    }else{
-    	$html = '<font color="#FFF">暂无</font>';
-    }
-    $('.formErrorContent').html($html);
-}
 
-function hideNavigageMenu(){
-	$('.navigageMenu').css('display','none');
-}
 
-//导航图
-function navigatorAction(id,title){
-//	findchildnode(this.menu_tree.getRootNode().childNodes);
-	var flag = false;
-	
-	$('li a').each(function(){
-		var treeId = $(this).attr('id');
-		treeId = treeId.substring(1,treeId.length - 1);
-//		console.log(treeId);
-		if(id == treeId)
-			flag = true;
-	});
-	if(flag){  
-//		 console.log("loading " + id);
-	     var tab = null;
-	     var items = tabPanel.find('id', id);
-	     if (items.length > 0) {
-	    	 tab = items[0];
-	     }
-	     if (tab) {
-	    	 tabPanel.setActiveTab(tab);
-	     } else {
-	    	 var autoLoad = {
-	    			 url : "/autoload.jsp?jsurl=" + id,
-	    			 scripts : true,
-	    			 nocache : true,
-	    			 border : false
-	    	 	};
-	    	 tab = new App.TabPagePanel({
-				id : id,
-				autoLoad : autoLoad,
-				title : title,
-				autoScroll : true,
-				closable : true,
-				border : false
-			});
-			var p = tabPanel.add(tab);
-			tabPanel.tabid = id;
-			tab.jscript=id;
-			tabPanel.activate(p);
-	     }
-	}else{
-		Ext.Msg.show({
-			title : '警告',
-			msg : '你没有权限访问！',
-			buttons : Ext.Msg.OK,
-			icon: Ext.MessageBox.WARNING,
-			animEl: 'elId'
-		});
-	}
-}
-
-function showError(msg){
-	Ext.Msg.show({
-		title : '错误',
-		msg : msg,
-		buttons : Ext.Msg.OK,
-		animEl: 'elId',
-		icon: Ext.MessageBox.ERROR
-	});
-}
-
-function navigateContent($htmlContent,$templateId){
+function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName){
+	console.log($templateId);
+	Ext.getCmp('navigateContainerPanel').setTitle("<font color='red'>当前位置：" +　$lastRootCatName + ' >> ' + $lastCatName + '</font>');
+//	console.log($lastRootCatName + ':' + $lastCatName);
 	tabPanel.setActiveTab(0);
 	var $ArrayContent = $htmlContent.split(':');
 	var modItems = '';
@@ -1097,14 +1015,131 @@ function navigateContent($htmlContent,$templateId){
 	if($templateId == 'fun_mod_template'){
 		flag = true;
 		modItems = '<div class="div_fun_mod_container">'+
-			'<div class="mod fun_mod_01 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_02 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_03 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_04 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_05 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_06 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_07 mod_disable"><div></div></div>'+
-			'<div class="mod fun_mod_08 mod_disable"><div></div></div>'+
+			'<div class="mod fun_mod_01 mod_disable"><img src="../image/menu/4.gif"/><div>功能维护</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_02 mod_disable"><img src="../image/menu/8.gif"/><div>功能分组维护</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_03 mod_disable"><img src="../image/menu/42.gif"/><div>角色管理</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_04 mod_disable"><img src="../image/menu/43.gif"/><div>用户管理</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_05 mod_disable"><img src="../image/menu/2.gif"/><div>行政区划维护</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_06 mod_disable"><img src="../image/menu/1.gif"/><div>组织机构维护</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_07 mod_disable"><img src="../image/menu/45.gif"/><div>出生医学证明初始化</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_08 mod_disable"><img src="../image/menu/60.gif"/><div>出生医学证明分配</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_business_child_template'){
+		flag = true;
+		modItems = '<div class="div_child_business_container div_container">'+
+			'<div class="mod child_business_01 mod_disable"><img src="../image/menu/child_business_01.gif"/><div>建册</div><div class="remarks"></div></div>'+
+			'<div class="mod child_business_02 mod_disable"><img src="../image/menu/child_business_02.gif"/><div>新生儿家庭访视</div><div class="remarks"></div></div>'+
+			'<div class="mod child_business_03 mod_disable"><img src="../image/menu/child_business_03.gif"/><div>1岁以内儿童健康体检</div><div class="remarks"></div></div>'+
+			'<div class="mod child_business_04 mod_disable"><img src="../image/menu/child_business_04.gif"/><div>1~2岁儿童健康体检</div><div class="remarks"></div></div>'+
+			'<div class="mod child_business_05 mod_disable"><img src="../image/menu/child_business_05.gif"/><div>3~6岁儿童健康体检</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_manage_child_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod child_manage_01 mod_disable"><img src="../image/menu/child_manage_01.gif"/><div>儿童档案查询</div><div class="remarks"></div></div>'+
+			'<div class="mod child_manage_02 mod_disable"><img src="../image/menu/child_manage_02.gif"/><div>高危儿童查询</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_business_female_template'){
+		flag = true;
+		modItems = '<div class="div_child_business_container div_container">'+
+			'<div class="mod female_business_01 mod_disable"><img src="../image/menu/female_business_01.gif"/><div>建册</div><div class="remarks"></div></div>'+
+			'<div class="mod female_business_02 mod_disable"><img src="../image/menu/female_business_02.gif"/><div>第1次产前随访</div><div class="remarks"></div></div>'+
+			'<div class="mod female_business_03 mod_disable"><img src="../image/menu/female_business_03.gif"/><div>第2~5次产前随访</div><div class="remarks"></div></div>'+
+			'<div class="mod female_business_04 mod_disable"><img src="../image/menu/female_business_04.gif"/><div>产后访视记录</div><div class="remarks"></div></div>'+
+			'<div class="mod female_business_05 mod_disable"><img src="../image/menu/female_business_05.gif"/><div>产后42天随访</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_manage_female_template'){
+		flag = true;
+		modItems = '<div class="div_female_manage_container div_container">'+
+			'<div class="mod female_manage_01 mod_disable"><img src="../image/menu/female_manage_01.gif"/><div>孕产妇档案查询</div><div class="remarks"></div></div>'+
+			'<div class="mod female_manage_02 mod_disable"><img src="../image/menu/female_manage_02.gif"/><div>高危孕产妇查询</div><div class="remarks"></div></div>'+
+			'<div class="mod female_manage_03 mod_disable"><img src="../image/menu/female_manage_03.gif"/><div>分娩记录</div><div class="remarks"></div></div>'+
+			'<div class="mod female_manage_04 mod_disable"><img src="../image/menu/female_manage_04.gif"/><div>终止妊娠</div><div class="remarks"></div></div>'+
+			'<div class="mod female_manage_05 mod_disable"><img src="../image/menu/female_manage_05.gif"/><div>特殊情况记录</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_birth_female_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod child_birth_01 mod_disable"><img src="../image/menu/child_birth_01.gif"/><div>出生医学证明使用</div><div class="remarks"></div></div>'+
+			'<div class="mod child_birth_02 mod_disable"><img src="../image/menu/child_birth_02.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_ill_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod child_ill_01 mod_disable"><img src="../image/menu/child_ill_01.gif"/><div>预防接种卡</div><div class="remarks"></div></div>'+
+			'<div class="mod child_ill_02 mod_disable"><img src="../image/menu/child_ill_02.gif"/><div>预防免疫程序</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_mxb_template'){
+		flag = true;
+		modItems = '<div class="div_mxb_container div_container">'+
+			'<div class="mod mxb_01 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_02 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_04 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_05 mod_disable"><img src="../image/menu/mxb_05.gif"/><div>2型糖尿病患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_06 mod_disable"><img src="../image/menu/mxb_06.gif"/><div>重性精神病患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_07 mod_disable"><img src="../image/menu/mxb_07.gif"/><div>重性精神病个人信息补充</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_crb_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod crb_01 mod_disable"><img src="../image/menu/crb_01.gif"/><div>传染病报告卡</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_statistic_template'){
+		flag = true;
+		modItems = '<div class="div_statistic_container div_container">'+
+			'<div class="mod statistic_01 mod_disable"><img src="../image/menu/statistic_01.gif"/><div>操作人员汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_02 mod_disable"><img src="../image/menu/statistic_02.gif"/><div>医疗机构汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_03 mod_disable"><img src="../image/menu/statistic_03.gif"/><div>高级查询汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_04 mod_disable"><img src="../image/menu/statistic_04.gif"/><div>按年汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_05 mod_disable"><img src="../image/menu/statistic_05.gif"/><div>按月汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_06 mod_disable"><img src="../image/menu/statistic_06.gif"/><div>按日汇总统计</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_personInfo_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod personInfo_01 mod_disable"><img src="../image/menu/personInfo_01.gif"/><div>个人健康记录索引</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_complex_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
+			'<div class="mod complex_02 mod_disable"><img src="../image/menu/complex_02.gif"/><div>高危儿童档案查询</div><div class="remarks"></div></div>'+
+			'<div class="mod complex_03 mod_disable"><img src="../image/menu/complex_03.gif"/><div>高危孕产妇档案查询</div><div class="remarks"></div></div>'+
+			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_exam_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod exam_01 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
+			'<div class="mod exam_02 mod_disable"><img src="../image/menu/exam_02.gif"/><div>老年人健康体检</div><div class="remarks"></div></div>'+
+			'<div class="mod exam_03 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_clinics_template'){
+		flag = true;
+		modItems = '<div class="div_container">'+
+			'<div class="mod clinics_01 mod_disable"><img src="../image/menu/clinics_01.gif"/><div>接诊记录</div><div class="remarks"></div></div>'+
+			'<div class="mod clinics_02 mod_disable"><img src="../image/menu/clinics_02.gif"/><div>会诊记录</div><div class="remarks"></div></div>'+
+			'<div class="mod clinics_03 mod_disable"><img src="../image/menu/clinics_03.gif"/><div>双向转诊记录</div><div class="remarks"></div></div>'+
+			'<div class="mod clinics_04 mod_disable"><img src="../image/menu/clinics_04.gif"/><div>双向转诊回转记录</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_transfer_template'){
+		flag = true;
+		modItems = '<div class="div_transfer_container div_container">'+
+			'<div class="mod transfer_01 mod_disable"><img src="../image/menu/transfer_01.gif"/><div>档案转移审核及查询</div><div class="remarks"></div></div>'+
+			'<div class="mod transfer_02 mod_disable"><img src="../image/menu/transfer_02.gif"/><div>档案提交申请查询</div><div class="remarks"></div></div>'+
+			'<div class="mod transfer_03 mod_disable"><img src="../image/menu/transfer_03.gif"/><div>档案注销查询</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_health_template'){
+		flag = true;
+		modItems = '<div class="div_health_container div_container">'+
+			'<div class="mod health_01 mod_disable"><img src="../image/menu/health_01.gif"/><div>居民健康档案</div><div class="remarks"></div></div>'+
+			'<div class="mod health_02 mod_disable"><img src="../image/menu/health_02.gif"/><div>儿童健康档案管理</div><div class="remarks"></div></div>'+
+			'<div class="mod health_03 mod_disable"><img src="../image/menu/health_03.gif"/><div>孕产妇档案管理</div><div class="remarks"></div></div>'+
+			'<div class="mod health_04 mod_disable"><img src="../image/menu/health_04.gif"/><div>老年人档案</div><div class="remarks"></div></div>'+
+			'<div class="mod health_05 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
+			'<div class="mod health_06 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod health_07 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else{
 		flag = false;
@@ -1127,20 +1162,34 @@ function navigateContent($htmlContent,$templateId){
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
 				$('.' + arrayStr[3]).removeClass('mod_disable');
-				$('.' + arrayStr[3] + ' div').html(str);
+				$('.' + arrayStr[3] + ' .remarks').html(str);
 				$('.' + arrayStr[3]).click(function(){
-					var array = $(this).children('div').html().split(',');	
+					var array = $(this).children('.remarks').html().split(',');	
 					toUrl(array[1],array[0],array[2]);
 				});
 			}
 		}
 	}
+	$('.mod').hover(function(){
+		var attr = $(this).attr('class');
+//		console.log(attr.indexOf('mod_disable'));
+		if(attr.indexOf('mod_disable') < 0){
+			var X = parseInt( $(this).css('marginLeft') ) + 10;
+			var Y = parseInt( $(this).css('marginTop') ) - 10;
+			$(this).attr('style','margin-left:' + X + 'px;margin-top:' + Y + 'px;');
+			$(this).addClass('mod_hover');
+		}
+	},function(){
+		var attr = $(this).attr('class');
+		if(attr.indexOf('mod_disable') < 0){
+			var X = parseInt( $(this).css('marginLeft') ) - 10;
+			var Y = parseInt( $(this).css('marginTop') ) + 10;
+			$(this).attr('style','margin-left:' + X + 'px;margin-top:' + Y + 'px;');
+			$(this).removeClass('mod_hover');
+		}
+	});
 //	$('.navigateContainer').html(modItems);
-//	$('.mod').hover(function(){
-//		$(this).addClass('modDivHover');
-//	},function(){
-//		$(this).removeClass('modDivHover');
-//	})
+	
 }
 
 function toUrl(modId,modName,url){

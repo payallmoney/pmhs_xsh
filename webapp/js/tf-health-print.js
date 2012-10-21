@@ -10,14 +10,14 @@ var g_FirstAid_tel = '急救电话';
 function printdata(data){
 	var msg = "";
 	for(var item in data){
-		//if(item.toLowerCase().indexOf("input")>=0)
+		//if(item.toLowerCase().indexOf("n")>=0)
 			msg = msg +item+"="+data[item]+"\n";
 	}
 	return msg;
 }
 //打印纸张设定
 var title_initTop = "0cm";
-var title_intLeft = "0cm";
+var title_intLeft = "0cm";1
 var title_intWidth = "20.8cm";
 var title_intHeight = "28cm";
 function getPrintCfg01(data,orgmap){
@@ -27,49 +27,102 @@ function getPrintCfg01(data,orgmap){
 		data: new Array()
 	}
 	var count = 0;
+	var pos = new Array();
+	pos[count++]=new Array("1.75cm","8.39cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","8.89cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","9.39cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","9.9cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","10.4cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","10.9cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","11.69cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","12.2cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","12.7cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","13.47cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","13.97cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","14.47cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","15.24cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","15.74cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","16.22cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","16.72cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","17.22cm","0.5cm","0.79cm");
+	pos[count++]=new Array("1.75cm","17.73cm","0.5cm","0.79cm");
+	pos[count++]=new Array("8.1cm","2.38cm","3.49cm","0.79cm");
+	pos[count++]=new Array("8.1cm","7.09cm","2.01cm","0.79cm");
+	pos[count++]=new Array("8.1cm","10.19cm","4cm","0.79cm");
+	pos[count++]=new Array("8.1cm","16.4cm","4cm","0.79cm");
+	pos[count++]=new Array("8.76cm","2.09cm","2.01cm","0.79cm");
+	pos[count++]=new Array("8.76cm","3.49cm","2.01cm","0.79cm");
+	pos[count++]=new Array("8.76cm","5.79cm","4cm","0.79cm");
+	pos[count++]=new Array("8.6cm","8.7cm","3.44cm","0.79cm");
+	pos[count++]=new Array("8.6cm","12.09cm","3.52cm","0.69cm");
+	pos[count++]=new Array("8.76cm","15.58cm","4cm","0.79cm");
+	pos[count++]=new Array("9.42cm","2.09cm","2.01cm","0.79cm");
+	pos[count++]=new Array("9.42cm","3.49cm","2.01cm","0.79cm");
+	pos[count++]=new Array("9.42cm","5.79cm","4cm","0.79cm");
+	pos[count++]=new Array("9.31cm","8.7cm","3.41cm","0.79cm");
+	pos[count++]=new Array("9.31cm","12.09cm","3.6cm","0.79cm");
+	pos[count++]=new Array("9.42cm","15.58cm","4cm","0.79cm");
+	pos[count++]=new Array("10.24cm","3.39cm","4cm","0.79cm");
+	pos[count++]=new Array("10.24cm","6.91cm","6.01cm","0.79cm");
+	pos[count++]=new Array("10.24cm","15cm","1.01cm","0.79cm");
+	pos[count++]=new Array("10.24cm","16.99cm","1.01cm","0.79cm");
+	pos[count++]=new Array("10.24cm","18.28cm","1.01cm","0.79cm");
+	pos[count++]=new Array("11.11cm","5.9cm","5cm","0.79cm");
+
 	var risk = data.firstVisit.highRiskRemark;
 	risk = "0"+risk.substring(0,risk.indexOf("、"));
 	risk = risk.substring(risk.length-2,2);
-	retprintcfg.data[count++] = new Array("1.75cm","8.39cm","0.5cm","0.79cm",data.file.fileNo.substr(0,1));
-	retprintcfg.data[count++] = new Array("1.75cm","8.89cm","0.5cm","0.79cm",data.file.fileNo.substr(1,1));
-	retprintcfg.data[count++] = new Array("1.75cm","9.39cm","0.5cm","0.79cm",data.file.fileNo.substr(2,1));
-	retprintcfg.data[count++] = new Array("1.75cm","9.9cm","0.5cm","0.79cm",data.file.fileNo.substr(3,1));
-	retprintcfg.data[count++] = new Array("1.75cm","10.4cm","0.5cm","0.79cm",data.file.fileNo.substr(4,1));
-	retprintcfg.data[count++] = new Array("1.75cm","10.9cm","0.5cm","0.79cm",data.file.fileNo.substr(5,1));
-	retprintcfg.data[count++] = new Array("1.75cm","11.69cm","0.5cm","0.79cm",data.file.fileNo.substr(6,1));
-	retprintcfg.data[count++] = new Array("1.75cm","12.2cm","0.5cm","0.79cm",data.file.fileNo.substr(7,1));
-	retprintcfg.data[count++] = new Array("1.75cm","12.7cm","0.5cm","0.79cm",data.file.fileNo.substr(8,1));
-	retprintcfg.data[count++] = new Array("1.75cm","13.47cm","0.5cm","0.79cm",data.file.fileNo.substr(9,1));
-	retprintcfg.data[count++] = new Array("1.75cm","13.97cm","0.5cm","0.79cm",data.file.fileNo.substr(10,1));
-	retprintcfg.data[count++] = new Array("1.75cm","14.47cm","0.5cm","0.79cm",data.file.fileNo.substr(11,1));
-	retprintcfg.data[count++] = new Array("1.75cm","15.24cm","0.5cm","0.79cm",data.file.fileNo.substr(12,1));
-	retprintcfg.data[count++] = new Array("1.75cm","15.74cm","0.5cm","0.79cm",data.file.fileNo.substr(13,1));
-	retprintcfg.data[count++] = new Array("1.75cm","16.22cm","0.5cm","0.79cm",data.file.fileNo.substr(14,1));
-	retprintcfg.data[count++] = new Array("1.75cm","16.72cm","0.5cm","0.79cm",data.file.fileNo.substr(15,1));
-	retprintcfg.data[count++] = new Array("1.75cm","17.22cm","0.5cm","0.79cm",data.file.fileNo.substr(16,1));
-	retprintcfg.data[count++] = new Array("1.75cm","17.73cm","0.5cm","0.79cm",data.file.fileNo.substr(17,1));
-	retprintcfg.data[count++] = new Array("8.1cm","2.38cm","3.49cm","0.79cm",data.file.name);
-	retprintcfg.data[count++] = new Array("8.1cm","7.09cm","2.01cm","0.79cm",parseInt(Ext.util.Format.date(new Date(),"Y"))-parseInt(Ext.util.Format.date(data.person.birthday,"Y") ));
-	retprintcfg.data[count++] = new Array("8.1cm","10.19cm","4cm","0.79cm",data.file.tel);
-	retprintcfg.data[count++] = new Array("8.1cm","16.4cm","4cm","0.79cm",g_FirstAid_tel);
-	retprintcfg.data[count++] = new Array("8.76cm","2.09cm","2.01cm","0.79cm","云南");
-	retprintcfg.data[count++] = new Array("8.76cm","3.49cm","2.01cm","0.79cm","昆明");
-	retprintcfg.data[count++] = new Array("8.76cm","5.79cm","4cm","0.79cm",orgmap.getNodeById(data.file.fileNo.substr(0,6)).text);
-	retprintcfg.data[count++] = new Array("8.6cm","8.7cm","3.44cm","0.79cm",data.file.township);
-	retprintcfg.data[count++] = new Array("8.6cm","12.09cm","3.52cm","0.69cm",data.file.village);
-	retprintcfg.data[count++] = new Array("8.76cm","15.58cm","4cm","0.79cm","无");
-	retprintcfg.data[count++] = new Array("9.42cm","2.09cm","2.01cm","0.79cm","云南");
-	retprintcfg.data[count++] = new Array("9.42cm","3.49cm","2.01cm","0.79cm","昆明");
-	retprintcfg.data[count++] = new Array("9.42cm","5.79cm","4cm","0.79cm",orgmap.getNodeById(data.file.fileNo.substr(0,6)).text);
-	retprintcfg.data[count++] = new Array("9.31cm","8.7cm","3.41cm","0.79cm",data.file.township);
-	retprintcfg.data[count++] = new Array("9.31cm","12.09cm","3.6cm","0.79cm",data.file.village);
-	retprintcfg.data[count++] = new Array("9.42cm","15.58cm","4cm","0.79cm","无");
-	retprintcfg.data[count++] = new Array("10.24cm","3.39cm","4cm","0.79cm",risk);
-	retprintcfg.data[count++] = new Array("10.24cm","6.91cm","6.01cm","0.79cm",data.org.name);
-	retprintcfg.data[count++] = new Array("10.24cm","15cm","1.01cm","0.79cm",Ext.util.Format.date(data.file.buildDate,"Y"));
-	retprintcfg.data[count++] = new Array("10.24cm","16.99cm","1.01cm","0.79cm",Ext.util.Format.date(data.file.buildDate,"m"));
-	retprintcfg.data[count++] = new Array("10.24cm","18.28cm","1.01cm","0.79cm",Ext.util.Format.date(data.file.buildDate,"d"));
-	retprintcfg.data[count++] = new Array("11.11cm","5.9cm","5cm","0.79cm",g_tel);
+	
+	var value = new Array();
+	count = 0;
+	value[count++] = data.file.fileNo.substr(0,1);
+	value[count++] = data.file.fileNo.substr(1,1);
+	value[count++] = data.file.fileNo.substr(2,1);
+	value[count++] = data.file.fileNo.substr(3,1);
+	value[count++] = data.file.fileNo.substr(4,1);
+	value[count++] = data.file.fileNo.substr(5,1);
+	value[count++] = data.file.fileNo.substr(6,1);
+	value[count++] = data.file.fileNo.substr(7,1);
+	value[count++] = data.file.fileNo.substr(8,1);
+	value[count++] = data.file.fileNo.substr(9,1);
+	value[count++] = data.file.fileNo.substr(10,1);
+	value[count++] = data.file.fileNo.substr(11,1);
+	value[count++] = data.file.fileNo.substr(12,1);
+	value[count++] = data.file.fileNo.substr(13,1);
+	value[count++] = data.file.fileNo.substr(14,1);
+	value[count++] = data.file.fileNo.substr(15,1);
+	value[count++] = data.file.fileNo.substr(16,1);
+	value[count++] = data.file.fileNo.substr(17,1);
+	value[count++] = data.file.name;
+	value[count++] = parseInt(Ext.util.Format.date(new Date(),"Y"))-parseInt(Ext.util.Format.date(data.person.birthday,"Y") );
+	value[count++] = data.file.tel;
+	value[count++] = g_FirstAid_tel;
+	value[count++] = "";
+	value[count++] = "";
+	value[count++] = "";
+	value[count++] = "";
+	value[count++] = "";
+	value[count++] = data.file.residenceAddress;
+	var orgnames = data.person.homeId.split("\n");
+	value[count++] = orgnames[0];
+	value[count++] = orgnames[1]
+	value[count++] = orgnames[2]
+	value[count++] = data.file.township;
+	value[count++] = data.file.village;
+	value[count++] = data.file.address;
+	value[count++] = risk;
+	value[count++] = data.org.name;
+	value[count++] = Ext.util.Format.date(data.file.buildDate,"Y");
+	value[count++] = Ext.util.Format.date(data.file.buildDate,"m");
+	value[count++] = Ext.util.Format.date(data.file.buildDate,"d");
+	value[count++] = g_tel;
+	
+	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
+		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
+	}
 	return retprintcfg;
 }
 
@@ -79,150 +132,199 @@ function getPrintCfg02(data,orgmap){
 		title:{intTop:title_initTop,intLeft:title_intLeft,intWidth:title_intWidth,intHeight:title_intHeight,strContent:"2、孕妇基本档案"},
 		data:new Array()
 	};
-	var i = 0 ;
-	retprintcfg.data[i++] =  new Array("17.25cm","2.2cm","0.5cm","0.6cm","√"); //国籍
-	retprintcfg.data[i++] =  new Array("17.25cm","3.2cm","0.5cm","0.6cm",""); //其他
-	retprintcfg.data[i++] =  new Array("17.25cm","5.3cm","3cm","0.6cm",""); //其他名字
-	retprintcfg.data[i++] =  new Array("17.25cm","12.4cm","3cm","0.6cm",data.person.idnumber);//身份证,护照号
-	retprintcfg.data[i++] =  new Array("18.02cm","2.9cm","3cm","0.6cm",data.person.workUnit);//工作单位
+	var pos = new Array();
+	pos[count++] =  new Array("17.25cm","2.2cm","0.5cm","0.6cm"); //国籍
+	pos[count++] =  new Array("17.25cm","3.2cm","0.5cm","0.6cm"); //其他
+	pos[count++] =  new Array("17.25cm","5.3cm","3cm","0.6cm"); //其他名字
+	pos[count++] =  new Array("17.25cm","12.4cm","3cm","0.6cm");//身份证,护照号
+	pos[count++] =  new Array("18.02cm","2.9cm","3cm","0.6cm");//工作单位
+	pos[count++] =  new Array("18.15cm","7.5cm","0.5cm","0.6cm");//户籍类别
+	pos[count++] =  new Array("18.15cm","9.1cm","0.5cm","0.6cm");//户籍类别
+	pos[count++] =  new Array("18.15cm","12.4cm","0.5cm","0.6cm");//居住地区 : 无对应字段,默认选择4.其他地区
+	pos[count++] =  new Array("18.15cm","13.7cm","0.5cm","0.6cm");
+	pos[count++] =  new Array("18.15cm","15.6cm","0.5cm","0.6cm");
+	pos[count++] =  new Array("18.15cm","17cm","0.5cm","0.6cm");
+	pos[count++] =  new Array("19cm","6.9cm","1cm","0.6cm");//卫生机构公里数 : 无对应字段
+	pos[count++] =  new Array("19cm","10.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("19cm","12cm","1cm","0.6cm");
+	pos[count++] =  new Array("18.92cm","14.1cm","1.56cm","0.6cm");//少数民族
+	pos[count++] =  new Array("20cm","3.1cm","1cm","0.6cm");
+	pos[count++] =  new Array("20cm","5.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("20cm","8cm","1cm","0.6cm");
+	pos[count++] =  new Array("20cm","10.7cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("20cm","12cm","1cm","0.6cm");
+	pos[count++] =  new Array("20.9cm","2.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("20.9cm","9.0cm","1cm","0.6cm");
+	pos[count++] =  new Array("20.9cm","12.6cm","1cm","0.6cm");
+	pos[count++] =  new Array("20.9cm","16.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.8cm","1.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.8cm","6.8cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.8cm","12.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.8cm","14.2cm","1cm","0.6cm");
+	pos[count++] =  new Array("22.5cm","3cm","2cm","0.6cm");//产后休养地-省
+	pos[count++] =  new Array("22.5cm","4.5cm","1cm","0.6cm");//市
+	pos[count++] =  new Array("22.5cm","6.9cm","1.22cm","0.6cm");//区
+	pos[count++] =  new Array("22.44cm","9.2cm","1.51cm","0.6cm");//街
+	pos[count++] =  new Array("22.44cm","12.8cm","1.85cm","0.6cm");//村
+	pos[count++] =  new Array("22.44cm","15.8cm","2.09cm","0.6cm");//门牌号
+	pos[count++] =  new Array("23.3cm","3cm","3cm","0.6cm");//丈夫姓名
+	pos[count++] =  new Array("23.3cm","6.6cm","1cm","0.6cm");//丈夫年龄
+	pos[count++] =  new Array("23.3cm","10cm","4cm","0.6cm");//丈夫联系电话
+	pos[count++] =  new Array("24.2cm","2.9cm","1cm","0.6cm");//丈夫文化程度 无字段 ,不填
+	pos[count++] =  new Array("24.2cm","5.4cm","1cm","0.6cm");//丈夫文化程度 无字段 ,不填
+	pos[count++] =  new Array("24.2cm","7.6cm","1cm","0.6cm");//丈夫文化程度 无字段 ,不填
+	pos[count++] =  new Array("24.2cm","10.3cm","1cm","0.6cm");//丈夫文化程度 无字段 ,不填
+	pos[count++] =  new Array("24.2cm","11.8cm","1cm","0.6cm");//丈夫文化程度 无字段 ,不填
+	pos[count++] =  new Array("25cm","2.2cm","1cm","0.6cm");//丈夫职业 无字段 ,不填
+	pos[count++] =  new Array("25cm","6.8cm","1cm","0.6cm");//丈夫职业 无字段 ,不填
+	pos[count++] =  new Array("25cm","10.7cm","1cm","0.6cm");//丈夫工作单位 无字段 ,不填
+	
+	var value = new Array();
+	count = 0;
+	value[count++] =  "√"; //国籍
+	value[count++] =  ""; //其他
+	value[count++] =  ""; //其他名字
+	value[count++] =  data.person.idnumber;//身份证,护照号
+	value[count++] =  data.person.workUnit;//工作单位
 	if(data.person.farmStatus==="是"){
-		retprintcfg.data[i++] =  new Array("18.15cm","7.5cm","0.5cm","0.6cm","√");//户籍类别
-		retprintcfg.data[i++] =  new Array("18.15cm","9.1cm","0.5cm","0.6cm","");//户籍类别
+		value[count++] =  "√";//户籍类别
+		value[count++] =  "";//户籍类别
 	}else{
-		retprintcfg.data[i++] =  new Array("18.15cm","7.5cm","0.5cm","0.6cm","");//户籍类别
-		retprintcfg.data[i++] =  new Array("18.15cm","9.1cm","0.5cm","0.6cm","√");//户籍类别
+		value[count++] =  "";//户籍类别
+		value[count++] =  "√";//户籍类别
 	}
-	retprintcfg.data[i++] =  new Array("18.15cm","12.4cm","0.5cm","0.6cm","");//居住地区 : 无对应字段,默认选择4.其他地区
-	retprintcfg.data[i++] =  new Array("18.15cm","13.7cm","0.5cm","0.6cm","");
-	retprintcfg.data[i++] =  new Array("18.15cm","15.6cm","0.5cm","0.6cm","");
-	retprintcfg.data[i++] =  new Array("18.15cm","17cm","0.5cm","0.6cm","√");
-	retprintcfg.data[i++] =  new Array("19cm","6.9cm","1cm","0.6cm","");//卫生机构公里数 : 无对应字段
+	value[count++] =  "";//居住地区 : 无对应字段,默认选择4.其他地区
+	value[count++] =  "";
+	value[count++] =  "";
+	value[count++] =  "√";
+	value[count++] =  "";//卫生机构公里数 : 无对应字段
 	//民族
 	if(data.person.folk==="汉族"){
-		retprintcfg.data[i++] =  new Array("19cm","10.7cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("19cm","12cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("18.92cm","14.1cm","1cm","0.6cm","");//少数民族
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";//少数民族
 	}else{
-		retprintcfg.data[i++] =  new Array("19cm","10.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("19cm","12cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("18.92cm","14.1cm","1.56cm","0.6cm",data.person.folkOther);//少数民族
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  data.person.folkOther;//少数民族
 	}
 	//文化程度
 	if(data.person.education==="文盲及半文盲" || data.person.education==="不详"){
-		retprintcfg.data[i++] =  new Array("20cm","3.1cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20cm","5.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","10.7cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.education==="小学" || data.person.education==="初中"){
-		retprintcfg.data[i++] =  new Array("20cm","3.1cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","5.7cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20cm","8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","10.7cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.education==="高中/技校/中专"){
-		retprintcfg.data[i++] =  new Array("20cm","3.1cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","5.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","8cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20cm","10.7cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
 	}else if(data.person.education==="大学专科及以上"){
-		retprintcfg.data[i++] =  new Array("20cm","3.1cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","5.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20cm","10.7cm","1cm","0.6cm","√"); 
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√"; 
 	}
-	retprintcfg.data[i++] =  new Array("20cm","12cm","1cm","0.6cm","");
+	value[count++] =  "";
 	//职业
 	if(data.person.occupation==="国家机关、党群组织、企业、事业单位负责人" ){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="专业技术人员" ){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="办事人员和有关人员"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="商业、服务业人员"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="农、林、牧、渔、水利业生产人员"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="生产、运输设备操作人员及有关人员"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else if(data.person.occupation==="军人"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  "";
 	}else if(data.person.occupation==="不便分类的其他从业人员"){
-		retprintcfg.data[i++] =  new Array("20.9cm","2.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","9.0cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("20.9cm","16.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","1.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","6.8cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","12.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.8cm","14.2cm","1cm","0.6cm","√");
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "√";
 	}
-	retprintcfg.data[i++] =  new Array("22.5cm","3cm","2cm","0.6cm","云南");//产后休养地-省
-	retprintcfg.data[i++] =  new Array("22.5cm","4.5cm","1cm","0.6cm","昆明");//市
-	retprintcfg.data[i++] =  new Array("22.5cm","6.9cm","1.22cm","0.6cm",orgmap.getNodeById(data.file.fileNo.substr(0,6)).text);//区
-	retprintcfg.data[i++] =  new Array("22.44cm","9.2cm","1.51cm","0.6cm",data.file.township);//街
-	retprintcfg.data[i++] =  new Array("22.44cm","12.8cm","1.85cm","0.6cm",data.file.village);//村
-	retprintcfg.data[i++] =  new Array("22.44cm","15.8cm","2.09cm","0.6cm","");//门牌号
-	retprintcfg.data[i++] =  new Array("23.3cm","3cm","3cm","0.6cm",data.firstVisit.husbandName);//丈夫姓名
-	retprintcfg.data[i++] =  new Array("23.3cm","6.6cm","1cm","0.6cm",data.firstVisit.husbandAge);//丈夫年龄
-	retprintcfg.data[i++] =  new Array("23.3cm","10cm","4cm","0.6cm",data.firstVisit.husbandTel);//丈夫联系电话
-	retprintcfg.data[i++] =  new Array("24.2cm","2.9cm","1cm","0.6cm","");//丈夫文化程度 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("24.2cm","5.4cm","1cm","0.6cm","");//丈夫文化程度 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("24.2cm","7.6cm","1cm","0.6cm","");//丈夫文化程度 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("24.2cm","10.3cm","1cm","0.6cm","");//丈夫文化程度 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("24.2cm","11.8cm","1cm","0.6cm","");//丈夫文化程度 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("25cm","2.2cm","1cm","0.6cm","");//丈夫职业 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("25cm","6.8cm","1cm","0.6cm","");//丈夫职业 无字段 ,不填
-	retprintcfg.data[i++] =  new Array("25cm","10.7cm","1cm","0.6cm","");//丈夫工作单位 无字段 ,不填
-	
-		/**/
+	value[count++] =  "云南";//产后休养地-省
+	value[count++] =  "昆明";//市
+	value[count++] =  orgmap.getNodeById(data.file.fileNo.substr(0,6)).text;//区
+	value[count++] =  data.file.township;//街
+	value[count++] =  data.file.village;//村
+	value[count++] =  "";//门牌号
+	value[count++] =  data.firstVisit.husbandName;//丈夫姓名
+	value[count++] =  data.firstVisit.husbandAge;//丈夫年龄
+	value[count++] =  data.firstVisit.husbandTel;//丈夫联系电话
+	value[count++] =  "";//丈夫文化程度 无字段 ,不填
+	value[count++] =  "";//丈夫文化程度 无字段 ,不填
+	value[count++] =  "";//丈夫文化程度 无字段 ,不填
+	value[count++] =  "";//丈夫文化程度 无字段 ,不填
+	value[count++] =  "";//丈夫文化程度 无字段 ,不填
+	value[count++] =  "";//丈夫职业 无字段 ,不填
+	value[count++] =  "";//丈夫职业 无字段 ,不填
+	value[count++] =  "";//丈夫工作单位 无字段 ,不填
+	for(var i = 0 ; i < count ; i++){
+		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
+	}
 	return retprintcfg;
 }
 
@@ -236,199 +338,284 @@ function getPrintCfg03(data,orgmap){
 		title:{intTop:title_initTop,intLeft:title_intLeft,intWidth:title_intWidth,intHeight:title_intHeight,strContent:"3、首次产前检查记录表第1页"},
 		data:[	]
 	};
-	var i = 0 ;
-	retprintcfg.data[i++] =  new Array("16.8cm","3cm","1.5cm","0.6cm",Ext.util.Format.date(data.firstVisit.visitDate,"Y"));//初检日期
-	retprintcfg.data[i++] =  new Array("16.8cm","4.5cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.visitDate,"m"));//初检日期
-	retprintcfg.data[i++] =  new Array("16.8cm","5.6cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.visitDate,"d"));//初检日期
-	retprintcfg.data[i++] =  new Array("16.8cm","9.4cm","1cm","0.6cm",data.firstVisit.weeks);//初检孕周
-	retprintcfg.data[i++] =  new Array("16.8cm","14.2cm","1cm","0.6cm",data.firstVisit.diastolicPressure);//基础血压
-	retprintcfg.data[i++] =  new Array("16.8cm","15.2cm","1cm","0.6cm",data.firstVisit.systolicPressure);
-	retprintcfg.data[i++] =  new Array("17.4cm","3.7cm","1cm","0.6cm",data.firstVisit.height);//孕前情况-身高
-	retprintcfg.data[i++] =  new Array("17.4cm","7.6cm","1cm","0.6cm",data.firstVisit.weight);//孕前情况-体重
-	retprintcfg.data[i++] =  new Array("17.4cm","11.1cm","1cm","0.6cm",res.toFixed(2));//孕前情况-体质指数
-	retprintcfg.data[i++] =  new Array("18.8cm","2.7cm","8cm","0.6cm","");//现病史 无对应字段
-	retprintcfg.data[i++] =  new Array("19.4cm","4.3cm","1cm","0.6cm","");//月经史-初潮年龄 无对应字段
-	retprintcfg.data[i++] =  new Array("19.4cm","6.4cm","1cm","0.6cm","");//月经史-周期 无对应字段
-	retprintcfg.data[i++] =  new Array("19.4cm","7.7cm","1cm","0.6cm","");//月经史-周期 无对应字段
-	retprintcfg.data[i++] =  new Array("19.9cm","4.2cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.lastMenses,"Y"));//末次月经年月日
-	retprintcfg.data[i++] =  new Array("19.9cm","5.6cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.lastMenses,"m"));//末次月经年月日
-	retprintcfg.data[i++] =  new Array("19.9cm","6.7cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.lastMenses,"d"));//末次月经年月日
+	var pos = new Array();
+	var count = 0 ;
+	pos[count++] =  new Array("16.8cm","3cm","1.5cm","0.6cm");//初检日期
+	pos[count++] =  new Array("16.8cm","4.5cm","1cm","0.6cm");//初检日期
+	pos[count++] =  new Array("16.8cm","5.6cm","1cm","0.6cm");//初检日期
+	pos[count++] =  new Array("16.8cm","9.4cm","1cm","0.6cm");//初检孕周
+	pos[count++] =  new Array("16.8cm","14.2cm","1cm","0.6cm");//基础血压
+	pos[count++] =  new Array("16.8cm","15.2cm","1cm","0.6cm");
+	pos[count++] =  new Array("17.4cm","3.7cm","1cm","0.6cm");//孕前情况-身高
+	pos[count++] =  new Array("17.4cm","7.6cm","1cm","0.6cm");//孕前情况-体重
+	pos[count++] =  new Array("17.4cm","11.1cm","1cm","0.6cm");//孕前情况-体质指数
+	pos[count++] =  new Array("18.8cm","2.7cm","8cm","0.6cm");//现病史 无对应字段
+	pos[count++] =  new Array("19.4cm","4.3cm","1cm","0.6cm");//月经史-初潮年龄 无对应字段
+	pos[count++] =  new Array("19.4cm","6.4cm","1cm","0.6cm");//月经史-周期 无对应字段
+	pos[count++] =  new Array("19.4cm","7.7cm","1cm","0.6cm");//月经史-周期 无对应字段
+	pos[count++] =  new Array("19.9cm","4.2cm","1cm","0.6cm");//末次月经年月日
+	pos[count++] =  new Array("19.9cm","5.6cm","1cm","0.6cm");//末次月经年月日
+	pos[count++] =  new Array("19.9cm","6.7cm","1cm","0.6cm");//末次月经年月日
 
-	retprintcfg.data[i++] =  new Array("19.9cm","10cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.edc,"Y"));//预产期年月日
-	retprintcfg.data[i++] =  new Array("19.9cm","11.4cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.edc,"m"));//预产期年月日
-	retprintcfg.data[i++] =  new Array("19.9cm","12.5cm","1cm","0.6cm",Ext.util.Format.date(data.firstVisit.edc,"d"));//预产期年月日
+	pos[count++] =  new Array("19.9cm","10cm","1cm","0.6cm");//预产期年月日
+	pos[count++] =  new Array("19.9cm","11.4cm","1cm","0.6cm");//预产期年月日
+	pos[count++] =  new Array("19.9cm","12.5cm","1cm","0.6cm");//预产期年月日
 	
-	retprintcfg.data[i++] =  new Array("20.5cm","2.3cm","1cm","0.6cm",data.firstVisit.gravidity);//孕次
-	retprintcfg.data[i++] =  new Array("20.5cm","3.9cm","1cm","0.6cm",data.firstVisit.parity+data.firstVisit.parity1);//产次
-	retprintcfg.data[i++] =  new Array("20.5cm","8.2cm","1cm","0.6cm",data.firstVisit.parity);//其中:阴道自然分娩次数
-	retprintcfg.data[i++] =  new Array("20.5cm","11.6cm","1cm","0.6cm","");//胎头吸引 无对应字段
-	retprintcfg.data[i++] =  new Array("20.5cm","14.4cm","1cm","0.6cm","");//产钳 无对应字段
-	retprintcfg.data[i++] =  new Array("20.5cm","16.9cm","1cm","0.6cm","");//臀位 无对应字段
-	retprintcfg.data[i++] =  new Array("21.1cm","3.8cm","1cm","0.6cm",data.firstVisit.parity1);//剖宫产
-	retprintcfg.data[i++] =  new Array("21.1cm","8cm","1cm","0.6cm","");//末次分娩时间 无对应字段
-	retprintcfg.data[i++] =  new Array("21.1cm","9.4cm","1cm","0.6cm","");//末次分娩时间 无对应字段
-	retprintcfg.data[i++] =  new Array("21.1cm","10.5cm","1cm","0.6cm","");//末次分娩时间 无对应字段
+	pos[count++] =  new Array("20.5cm","2.3cm","1cm","0.6cm");//孕次
+	pos[count++] =  new Array("20.5cm","3.9cm","1cm","0.6cm");//产次
+	pos[count++] =  new Array("20.5cm","8.2cm","1cm","0.6cm");//其中:阴道自然分娩次数
+	pos[count++] =  new Array("20.5cm","11.6cm","1cm","0.6cm");//胎头吸引 无对应字段
+	pos[count++] =  new Array("20.5cm","14.4cm","1cm","0.6cm");//产钳 无对应字段
+	pos[count++] =  new Array("20.5cm","16.9cm","1cm","0.6cm");//臀位 无对应字段
+	pos[count++] =  new Array("21.1cm","3.8cm","1cm","0.6cm");//剖宫产
+	pos[count++] =  new Array("21.1cm","8cm","1cm","0.6cm");//末次分娩时间 无对应字段
+	pos[count++] =  new Array("21.1cm","9.4cm","1cm","0.6cm");//末次分娩时间 无对应字段
+	pos[count++] =  new Array("21.1cm","10.5cm","1cm","0.6cm");//末次分娩时间 无对应字段
+
+	//既往史
+	pos[count++] =  new Array("21.7cm","7.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","8.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","10.4cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","12.1cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","13.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","14.9cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","15.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","17.3cm","1cm","0.6cm");
+	pos[count++] =  new Array("21.7cm","18.3cm","1cm","0.6cm");
+	
+	//家庭史
+	pos[count++] =  new Array("22.4cm","7.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("22.4cm","8.4cm","1cm","0.6cm");
+	pos[count++] =  new Array("22.4cm","10.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("22.4cm","12.6cm","1cm","0.6cm");
+	pos[count++] =  new Array("22.4cm","13.9cm","1cm","0.6cm");
+	
+	//个人史
+	pos[count++] =  new Array("23cm","7.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("23cm","8.4cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","9.5cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","10.1cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","12.3cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","15.1cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","16.8cm","1cm","0.6cm"); 
+	pos[count++] =  new Array("23cm","18cm","1cm","0.6cm"); 
+	
+	//妇产科手术史 
+	pos[count++] =  new Array("23.6cm","8.4cm","1cm","0.6cm");
+	pos[count++] =  new Array("23.6cm","9.2cm","1cm","0.6cm");
+	pos[count++] =  new Array("23.6cm","11cm","6cm","0.6cm");		
+	//输血史
+	pos[count++] =  new Array("24.3cm","7.5cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.3cm","8.4cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.3cm","10.7cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.3cm","12.2cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.3cm","13.3cm","1cm","0.6cm");
+	
+	//药物过敏史
+	pos[count++] =  new Array("24.9cm","8.2cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.9cm","9cm","1cm","0.6cm");
+	pos[count++] =  new Array("24.9cm","11.4cm","6cm","0.6cm");
+	
+	var value = new Array();
+	count = 0;
+	value[count++] =  Ext.util.Format.date(data.firstVisit.visitDate,"Y");//初检日期
+	value[count++] =  Ext.util.Format.date(data.firstVisit.visitDate,"m");//初检日期
+	value[count++] =  Ext.util.Format.date(data.firstVisit.visitDate,"d");//初检日期
+	value[count++] =  data.firstVisit.weeks;//初检孕周
+	value[count++] =  data.firstVisit.diastolicPressure;//基础血压
+	value[count++] =  data.firstVisit.systolicPressure;
+	value[count++] =  data.firstVisit.height;//孕前情况-身高
+	value[count++] =  data.firstVisit.weight;//孕前情况-体重
+	value[count++] =  res.toFixed(2);//孕前情况-体质指数
+	value[count++] =  data.firstVisit.presentIllnessHistory;//现病史 无对应字段
+	value[count++] =  data.firstVisit.menarcheAge;//月经史-初潮年龄 无对应字段
+	value[count++] =  data.firstVisit.cycleOne;//月经史-周期 无对应字段
+	value[count++] =  data.firstVisit.cycleTwo;//月经史-周期 无对应字段
+	value[count++] =  Ext.util.Format.date(data.firstVisit.lastMenses,"Y");//末次月经年月日
+	value[count++] =  Ext.util.Format.date(data.firstVisit.lastMenses,"m");//末次月经年月日
+	value[count++] =  Ext.util.Format.date(data.firstVisit.lastMenses,"d");//末次月经年月日
+
+	value[count++] =  Ext.util.Format.date(data.firstVisit.edc,"Y");//预产期年月日
+	value[count++] =  Ext.util.Format.date(data.firstVisit.edc,"m");//预产期年月日
+	value[count++] =  Ext.util.Format.date(data.firstVisit.edc,"d");//预产期年月日
+	
+	value[count++] =  data.firstVisit.gravidity;//孕次
+	value[count++] =  data.firstVisit.parity+data.firstVisit.parity1;//产次
+	value[count++] =  data.firstVisit.parity;//其中:阴道自然分娩次数
+	value[count++] =  data.firstVisit.vacuumExtraction;//胎头吸引 无对应字段
+	value[count++] =  data.firstVisit.forceps;//产钳 无对应字段
+	value[count++] =  data.firstVisit.breech;//臀位 无对应字段
+	value[count++] =  data.firstVisit.parity1;//剖宫产
+	value[count++] =  Ext.util.Format.date(data.firstVisit.endChildbirthDate,"Y");//末次分娩时间 无对应字段
+	value[count++] =  Ext.util.Format.date(data.firstVisit.endChildbirthDate,"m");//末次分娩时间 无对应字段
+	value[count++] =  Ext.util.Format.date(data.firstVisit.endChildbirthDate,"d");//末次分娩时间 无对应字段
 
 	//既往史
 	if(data.feme.femePastHistory==="无" ){
-		retprintcfg.data[i++] =  new Array("21.7cm","7.7cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("21.7cm","8.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","10.4cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","12.1cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","13.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","14.9cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","15.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","17.3cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("21.7cm","18.3cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else{
-		retprintcfg.data[i++] =  new Array("21.7cm","7.7cm","1cm","0.6cm","");
+		value[count++] =  "";
 		if(data.feme.femePastHistory.indexOf("心脏病")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","8.5cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","8.5cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("肾脏疾病")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","10.4cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","10.4cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("肝脏疾病")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","12.1cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","12.1cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("高血压")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","13.5cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","13.5cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("贫血")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","14.9cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","14.9cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("糖尿病")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","15.7cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","15.7cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femePastHistory.indexOf("其他")>=0 ){
-			retprintcfg.data[i++] =  new Array("21.7cm","17.3cm","1cm","0.6cm","√");
-			retprintcfg.data[i++] =  new Array("21.7cm","18.3cm","1cm","0.6cm",data.firstVisit.pastHistoryOther);
+			value[count++] =  "√";
+			value[count++] =  data.firstVisit.pastHistoryOther;
 		}else{
-			retprintcfg.data[i++] =  new Array("21.7cm","17.3cm","1cm","0.6cm","");
-			retprintcfg.data[i++] =  new Array("21.7cm","18.3cm","1cm","0.6cm","");
+			value[count++] =  "";
+			value[count++] =  "";
 		}
 	}
 	//家庭史
 	if(data.feme.femeFamilyHistory==="无" ){
-		retprintcfg.data[i++] =  new Array("22.4cm","7.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("22.4cm","8.4cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("22.4cm","10.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("22.4cm","12.6cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("22.4cm","13.9cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else{
-		retprintcfg.data[i++] =  new Array("22.4cm","7.5cm","1cm","0.6cm","");
+		value[count++] =  "";
 		if(data.feme.femeFamilyHistory.indexOf("遗传性疾病史")>=0 ){
-			retprintcfg.data[i++] =  new Array("22.4cm","8.4cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("22.4cm","8.4cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femeFamilyHistory.indexOf("精神疾病史")>=0 ){
-			retprintcfg.data[i++] =  new Array("22.4cm","10.7cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("22.4cm","10.7cm","1cm","0.6cm","");
+			value[count++] =  "";
 		}
 		if(data.feme.femeFamilyHistory.indexOf("其他")>=0 ){
-			retprintcfg.data[i++] =  new Array("22.4cm","12.6cm","1cm","0.6cm","√");
-			retprintcfg.data[i++] =  new Array("22.4cm","13.9cm","1cm","0.6cm",data.firstVisit.familyHistoryOther);
+			value[count++] =  "√";
+			value[count++] =  data.firstVisit.familyHistoryOther;
 		}else{
-			retprintcfg.data[i++] =  new Array("22.4cm","12.6cm","1cm","0.6cm","");
-			retprintcfg.data[i++] =  new Array("22.4cm","13.9cm","1cm","0.6cm","");
+			value[count++] =  "";
+			value[count++] =  "";
 		}
 	}
 	//个人史
 	if(data.feme.exam01==="无" ){
-		retprintcfg.data[i++] =  new Array("23cm","7.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("23cm","8.4cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","9.5cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","10.1cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","12.3cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","15.1cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","16.8cm","1cm","0.6cm",""); 
-		retprintcfg.data[i++] =  new Array("23cm","18cm","1cm","0.6cm",""); 
+		value[count++] =  "√";
+		value[count++] =  ""; 
+		value[count++] =  ""; 
+		value[count++] =  ""; 
+		value[count++] =  ""; 
+		value[count++] =  ""; 
+		value[count++] =  ""; 
+		value[count++] =  ""; 
 	}else{
-		retprintcfg.data[i++] =  new Array("23cm","7.5cm","1cm","0.6cm","");
+		value[count++] =  "";
 		if(data.feme.exam01.indexOf("吸烟")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","8.4cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","8.4cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
 		}
 		if(data.feme.exam01.indexOf("饮酒")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","9.5cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","9.5cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
 		}
 		if(data.feme.exam01.indexOf("服用药物")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","10.1cm","1cm","0.6cm","√"); 
+			value[count++] =  "√"; 
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","10.1cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
 		}
 		if(data.feme.exam01.indexOf("接触有毒有害物质")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","12.3cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","12.3cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
 		}
 		if(data.feme.exam01.indexOf("接触放射线")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","15.1cm","1cm","0.6cm","√");
+			value[count++] =  "√";
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","15.1cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
 		}
 		if(data.feme.exam01.indexOf("其他")>=0 ){
-			retprintcfg.data[i++] =  new Array("23cm","16.8cm","1cm","0.6cm","√");
-			retprintcfg.data[i++] =  new Array("23cm","18cm","1cm","0.6cm",data.firstVisit.personalHistoryOther);
+			value[count++] =  "√";
+			value[count++] =  data.firstVisit.personalHistoryOther;
 		}else{
-			retprintcfg.data[i++] =  new Array("23cm","16.8cm","1cm","0.6cm",""); 
-			retprintcfg.data[i++] =  new Array("23cm","18cm","1cm","0.6cm",""); 
+			value[count++] =  ""; 
+			value[count++] =  ""; 
 		}
 	}
 	//妇产科手术史 
 	if(data.firstVisit.opshistory==="无" ){
-		retprintcfg.data[i++] =  new Array("23.6cm","8.4cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("23.6cm","9.2cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("23.6cm","11cm","1cm","0.6cm","");		
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";		
 	}else{
-		retprintcfg.data[i++] =  new Array("23.6cm","8.4cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("23.6cm","9.2cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("23.6cm","11cm","1cm","0.6cm",data.firstVisit.opshistoryOther);
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  data.firstVisit.opshistoryOther;
 	}	
 	//输血史
 	if(data.feme.exam03==="无" ){
-		retprintcfg.data[i++] =  new Array("24.3cm","7.5cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("24.3cm","8.4cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("24.3cm","10.7cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("24.3cm","12.2cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("24.3cm","13.3cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else{
-		retprintcfg.data[i++] =  new Array("24.3cm","7.5cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("24.3cm","8.4cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("24.3cm","10.7cm","1cm","0.6cm",data.feme.exam03.substr(0,4));
-		retprintcfg.data[i++] =  new Array("24.3cm","12.2cm","1cm","0.6cm",data.feme.exam03.substr(4,2));
-		retprintcfg.data[i++] =  new Array("24.3cm","13.3cm","1cm","0.6cm",data.feme.exam03.substr(6,2));
+		value[count++] =  "";
+		value[count++] =  "√";
+		value[count++] =  data.feme.exam03.substr(0,4);
+		value[count++] =  data.feme.exam03.substr(4,2);
+		value[count++] =  data.feme.exam03.substr(6,2);
 	}	
 	//药物过敏史
 	if(data.feme.exam02==="无" ){
-		retprintcfg.data[i++] =  new Array("24.9cm","8.2cm","1cm","0.6cm","√");
-		retprintcfg.data[i++] =  new Array("24.9cm","9cm","1cm","0.6cm","");
-		retprintcfg.data[i++] =  new Array("24.9cm","11.4cm","1cm","0.6cm","");
+		value[count++] =  "√";
+		value[count++] =  "";
+		value[count++] =  "";
 	}else{
-		retprintcfg.data[i++] =  new Array("24.9cm","8.2cm","1cm","0.6cm","");		
-		retprintcfg.data[i++] =  new Array("24.9cm","9cm","1cm","0.6cm","√");		
+		value[count++] =  "";		
+		value[count++] =  "√";		
 		var allergies = data.feme.exam02;
 		if(data.person.allergiesOther.length>0){
 			allergies=allergies+","+data.person.allergiesOther;
 		}
-		retprintcfg.data[i++] =  new Array("24.9cm","11.4cm","1cm","0.6cm",allergies);		
+		value[count++] =  allergies;		
+	}
+	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
+		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
 }
@@ -545,23 +732,58 @@ function getPrintCfg04(data,orgmap){
 	
 	var value = new Array();
 	count = 0 ;
-	//避孕史 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	//避孕史 字段未填
+	if(data.person.contraceptiveHistory && data.person.contraceptiveHistory.indexOf ){
+		if(data.person.contraceptiveHistory.indexOf("外用避孕药") ){
+			value[count++] =  "√";
+		}else{
+			value[count++] = "";
+		}
+		if(data.person.contraceptiveHistory.indexOf("体外射精") ){
+			value[count++] =  "√";
+		}else{
+			value[count++] = "";
+		}
+		if(data.person.contraceptiveHistory.indexOf("安全期") ){
+			value[count++] =  "√";
+		}else{
+			value[count++] = "";
+		}
+		if(data.person.contraceptiveHistory.indexOf("安全套") ){
+			value[count++] =  "√";
+		}else{
+			value[count++] = "";
+		}
+		if(data.person.contraceptiveHistory.indexOf("避孕药") ){
+			value[count++] =  "√";
+		}else{
+			value[count++] = "";
+		}
+		if(data.person.contraceptiveHistory.indexOf("其他") ){
+			value[count++] =  "√";
+			value[count++] = data.person.contraceptiveHistoryOther;
+		}else{
+			value[count++] = "";
+			value[count++] = "";
+		}
+	}else{
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}
 	//孕产史-流产 
 	value[count++] = data.firstVisit.pregnant1;
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	//末次流产时间 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	value[count++] = "";//未次流产类型-人流
+	value[count++] = "";//未次流产类型-药流
+	value[count++] = "";//未次流产类型-自然流产
+	//末次流产时间 
+	value[count++] = Ext.util.Format.date(data.firstVisit.endAbortionDate,"Y");
+	value[count++] = Ext.util.Format.date(data.firstVisit.endAbortionDate,"m");
+	value[count++] = Ext.util.Format.date(data.firstVisit.endAbortionDate,"d");
 	//死胎,死产
 	value[count++] = data.firstVisit.pregnant2;
 	value[count++] = data.firstVisit.pregnant3;
@@ -569,34 +791,40 @@ function getPrintCfg04(data,orgmap){
 	if(data.firstVisit.pregnant4===0 ){ 
 		value[count++] = "√";
 		value[count++] = "";
-	}else{
+		//死亡时间,死亡原因
 		value[count++] = "";
-		value[count++] = "√";
-	}
-	//死亡时间,死亡原因
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	//出生缺陷儿 
-	if(data.firstVisit.pregnant5===0 ){
-		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
 		value[count++] = "";
 	}else{
-		value[count++] = "√";
 		value[count++] = "";
+		value[count++] = "√";
+		//死亡时间,死亡原因
+		value[count++] = Ext.util.Format.date(data.firstVisit.newbornDeathDate,"Y");
+		value[count++] = Ext.util.Format.date(data.firstVisit.newbornDeathDate,"m");
+		value[count++] = Ext.util.Format.date(data.firstVisit.newbornDeathDate,"d");
+		value[count++] = data.firstVisit.newbornDeathReason;
 	}
-	value[count++] = "";
 	
-	value[count++] = "";//早产 无此字段
-	value[count++] = "";//存活子女情况 无此字段
-	value[count++] = "";//存活子女情况 无此字段
-	value[count++] = "";//既往妊娠合并症及并发症 无此字段
+	//出生缺陷儿 
+	if(data.firstVisit.birthDefects==="无" ){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.firstVisit.birthDefectsName;
+	}
+	value[count++] = data.firstVisit.prematureBirth;//早产 无此字段
+	value[count++] = data.firstVisit.survivalMale;//存活子女情况 无此字段
+	value[count++] = data.firstVisit.survivalFemale;//存活子女情况 无此字段
+	value[count++] = data.firstVisit.complicationHistory;//既往妊娠合并症及并发症 无此字段
 	value[count++] = data.firstVisit.weight;//体重 
 	value[count++] = data.firstVisit.diastolicPressure;//血压
 	value[count++] = data.firstVisit.systolicPressure;//血压
 	//体格检查心率
-	value[count++] = "";
+	value[count++] = data.firstVisit.heartRate;//呼吸次数
 	if(data.firstVisit.exam01==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
@@ -607,7 +835,7 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = data.firstVisit.exam01other;
 	}
 	//呼吸
-	value[count++] = "";
+	value[count++] = data.firstVisit.breathingRate;
 	if(data.firstVisit.exam02==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
@@ -618,44 +846,44 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = data.firstVisit.exam02other;
 	}
 	//肝脏 无此字段
-	if(data.firstVisit.exam02==="未触及" ){
+	if(data.firstVisit.liver==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
 	}else{
 		value[count++] = "";
 		value[count++] = "√";
-		value[count++] = "";
+		value[count++] = data.firstVisit.liverOther;
 	}
 	//脾脏 无此字段 
-	if(data.firstVisit.exam02==="未触及" ){
+	if(data.firstVisit.spleen==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
 	}else{
 		value[count++] = "";
 		value[count++] = "√";
-		value[count++] = "";
+		value[count++] = data.firstVisit.spleenOther;
 	}
 	//乳房 无此字段 
-	if(data.firstVisit.exam02==="未见异常" ){
+	if(data.firstVisit.breast==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
 	}else{
 		value[count++] = "";
 		value[count++] = "√";
-		value[count++] = "";
+		value[count++] = data.firstVisit.breastOther;
 	}
 	//其他检查 无此字段
-	if(data.firstVisit.exam02==="未见异常" ){
+	if(data.firstVisit.otherExam==="未见异常" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
 	}else{
 		value[count++] = "";
 		value[count++] = "√";
-		value[count++] = "";
+		value[count++] = data.firstVisit.otherExamOther;
 	}
 	//妇科检查-外阴
 	if(data.firstVisit.exam03==="未见异常" ){
@@ -708,17 +936,17 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = data.firstVisit.exam07other;
 	}
 	//HIV抗体首次检测时间 exam28是检查结果,没检查时间
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"Y");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"m");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"d");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hivdetectDate,"Y");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hivdetectDate,"m");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hivdetectDate,"d");
 	//梅毒血清学检测时间 exam27是检查结果,没检查时间
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"Y");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"m");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"d");
+	value[count++] = Ext.util.Format.date(data.firstVisit.syphilisDetectDate,"Y");
+	value[count++] = Ext.util.Format.date(data.firstVisit.syphilisDetectDate,"m");
+	value[count++] = Ext.util.Format.date(data.firstVisit.syphilisDetectDate,"d");
 	//乙肝病源学检测时间 hepatitis01-hepatitis05是检查结果,没检查时间
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"Y");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"m");
-	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"d");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hepatitisBdetectDate,"Y");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hepatitisBdetectDate,"m");
+	value[count++] = Ext.util.Format.date(data.firstVisit.hepatitisBdetectDate,"d");
 	//总体评估 无诊断结果字段
 	if(data.firstVisit.evaluation==="未见异常" ){
 		value[count++] = "√";
@@ -729,7 +957,7 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = "√";
 		value[count++] = data.firstVisit.beforeBornDirectOther;
 	}
-	value[count++] = "";//诊断结果
+	value[count++] = data.firstVisit.diagnosisRemark;//诊断结果
 	//高危因素判断 无高危评分字段
 	if(data.firstVisit.highRisk==="否" ){
 		value[count++] = "√";
@@ -743,7 +971,7 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = "√";
 		value[count++] = risk;
 	}
-	value[count++] = "";
+	value[count++] = "";//高危评分 无字段
 	//保健指导 
 	if(data.feme.exam04.indexOf("个人卫生")>=0 ){
 		value[count++] = "√";
@@ -778,7 +1006,7 @@ function getPrintCfg04(data,orgmap){
 		value[count++] = "";
 	}
 	//转诊
-	if(data.firstVisit.transfer==="否" ){
+	if(data.firstVisit.transfer==="无" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
@@ -792,9 +1020,12 @@ function getPrintCfg04(data,orgmap){
 	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"Y");//下次随访时间
 	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"m");//下次随访时间
 	value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"d");//下次随访时间
-	value[count++] = "";//检查单位 无此字段
+	value[count++] = data.org.name;//检查单位 无此字段
 	value[count++] = data.firstVisit.visitDoctor;//主治医师
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -848,28 +1079,27 @@ function getPrintCfg06(data,page,row){
 	value[count++] = data.visit.exam02;//腹围
 	value[count++] = data.visit.exam07;//胎位
 	value[count++] = data.visit.exam03;//胎心(次/分)
-	value[count++] = "";//浮肿
-	value[count++] = "";//血红蛋白
+	value[count++] = data.visit.edema;//浮肿
+	value[count++] = data.visit.exam04;//血红蛋白
 	value[count++] = data.visit.exam05;//尿蛋白
 	value[count++] = data.visit.exam06;//其他辅助检查
-	//诊断
-	if(data.visit.result !=="异常"){
-		value[count++] = data.visit.result;
-	}else{
-		value[count++] = data.visit.resultOther;
-	}
+	
+	value[count++] = data.visit.diagnosisRemark;//诊断
 	value[count++] = data.beforeBornDirect+" "+data.visit.beforeBornDirectOther ;//指导	
 	value[count++] = Ext.util.Format.date(data.visit.nextVisitDate,"Y-m-d");//预约产检日期
-	value[count++] = data.org.execOrgName;//检查单位
+	value[count++] = data.org.name;//检查单位
 	value[count++] = data.visit.visitDoctor;//检查医生
 	
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
 }
 
-function getPrintCfg05(data,page,row){
+function getPrintCfg05(data,row){
 	//5.孕期特殊情况记录表的表格打印
 	var rowheight = 1.1;//行间隔高度
 	var starttop = 2+row*rowheight; 
@@ -890,6 +1120,9 @@ function getPrintCfg05(data,page,row){
 	value[count++] = "";//处理意见
 	value[count++] = "";//医生签名
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -929,7 +1162,7 @@ function getPrintCfg07(data){
 	count = 0 ;
 	var value=new Array();
 	//转诊
-	if(data.visit.transfer==="否" ){
+	if(data.visit.transfer==="无" ){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
@@ -993,11 +1226,14 @@ function getPrintCfg07(data){
 	value[count++] = "";
 	value[count++] = "";
 	//骨盆外测量(28周后) 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	value[count++] = pelvis01;
+	value[count++] = pelvis02;
+	value[count++] = pelvis03;
+	value[count++] = pelvis04;
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -1011,109 +1247,110 @@ function getPrintCfg08(data){
 	};
 	var count = 0 ;
 	var pos = new Array();
-	pos[count++] =  new Array("4cm","3cm","2cm","0.6cm");
-	pos[count++] =  new Array("4cm","4.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("4cm","5.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("4cm","6.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("4cm","7.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("4cm","10.2cm","1cm","0.6cm");
-	pos[count++] =  new Array("4.7cm","2.7cm","1cm","0.6cm");
-	pos[count++] =  new Array("4.7cm","6.5cm","1cm","0.6cm");
-	pos[count++] =  new Array("4.7cm","9.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("4.7cm","10.8cm","1cm","0.6cm");
-	pos[count++] =  new Array("4.7cm","14.4cm","1cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","3.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","5.7cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","8.9cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","10.1cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","11cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","11.9cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","14.4cm","1cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","15.8cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("5.6cm","18cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","3.6cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","4.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","5.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","6.8cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","7.8cm","1cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","11cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("6.4cm","12.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("7.2cm","3.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("7.2cm","4.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("7.2cm","6.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("7.2cm","8cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","3.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","4.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","5.7cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","7.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","7.9cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","8.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","9.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","11.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","12.1cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8cm","13.6cm","1cm","0.6cm");
-	pos[count++] =  new Array("8cm","15.6cm","1cm","0.6cm");
-	pos[count++] =  new Array("8.9cm","3.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8.9cm","4.4cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("8.9cm","6.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("8.9cm","7.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("9.6cm","3.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("9.6cm","7.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("9.6cm","12.5cm","1cm","0.6cm");
-	pos[count++] =  new Array("10.4cm","4cm","1.5cm","0.6cm");
-	pos[count++] =  new Array("10.4cm","5.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("11.2cm","4.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("11.2cm","5.4cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("11.2cm","8.3cm","5cm","0.6cm");
-	pos[count++] =  new Array("16.3cm","3.4cm","1cm","0.6cm");
-	pos[count++] =  new Array("16.3cm","5.8cm","1cm","0.6cm");
-	pos[count++] =  new Array("16.3cm","8.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("16.3cm","9.7cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("16.3cm","11cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17cm","4.7cm","1cm","0.6cm");
-	pos[count++] =  new Array("17cm","6.7cm","1cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","2.8cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","3.8cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","5.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","6.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","7.2cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","8cm","1cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","10cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","11cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("17.6cm","13.6cm","5cm","0.6cm");
-	pos[count++] =  new Array("18.3cm","3.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("18.3cm","4.4cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("18.3cm","6.3cm","4cm","0.6cm");
-	pos[count++] =  new Array("19cm","7.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("19cm","10.5cm","1cm","0.6cm");
-	pos[count++] =  new Array("19cm","11.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("19cm","12.9cm","1cm","0.6cm");
-	pos[count++] =  new Array("19cm","13.7cm","1cm","0.6cm");
-	pos[count++] =  new Array("19cm","14.8cm","1cm","0.6cm");
-	pos[count++] =  new Array("19.6cm","7.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("19.6cm","10cm","7cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","6.1cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","9cm","1cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","10.4cm","1cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","11.3cm","1cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","12.2cm","1cm","0.6cm");
-	pos[count++] =  new Array("20.2cm","13.2cm","1cm","0.6cm");
-	pos[count++] =  new Array("20.8cm","6.1cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("20.8cm","8.5cm","7cm","0.6cm");
-	pos[count++] =  new Array("21.4cm","4.5cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("21.4cm","8.6cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("21.4cm","10.9cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("21.4cm","12.9cm","0.5cm","0.6cm");
-	pos[count++] =  new Array("21.4cm","14.3cm","2cm","0.6cm");
-	pos[count++] =  new Array("22.8cm","7.5cm","4cm","0.6cm");
-	pos[count++] =  new Array("22.8cm","13.9cm","4cm","0.6cm");
-	pos[count++] =  new Array("23.4cm","7.5cm","4cm","0.6cm");
-	pos[count++] =  new Array("23.4cm","13.9cm","4cm","0.6cm");
-	pos[count++] =  new Array("24.1cm","7.5cm","4cm","0.6cm");
-	pos[count++] =  new Array("24.1cm","13.9cm","4cm","0.6cm");
-	pos[count++] =  new Array("24.7cm","8.9cm","4cm","0.6cm");
-	pos[count++] =  new Array("24.7cm","14.3cm","4cm","0.6cm");
+	pos[count++] =  new Array("4.1cm","2.94cm","2.01cm","0.61cm");
+	pos[count++] =  new Array("4.1cm","4.26cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.1cm","5.24cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.1cm","6.24cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.1cm","7.25cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.1cm","10.16cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.82cm","2.65cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.82cm","6.46cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.82cm","9.23cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.82cm","10.74cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("4.82cm","14.34cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","3.15cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","5.64cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","8.84cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","10.05cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","10.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","11.85cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","14.34cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","15.74cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("5.72cm","17.94cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","3.55cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","4.84cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","5.85cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","6.75cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","7.75cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","10.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("6.51cm","12.14cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("7.3cm","3.15cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("7.3cm","4.44cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("7.3cm","6.46cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("7.3cm","7.94cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","3.15cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","4.44cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","5.64cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","7.43cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","7.86cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","8.44cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","9.55cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","11.14cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","12.04cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","13.55cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("8.1cm","15.56cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("9cm","3.15cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("9cm","4.34cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("9cm","6.24cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("9cm","7.86cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("9.71cm","3.25cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("9.71cm","7.86cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("9.71cm","12.44cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("10.5cm","3.94cm","1.51cm","0.61cm");
+	pos[count++] =  new Array("10.5cm","5.24cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("11.3cm","4.15cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("11.3cm","5.34cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("11.3cm","8.26cm","5cm","0.61cm");
+	pos[count++] =  new Array("16.4cm","3.36cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("16.4cm","5.74cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("16.4cm","8.55cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("16.4cm","9.66cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("16.4cm","10.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.12cm","4.66cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("17.12cm","6.64cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","2.75cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","3.76cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","5.16cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","5.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","6.54cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","7.14cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","7.94cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","9.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","10.95cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("17.7cm","13.55cm","5cm","0.61cm");
+	pos[count++] =  new Array("18.42cm","3.44cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("18.42cm","4.34cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("18.42cm","6.24cm","4cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","7.54cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","10.45cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","11.85cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","12.86cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","13.65cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("19.1cm","14.74cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("19.71cm","7.54cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("19.71cm","9.95cm","7.01cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","6.06cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","8.94cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","10.35cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","11.24cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","12.14cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("20.29cm","13.15cm","1.01cm","0.61cm");
+	pos[count++] =  new Array("20.9cm","6.06cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("20.9cm","8.44cm","7.01cm","0.61cm");
+	pos[count++] =  new Array("21.51cm","4.44cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("21.51cm","8.55cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("21.51cm","10.85cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("21.51cm","12.86cm","0.5cm","0.61cm");
+	pos[count++] =  new Array("21.51cm","14.23cm","2.01cm","0.61cm");
+	pos[count++] =  new Array("22.91cm","7.43cm","4cm","0.61cm");
+	pos[count++] =  new Array("22.91cm","13.84cm","4cm","0.61cm");
+	pos[count++] =  new Array("23.5cm","7.43cm","4cm","0.61cm");
+	pos[count++] =  new Array("23.5cm","13.84cm","4cm","0.61cm");
+	pos[count++] =  new Array("24.21cm","7.43cm","4cm","0.61cm");
+	pos[count++] =  new Array("24.21cm","13.84cm","4cm","0.61cm");
+	pos[count++] =  new Array("24.82cm","8.84cm","4cm","0.61cm");
+	pos[count++] =  new Array("24.82cm","14.3cm","4cm","0.61cm");
+	
 	var value = new Array();
 	count = 0;
 	//分娩时间
@@ -1125,11 +1362,11 @@ function getPrintCfg08(data){
 	value[count++] = "";
 	value[count++] = data.birthRecord.borthWeekly;//分娩孕周	
 	//总产程 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	value[count++] = data.birthRecord.totalLaborHours;
+	value[count++] = data.birthRecord.oneLaborHours;
+	value[count++] = data.birthRecord.twoLaborHours;
+	value[count++] = data.birthRecord.twoLaborMinutes;
+	value[count++] = data.birthRecord.threeLaborMinutes;
 	//分娩方式
 	if(data.birthRecord.childbirthWay == "顺产"){
 		//1.自然分娩
@@ -1146,9 +1383,19 @@ function getPrintCfg08(data){
 		//2.手术助产
 		value[count++] = "";
 		value[count++] = "√";
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "";
+		if( data.birthRecord.childbirthWay == "胎吸" ){
+			value[count++] = "√";
+			value[count++] = "";
+			value[count++] = "";
+		}else if( data.birthRecord.childbirthWay == "产钳"){
+			value[count++] = "";
+			value[count++] = "√";
+			value[count++] = "";
+		}else{
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "√";
+		}
 		value[count++] = "";
 		value[count++] = "";
 		value[count++] = "";
@@ -1177,15 +1424,30 @@ function getPrintCfg08(data){
 		value[count++] = data.birthRecord.childbirthWay;
 	}
 	//胎盘娩出时间 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	value[count++] = Ext.util.Format.date(data.birthRecord.placentaParturitionDate,"Y");
+	value[count++] = Ext.util.Format.date(data.birthRecord.placentaParturitionDate,"m");
+	value[count++] = Ext.util.Format.date(data.birthRecord.placentaParturitionDate,"d");
+	value[count++] = Ext.util.Format.date(data.birthRecord.placentaParturitionDate,"H");
+	value[count++] = Ext.util.Format.date(data.birthRecord.placentaParturitionDate,"i");
+	if(data.birthRecord.placentaParturitionWay ==="自然"){ //娩出方式
+		value[count++] = "√";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+	}
 	//是否完整 无此字段
-	value[count++] = "";
+	if(data.birthRecord.placentaParturitionWay ==="完整"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = "";
+	}
+	value[count++] = data.birthRecord.isComplete ;
 	value[count++] = "";
 	value[count++] = "";
 	value[count++] = "";
@@ -1241,25 +1503,40 @@ function getPrintCfg08(data){
 		value[count++] = "";
 	}
 	//宫颈裂伤 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	if(data.birthRecord.cervicalLaceration=="无"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.cervicalLacerationPosition01;
+		value[count++] = data.birthRecord.cervicalLacerationPosition02;
+	}
 	//分娩出血量
-	retprintcfg.data[i++] = {"strContent":data.birthRecord.flooding,intTop:"11.2cm",intLeft:"5cm",intWidth:"2cm",intHeight:"0.8cm"}; 
+	value[count++] = data.birthRecord.flooding;
 	//产后2小时出血量 无此字段
-	value[count++] = "";
+	value[count++] = data.birthRecord.bleeding01;
 	//产后24小时出血量 无此字段
-	value[count++] = "";
+	value[count++] = data.birthRecord.bleeding02;
 	//产后2小时血压 无此字段
-	value[count++] = "";
+	value[count++] = data.birthRecord.bloodPressure;
 	value[count++] = "";
 	//产后并发症 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	
-	
+	if(data.birthRecord.comorbidity ==="无"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else if(data.birthRecord.comorbidity =="其它"){
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.comorbidityOther;
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.comorbidity;
+	}	
 	value[count++] = data.cert.weight;//新生儿-出生体重
 	value[count++] = data.cert.height;//身长
 	//性别
@@ -1277,24 +1554,54 @@ function getPrintCfg08(data){
 		value[count++] = "√";
 	}
 	//apgar评分 无此字段
-	value[count++] = "";
-	value[count++] = "";
+	value[count++] = data.birthRecord.apgar01;
+	value[count++] = data.birthRecord.apgar02;
 	//窒息 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	if(data.birthRecord.suffocation=="无"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		if(data.birthRecord.suffocationOther=="无"){
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+		}else if(data.birthRecord.suffocationOther=="I"){
+			value[count++] = "√";
+			value[count++] = "√";
+			value[count++] = "";
+		}else{
+			value[count++] = "√";
+			value[count++] = "";
+			value[count++] = "√";
+		}
+		value[count++] = data.birthRecord.suffocationOther01;
+	}
 	//产伤 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	if(data.birthRecord.birthTrauma=="无"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.birthTraumaOther;
+	}
 	//出生缺陷 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	if(data.birthRecord.birthDefects=="无"){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.birthDefectsOther;
+	}
 	//新生儿免疫接种 无此字段
 	value[count++] = "";//第1针乙肝疫苗
 	value[count++] = "";
@@ -1312,18 +1619,44 @@ function getPrintCfg08(data){
 	value[count++] = "";
 	value[count++] = "";
 	value[count++] = "";
-	//新生儿疾病筛查 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	//新生儿疾病筛查 无此字段 diseaseScreening
+	if(data.birthRecord.diseaseScreening.indexOf("先天性甲状腺功能减低症")>0){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else if(data.birthRecord.diseaseScreening.indexOf("苯丙酮尿症")>0){
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else if(data.birthRecord.diseaseScreening.indexOf("听力障碍")>0){
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else if(data.birthRecord.diseaseScreening.indexOf("其他")>0){
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.birthRecord.diseaseScreeningOther;
+	}else{
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}
 	//产妇出院诊断 无此字段
-	value[count++] = "";
+	value[count++] = data.birthRecord.dischargeDiagnosis01;
 	value[count++] = "";
 	value[count++] = "";
 	//新生儿出院诊断 无此字段
-	value[count++] = "";
+	value[count++] = data.birthRecord.dischargeDiagnosis02;
 	value[count++] = "";
 	value[count++] = "";
 	//接产单位 
@@ -1332,6 +1665,9 @@ function getPrintCfg08(data){
 	value[count++] = data.cert.widwife;
 	
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -1397,9 +1733,12 @@ function getPrintCfg10(data,rownum){
 	value[count++] = data.visit.mind;//心理状况
 	value[count++] = data.visit.other;//其他
 	value[count++] = data.afterBornDirect+" "+data.visit.afterBornDirectOther;//指导 afterBornDirect,afterBornDirectOther
-	value[count++] = data.visit.nextVisitDate;//预约时间
+	value[count++] = Ext.util.Format.date(data.visit.nextVisitDate,"Y-m-d");//预约时间
 	value[count++] = data.visit.visitDoctor;//检查医生
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -1446,6 +1785,9 @@ function getPrintCfg09(data){
 	value[count++] = "";
 	value[count++] = "";
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -1642,6 +1984,9 @@ function getPrintCfg11(data){
 	//检查医生
 	value[count++] = data.visit.visitDoctor;
 	for(var i = 0 ; i < count ; i++){
+		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
+			value[i] = "";
+		}
 		retprintcfg.data[i] = new Array(pos[i][0],pos[i][1],pos[i][2],pos[i][3],value[i]);
 	}
 	return retprintcfg;
@@ -2777,8 +3122,8 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 																	Ext.Msg.alert('提示', '请选择行数!');
 																	return;
 																}
-																var pagenum = this.pagegrid.getSelectionModel().getSelected().json[0];
-																printObj.printPreview(getPrintCfg05(this.grid.getSelectionModel().getSelected().json),-2);
+																var pagenum = parseInt(this.pagegrid.getSelectionModel().getSelected().json[0]);
+																printObj.printPreview(getPrintCfg05(this.grid.getSelectionModel().getSelected().json,pagenum),-2);
 																
 															}.createDelegate(this)
 														},

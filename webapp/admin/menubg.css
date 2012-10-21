@@ -260,14 +260,28 @@ div.mod{
 	cursor: pointer;
 	border-radius: 10px;
 	-moz-border-radius: 10px;
-	box-shadow: 5px 5px 2px #CCF5CC;
 	border : 1px solid #CCF5CC;
 	position: absolute;
 	width: 120px;
 	height: 120px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	font-size: 14px;
+	background-color: #FFF;
 }
-div.mod div{
+div.mod .remarks{
 	display : none;
+}
+div.mod img{
+	width : 80px;
+	height : 80px;
+	margin-bottom: 10px;
+	margin-top:5px;
+}
+.mod_hover{
+	z-index: 9999;
+	box-shadow: -5px 5px -2px #CCF5CC;
 }
 div.fun_mod_01{
 	margin-top: 40px;
@@ -317,4 +331,341 @@ div.div_fun_mod_container {
 	background-image: url(../image/menu/fun_mod_bg.png) !important;
 	background-repeat: no-repeat;
 }
-
+div.div_container{
+	width: 100%;
+	height : 100%;
+	/*overflow: scroll;*/
+}
+div.div_child_business_container{
+	background-image: url(../image/menu/fun_child_business_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.child_business_01{
+	margin-top: 70px;
+	margin-left: 325px;
+	width: 150px;
+}
+div.child_business_02{
+	margin-top: 265px;
+	margin-left: 40px;
+	width: 150px;
+}
+div.child_business_03{
+	margin-top: 265px;
+	margin-left: 230px;
+	width: 150px;
+}
+div.child_business_04{
+	margin-top: 265px;
+	margin-left: 415px;
+	width: 150px;
+}
+div.child_business_05{
+	margin-top: 265px;
+	margin-left: 610px;
+	width: 150px;
+}
+div.child_manage_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.child_manage_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.female_business_01{
+	margin-top: 70px;
+	margin-left: 325px;
+	width: 150px;
+}
+div.female_business_02{
+	margin-top: 265px;
+	margin-left: 40px;
+	width: 150px;
+}
+div.female_business_03{
+	margin-top: 265px;
+	margin-left: 230px;
+	width: 150px;
+}
+div.female_business_04{
+	margin-top: 265px;
+	margin-left: 415px;
+	width: 150px;
+}
+div.female_business_05{
+	margin-top: 265px;
+	margin-left: 610px;
+	width: 150px;
+}
+div.div_female_manage_container{
+	background-image: url(../image/menu/fun_female_manage_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.female_manage_01{
+	margin-top: 140px;
+	margin-left: 60px;
+	width: 150px;
+}
+div.female_manage_02{
+	margin-top: 40px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.female_manage_03{
+	margin-top: 140px;
+	margin-left: 630px;
+	width: 150px;
+}
+div.female_manage_04{
+	margin-top: 330px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.female_manage_05{
+	margin-top: 330px;
+	margin-left: 500px;
+	width: 150px;
+}
+div.child_birth_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.child_birth_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.child_ill_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.child_ill_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.div_mxb_container{
+	background-image: url(../image/menu/fun_mxb_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.mxb_01{
+	margin-top: 30px;
+	margin-left: 40px;
+	width: 150px;
+}
+div.mxb_02{
+	margin-top: 30px;
+	margin-left: 210px;
+	width: 150px;
+}
+div.mxb_03{
+	margin-top: 30px;
+	margin-left: 380px;
+	width: 150px;
+}
+div.mxb_04{
+	margin-top: 230px;
+	margin-left: 40px;
+	width: 150px;
+}
+div.mxb_05{
+	margin-top: 230px;
+	margin-left: 210px;
+	width: 150px;
+}
+div.mxb_06{
+	margin-top: 230px;
+	margin-left: 380px;
+	width: 150px;
+}
+div.mxb_07{
+	margin-top: 30px;
+	margin-left: 610px;
+	width: 190px;
+}
+div.crb_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.div_statistic_container{
+	background-image: url(../image/menu/fun_statistic_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.statistic_01{
+	margin-top: 60px;
+	margin-left: 120px;
+	width: 150px;
+}
+div.statistic_02{
+	margin-top: 60px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.statistic_03{
+	margin-top: 60px;
+	margin-left: 530px;
+	width: 150px;
+}
+div.statistic_04{
+	margin-top: 265px;
+	margin-left: 120px;
+	width: 150px;
+}
+div.statistic_05{
+	margin-top: 265px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.statistic_06{
+	margin-top: 265px;
+	margin-left: 530px;
+	width: 150px;
+}
+div.personInfo_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.complex_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.complex_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.complex_03{
+	margin-top: 20px;
+	margin-left: 375px;
+	width: 150px;
+}
+div.complex_04{
+	margin-top: 20px;
+	margin-left: 550px;
+	width: 150px;
+}
+div.exam_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.exam_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.exam_03{
+	margin-top: 20px;
+	margin-left: 375px;
+	width: 150px;
+}
+div.clinics_01{
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 150px;
+}
+div.clinics_02{
+	margin-top: 20px;
+	margin-left: 200px;
+	width: 150px;
+}
+div.clinics_03{
+	margin-top: 20px;
+	margin-left: 375px;
+	width: 150px;
+}
+div.clinics_04{
+	margin-top: 20px;
+	margin-left: 550px;
+	width: 150px;
+}
+div.div_transfer_container{
+	background-image: url(../image/menu/fun_transfer_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.transfer_01{
+	margin-top: 40px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.transfer_02{
+	margin-top: 300px;
+	margin-left: 150px;
+	width: 150px;
+}
+div.transfer_03{
+	margin-top: 300px;
+	margin-left: 500px;
+	width: 150px;
+}
+div.div_health_container{
+	background-image: url(../image/menu/fun_female_manage_bg.png) !important;
+	background-repeat: no-repeat;
+}
+div.health_01{
+	margin-top: 190px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.health_02{
+	margin-top: 80px;
+	margin-left: 60px;
+	width: 150px;
+}
+div.health_03{
+	margin-top: 40px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.health_04{
+	margin-top: 80px;
+	margin-left: 620px;
+	width: 150px;
+}
+div.health_05{
+	margin-top: 300px;
+	margin-left: 60px;
+	width: 150px;
+}
+div.health_06{
+	margin-top: 350px;
+	margin-left: 330px;
+	width: 150px;
+}
+div.health_07{
+	margin-top: 300px;
+	margin-left: 620px;
+	width: 150px;
+}
+div.menu_second_div{
+	cursor: pointer;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	border : 1px solid #CCF5CC;
+	margin:0 auto;
+	width: 100%;
+	height: 120px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	font-size: 14px;
+}
+div.menuContainer{
+	height : 100%;
+	width : 95%;
+	margin:0 auto;
+}
+div.menu_second_div img{
+	width : 80px;
+	height : 80px;
+	margin-bottom: 10px;
+	margin-top:5px;
+}
