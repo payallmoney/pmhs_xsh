@@ -515,7 +515,7 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
 
 var navigation = new Ext.Panel({
 //	width : 1000,
-//	height : 400,
+	height : 550,
 	id : 'navigateContainerPanel',
 	title : '当前位置：',
 	bodyBorder : false,
@@ -538,7 +538,7 @@ App.mainframe.MainPanel = function() {
     closable : false,
     autoScroll : true,
     items : [navigation]
-  } ]
+  	} ]
 	});
 };
 Ext.extend(App.mainframe.MainPanel, Ext.TabPanel, {
@@ -1006,6 +1006,7 @@ function idIsExists(id){
 
 function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName){
 	console.log($templateId);
+	//alert($templateId);
 	Ext.getCmp('navigateContainerPanel').setTitle("<font color='red'>当前位置：" +　$lastRootCatName + ' >> ' + $lastCatName + '</font>');
 //	console.log($lastRootCatName + ':' + $lastCatName);
 	tabPanel.setActiveTab(0);
@@ -1155,6 +1156,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		}
 		modItems = modItems + '</div>';
 	}
+	//alert(modItems)
 	$('.navigateContainer').html(modItems);
 	if(flag){
 		for(var i=0;i<$ArrayContent.length;i++){
@@ -1190,6 +1192,16 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 	});
 //	$('.navigateContainer').html(modItems);
 	
+}
+
+function showError(msg){
+	Ext.Msg.show({
+		title : '错误',
+		msg : msg,
+		buttons : Ext.Msg.OK,
+		animEl: 'elId',
+		icon: Ext.MessageBox.ERROR
+	});
 }
 
 function toUrl(modId,modName,url){

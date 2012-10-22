@@ -100,7 +100,7 @@ function getChildPrintCfg01(data,orgmap){
 }
 
 function getChildPrintCfg02(data,orgmap){
-	alert(printdata(data));
+	//alert(printdata(data));
 	//2.儿童基本档案(1-2.jpg)
 	var retprintcfg = {
 		title:{intTop:title_initTop,intLeft:title_intLeft,intWidth:title_intWidth,intHeight:title_intHeight,strContent:"2、儿童基本档案"},
@@ -2285,7 +2285,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 								}
 							}.createDelegate(this)
 						},{
-							text : '6、儿童入托儿园(所)健康检查表打印(未完成)',
+							text : '6、儿童入托儿园(所)健康检查表打印',
 							iconCls: 'c_print',
 							handler : function(){
 								var selections = this.grid.getSelections();

@@ -256,6 +256,10 @@ div.navigateContainerOther {
 	margin-right:10px;
 }
 
+div.navigateContainer {
+	height:100%;
+}
+
 div.mod{
 	cursor: pointer;
 	border-radius: 10px;

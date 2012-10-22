@@ -1226,10 +1226,10 @@ function getPrintCfg07(data){
 	value[count++] = "";
 	value[count++] = "";
 	//骨盆外测量(28周后) 无此字段
-	value[count++] = pelvis01;
-	value[count++] = pelvis02;
-	value[count++] = pelvis03;
-	value[count++] = pelvis04;
+	value[count++] = data.beforeBornDirect.pelvis01;
+	value[count++] = data.beforeBornDirect.pelvis02;
+	value[count++] = data.beforeBornDirect.pelvis03;
+	value[count++] = data.beforeBornDirect.pelvis04;
 	for(var i = 0 ; i < count ; i++){
 		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
 			value[i] = "";
@@ -1437,7 +1437,7 @@ function getPrintCfg08(data){
 		value[count++] = "√";
 	}
 	//是否完整 无此字段
-	if(data.birthRecord.placentaParturitionWay ==="完整"){
+	if(data.birthRecord.isComplete ==="完整"){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
@@ -1447,10 +1447,6 @@ function getPrintCfg08(data){
 		value[count++] = "√";
 		value[count++] = "";
 	}
-	value[count++] = data.birthRecord.isComplete ;
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
 	//会阴情况 无此字段
 	if(data.birthRecord.lacerationOfPerineum =="无"){
 		//1.完整
@@ -1620,30 +1616,38 @@ function getPrintCfg08(data){
 	value[count++] = "";
 	value[count++] = "";
 	//新生儿疾病筛查 无此字段 diseaseScreening
-	if(data.birthRecord.diseaseScreening.indexOf("先天性甲状腺功能减低症")>0){
-		value[count++] = "√";
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "";
-	}else if(data.birthRecord.diseaseScreening.indexOf("苯丙酮尿症")>0){
-		value[count++] = "";
-		value[count++] = "√";
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "";
-	}else if(data.birthRecord.diseaseScreening.indexOf("听力障碍")>0){
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "√";
-		value[count++] = "";
-		value[count++] = "";
-	}else if(data.birthRecord.diseaseScreening.indexOf("其他")>0){
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "";
-		value[count++] = "√";
-		value[count++] = data.birthRecord.diseaseScreeningOther;
+	if(data.birthRecord.diseaseScreening && data.birthRecord.diseaseScreening.indexOf){
+		if(data.birthRecord.diseaseScreening.indexOf("先天性甲状腺功能减低症")>0){
+			value[count++] = "√";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+		}else if(data.birthRecord.diseaseScreening.indexOf("苯丙酮尿症")>0){
+			value[count++] = "";
+			value[count++] = "√";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+		}else if(data.birthRecord.diseaseScreening.indexOf("听力障碍")>0){
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "√";
+			value[count++] = "";
+			value[count++] = "";
+		}else if(data.birthRecord.diseaseScreening.indexOf("其他")>0){
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "√";
+			value[count++] = data.birthRecord.diseaseScreeningOther;
+		}else{
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+			value[count++] = "";
+		}
 	}else{
 		value[count++] = "";
 		value[count++] = "";
@@ -1715,18 +1719,38 @@ function getPrintCfg10(data,rownum){
 	value[count++] = Ext.util.Format.date(data.visit.visitDate,"Y-m-d");//访视日期
 	value[count++] = data.visit.item;//产后天数
 	value[count++] = data.visit.bodyHeat;//体温
-	value[count++] = "";//脉搏次/分 无此字段
+	value[count++] = data.visit.pulseRate;//脉搏次/分 无此字段
 	value[count++] = data.visit.diastolicPressure+"/"+data.visit.systolicPressure;//血压
-	value[count++] = "";	//乳汁多  无此字段
-	value[count++] = "";	//乳汁少  无此字段
-	value[count++] = "";	//红肿有  无此字段
-	value[count++] = "";	//红肿无  无此字段
-	value[count++] = "";	//乳头皲裂有  无此字段
-	value[count++] = "";	//乳头皲裂无  无此字段
-	value[count++] = "";	//宫底高度  无此字段
-	value[count++] = "";	//伤口愈合好  无此字段
-	value[count++] = "";	//伤口愈合差  无此字段
-	value[count++] = "";	//恶露-色,量  无此字段
+	if(data.visit.milk == "多"){//乳汁多  无此字段
+		value[count++] = "√";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+	}
+	if(data.visit.swelling === "无"){//红肿有  无此字段
+		value[count++] = "√";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+	}
+	if(data.visit.nipple === "无"){//乳头皲裂有  无此字段
+		value[count++] = "√";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+	}	
+	value[count++] = data.visit.palaceHeight;	//宫底高度  无此字段
+	if(data.visit.woundHealing === "好"){//伤口愈合好  无此字段
+		value[count++] = "√";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+	}
+	value[count++] = data.visit.lochia;	//恶露-色,量  无此字段
 	value[count++] = "";	//恶露-异味-有  无此字段
 	value[count++] = "";	//恶露-异味-无  无此字段
 	value[count++] = data.visit.health; //健康情况
@@ -1768,22 +1792,58 @@ function getPrintCfg09(data){
 	pos[count++] =  new Array("11.1cm","7cm","4cm","0.6cm");
 	var value = new Array();
 	count = 0;
-	//指导内容
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	//指导内容 afterBornDirect
+	if(data.afterBornDirect.indexOf("个人卫生")>=0 ){
+		value[count++] = "√";
+	}else{
+		value[count++] = "";
+	}
+	if(data.afterBornDirect.indexOf("心理")>=0 ){
+		value[count++] = "√";
+	}else{
+		value[count++] = "";
+	}
+	if(data.afterBornDirect.indexOf("营养")>=0 ){
+		value[count++] = "√";
+	}else{
+		value[count++] = "";
+	}
+	if(data.afterBornDirect.indexOf("母乳喂养")>=0 ){
+		value[count++] = "√";
+	}else{
+		value[count++] = "";
+	}
+	if(data.afterBornDirect.indexOf("新生儿护理与喂养")>=0 ){
+		value[count++] = "√";
+	}else{
+		value[count++] = "";
+	}
+	if(data.afterBornDirect.indexOf("其他")>=0 ){
+		value[count++] = "√";
+		value[count++] = data.visit.afterBornDirectOther;
+	}else{
+		value[count++] = "";
+		value[count++] = "";
+	}
 	//转诊
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	alert(data.afterBornDirect.transfer)
+	if(data.afterBornDirect.transfer==="无" ){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.afterBornDirect.transReason;
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = data.afterBornDirect.transUnit;//建议转入机构及科室
+	}
 	for(var i = 0 ; i < count ; i++){
 		if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
 			value[i] = "";
@@ -1862,9 +1922,9 @@ function getPrintCfg11(data){
 	value[count++] = Ext.util.Format.date(data.visit.visitDate,"m");
 	value[count++] = Ext.util.Format.date(data.visit.visitDate,"d");
 	//产后天数 无此字段
-	value[count++] = "";
+	value[count++] = data.visit.postnatalDays;
 	//体重 无此字段
-	value[count++] = "";
+	value[count++] = data.visit.weight;
 	//血压
 	value[count++] = data.visit.diastolicPressure;
 	value[count++] = data.visit.systolicPressure;
@@ -1906,14 +1966,26 @@ function getPrintCfg11(data){
 		value[count++] = "√";
 		value[count++] = data.visit.metraOther;
 	}
-	//宫颈   无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	//宫颈   无此字段cervix
+	if(data.visit.cervix==="未见异常" ){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.visit.cervixOther;
+	}
 	//附件 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	if(data.visit.attachment==="未见异常" ){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.visit.attachmentOther;
+	}
 	//伤口 
 	if(data.visit.wound==="未见异常" ){
 		value[count++] = "√";
@@ -1924,10 +1996,16 @@ function getPrintCfg11(data){
 		value[count++] = "√";
 		value[count++] = data.visit.woundOther;
 	}
-	//外阴 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
+	//外阴 无此字段 vulva
+	if(data.visit.vulva==="未见异常" ){
+		value[count++] = "√";
+		value[count++] = "";
+		value[count++] = "";
+	}else{
+		value[count++] = "";
+		value[count++] = "√";
+		value[count++] = data.visit.vulvaOther;
+	}
 	//其他
 	value[count++] = data.visit.other;
 	//分类
@@ -1968,19 +2046,23 @@ function getPrintCfg11(data){
 		value[count++] = "√";
 		value[count++] = "";
 		value[count++] = "";
+		//转诊日期 无此字段
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
 	}else{
 		value[count++] = "";
 		value[count++] = "√";
 		value[count++] = data.visit.transReason;
+		//转诊日期 无此字段
+		value[count++] = "";
+		value[count++] = "";
+		value[count++] = "";
 	}
-	//转诊日期 无此字段
-	value[count++] = "";
-	value[count++] = "";
-	value[count++] = "";
 	//建议转入机构及科室
 	value[count++] = data.visit.transUnit;
 	//检查单位
-	value[count++] = data.org.execOrgName;
+	value[count++] = data.org.name;
 	//检查医生
 	value[count++] = data.visit.visitDoctor;
 	for(var i = 0 ; i < count ; i++){
