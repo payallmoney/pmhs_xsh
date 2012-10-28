@@ -470,6 +470,9 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 				// closeAction : 'hide',
 				modal : true,
 				autoHeight : true,
+				close : function() {
+					this.hide();
+				},
 				// autoWidth : true,
 				width : 300,
 				items : [ this.editForm ]
