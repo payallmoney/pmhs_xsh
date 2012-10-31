@@ -17,7 +17,7 @@ function printdata(data){
 }
 //打印纸张设定
 var title_initTop = "0cm";
-var title_intLeft = "0cm";1
+var title_intLeft = "0cm";
 var title_intWidth = "20.8cm";
 var title_intHeight = "28cm";
 function getPrintCfg01(data,orgmap){

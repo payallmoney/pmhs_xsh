@@ -57,7 +57,8 @@ var cfg = [ {
 	    setting : {
 	        ds : "190",
 	        newlineStep : 10
-	    }
+	    },
+	    required : [true, "项目"] 
 	}, {
 		  id : "visitDate",
 		  xtype : "input",
@@ -68,7 +69,8 @@ var cfg = [ {
 		    size : 10,
 		    blurFun : true,
 			fillField : ['textarea','fileNo span',['earlyDirect','dietDirect','protectDirect']]
-		  }
+		  },
+		  required : [true, "随访日期"] 
 	}, {
 		  id : "weight",
 		  xtype : "input",

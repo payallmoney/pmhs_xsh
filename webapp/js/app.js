@@ -97,20 +97,34 @@ var allDisabled = false;
             });
            metaCodes = metaCodes.concat(codes);
         });
-
-        if (metaCodes.length > 0){
-            MetaProvider.get(metaCodes, {callback:function(data){
-                meta = data;
-                console.log(metaCodes);
-                go();
-            }, errorHandler:function(errorString, exception) {
-                    hideDialog();
-                    showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
-            }});
-        } else {
-        	meta = [];
-        	go();
-        }
+        //注释掉,meta改为使用全局变量
+//        if (metaCodes.length > 0){
+//        	meta = G_ALL_CODE;
+//            MetaProvider.get(metaCodes, {callback:function(data){
+//                meta = data;
+//                console.log(metaCodes);
+//                go();
+//            }, errorHandler:function(errorString, exception) {
+//                    hideDialog();
+//                    showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
+//            }});
+//        } else {
+//        	meta = [];
+//        	go();
+//        }
+	      if (metaCodes.length > 0){
+	    	MetaProvider.getAll( {callback:function(data){
+	            meta = data;
+	            console.log(metaCodes);
+	            go();
+	        }, errorHandler:function(errorString, exception) {
+	                hideDialog();
+	                showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
+	        }});
+	    } else {
+	    	meta = [];
+	    	go();
+	    }
 
         
         function showDialog(msg, clickToClose){

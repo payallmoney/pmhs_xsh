@@ -6,21 +6,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.cache.EhCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import com.googlecode.ehcache.annotations.Cacheable;
+
 import cn.net.tongfang.framework.security.vo.BasicInformation;
+import cn.net.tongfang.web.util.CacheUtil;
 
 public class MetaServiceImpl extends HibernateDaoSupport implements MetaService {
 	private static final Logger log = Logger.getLogger(MetaServiceImpl.class);
+	
+	private CacheManager ehCacheManager;
+	
+	public CacheManager getEhCacheManager() {
+		return ehCacheManager;
+	}
+
+	public void setEhCacheManager(CacheManager ehCacheManager) {
+		this.ehCacheManager = ehCacheManager;
+	}
 
 	@Override
 	public Map<Integer, List<BasicInformation>> get(final List<Integer> code) {
-
 		final String hql = "select p from BasicInformation p where p.type in (:codes) and isMain = 0 order by type, number";
 		Map<Integer, List<BasicInformation>> resMap = null;
 		List<BasicInformation> res = (List<BasicInformation>) getHibernateTemplate()
@@ -47,6 +65,33 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 			info.add(i);
 		}
 		return resMap;
+	}
+	
+	@Override
+	public Map<Integer, List<BasicInformation>> getAll() {
+//		String key = "cod_baseinfo";
+//		if(CacheUtil.hasCache(key)){
+//			Map<Integer, List<BasicInformation>> value = (Map<Integer, List<BasicInformation>>)CacheUtil.getCache(key);
+//			System.out.println("22222222222222222222222222222222222222");
+//			return value;
+//		}else{
+			final String hql = "select p from BasicInformation p where isMain = 0 order by type, number";
+			Map<Integer, List<BasicInformation>> resMap = null;
+			List<BasicInformation> res = getSession().createQuery(hql).list();
+			resMap = new HashMap<Integer, List<BasicInformation>>();
+			for (BasicInformation i : res) {
+				int type = i.getType();
+				List<BasicInformation> info = resMap.get(type);
+				if (info == null) {
+					info = new ArrayList<BasicInformation>();
+					resMap.put(type, info);
+				}
+				info.add(i);
+			}
+//			CacheUtil.putCache(key, resMap);
+//			System.out.println("3333333333333333333333333333");
+			return resMap;
+//		}
 	}
 	
 	public boolean isInputPerson(String id,String tableName){

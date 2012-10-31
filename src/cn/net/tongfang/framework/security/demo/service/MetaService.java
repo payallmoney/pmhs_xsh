@@ -7,6 +7,6 @@ import cn.net.tongfang.framework.security.vo.BasicInformation;
 
 public interface MetaService {
 	Map<Integer, List<BasicInformation>> get(List<Integer> code);
-	
+	Map<Integer, List<BasicInformation>> getAll();
 	boolean isInputPerson(String id,String tableName);
 }

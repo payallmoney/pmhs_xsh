@@ -1,8 +1,181 @@
-    var loadTriggerParameters = ["fileNo"];
+function printdata(data){
+	var msg = "";
+	for(var item in data){
+		//if(item.toLowerCase().indexOf("n")>=0)
+			//alert(msg +item+"===="+data[item]+"\n");
+			msg = msg +item+"="+data[item]+"\n";
+	}
+	return msg;
+}
+
+
+function getContext(obj){
+	var html = "";
+	if(typeof (obj) != "function"){
+    	if( typeof (obj)=="object"){
+    		for(var item in obj){
+    			if(obj.hasOwnProperty(item)){
+    				html = html+getContext(obj[item]);
+    			}
+    		}
+    	}else{
+    		html = obj;
+    	}
+	}
+	return html;
+}
+var personal_colsMaps = {};
+
+function changedata(index){
+	//alert(index+"==="+personal_colsMaps.datas[""+index]+"==="+personal_colsMaps.item.url)
+	if(personal_colsMaps.datas[""+index]){
+		setLabelVal(personal_colsMaps.datas[""+index],personal_colsMaps.pre);
+	}else{
+		var func = eval(personal_colsMaps.item.url);
+		//alert(personal_colsMaps.item.idlist[index].trim())
+		func({id:personal_colsMaps.item.idlist[index].trim()},{callback : function (data){
+			personal_colsMaps.datas[""+index] = data;
+			//alert(printdata(data));
+			setLabelVal(data,personal_colsMaps.pre);
+		}});
+	}
+	return true;
+}
+function setLabelVal(data,pre) {
+	var listcols = personal_colsMaps.listcols;
+	var datecols = personal_colsMaps.datecols;
+	//设置值
+    for(var prop in data) {
+    	var c = $("#"+pre+prop);
+    	if(c && c.html){
+	        if(listcols[prop] && data[prop] !=null && data[prop] !=undefined) { 
+	        	//处理列表list类型
+	            var index = listcols[prop].ds;
+	            var map = getData(index);
+	            var valuecol;
+	            valuecol = "number";
+	            if(data[prop][0] && typeof(data[prop][0]) == "object"){
+	            	if(listcols[prop].id){
+	            		valuecol = listcols[prop].id;
+	            	}else{
+	            		valuecol = 0;
+	            	}
+	            }
+	            if(map){
+	            	var _len = map.length - 1;
+	                var spans = $.map(map, function(v, i){
+	                    var number, label;
+	                    if ($.isArray(v)){
+	                    	number = v[0];
+	                        label = v[1];
+	                    } else {
+	                        number = v["number"];
+	                        label = v["name"];
+	                    }
+	                    if(label == undefined || label == "undefined"){
+	                    	label ="";
+	                    }
+	                    var flag = false;
+	                    if(typeof(data[prop])=="string"){
+	                    	flag = (data[prop].indexOf(label)>=0);
+	                    }else if(typeof(data[prop])=="boolean"){
+	                    	//alert(printdata(v)+"==="+data[prop]+"\n====="+typeof(v["number"]));
+	                    	if(v["number"] == 1 && !data[prop]){
+	                    		flag = true;
+	                    	}if(v["number"] == 2 && data[prop]){
+	                    		flag = true;
+	                    	}
+	                    }else{
+		                    for(var i = 0 ; i <data[prop].length ;i ++){
+		                    	if(v["id"] == data[prop][i][valuecol]){
+		                    		flag = true;
+		                    		break;
+		                    	}
+		                    }
+	                    }
+	                    if(flag){
+	                    	return "<span><em class='list-selected'>" + number + ". </em><em class='list-label'>" + label + "</em></span>"  ;
+	                    }else{
+	                    	return "<span><em>" + number + ". </em><em class='list-label'>" + label + "</em></span>" ;
+	                    }
+	                }).join("");
+	                c.html(spans+"&nbsp;");
+	                $("span ->em").addClass("spanAlign");
+	            }
+	        }else if (datecols[prop] && data[prop]){
+	        	//处理时间类型
+	        	 c.html(Ext.util.Format.date(data[prop],"Y-m-d"));
+	        	 c.addClass("readcontext");
+	        }else if(typeof(data[prop]) == "object"){
+	        }else if(typeof(data[prop]) != "function"){
+	        	//处理简单的字符串或数字类型
+	        	 c.html(data[prop]);
+	        	 c.addClass("readcontext");
+	        }
+    	}
+    } //for
+}
+	var loadTriggerParameters = ["fileNo"];
     var services = {
         get : PersonalInfoService.get,
         save : PersonalInfoService.save
     };
+    //增加标签页
+    var queryjson = parseParams(window.location.search);
+    
+    PersonalInfoService.getExamInfo(queryjson,function(data){
+    	if(data.length > 0){
+    		for(var i=0 ;i <data.length;i++){
+	    		var item = data[i]
+	    		$.ajax({
+	    			url: data[i].htmlurl,
+	    			error : function(req,stat,error) {
+					    alert(error);
+					},
+					scope:item,
+					success: function(htmldata,stat) {
+						var regexp = /[i|I][d|D]\s*=\s*['|"](\w+)['|"]/g;
+						htmldata = htmldata.replace(regexp,"id='"+this.scope.tablename+"_$1'")
+						htmldata = htmldata.substr(htmldata.indexOf("\n"));
+						$(".panes").append(htmldata);
+						$(".tabs").append("<li><a href=\"#\">"+this.scope.name+"("+this.scope.idlist.length+"次)"+"</a></li>");
+						$("ul.tabs").tabs("div.panes > div", {api:true});
+						for(var i = 0 ; i <this.scope.idlist.length ;i ++){
+							if(i==0){
+								$("#"+this.scope.tablename+"_id_tabcount").append("<input name='"+this.scope.tablename+"_radio' type='radio' onclick='return changedata("+i+");' checked>第"+(i+1)+"次检查记录");
+							}else{
+								$("#"+this.scope.tablename+"_id_tabcount").append("<input name='"+this.scope.tablename+"_radio'  type='radio' onclick='return changedata("+i+");'>第"+(i+1)+"次检查记录");
+							}
+						}
+						var listcols = this.scope.listcol.split(";");
+						var listMap = new Array();
+						for(var i = 0; i <listcols.length ;i++){
+							var colparam = listcols[i].split(",");
+							listMap[colparam[0]]={ds:colparam[1],id:colparam[2]};
+						}
+						var datecols = this.scope.datetypecol.split(";");
+						var datemap = new Array();
+						for(var i = 0; i <datecols.length ;i++){
+							datemap[datecols[i]]=true;
+						}
+						personal_colsMaps = {"datecols":datemap,"listcols":listMap,
+								"pre":this.scope.tablename+"_",
+								"datas":{},
+								"item":this.scope}
+						var func = eval(this.scope.url);
+						func({id:this.scope.idlist[0].trim()},{callback : function (data){
+							setLabelVal(data,personal_colsMaps.pre);
+							personal_colsMaps.datas["0"] = data;
+						}});
+                    }, 
+                    errorHandler : function(errStr, e){
+						hideDialog();
+						showDialog('系统发生异常(加载应用数据过程中)<br/>' + errStr, true);
+					}
+                });
+			}
+    	}
+    });
     
     var cfg = [
         {

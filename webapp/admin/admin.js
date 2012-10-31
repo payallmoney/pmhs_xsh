@@ -1142,6 +1142,17 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod health_06 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_07 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 		'</div>';
+	}else if($templateId == 'fun_msm_template'){
+		flag = true;
+		modItems = '<div class="div_health_container div_container">'+
+			'<div class="mod sms_01 mod_disable"><img src="../image/menu/sms_01.gif"/><div>电话提取规则</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_02 mod_disable"><img src="../image/menu/sms_02.gif"/><div>短信发送规则</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.gif"/><div>居民联系电话维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.gif"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.gif"/><div>短信发布</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.gif"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.gif"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+		'</div>';
 	}else{
 		flag = false;
 		var modItems = '<div class="navigateContainerOther">';

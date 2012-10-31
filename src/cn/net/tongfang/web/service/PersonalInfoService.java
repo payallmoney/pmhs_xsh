@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -14,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.CodExamlist;
 import cn.net.tongfang.framework.security.vo.Doctors;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
@@ -294,5 +297,37 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public String getHeadPicture(){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		return OnlineTakePhotoService.get(user.getUsername());
+	}
+	
+	
+	
+	/**
+	 * 得到人员的检查信息
+	 */
+	public List getExamInfo(PersonalInfoFBO bo){
+		String fileNo = EncryptionUtils.encry(bo.getFileNo());
+		List ret = new ArrayList();
+		List<CodExamlist> list = getSession().createQuery("from CodExamlist order by ord").list();
+		for(CodExamlist cod : list){
+			String sql = "select id from "+cod.getTablename()+" where fileNo = '"+fileNo+"' order by "+cod.getDatecol();
+			if(cod.getHascount()){
+				sql +=","+cod.getCountcol();
+			}
+			System.out.println("=="+sql);
+			Map vo = new HashMap();
+			List<String> queryRet = getSession().createQuery(sql).list();
+			if(queryRet.size()>0){
+				vo.put("size", queryRet.size());
+				vo.put("url", cod.getQueryMethod());
+				vo.put("name", cod.getExamname());
+				vo.put("idlist", queryRet);
+				vo.put("datetypecol",cod.getDatetypecol());
+				vo.put("tablename",cod.getTablename());
+				vo.put("listcol",cod.getListcol());
+				vo.put("htmlurl", cod.getHtml());
+				ret.add(vo);
+			}
+		}
+		return ret;
 	}
 }

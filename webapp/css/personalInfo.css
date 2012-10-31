@@ -46,3 +46,20 @@ font {
 #hospId{
 	width: 150px;
 }
+
+.readcontext{
+	background-color:#ffffff;
+	height:100%;
+	vertical-align:baseline;
+}
+.spanAlign{
+	vertical-align:baseline;
+}
+
+span {
+	vertical-align:baseline;
+}
+
+em{
+	vertical-align:baseline;
+}

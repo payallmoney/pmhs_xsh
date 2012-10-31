@@ -21,9 +21,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				maxlen : 20,
-				size : 10,
-				readonly : true,
-				showOnly : true
+				size : 10
 			}
 		},
 		{
