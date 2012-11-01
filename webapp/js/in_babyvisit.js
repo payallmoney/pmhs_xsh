@@ -79,7 +79,7 @@
             	showOnly : true,
                 readonly : true,
                 size : 15
-            },
+            }
           },
         {
             id : "sex",

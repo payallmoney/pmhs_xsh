@@ -61,7 +61,7 @@ var cfg = [ {
 	setting : {
 		showOnly : true,
 		readonly : true
-	},
+	}
 }, {
 	id : "sex",
 	xtype : "input",
@@ -191,7 +191,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		size : 10,
-		format : 'int',
+		format : 'int'
 	}
 }, {
 	id : "yieldNumber",

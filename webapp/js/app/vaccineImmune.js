@@ -74,6 +74,6 @@ app.VaccineImmnuePanel = new Ext.tf.VaccineImmnuePanel({
 					return v.vbuildCardDate.format('Y-m-d');
 			}
 		}
-	}],
+	}]
 });
 _tab = ModuleMgr.register(app.VaccineImmnuePanel);

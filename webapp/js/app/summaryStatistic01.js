@@ -53,7 +53,7 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		"header" : "组织机构",
 		"dataIndex" : "orgName",
 		"id" : "orgName",
-		locked : true,
+		locked : true
 	}, {
 		"header" : "操作员",
 		"dataIndex" : "userName",

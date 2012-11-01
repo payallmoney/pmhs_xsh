@@ -24,7 +24,7 @@ app.hypVisitPanel = new Ext.tf.HealthPanel({
                     {name:'visitDate', mapping: 'hyp.visitDate'},
                     {name:'nextVistDate', mapping: 'hyp.nextVistDate'},
                     {name:'visitDoctor', mapping: 'hyp.visitDoctor'},
-                    {name:'username', mapping: 'samTaxempcode.username'},
+                    {name:'username', mapping: 'samTaxempcode.username'}
                    ],
     gridCmConfig :
                    [

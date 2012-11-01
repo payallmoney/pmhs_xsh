@@ -36,7 +36,7 @@ Ext.tf.DiseaseAndHearPanel = Ext.extend(Ext.Panel, {
 			var cond = {
 				district : this.currentNode.id,
 				filterKey : filterKey,
-				filterValue : filterValue,
+				filterValue : filterValue
 			};
 			return cond;
 		}

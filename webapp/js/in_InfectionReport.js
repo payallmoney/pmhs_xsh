@@ -53,7 +53,7 @@
             xtype : "list",
             setting : {
                 ds : "111",
-                newlineStep : 3,
+                newlineStep : 3
             }
         },
         {

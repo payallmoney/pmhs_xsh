@@ -228,7 +228,7 @@ Ext.tf.HighRiskPanel = Ext.extend(Ext.Panel, {
 								Component.createLabel('LDateRangeSepTitle','LDateRangeSepTitle', 300,33, '至'),
 								Component.createDatefield('endDate' + this.panelId,'endDate' + this.panelId, 310, 30,'Y-m-d', 100, null),
 								Component.createLabel('LPageFileNoTitle','LPageFileNoTitle',410, 33, '纸质档案编号'),
-								Component.createTextfield('a.paperFileNo' + this.panelId,'a.paperFileNo' + this.panelId, 480,30, 100),],580, 60),
+								Component.createTextfield('a.paperFileNo' + this.panelId,'a.paperFileNo' + this.panelId, 480,30, 100)],580, 60),
 								Component.createFieldset('womanHighRiskSearchObj','womanHighRiskSearchObj',610,0,'查询对象',
 							    [Component.createCheckBox('currentManagePerson' + this.panelId,'currentManagePerson' + this.panelId,0,0,'在管人员',true,0,null),
 							     Component.createCheckBox('outComePerson' + this.panelId,'outComePerson' + this.panelId,0,30,'转归人员',false,0,null)],70,60)]

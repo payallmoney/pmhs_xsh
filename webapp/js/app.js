@@ -115,7 +115,7 @@ var allDisabled = false;
 	      if (metaCodes.length > 0){
 	    	MetaProvider.getAll( {callback:function(data){
 	            meta = data;
-	            console.log(metaCodes);
+//	            console.log(metaCodes);
 	            go();
 	        }, errorHandler:function(errorString, exception) {
 	                hideDialog();
@@ -183,7 +183,7 @@ var allDisabled = false;
             saving = true;
             if ($.isFunction(services.save)){
                 console.log("sending data");
-                console.log(send);
+//                console.log(send);
                 showDialog("<li>正在提交数据...</li>");
                 services.save(send,{ callback :function(d){  
                     if ( typeof sendMessage == 'function' ) {
@@ -245,7 +245,7 @@ var allDisabled = false;
                     saving = false;
                     hideDialog();
                     showDialog("系统发生异常<br/> " + errorString, true);
-                    console.error(exception);
+//                    console.error(exception);
                 }});
             } else {
                 $.ajax({
@@ -351,16 +351,16 @@ var allDisabled = false;
                             });
                             var i = 0;
                             var j = 0;
-                            console.log(r);
+//                            console.log(r);
                             if (eq){
                                 $.each(r.fields, function(_,v){
-                                	console.log(v + ':+++' + j);
+//                                	console.log(v + ':+++' + j);
                                 	j = j + 1;
                                     form_fields[v].enable(true);
                                 });
                             } else {
                                 $.each(r.fields, function(_,v){
-                                	console.log(v + '---:' + i);
+//                                	console.log(v + '---:' + i);
                                 	i = i + 1;
                                     form_fields[v].disable(true);
                                     form_fields[v].val('');
@@ -435,9 +435,9 @@ var allDisabled = false;
 //                test = shouldLoad;
                 if (shouldLoad) {
                     //要从server端加载数据
-                    showMsg("加载数据中..");
+                    showMsg("加载数据中.."+window.location.search);
                     services.get(qo, { callback : function(data){
-                        console.log(data);
+//                        console.log(data);
                         dataLoaded = data;
                         setFormVal(dataLoaded);
                         
@@ -456,7 +456,7 @@ var allDisabled = false;
                         }
                     }, errorHandler : function(errStr, e){
 						hideDialog();
-						showDialog("系统发生异常(加载应用数据过程中)<br/>" + errStr, true);
+						showDialog("系统发生异常(app.js加载应用数据过程中)<br/>"+window.location.search + errStr, true);
 					}}); 
                 } else {
                     //不需从server端加载，直接set
@@ -523,7 +523,7 @@ var allDisabled = false;
                         //alert(key +"====="+val+"==="+typeof(val));
                     }
                 });
-                console.log(model);
+//                console.log(model);
 
                 var r = $.map(required, function(v){
                     var id = v.id;
@@ -568,7 +568,7 @@ var allDisabled = false;
 
                 var updateMode = false;
                 if (!isEmpty(dataLoaded)){
-                    console.log("dataLoaded is not empty");
+//                    console.log("dataLoaded is not empty");
                     //合并加载的数据(浅拷贝, 防止array中的主键也被保留，如果list需要update, 可以考虑深拷贝)
                      send = $.extend(false, {}, dataLoaded, model);
                      updateMode = true;
@@ -598,9 +598,9 @@ var allDisabled = false;
             }
 
             $(document).keyup(function(e){
-                    console.log("body got key" + e.which);
+//                    console.log("body got key" + e.which);
                     if (e.which == 13 && (e.altKey || e.ctrlKey)) {
-                        console.log("submit");
+//                        console.log("submit");
                         save();
                     } else if (e.ctrlKey) {
                     //tab移动
@@ -676,7 +676,7 @@ function parseParams(url){
 var quitAfterSave = false;
 $(function(){
 	var json = parseParams(window.location.search);
-	console.log(json);
+//	console.log(json);
 	if(json.isNext != undefined){
 		isNextUrl = true;
 	}

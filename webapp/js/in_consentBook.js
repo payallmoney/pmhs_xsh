@@ -50,8 +50,8 @@ var cfg = [ {
 	id : "hospitalNumber",
 	xtype : "input",
 	setting : {
-		size : 20,
-	},
+		size : 20
+	}
 }, {
 	id : "agreeConsentItems",
 	xtype : "list",

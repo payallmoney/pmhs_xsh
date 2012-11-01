@@ -66,7 +66,7 @@ var cfg = [
 			setting : {
 				showOnly : true,
 				readonly : true
-			},
+			}
 		},
 		{
 			id : "childbirthYear",

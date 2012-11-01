@@ -55,46 +55,46 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		size : 20
-	},
+	}
 }, {
 	id : "serialNumber",
 	xtype : "input",
 	setting : {
 		size : 20
-	},
+	}
 }, {
 	id : "babyName",
 	xtype : "input",
 	setting : {
 		size : 20
-	},
+	}
 }, {
 	id : "babySex",
 	xtype : "input",
 	setting : {
 		size : 20
-	},
+	}
 }, {
 	id : "babyBirthday",
 	xtype : "input",
 	setting : {
 		size : 20,
 		format : 'date'
-	},
+	}
 }, {
 	id : "examDate",
 	xtype : "input",
 	setting : {
 		size : 20,
 		format : 'date'
-	},
+	}
 }, {
 	id : "reviewExamDate",
 	xtype : "input",
 	setting : {
 		size : 20,
 		format : 'date'
-	},
+	}
 }, {
 	id : "examWay",
 	xtype : "list",

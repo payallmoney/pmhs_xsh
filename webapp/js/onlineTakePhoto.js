@@ -42,7 +42,7 @@ Ext.onReady(function(){
 					});
 					win.close();
 				}
-			}],
+			}]
 			
 		});
 		win.show(this);

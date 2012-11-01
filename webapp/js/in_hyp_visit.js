@@ -49,7 +49,7 @@
             setting : {
             	showOnly : true,
                 readonly : true
-            },
+            }
           },
         {
             id : "visitDate",

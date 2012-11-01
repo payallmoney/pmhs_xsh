@@ -1466,7 +1466,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 												var rowsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
 												var rowcm = new Ext.grid.ColumnModel([ 
 														rowsm, 
-														{header:"列数",dataIndex:"name"}, 
+														{header:"列数",dataIndex:"name"}
 														]); 
 												rowstore.loadData(this.rowdata1);
 												this.rowgrid = new Ext.grid.GridPanel({ 
@@ -1492,7 +1492,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"页数",dataIndex:"name"}, 
+														{header:"页数",dataIndex:"name"}
 														]); 
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 
@@ -1778,7 +1778,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 														var rowsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
 														var rowcm = new Ext.grid.ColumnModel([ 
 																rowsm, 
-																{header:"列数",dataIndex:"name"}, 
+																{header:"列数",dataIndex:"name"}
 																]); 
 														rowstore.loadData(this.rowdata1);
 														this.rowgrid = new Ext.grid.GridPanel({ 
@@ -1804,7 +1804,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 																singleSelect:true});
 														var pagecm = new Ext.grid.ColumnModel([ 
 																pagesm, 
-																{header:"页数",dataIndex:"name"}, 
+																{header:"页数",dataIndex:"name"}
 																]); 
 														pagestore.loadData(pagedata);
 														this.pagegrid = new Ext.grid.GridPanel({ 
@@ -2109,7 +2109,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 														var rowsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
 														var rowcm = new Ext.grid.ColumnModel([ 
 																rowsm, 
-																{header:"列数",dataIndex:"name"}, 
+																{header:"列数",dataIndex:"name"} 
 																]); 
 														rowstore.loadData(this.rowdata1);
 														this.rowgrid = new Ext.grid.GridPanel({ 
@@ -2135,7 +2135,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 																singleSelect:true});
 														var pagecm = new Ext.grid.ColumnModel([ 
 																pagesm, 
-																{header:"页数",dataIndex:"name"}, 
+																{header:"页数",dataIndex:"name"} 
 																]); 
 														pagestore.loadData(pagedata);
 														this.pagegrid = new Ext.grid.GridPanel({ 
@@ -2426,7 +2426,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"页数",dataIndex:"name"}, 
+														{header:"页数",dataIndex:"name"} 
 														]); 
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 
@@ -2696,7 +2696,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 																singleSelect:true});
 														var pagecm = new Ext.grid.ColumnModel([ 
 																pagesm, 
-																{header:"页数",dataIndex:"name"}, 
+																{header:"页数",dataIndex:"name"}
 																]); 
 														pagestore.loadData(pagedata);
 														this.pagegrid = new Ext.grid.GridPanel({ 

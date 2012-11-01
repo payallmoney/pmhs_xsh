@@ -133,7 +133,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
             if (!fd) {
                 fd = Ext.DomHelper.append(Ext.getBody(), { tag: 'form', method: 'post', id: 'frmDummy', action: 'exportexcel.jsp', target: '_blank', name: 'frmDummy', cls: 'x-hidden', cn: [
                     { tag: 'input', name: 'exportContent', id: 'exportContent', type: 'hidden' },
-                    { tag: 'input', name: 'fileName', id: 'fileName', type: 'hidden' },
+                    { tag: 'input', name: 'fileName', id: 'fileName', type: 'hidden' }
                 ]
                 }, true);
             }

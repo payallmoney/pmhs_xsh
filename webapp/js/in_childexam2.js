@@ -51,7 +51,7 @@
             setting : {
             	showOnly : true,
                 readonly : true
-            },
+            }
           },
         {   //检查年龄
             id : "checkItem",

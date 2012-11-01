@@ -51,7 +51,7 @@
             setting : {
             	showOnly : true,
                 readonly : true
-            },
+            }
           },
         {
             id : "guardianName",

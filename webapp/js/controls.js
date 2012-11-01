@@ -146,9 +146,9 @@ function hideHUD($t, includeError){
                 $("td", v).each(function(idx, td){
                     if (idx != setting.displayCols.length) { //todo optimise
                         var colCfg = setting.colSettings ? setting.colSettings[idx] : {}; //todo bad!!
-                        console.log(setting.colXtypes[idx]);
-                        console.log(colCfg);
-                        console.log($(td));
+//                        console.log(setting.colXtypes[idx]);
+//                        console.log(colCfg);
+//                        console.log($(td));
                         var ctrl = med.buildControl(setting.colXtypes[idx], colCfg, $(td), "");
                         if(params){
                         	for(var name in params){
@@ -673,7 +673,7 @@ function hideHUD($t, includeError){
             	}
             	
             	$('#' + fieldName + ' input').keyup(function(e){
-            		console.log(e);
+//            		console.log(e);
             		var xPosition;
             		var yPosition;
             		if($.browser.msie && ($.browser.version == "6.0" || $.browser.version == "7.0")){
@@ -1601,9 +1601,9 @@ function hideHUD($t, includeError){
                 if(newval == 1 && setting.controlShow == 0){
                 	var flag = true;
                 	var isSelected = self.parent('div');
-                	console.log(isSelected);
+//                	console.log(isSelected);
                		isSelected.children('span').each(function(){
-               			console.log($(this));
+//               			console.log($(this));
                			if($(this).hasClass('list-selected'))
                				flag = false;
                		});
@@ -1868,7 +1868,7 @@ function hideHUD($t, includeError){
                 		val = formatDate(v);
                 	}else{
                 		if(v != null && v != ''){
-                			console.log(v);
+//                			console.log(v);
                 			var year = v.substring(0,4);
                 			var month = v.substring(4,6);
                 			var day = v.substring(6,8);

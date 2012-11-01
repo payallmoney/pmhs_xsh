@@ -413,7 +413,7 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 							// alert(dwr.util.toDescriptiveString(params, 2));
 							// alert(this.queryUrl +"eeeee");
 							var o = this.queryForm.getForm().getValues(false);
-							console.log(o);
+							//console.log(o);
 							if (!params.limit)
 								params.limit = this.pageSize;
 							params[dataProxy.loadArgsKey] = [ o, params ];
@@ -457,7 +457,7 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 							formBean.isDetail = true;
 						}
 					}
-					console.log(formBean);
+					//console.log(formBean);
 					this.editUrl(formBean, function() {
 						Ext.MessageBox.alert("提示", "保存成功！");
 						this.editWin.hide();
@@ -507,7 +507,7 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 
 			Ext.tf.SimplePanel.superclass.initComponent.call(this);
 		} catch (e) {
-			console.log(e);
+			//console.log(e);
 			throw e;
 		}
 	},
@@ -542,7 +542,7 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 						selections[i].get("id");
 						ids[i] = selections[i].get("id");
 					} catch (e) {
-						console.log(e);
+//						//console.log(e);
 					}
 				}
 				this.deleteUrl(ids.join(","), function() {
@@ -740,7 +740,7 @@ Ext.tf.SimpleReportPanel = Ext.extend(Ext.Panel, {
 			Ext.tf.SimplePanel.superclass.initComponent.call(this);
 
 		} catch (e) {
-			console.log(e);
+			//console.log(e);
 			throw e;
 		}
 	},
@@ -862,7 +862,7 @@ Ext.tf.WorkQueryPanel = Ext.extend(Ext.Panel, {
 
 			Ext.tf.SimplePanel.superclass.initComponent.call(this);
 		} catch (e) {
-			console.log(e);
+			//console.log(e);
 			throw e;
 		}
 	},

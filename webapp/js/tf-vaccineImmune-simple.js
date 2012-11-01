@@ -598,7 +598,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 							'<tr><td>身份证号</td><td>' + records.get('idnumber') + '</td></tr>' + 
 							'<tr><td>现住址</td><td>' + records.get('address') + '</td></tr>' + 
 							'<tr><td>户籍住址</td><td>' + records.get('residenceAddress') + '</td></tr>' + 
-						'</tbody>'
+						'</tbody>'+
 					'</table>';
 			    	
 			    	var win = new Ext.Window({

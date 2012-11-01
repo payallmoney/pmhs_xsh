@@ -2499,7 +2499,7 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"页数",dataIndex:"name"}, 
+														{header:"页数",dataIndex:"name"}
 														]); 
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 
@@ -2778,7 +2778,7 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 														var rowsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
 														var rowcm = new Ext.grid.ColumnModel([ 
 																rowsm, 
-																{header:"行数",dataIndex:"name"}, 
+																{header:"行数",dataIndex:"name"}
 																]); 
 														rowstore.loadData(this.rowdata1);
 														this.rowgrid = new Ext.grid.GridPanel({ 
@@ -2814,7 +2814,7 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 																});
 														var pagecm = new Ext.grid.ColumnModel([ 
 																pagesm, 
-																{header:"页数",dataIndex:"name"}, 
+																{header:"页数",dataIndex:"name"} 
 																]); 
 														pagestore.loadData(pagedata);
 														this.pagegrid = new Ext.grid.GridPanel({ 
@@ -3120,7 +3120,7 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"行数",dataIndex:"name"}, 
+														{header:"行数",dataIndex:"name"}
 														]); 
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 
@@ -3363,8 +3363,8 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"页数",dataIndex:"name"}, 
-														]); 
+														{header:"页数",dataIndex:"name"}
+														]);
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 
 													cm:pagecm, 
@@ -3621,7 +3621,7 @@ Ext.tf.HealthPrintPanel = Ext.extend(Ext.Panel, {
 														singleSelect:true});
 												var pagecm = new Ext.grid.ColumnModel([ 
 														pagesm, 
-														{header:"行数",dataIndex:"name"}, 
+														{header:"行数",dataIndex:"name"}
 														]); 
 												pagestore.loadData(pagedata);
 												this.pagegrid = new Ext.grid.GridPanel({ 

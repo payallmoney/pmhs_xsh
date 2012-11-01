@@ -57,7 +57,7 @@ var cfg = [ {
 		showOnly : true,
 		readonly : true,
 		size : 15
-	},
+	}
 }, {
 	id : "dbabyHospital",
 	xtype : "input",

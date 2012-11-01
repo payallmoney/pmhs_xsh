@@ -49,7 +49,7 @@ var cfg = [ {
         setting : {
         	showOnly : true,
             readonly : true
-        },
+        }
       },{
 		// 检查年龄
 	    id : "checkItem",
@@ -371,7 +371,7 @@ var cfg = [ {
     	xtype : 'input',
     	setting : {
     		size : 5
-    	},
+    	}
     	
     },{//皮肤
     	id : 'skins',
