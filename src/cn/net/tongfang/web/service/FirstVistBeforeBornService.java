@@ -29,11 +29,11 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));		
 //		PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("From PersonalInfo Where fileNo = ?", data.getFileNo()).get(0);
 //		person.setBornStatus("是");
-		GravidityKey gravidityKey = new GravidityKey();
-		gravidityKey.setFileNo(data.getFileNo());
-		gravidityKey.setCurrentGravidity(data.getGravidity());
+//		GravidityKey gravidityKey = new GravidityKey();
+//		gravidityKey.setFileNo(data.getFileNo());
+//		gravidityKey.setCurrentGravidity(data.getGravidity());
 //		getHibernateTemplate().save(person);		
-		getHibernateTemplate().save(gravidityKey);		
+//		getHibernateTemplate().save(gravidityKey);		
 		
 		if(data.getHighRisk().equals("是")){
 			womanRocordService.save(data.getFileNo(), data.getVisitDate(), data.getHighRiskRemark(), 1);

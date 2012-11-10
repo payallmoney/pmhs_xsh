@@ -157,5 +157,8 @@
         <property name="lochia02" type="java.lang.String">
             <column name="Lochia02" />
         </property>
+        <property name="foreignId" type="java.lang.String">
+            <column name="ForeignId" length="36" />
+        </property> 
     </class>
 </hibernate-mapping>

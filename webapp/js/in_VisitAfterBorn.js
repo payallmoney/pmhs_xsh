@@ -270,7 +270,7 @@ var cfg = [ {
  * "高危筛选", maxlen : 30, size : 14, isFocus : true, serviceType : 1, isSpecial :
  * true } },
  */
-{
+/*{
 	id : "parities",
 	xtype : "input",
 	setting : {
@@ -279,7 +279,7 @@ var cfg = [ {
 	},
 	required : [ true, "产次" ]
 
-},{
+},*/{
 	id : "pulseRate",
 	xtype : "input",
 	setting : {
@@ -315,4 +315,7 @@ var cfg = [ {
 	setting : {
 		ds : "2002"
 	}
+}, {
+	id : "foreignId",
+	xtype : "input"
 } ];

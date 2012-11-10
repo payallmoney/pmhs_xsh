@@ -660,7 +660,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<HealthFile> findHealthFilesEnableBuild(HealthFileQry qryCond,
 			PagingParam pp) {
 		List params = new ArrayList();
-		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder().append(" and b.sex = '女' and DateDiff(Year,b.birthday,GETDATE()) >= 10 and b.bornStatus != '是' "));
+		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder().append(" and b.sex = '女' and DateDiff(Year,b.birthday,GETDATE()) >= 10 And a.fileNo not in(Select Distinct fileNo From HealthFileMaternal Where isClosed = '0' )"));
 		return queryHealthFiles(pp, params, hql);
 	}
 	

@@ -79,7 +79,7 @@
 </head>
 <body>
 	<div style="display: none;" class="isWomanRecord">1</div>
-	<div style="display: none;" class="type">FirstVistBeforeBorn</div>
+	<!-- <div style="display: none;" class="type">FirstVistBeforeBorn</div>-->
 	<div class="outerContainer">
 		<div class="showToolbar"></div>
 		<button class="firstVisitPrint img woman i_print"
@@ -112,7 +112,7 @@
 						</td>
 						<td colspan="2"><span id="districtNumber" class="tf_inline"></span><span
 							id="fileNo" class="tf_inline"></span></td>
-						<td></td>
+						<td><span id="foreignId" style="display: none;">${name}</span></td>
 					</tr>
 					<tr>
 						<td><span class="tf_inline" style="margin-left: 50px">条形码</span>
@@ -204,7 +204,7 @@
 						<td colspan="2">
 							1.流产<span id="pregnant1"></span>次
 						</td>
-						<td class="header">未次流产（人流、药流、自然流产）时间</td>
+						<td class="header">未次流产（人流、<br/>药流、自然流产）时间</td>
 						<td colspan="2" id="endAbortionDate"></td>
 					</tr>
 					<tr>
@@ -288,7 +288,7 @@
 							id="exam07other"></span></td>
 					</tr>
 					<tr>
-						<td class="header" rowspan="15">辅助检查</td>
+						<td class="header" rowspan="16">辅助检查</td>
 						<td>血常规</td>
 						<td colspan="4">血红蛋白值<span id="exam08"></span>g/L <br />
 							白细胞计数值<span id="exam09"></span>×10<sup>9</sup>/L 血小板计数值<span

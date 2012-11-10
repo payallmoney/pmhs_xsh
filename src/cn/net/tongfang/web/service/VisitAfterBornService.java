@@ -28,7 +28,7 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 	public String save(VisitAfterBornBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		if(data.getId() == null){
-			if(sysInfo.checkWomanMedicalExamIsInput(data.getFileNo(),data.getItem(),data.getRecordType(),data.getParities())){
+			if(sysInfo.checkWomanMedicalExam(data.getFileNo()) == null){
 				String msg = "";
 				if(data.getRecordType().equals("0"))
 					msg = "产后访视记录";
@@ -42,17 +42,18 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 		if(data.getRecordType().equals("1")){
 			PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("From PersonalInfo Where fileNo = ?", data.getFileNo()).get(0);
 			person.setBornStatus("否");
-			person.setHomeId("曾经");
+//			person.setHomeId("曾经");
 			getHibernateTemplate().update(person);
 			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().find("From HealthFileMaternal Where fileNo = ? And isClosed = '0' ", data.getFileNo()).get(0);
 			maternal.setIsClosed("1");
+			maternal.setClosedDate(data.getVisitDate());
 			getHibernateTemplate().update(maternal);
 			
-			List list = getHibernateTemplate().find("From GravidityKey Where fileNo = ?", data.getFileNo());
-			if(list.size() > 0){
-				GravidityKey gravidityKey = (GravidityKey)list.get(0);
-				getHibernateTemplate().delete(gravidityKey);
-			}
+//			List list = getHibernateTemplate().find("From GravidityKey Where fileNo = ?", data.getFileNo());
+//			if(list.size() > 0){
+//				GravidityKey gravidityKey = (GravidityKey)list.get(0);
+//				getHibernateTemplate().delete(gravidityKey);
+//			}
 		}
 		WomanLastMedicalExamRecord records = womanRocordService.getObj(data.getFileNo());
 		if(records != null && records.getType().equals(1)){

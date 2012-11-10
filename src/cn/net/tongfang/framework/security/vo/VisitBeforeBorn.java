@@ -48,7 +48,7 @@ public class VisitBeforeBorn implements java.io.Serializable {
 	private Integer pelvis02;
 	private Integer pelvis03;
 	private Integer pelvis04;
-
+	private String foreignId;
 	// Constructors
 
 	/** default constructor */
@@ -75,7 +75,7 @@ public class VisitBeforeBorn implements java.io.Serializable {
 			String highRiskSearch, Integer gravidity, String edema,
 			String diagnosisRemark, String bornBirthAddressPlan,
 			Integer pelvis01, Integer pelvis02, Integer pelvis03,
-			Integer pelvis04) {
+			Integer pelvis04,String foreignId) {
 		super();
 		this.id = id;
 		this.fileNo = fileNo;
@@ -115,6 +115,7 @@ public class VisitBeforeBorn implements java.io.Serializable {
 		this.pelvis02 = pelvis02;
 		this.pelvis03 = pelvis03;
 		this.pelvis04 = pelvis04;
+		this.foreignId = foreignId;
 	}
 
 	// Property accessors
@@ -421,6 +422,14 @@ public class VisitBeforeBorn implements java.io.Serializable {
 
 	public void setPelvis04(Integer pelvis04) {
 		this.pelvis04 = pelvis04;
+	}
+
+	public String getForeignId() {
+		return foreignId;
+	}
+
+	public void setForeignId(String foreignId) {
+		this.foreignId = foreignId;
 	}
 
 }

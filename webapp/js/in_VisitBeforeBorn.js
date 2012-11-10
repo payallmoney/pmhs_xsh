@@ -244,7 +244,8 @@ var cfg = [ {
 		serviceType : 1,
 		isSpecial : true
 	}
-}, {
+}
+/*, {
 	id : "gravidity",
 	xtype : "input",
 	setting : {
@@ -256,7 +257,8 @@ var cfg = [ {
 		}
 	},
 	required : [ true, "孕次" ]
-}, {
+}
+*/, {
 	id : "edema",
 	xtype : "input"
 }, {
@@ -295,4 +297,7 @@ var cfg = [ {
 	setting : {
 		format : "num"
 	}
+}, {
+	id : "foreignId",
+	xtype : "input"
 } ];

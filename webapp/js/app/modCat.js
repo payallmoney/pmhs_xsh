@@ -78,7 +78,11 @@ app.modMgrPanel = new Ext.tf.SimplePanel({
 		xtype : 'numberfield'
 	}, {
 		fieldLabel : 'clsSetting',
-		name : 'cls',
+		name : 'clsSetting',
+		xtype : 'hidden'
+	}, {
+		fieldLabel : 'templateId',
+		name : 'templateId',
 		xtype : 'hidden'
 	} ],
 
@@ -100,6 +104,12 @@ app.modMgrPanel = new Ext.tf.SimplePanel({
 	}, {
 		name : 'isDetail',
 		mapping : 'isDetail'
+	},{
+		name : 'clsSetting',
+		mapping : 'clsSetting'
+	},{
+		name : 'templateId',
+		mapping : 'templateId'
 	} ],
 
 	gridCm : [ {

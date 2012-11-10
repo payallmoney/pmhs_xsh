@@ -41,10 +41,7 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 		}
 		
 		if(sysInfo.checkWomanMedicalExam(data.getFileNo()) == null){
-			GravidityKey gravidityKey = new GravidityKey();
-			gravidityKey.setFileNo(data.getFileNo());
-			gravidityKey.setCurrentGravidity(data.getGravidity());
-			getHibernateTemplate().save(gravidityKey);
+			throw new RuntimeException("请先建立孕产妇保健手册。");
 		}
 		
 		if(data.getHighRisk().equals("是")){

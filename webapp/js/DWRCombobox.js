@@ -25,6 +25,7 @@ Ext.tf.DWRCombo = Ext.extend(Ext.form.ComboBox, {
 	displayField : 'name',
 	valueField : 'id',
 	extraParam : undefined,
+	whereParam : undefined,
 	async : false,
 	initComponent : function() {
 		Ext.tf.DWRCombo.superclass.initComponent.call(this);
@@ -50,12 +51,17 @@ Ext.tf.DWRCombo = Ext.extend(Ext.form.ComboBox, {
 
 		if (this.optionName && this.autoLoad) {
 			if (this.extraParam) {
-
 				Ext.apply(this.store.baseParams, {
 					optName : this.optionName,
 					extra : this.extraParam
 				});
-			} else {
+			} else if(this.whereParam){
+				Ext.apply(this.store.baseParams, {
+					optName : this.optionName,
+					extra : this.whereParam,
+					other : ''
+				});
+			}else {
 				Ext.apply(this.store.baseParams, {
 					optName : this.optionName
 				});

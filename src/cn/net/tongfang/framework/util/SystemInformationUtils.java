@@ -10,7 +10,7 @@ import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
 import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
-import cn.net.tongfang.framework.security.vo.GravidityKey;
+import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.SystemInformation;
 
@@ -82,13 +82,13 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Integer checkWomanMedicalExam(String fileNo){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From GravidityKey Where fileNo = :fileNo ";
+		String hql = "From HealthFileMaternal Where fileNo = :fileNo And isClosed = '0'";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("fileNo", fileNo);
 		List list = query.list();
 		if(list.size() > 0){
-			GravidityKey gravidityKey = (GravidityKey)list.get(0);
-			return gravidityKey.getCurrentGravidity();
+			HealthFileMaternal gravidityKey = (HealthFileMaternal)list.get(0);
+			return gravidityKey.getGravidity();
 		}
 		return null;
 	}

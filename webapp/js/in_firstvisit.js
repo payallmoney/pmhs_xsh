@@ -289,7 +289,7 @@ var cfg = [
 			setting : {
 				format : 'int',
 				maxlen : 10,
-				size :	15
+				size : 15
 			}
 		},
 		{
@@ -1082,8 +1082,7 @@ var cfg = [
 			setting : {
 				format : 'date'
 			}
-		},
-		{
+		}, {
 			id : "contraceptiveHistory",
 			xtype : "list",
 			setting : {
@@ -1099,14 +1098,16 @@ var cfg = [
 				valEq : 6,
 				fields : [ 'contraceptiveHistoryOther' ]
 			}
-		},
-		{
+		}, {
 			id : "contraceptiveHistoryOther",
 			xtype : "input",
 			setting : {
 				disabled : true,
-//				caption : "其他既往病史描述",
+				// caption : "其他既往病史描述",
 				maxlen : 50,
 				size : 50
 			}
+		}, {
+			id : "foreignId",
+			xtype : "input"
 		} ];

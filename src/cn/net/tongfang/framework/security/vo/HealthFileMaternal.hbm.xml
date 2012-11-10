@@ -154,5 +154,8 @@
         <property name="isClosed" type="java.lang.String">
             <column name="IsClosed" length="10" />
         </property>
+        <property name="closedDate" type="java.sql.Timestamp">
+            <column name="ClosedDate" length="23" />
+        </property>
     </class>
 </hibernate-mapping>

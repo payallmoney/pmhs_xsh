@@ -17,6 +17,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	panelId : 'app.residentPanel',
 	judgeCondId : '',
 	judgeCondVal : '',
+	storeFileNo : '',
+	storeId : '',
 	advancedFeatures : false,
 	isMaternal : false,
 	isAlreadyMaternal : false,
@@ -112,42 +114,169 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	/**
 	 * 打开编辑窗口
 	 */
-	openWin : function(targetUrl, param) {
-
-		var win = new Ext.Window({
-			modal : true,
-			title : '录入记录',
-			border : false
-		// autoScroll : true
-		});
-		if (param != null) {
-			window.other_init_param = param;
-		}
-
-		win.show();
-		win.maximize();
-
-		win.add({
+	generalItems : function(win,targetUrl){
+		console.log(targetUrl);
+		console.log(this.storeId);
+		
+		return {
 			xtype : 'iframepanel',
 			defaultSrc : targetUrl,
-			// width: win.getInnerWidth() - 380,
-			// height: win.getInnerHeight() - 10,
+			layout : 'fit',
+			width: win.getInnerWidth(),
+//			height: win.getInnerHeight() - 10,
 			title : '',
 			loadMask : true,
 			autoScroll : false,
 			listeners : {
 				message : function(f, data) {
 //					console.log("receive message...");
-//					console.log(data);
+					console.log(data);
 					if (data.data == 'quit') {
 						win.close();
 					} else if (data.data == 'saved') {
 						this.load();
+					}else{
+						var d = data.data;
+						console.log(d.indexOf(':'));
+						if(d.indexOf(':') > 0){
+							var retVal = d.split(':');
+							if(retVal[0] == 'retId'){
+								this.storeId = retVal[1];
+								Ext.getCmp('woman_generalItems_tabpanel').remove('firstvisit_tabpanel_id');
+								Ext.getCmp('woman_generalItems_tabpanel').remove('visitBeforeBorn_tabpanel_id');
+								Ext.getCmp('woman_generalItems_tabpanel').remove('visitAfterBorn_tabpanel_id');
+								Ext.getCmp('woman_generalItems_tabpanel').remove('visitAfterBorn42_tabpanel_id');
+								Ext.getCmp('woman_generalItems_tabpanel').add({
+									title : '第一次产前随访',
+									layout : 'fit',
+									id : 'firstvisit_tabpanel_id',
+									items : [this.generalItems(win,'/firstvisit.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+								});
+								Ext.getCmp('woman_generalItems_tabpanel').add({
+									title : '第2~5次产前随访',
+									layout : 'fit',
+									id : 'visitBeforeBorn_tabpanel_id',
+									items : [this.generalItems(win,'/VisitBeforeBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+								});
+								Ext.getCmp('woman_generalItems_tabpanel').add({
+									title : '产后访视',
+									layout : 'fit',
+									id : 'visitAfterBorn_tabpanel_id',
+									items : [this.generalItems(win,'/visitAfterBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+								});
+								Ext.getCmp('woman_generalItems_tabpanel').add({
+									title : '产后42天访视',
+									layout : 'fit',
+									id : 'visitAfterBorn42_tabpanel_id',
+									items : [this.generalItems(win,'/visitAfterBorn42.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+								});
+							}
+						}
 					}
 				}.createDelegate(this)
 			}
-		});
-		win.doLayout(true);
+		};
+	},
+	openWin : function(targetUrl, param) {
+		if(this.isMaternal){
+			var win = new Ext.Window({
+				modal : true,
+//				title : '录入记录',
+				border : false,
+				layout : 'fit'
+			});
+			if (param != null) {
+				window.other_init_param = param;
+			}
+
+			win.show();
+			win.maximize();
+			win.add({
+				xtype : 'tabpanel',
+				activeTab: 0,
+				id : 'woman_generalItems_tabpanel',
+				items : [{
+					title : '孕产妇保健手册',
+					layout : 'fit',
+					items : [this.generalItems(win,targetUrl)]
+				}]
+			});
+			win.doLayout(true);
+		}else if(this.isAlreadyMaternal){
+			var win = new Ext.Window({
+				modal : true,
+//				title : '录入记录',
+				border : false,
+				layout : 'fit'
+			});
+			if (param != null) {
+				window.other_init_param = param;
+			}
+
+			win.show();
+			win.maximize();
+			win.add({
+				xtype : 'tabpanel',
+				activeTab: 0,
+				items : [{
+					title : '孕产妇保健手册',
+					layout : 'fit',
+					items : [this.generalItems(win,targetUrl)]
+				},{
+					title : '第一次产前随访',
+					layout : 'fit',
+					items : [this.generalItems(win,'/firstvisit.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+				},{
+					title : '第2~5次产前随访',
+					layout : 'fit',
+					items : [this.generalItems(win,'/VisitBeforeBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+				},{
+					title : '产后访视',
+					layout : 'fit',
+					items : [this.generalItems(win,'/visitAfterBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+				},{
+					title : '产后42天访视',
+					layout : 'fit',
+					items : [this.generalItems(win,'/visitAfterBorn42.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
+				}]
+			});
+			win.doLayout(true);
+		}else{
+			var win = new Ext.Window({
+				modal : true,
+				title : '录入记录',
+				border : false
+			// autoScroll : true
+			});
+			if (param != null) {
+				window.other_init_param = param;
+			}
+
+			win.show();
+			win.maximize();
+
+			win.add({
+				xtype : 'iframepanel',
+				defaultSrc : targetUrl,
+				// width: win.getInnerWidth() - 380,
+				// height: win.getInnerHeight() - 10,
+				title : '',
+				loadMask : true,
+				autoScroll : false,
+				listeners : {
+					message : function(f, data) {
+//						console.log("receive message...");
+//						console.log(data);
+						if (data.data == 'quit') {
+							win.close();
+						} else if (data.data == 'saved') {
+							this.load();
+						}
+					}.createDelegate(this)
+				}
+			});
+			win.doLayout(true);
+		}
 	},
 
 	getTreeSelNode : function() {
@@ -327,6 +456,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 					var selections = this.grid.getSelections();
 					if (selections.length == 1) {
 //						console.log(selections[0]);
+						this.storeId = selections[0].data.id;
+						this.storeFileNo = selections[0].data.fileNo;
 						this.f_edit(selections[0]);
 					}
 				}.createDelegate(this)
@@ -596,8 +727,13 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		this.grid.on('rowdblclick', function(){
 			var selections = this.grid.getSelections();
 			if (selections.length == 1) {
-				console.log(selections[0]);
-				this.f_edit(selections[0]);
+//				console.log(selections[0]);
+				if(this.isMaternal){
+					this.checkLastLevel = false;
+					this.f_add();
+				}else{
+					this.f_edit(selections[0]);
+				}
 			}
 		}, this);
 
@@ -649,7 +785,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			},
 			dblclick : {
 				fn : function(n, e) {
-					this.f_add(true);
+					if(!this.isAlreadyMaternal)
+						this.f_add(true);
 				}.createDelegate(this)
 			}
 		});

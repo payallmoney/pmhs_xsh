@@ -185,6 +185,9 @@ var allDisabled = false;
                 console.log("sending data");
 //                console.log(send);
                 showDialog("<li>正在提交数据...</li>");
+                if(storeId != null){
+                	send.id = storeId;
+                }
                 services.save(send,{ callback :function(d){  
                     if ( typeof sendMessage == 'function' ) {
                           sendMessage('saved');
@@ -218,8 +221,6 @@ var allDisabled = false;
         					}
             			}
             		});
-                    reset();
-                    
                     if(!updateMode){
                     	$('#districtNumber span').css('display','inline');
                         $('#fileNo input').css('display','inline');
@@ -230,6 +231,13 @@ var allDisabled = false;
                     	$('#fileNo input').css('display','none');
                     	$('#fileNo div').css('display','inline');
                     }
+                    if(foreignId){
+                    	storeId = d;
+                    	sendMessage('retId:' + d);
+                    }else{
+                    	reset();
+                    }
+                    
                     if(quitAfterSave){
                     	showInfoObj.Infor('数据已保存成功',function(e){
                     		if(e == 'ok'){
@@ -274,7 +282,7 @@ var allDisabled = false;
 //                    	console.log(prop + '---' + d[prop]);
                     	if(d[prop] == null)
                     		d[prop] = '';
-                    	if(prop == 'idnumber' && d[prop] == '')
+                    	else if(prop == 'idnumber' && d[prop] == '')
                     		d[prop] = '530521'
                         c.val(d[prop]);
                     }
@@ -674,9 +682,11 @@ function parseParams(url){
 	return null;
 }
 var quitAfterSave = false;
+var foreignId = false;
+var storeId = null;
 $(function(){
 	var json = parseParams(window.location.search);
-//	console.log(json);
+	console.log(json);
 	if(json.isNext != undefined){
 		isNextUrl = true;
 	}
@@ -688,7 +698,9 @@ $(function(){
 	if(json.quitAfterSave  != undefined){
 		quitAfterSave = json.quitAfterSave;
 	}
-	
+	if(json.isForeignId != undefined){
+		foreignId = true;
+	}
 	if(json.id != undefined){
 //		var id = url.substring(url.indexOf('id') + 3,url.length);
 		var id = unescape(json.id);

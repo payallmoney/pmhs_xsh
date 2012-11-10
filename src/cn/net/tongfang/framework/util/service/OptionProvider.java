@@ -41,7 +41,23 @@ public class OptionProvider extends HibernateDaoSupport {
 		return list;
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	public List<Object> getOptions(String optionName,String where,String other) {
+		String entityName = optionClassMap.get(optionName);
+		String hql = null;
+		if (entityName != null) {
+//			hql = "from " + entityName + " order by " + "displayOrder";
+			hql = "from " + entityName;
+			if(where != null && !where.equals(""))
+				hql = hql + where;
+			hql = hql + " order by name";
+		} else {
+			log.warn("entityName not found ! [" + entityName + "]");
+			return empty;
+		}
+		List<Object> list = getHibernateTemplate().find(hql);
+		return list;
+	}
 	@SuppressWarnings("unchecked")
 	public List<Object> getWhereOptions(String whereno) {
 		String hql = null;

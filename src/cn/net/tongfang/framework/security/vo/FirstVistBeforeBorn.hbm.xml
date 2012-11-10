@@ -370,5 +370,8 @@
         <property name="diagnosisRemark" type="java.lang.String">
             <column name="DiagnosisRemark" />
         </property>
+        <property name="foreignId" type="java.lang.String">
+            <column name="ForeignId" length="36" />
+        </property>  
     </class>
 </hibernate-mapping>

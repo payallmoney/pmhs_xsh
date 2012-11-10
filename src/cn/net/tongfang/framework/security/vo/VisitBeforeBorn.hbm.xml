@@ -121,5 +121,8 @@
         <property name="pelvis04" type="java.lang.Integer">
             <column name="Pelvis04" />
         </property>
+        <property name="foreignId" type="java.lang.String">
+            <column name="ForeignId" length="36" />
+        </property>  
     </class>
 </hibernate-mapping>

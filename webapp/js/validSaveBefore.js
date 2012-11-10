@@ -6,6 +6,8 @@
 	function IsAbortionFn(fileNo,name){
 		var $type = $('.type').html();
 		if($type == 'FirstVistBeforeBorn'){
+//			var foreignId = $('#foreignId').html();
+//			console.log(foreignId);
 			systemInformationUtils.getPersonalInfo(fileNo,function(data){
 				var bornStatus = data.bornStatus;
 				if(bornStatus == '是'){

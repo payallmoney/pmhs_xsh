@@ -17,6 +17,7 @@ app.modPanel = new Ext.tf.SimplePanel({
 		fieldLabel : '模块目录',
 		xtype : 'DWRCombo',
 		optionName : 'ModuleCategory',
+		whereParam : ' where isDetail = true ',
 		hiddenName : 'categoryId',
 		hasEmptyHeader : true,
 		minListWidth : 200
@@ -29,6 +30,10 @@ app.modPanel = new Ext.tf.SimplePanel({
 		xtype : 'hidden'
 	}, {
 		name : 'categoryId',
+		xtype : 'hidden'
+	}, {
+		fieldLabel : 'clsSetting',
+		name : 'clsSetting',
 		xtype : 'hidden'
 	}, {
 		fieldLabel : '名称',
@@ -97,6 +102,9 @@ app.modPanel = new Ext.tf.SimplePanel({
 	}, {
 		name : 'ordinal',
 		mapping : 'ordinal'
+	}, {
+		name : 'clsSetting',
+		mapping : 'clsSetting'
 	} ],
 
 	// Grid的列

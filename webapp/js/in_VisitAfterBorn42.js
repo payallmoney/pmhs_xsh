@@ -250,7 +250,8 @@ var cfg = [ {
 	 * "highRiskSearch", xtype : "input", setting : { disabled : true, caption:
 	 * "高危筛选", maxlen : 30, size : 14, isFocus : true, serviceType : 1,
 	 * isSpecial : true } },
-	 */{
+	 */
+/*{
 	id : "parities",
 	xtype : "input",
 	setting : {
@@ -258,7 +259,8 @@ var cfg = [ {
 		size : 10
 	},
 	required : [ true, "产次" ]
-}, {
+},*/
+{
 	id : "postnatalDays",
 	xtype : "input",
 	setting : {
@@ -327,4 +329,7 @@ var cfg = [ {
 		disabled : true,
 		caption : "异常描述"
 	}
+}, {
+	id : "foreignId",
+	xtype : "input"
 } ];

@@ -62,7 +62,7 @@ public class VisitAfterBorn implements java.io.Serializable {
 	private String woundHealing;
 	private String lochia01;
 	private String lochia02;
-
+	private String foreignId;
 	// Constructors
 
 	/** default constructor */
@@ -94,7 +94,7 @@ public class VisitAfterBorn implements java.io.Serializable {
 			String vulva, String vulvaOther,
 			Integer pulseRate, String milk, String swelling, String nipple,
 			Double palaceHeight, String woundHealing, String lochia01,
-			String lochia02) {
+			String lochia02,String foreignId) {
 		this.fileNo = fileNo;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
@@ -144,6 +144,7 @@ public class VisitAfterBorn implements java.io.Serializable {
 		this.woundHealing = woundHealing;
 		this.lochia01 = lochia01;
 		this.lochia02 = lochia02;
+		this.foreignId = foreignId;
 	}
 
 	// Property accessors
@@ -546,6 +547,14 @@ public class VisitAfterBorn implements java.io.Serializable {
 
 	public void setLochia02(String lochia02) {
 		this.lochia02 = lochia02;
+	}
+
+	public String getForeignId() {
+		return foreignId;
+	}
+
+	public void setForeignId(String foreignId) {
+		this.foreignId = foreignId;
 	}
 
 }

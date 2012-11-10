@@ -95,7 +95,8 @@ app.healthfileEnbleBuildPanel = new Ext.tf.HealthPanel({
 				'&recuperateProvence=' + provence + '&recuperateCity=' + city + '&recuperateCounty=' + county +
 				'&recuperateTownship=' + township + '&recuperateVillage=' + village +
 				'&buildUnit=' + buildUnit + '&idnumber=' + idnumber + '&workUnit=' + workUnit +
-				'&occupation=' + occupation + '&folk=' + folk + '&folkOther=' + folkOther + '&quitAfterSave=true';
+				'&occupation=' + occupation + '&folk=' + folk + '&folkOther=' + folkOther ;
+//				+ '&quitAfterSave=true';
 			return param;
 		} else {
 			return '-1';

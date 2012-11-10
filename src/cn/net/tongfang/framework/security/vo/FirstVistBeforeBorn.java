@@ -131,6 +131,7 @@ public class FirstVistBeforeBorn implements java.io.Serializable {
 	private Timestamp hepatitisBdetectDate;
 	private String contraceptiveHistoryOther;
 	private String diagnosisRemark;
+	private String foreignId;
 	// Constructors
 
 	/** default constructor */
@@ -188,7 +189,7 @@ public class FirstVistBeforeBorn implements java.io.Serializable {
 			String breastOther, String otherExam, String otherExamOther,
 			Timestamp hivdetectDate, Timestamp syphilisDetectDate,
 			Timestamp hepatitisBdetectDate,String contraceptiveHistoryOther,
-			String diagnosisRemark) {
+			String diagnosisRemark,String foreignId) {
 		this.fileNo = fileNo;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
@@ -309,6 +310,7 @@ public class FirstVistBeforeBorn implements java.io.Serializable {
 		this.hepatitisBdetectDate = hepatitisBdetectDate;
 		this.contraceptiveHistoryOther = contraceptiveHistoryOther;
 		this.diagnosisRemark = diagnosisRemark;
+		this.foreignId = foreignId;
 	}
 
 	// Property accessors
@@ -1279,6 +1281,14 @@ public class FirstVistBeforeBorn implements java.io.Serializable {
 
 	public void setDiagnosisRemark(String diagnosisRemark) {
 		this.diagnosisRemark = diagnosisRemark;
+	}
+
+	public String getForeignId() {
+		return foreignId;
+	}
+
+	public void setForeignId(String foreignId) {
+		this.foreignId = foreignId;
 	}
 	
 }

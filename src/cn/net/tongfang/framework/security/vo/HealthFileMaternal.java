@@ -59,6 +59,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 	private Timestamp inputDate;
 	private Integer gravidity;
 	private String isClosed;
+	private Timestamp closedDate;
 	// Constructors
 
 	/** default constructor */
@@ -91,7 +92,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 			String husbandEducation, String husbandOccupation,
 			String husbandOccupationOther, String husbandWorkUnit,
 			String inputPersonId, Timestamp inputDate, Integer gravidity,
-			String nationalityOther,String isClosed) {
+			String nationalityOther,String isClosed,Timestamp closedDate) {
 		this.fileNo = fileNo;
 		this.name = name;
 		this.birthday = birthday;
@@ -534,6 +535,14 @@ public class HealthFileMaternal implements java.io.Serializable {
 
 	public void setIsClosed(String isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public Timestamp getClosedDate() {
+		return closedDate;
+	}
+
+	public void setClosedDate(Timestamp closedDate) {
+		this.closedDate = closedDate;
 	}
 
 }

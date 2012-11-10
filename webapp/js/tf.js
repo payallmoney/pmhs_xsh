@@ -413,7 +413,13 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 							// alert(dwr.util.toDescriptiveString(params, 2));
 							// alert(this.queryUrl +"eeeee");
 							var o = this.queryForm.getForm().getValues(false);
-							//console.log(o);
+							console.log(o);
+							if(o.isDetail != undefined){
+								if(o.isDetail == '1')
+									o.isDetail = true;
+								else if(o.isDetail == '0')
+									o.isDetail = false;
+							}
 							if (!params.limit)
 								params.limit = this.pageSize;
 							params[dataProxy.loadArgsKey] = [ o, params ];
@@ -781,6 +787,7 @@ Ext.tf.WorkQueryPanel = Ext.extend(Ext.Panel, {
 					listeners : {
 						'beforeload' : function(dataProxy, params) {
 							var o = this.queryForm.getForm().getValues(false);
+							console.log(o);
 							if (!params.limit)
 								params.limit = this.pageSize;
 							params[dataProxy.loadArgsKey] = [ o, params ];
