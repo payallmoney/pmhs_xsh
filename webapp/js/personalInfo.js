@@ -835,95 +835,108 @@
     }
       //增加标签页
         var queryjson = parseParams(window.location.search);
-        
-        PersonalInfoService.getExamInfo(queryjson,function(data){
-        	if(data.length > 0){
-        		personal_colsMaps = {};
-        		for(var i=0 ;i <data.length;i++){
-    	    		var item = data[i]
-    	    		$.ajax({
-    	    			url: data[i].htmlurl,
-    	    			dataType:"text",
-    	    			error : function(req,stat,error) {
-    					    alert(error);
-    					},
-    					scope:item,
-    					success: function(htmldata,stat) {
-    						//$.getscript(getDWRUrl(this.scope.url));
-    						var tablename = this.scope.tablename;
-    						var pre = tablename+"_";
-    						addHeadScript(new Array(this.scope.url));
-    						var regexp = /[i|I][d|D]\s*=\s*['|"](\w+)['|"]/g;
-    						htmldata = htmldata.replace(regexp,"id='"+pre+"$1'");
-    						htmldata = htmldata.substr(htmldata.indexOf("\n"));
-    						$(".panes").append(htmldata);
-    						$(".tabs").append("<li><a href=\"#\">"+this.scope.name+"("+this.scope.idlist.length+"次)"+"</a></li>");
-    						$("ul.tabs").tabs("div.panes > div", {api:true});
-    						for(var i = 0 ; i <this.scope.idlist.length ;i ++){
-    							if(i==0){
-    								$("#"+pre+"id_tabcount").append("<input name='"+pre+"radio' type='radio' onclick='return changedata("+i+",\""+tablename+"\");' checked>第"+(i+1)+"次检查记录");
-    							}else{
-    								$("#"+pre+"id_tabcount").append("<input name='"+pre+"radio'  type='radio' onclick='return changedata("+i+",\""+tablename+"\");'>第"+(i+1)+"次检查记录");
-    							}
-    						}
-    						if($("#"+tablename+"_id_subtabcount").length >0){
-    							var links = $("#"+pre+"id_subtabcount a")
-    							for(var i = 0 ; i <links.length ;i++){
-    								$(links[i]).attr("tabname",pre+"id_tab");
-    								$(links[i]).hover(function() {
-    								      $(this).addClass('subtab_hover');
-    								   }, 
-    								   function() {
-    								      $(this).removeClass('subtab_hover'); 
-    								   })
-    							}
-    							
-    						}
-    						personal_colsMaps[tablename] = {"datecols":{},"listcols":{},
-    								"pre":pre,"datas":{},"cfg":{},
-    								"item":this.scope};
-    						$.ajax({
-    			    			url:this.scope.listcol,
-    			    			dataType:"text",
-    			    			error : function(req,stat,error) {
-    							    alert(error);
-    							},
-    							scope:this.scope,
-    							success: function(jsdata,stat) {
-    								//alert(htmldata)
-    								var tablename = this.scope.tablename;
-    								var regexp = /var\s+(services)\s*=/g;
-    								jsdata = jsdata.replace(regexp,"var "+tablename+"_services = ");
-    								regexp = /var\s+(cfg)\s*=/g;
-    								jsdata = jsdata.replace(regexp,"var "+tablename+"_cfg = ");
-    								addHeadScriptByKeyWord(new Array("search","get"),jsdata);
-    								eval(jsdata);
-    								var serv = eval(tablename+"_services");
-    								var cfg = eval(tablename+"_cfg");
-    								for(var i = 0 ; i <cfg.length;i++){
-    									if(cfg[i].setting){
-    										if(cfg[i].xtype=="list" ){
-    											personal_colsMaps[tablename].listcols[cfg[i].id] = {ds:cfg[i].setting.ds,id:(cfg[i].setting.mapping ? cfg[i].setting.mapping.value:null)}
-    										}else if(cfg[i].xtype=="input" && cfg[i].setting.format =="date"){
-    											personal_colsMaps[tablename].datecols[cfg[i].id] = true;
-    										}
-    									}
-    								}
-    								var func = eval(this.scope.url);
-    								console.log("id====="+this.scope.idlist[0])
-    								func({id:this.scope.idlist[0].trim()},{callback : function (data){
-    									setLabelVal(data,tablename,personal_colsMaps[tablename].pre);
-    									personal_colsMaps[tablename].datas["0"] = data;
-    								}});
-    							}
-    						});
-                        }, 
-                        errorHandler : function(errStr, e){
-    						hideDialog();
-    						showDialog('系统发生异常(PersonalInfo.js加载应用数据过程中)<br/>' + errStr, true);
-    					}
-                    });
-    			}
-        	}
-        });
+        if(queryjson.id && queryjson.id.length>0){
+	        PersonalInfoService.getExamInfo(queryjson,function(data){
+	        	if(data.length > 0){
+	        		personal_colsMaps = {};
+	        		for(var i=0 ;i <data.length;i++){
+	    	    		var item = data[i]
+	    	    		$.ajax({
+	    	    			url: data[i].htmlurl,
+	    	    			dataType:"text",
+	    	    			error : function(req,stat,error) {
+	    					    alert(error);
+	    					},
+	    					scope:item,
+	    					success: function(htmldata,stat) {
+	    						//$.getscript(getDWRUrl(this.scope.url));
+	    						var tablename = this.scope.tablename;
+	    						var pre = tablename+"_";
+	    						addHeadScript(new Array(this.scope.url));
+	    						var regexp = /[i|I][d|D]\s*=\s*['|"](\w+)['|"]/g;
+	    						//htmldata = htmldata.replace(regexp,"id='"+pre+"$1'");
+	    						htmldata = htmldata.substr(htmldata.indexOf("\n"));
+	    						$(".panes").append(htmldata);
+	    						$(".tabs").append("<li><a href=\"#\">"+this.scope.name+"("+this.scope.idlist.length+"次)"+"</a></li>");
+	    						$("ul.tabs").tabs("div.panes > div", {api:true});
+	    						for(var i = 0 ; i <this.scope.idlist.length ;i ++){
+	    							if(i==0){
+	    								$("#"+pre+"id_tabcount").append("<input name='"+pre+"radio' type='radio' onclick='return changedata("+i+",\""+tablename+"\");' checked>第"+(i+1)+"次检查记录");
+	    							}else{
+	    								$("#"+pre+"id_tabcount").append("<input name='"+pre+"radio'  type='radio' onclick='return changedata("+i+",\""+tablename+"\");'>第"+(i+1)+"次检查记录");
+	    							}
+	    						}
+	    						if($("#id_subtabcount").length>0){
+		    						$.each($("#id_subtabcount a"),function(index , item){
+		    							$(item).attr("href","#"+$(item).attr("href"));
+		    						});
+		    						$("#id_subtabcount").tabs();
+	    						}
+	//    						if($("#"+pre+"id_subtabcount").length>0){
+	//	    						$.each($("#"+pre+"id_subtabcount a"),function(index , item){
+	//	    							$(item).attr("href","#"+pre+$(item).attr("href"));
+	//	    						});
+	//	    						$("#"+pre+"id_subtabcount").tabs();
+	//    						}
+	//    						if($("#"+pre+"id_subtabcount").length >0){
+	//    							var links = $("#"+pre+"id_subtabcount a")
+	//    							for(var i = 0 ; i <links.length ;i++){
+	//    								$(links[i]).attr("tabname",pre+"id_tab");
+	//    								$(links[i]).hover(function() {
+	//    								      $(this).addClass('subtab_hover');
+	//    								   }, 
+	//    								   function() {
+	//    								      $(this).removeClass('subtab_hover'); 
+	//    								   })
+	//    							}
+	//    							
+	//    						}
+	    						personal_colsMaps[tablename] = {"datecols":{},"listcols":{},
+	    								"pre":pre,"datas":{},"cfg":{},
+	    								"item":this.scope};
+	    						$.ajax({
+	    			    			url:this.scope.listcol,
+	    			    			dataType:"text",
+	    			    			error : function(req,stat,error) {
+	    							    alert(error);
+	    							},
+	    							scope:this.scope,
+	    							success: function(jsdata,stat) {
+	    								//alert(htmldata)
+	    								var tablename = this.scope.tablename;
+	    								var regexp = /var\s+(services)\s*=/g;
+	    								jsdata = jsdata.replace(regexp,"var "+tablename+"_services = ");
+	    								regexp = /var\s+(cfg)\s*=/g;
+	    								jsdata = jsdata.replace(regexp,"var "+tablename+"_cfg = ");
+	    								addHeadScriptByKeyWord(new Array("search","get"),jsdata);
+	    								eval(jsdata);
+	    								var serv = eval(tablename+"_services");
+	    								var cfg = eval(tablename+"_cfg");
+	    								for(var i = 0 ; i <cfg.length;i++){
+	    									if(cfg[i].setting){
+	    										if(cfg[i].xtype=="list" ){
+	    											personal_colsMaps[tablename].listcols[cfg[i].id] = {ds:cfg[i].setting.ds,id:(cfg[i].setting.mapping ? cfg[i].setting.mapping.value:null)}
+	    										}else if(cfg[i].xtype=="input" && cfg[i].setting.format =="date"){
+	    											personal_colsMaps[tablename].datecols[cfg[i].id] = true;
+	    										}
+	    									}
+	    								}
+	    								var func = eval(this.scope.url);
+	    								console.log("id====="+this.scope.idlist[0])
+	    								func({id:this.scope.idlist[0].trim()},{callback : function (data){
+	    									setLabelVal(data,tablename,personal_colsMaps[tablename].pre);
+	    									personal_colsMaps[tablename].datas["0"] = data;
+	    								}});
+	    							}
+	    						});
+	                        }, 
+	                        errorHandler : function(errStr, e){
+	    						hideDialog();
+	    						showDialog('系统发生异常(PersonalInfo.js加载应用数据过程中)<br/>' + errStr, true);
+	    					}
+	                    });
+	    			}
+	        	}
+	        });
+        }
 	
