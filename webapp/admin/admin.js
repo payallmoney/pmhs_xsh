@@ -10,8 +10,6 @@ Ext.override(Ext.form.Field,{
 			  //delete this.el.dom;
 			}
 		}
-		
-		
 	}
 });
 Ext.override(Ext.Panel,{
@@ -515,7 +513,7 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
 
 var navigation = new Ext.Panel({
 //	width : 1000,
-	height : 550,
+	height : 600,
 	id : 'navigateContainerPanel',
 	title : '当前位置：',
 	bodyBorder : false,
@@ -534,7 +532,7 @@ App.mainframe.MainPanel = function() {
   plugins : new Ext.ux.TabCloseMenu(),
   items : [ {
     contentEl : 'center2',
-    title : '施甸县国家公共卫生服务管理系统',
+    title : '恒辰公共卫生服务管理系统',
     closable : false,
     autoScroll : true,
     items : [navigation]
@@ -582,7 +580,10 @@ function stopTask() {
   Ext.TaskMgr.stop(taskCheckSession);
 };
 function logout() {
+ try{	
   stopTask();
+ }catch(ex){
+ }
   window.location = "/j_spring_security_logout";
 }
 
@@ -906,6 +907,13 @@ Ext.onReady(function() {
 		    	html : '<div style="width:100%;text-align: center;"><span>昆明恒辰科技有限公司</span><span style="margin-left:10px;">版权所有©2010-2012</span></div>'
 		    } ]
 		  });
+	  $('.menu_second_div img').hover(function(){
+		  $(this).css('margin-top','5px');
+		  $(this).css('margin-bottom','10px');
+	  },function(){
+		  $(this).css('margin-top','10px');
+		  $(this).css('margin-bottom','5px');
+	  });
 	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
   });
 }
@@ -919,8 +927,12 @@ Ext.onReady(function() {
       alert("Loading user menu failed.");
     }
   }
-
-  UserMenuTreeService.genUserMenuTree(onGotMenuData);
+  //try{
+	  UserMenuTreeService.genUserMenuTree(onGotMenuData);
+//  }catch(ex){
+//	  
+//  }
+  
 
   var showUserInfo = function(data) {
 //    console.log(data);
@@ -1142,16 +1154,16 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod health_06 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_07 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 		'</div>';
-	}else if($templateId == 'fun_msm_template'){
+	}else if($templateId == 'fun_sms_template'){
 		flag = true;
-		modItems = '<div class="div_health_container div_container">'+
-			'<div class="mod sms_01 mod_disable"><img src="../image/menu/sms_01.gif"/><div>电话提取规则</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_02 mod_disable"><img src="../image/menu/sms_02.gif"/><div>短信发送规则</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.gif"/><div>居民联系电话维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.gif"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.gif"/><div>短信发布</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.gif"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.gif"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+		modItems = '<div class="div_sms_container div_container">'+
+			'<div class="mod sms_01 mod_disable"><img src="../image/menu/sms_01.png"/><div>电话提取规则</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_02 mod_disable"><img src="../image/menu/sms_02.png"/><div>短信发送规则</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.png"/><div>居民联系电话维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.png"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.png"/><div>短信发布</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.png"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.png"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else{
 		flag = false;
