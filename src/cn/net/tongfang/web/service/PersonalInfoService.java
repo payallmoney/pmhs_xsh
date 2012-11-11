@@ -325,6 +325,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 				vo.put("tablename",cod.getTablename());
 				vo.put("listcol",cod.getListcol());
 				vo.put("htmlurl", cod.getHtml());
+				vo.put("ord", cod.getOrd());
 				ret.add(vo);
 			}
 		}
