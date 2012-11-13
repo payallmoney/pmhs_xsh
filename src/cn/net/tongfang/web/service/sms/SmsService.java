@@ -24,7 +24,6 @@ import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
 
-import com.googlecode.ehcache.annotations.Cacheable;
 
 public class SmsService extends HibernateDaoSupport {
 	private static final Logger log = Logger.getLogger(SmsService.class);

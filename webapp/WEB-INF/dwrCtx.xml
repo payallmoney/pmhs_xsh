@@ -170,7 +170,6 @@
 	<bean id="MetaProvider"
 		class="cn.net.tongfang.framework.security.demo.service.MetaServiceImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="ehCacheManager" ref="ehCacheManager" />
 		<dwr:remote javascript="MetaProvider"></dwr:remote>
 	</bean>
 	<bean id="HealthFileService" class="cn.net.tongfang.web.service.HealthFileService">

@@ -208,7 +208,9 @@ var allDisabled = false;
         						var result = infos.split(",");
             					var personId = result[0];
             					var personName = result[1];
+            					console.log("这里的异常?")
             		            var personBirthday = result[2].substring(0,10);
+            					console.log("这里的异常?")
             		            var personSex = result[3];
             		            var personAge = result[4];
                 				$(".personId").html(personId);

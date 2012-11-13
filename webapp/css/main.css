@@ -14,7 +14,7 @@ background-repeat: repeat-x;*/
 
 table.form_tbl {
     border-collapse:collapse;
-    width: 800px;
+    width: 100%;
 }
 
 table.form_tbl td{
