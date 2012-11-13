@@ -1,20 +1,18 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<div class="span-22 last">
 	<table class="form_tbl">
 		<tr>
 			<td id="id_tabcount"  >
-				
 			</td>
 		</tr>
 		<tr>
 			<td id="id_subtabcount"> 
 				<ul  class='subtabs'>
-					<li style="float:left"><a href="id_tab1" onClick="subtabs_click(this,0,2)" class='subtab'>3-6岁儿童体检</a></li>
-					<li style="float:left"><a href="id_tab2" onClick="subtabs_click(this,1,2)" class='subtab'>儿童其它项目</a></li>
+					<li><a href="#">3-6岁儿童体检</a></li>
+					<li><a href="#">儿童其它项目</a></li>
 				</ul>
 			</td>
 		</tr>
-		<tr id='id_tab1'>
+		<tr  class='trtab'>
 			<td>
 				<table class="form_tbl">
 					<tr>
@@ -108,37 +106,37 @@
 				</table>
 			</td>
 		</tr>
-		<tr id='id_tab2'  style='display:none'>
+		<tr id='id_tab2'  class='trtab'>
 			<td>
 				<table class="form_tbl">
 					<tr>
 						<td style="width: 200px;">血压</td>
-						<td><span id="pressure"></span>mmHg</td>
+						<td colspan="2"><span id="pressure"></span>mmHg</td>
 					</tr>
 					<tr>
 						<td class="header">胸廓</td>
-						<td><span id="pleura"></span><span id="pleuraRemark"></span></td>
+						<td colspan="2"><span id="pleura"></span><span id="pleuraRemark"></span></td>
 					</tr>
 					<tr>
 						<td class="header">前卤</td>
-						<td><span id="beforeSkull01"></span>cm x <span
+						<td colspan="2"><span id="beforeSkull01"></span>cm x <span
 							id="beforeSkull02"></span>cm</td>
 					</tr>
 					<tr>
 						<td class="header">皮肤</td>
-						<td><span id="skins"></span><span id="skinsOther"></span></td>
+						<td colspan="2"><span id="skins"></span><span id="skinsOther"></span></td>
 					</tr>
 					<tr>
 						<td class="header">咽、扁</td>
-						<td><span id="throatFlat"></span><span id="throatFlatRemark"></span></td>
+						<td colspan="2"><span id="throatFlat"></span><span id="throatFlatRemark"></span></td>
 					</tr>
 					<tr>
 						<td class="header">左眼</td>
-						<td id="leftEyes"></td>
+						<td id="leftEyes" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">右眼</td>
-						<td id="rightEyes"></td>
+						<td id="rightEyes" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">全身浅表淋巴结</td>
@@ -225,4 +223,3 @@
 			</td>
 		</tr>
 	</table>
-</div>

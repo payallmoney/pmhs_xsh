@@ -715,15 +715,18 @@ if queryjson.fileNo and queryjson.fileNo.length > 0
       i = 0
       while i < data.length
         item = data[ordarray[sortarray[i]]]
+        pre = item.tablename+item.ord+"_"
+        $(".panes").append "<div class='span-22 last' id='#{pre}div_id'> </div>"
+        $(".tabs").append "<li><a href=\"#\" style='color:blue !important;'>" + item.name + "(" + item.idlist.length + "次)" + "</a></li>"
+        $("ul.tabs").tabs "div.panes > div",
+          api: true
         $.ajax
           url: item.htmlurl
           dataType: "text"
           error: (req, stat, error) ->
             alert error
-
           scope: item
           success: (htmldata, stat) ->
-            
             #$.getscript(getDWRUrl(this.scope.url));
             tablename = @scope.tablename+@scope.ord
             pre = tablename+ "_"
@@ -731,10 +734,7 @@ if queryjson.fileNo and queryjson.fileNo.length > 0
             regexp = /[i|I][d|D]\s*=\s*['|"](\w+)['|"]/g
             htmldata = htmldata.replace(regexp, "id='" + pre + "$1'")
             htmldata = htmldata.substr(htmldata.indexOf("\n"))
-            $(".panes").append htmldata
-            $(".tabs").append "<li><a href=\"#\" style='color:blue !important;'>" + @scope.name + "(" + @scope.idlist.length + "次)" + "</a></li>"
-            $("ul.tabs").tabs "div.panes > div",
-              api: true
+            $("##{pre}div_id").append htmldata
             i = 0
             $("##{pre}id_tabcount").addClass("tdspan")
             divstr = "<div style='display:none'>"
@@ -748,18 +748,10 @@ if queryjson.fileNo and queryjson.fileNo.length > 0
               i++
             htmlstr+="</ul>"
             divstr+="</div>"
-            window.console.log(htmlstr)
             $("##{pre}id_tabcount").append(htmlstr)
             $("##{pre}id_tabcount").append(divstr)
-            if $("##{pre}id_subtabcount").length > 0
-              $("##{pre}id_subtabcount").css("border: 0px;")
-              links = $("##{pre}id_subtabcount a")
-              i = 0
-              while i < links.length
-                $(links[i]).attr("href","##{pre}" + $(links[i]).attr("href"))
-                i++
-            $("##{pre}id_subtabcount ul.subtabs").tabs("tr.trtab")
-            $("##{pre}id_tabcount ul.middletabs").tabs("hiddendiv")
+            $("##{pre}id_subtabcount ul.subtabs").tabs("##{pre}div_id tr.trtab")
+            $("##{pre}id_tabcount ul.middletabs").tabs("##{pre}div_id hiddendiv")
             window.personal_colsMaps[tablename] =
               datecols: {}
               listcols: {}

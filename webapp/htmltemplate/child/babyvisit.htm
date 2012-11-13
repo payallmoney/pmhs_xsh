@@ -1,5 +1,4 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<div class="span-22 last">
 	<table class="form_tbl">
 		<tr>
 			<td id="id_tabcount" ></td>
@@ -7,12 +6,12 @@
 		<tr>
 			<td id="id_subtabcount"> 
 				<ul class='subtabs'>
-					<li style="float:left"><a href="id_tab1" class='subtab'>一般检查</a></li>
-					<li style="float:left"><a href="id_tab2" class='subtab'>查体</a></li>
+					<li><a href="#">一般检查</a></li>
+					<li><a href="#">查体</a></li>
 				</ul>
 			</td>
 		</tr>
-		<tr id='id_tab1'>
+		<tr class='trtab'>
 			<td>
 				<table class="form_tbl">
 					<tr>
@@ -26,7 +25,7 @@
 						<td colspan="3"><span id="highRisk"></span> <span
 							id="highRiskSearch"></span></td>
 						<td class="header">高危描述</td>
-						<td colspan="4"><span id="highRiskRemark"></span></td>
+						<td colspan="5"><span id="highRiskRemark"></span></td>
 					</tr>
 					<tr>
 						<td class="header" colspan="3">身份证号码</td>
@@ -219,40 +218,36 @@
 				</table>
 			</td>
 		</tr>
-		<tr id='id_tab2' style='display:none'>
+		<tr class='trtab'>
 			<td>
 				<table class="form_tbl">
 					<tr>
 						<td class="header">血压</td>
-						<td><span id="pressure"></span>mmHg</td>
-						<td rowspan="7" align="center"><span id="onlinePhoto"></span>
-							<div>
-								<a href="#" class="onlineTakePhoto">在线拍照</a>
-							</div></td>
+						<td colspan="2"><span id="pressure"></span>mmHg</td>
 					</tr>
 					<tr>
 						<td class="header">胸廓</td>
-						<td><span id="pleura"></span><span id="pleuraRemark"></span></td>
+						<td colspan="2"><span id="pleura"></span><span id="pleuraRemark"></span></td>
 					</tr>
 					<tr>
 						<td class="header">乳牙数</td>
-						<td id="mikTooth"></td>
+						<td id="mikTooth" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">龋齿</td>
-						<td id="decayedTooth"></td>
+						<td id="decayedTooth" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">咽、扁</td>
-						<td><span id="throatFlat"></span><span id="throatFlatRemark"></span></td>
+						<td colspan="2"><span id="throatFlat"></span><span id="throatFlatRemark"></span></td>
 					</tr>
 					<tr>
 						<td class="header">左眼</td>
-						<td id="leftEyes"></td>
+						<td id="leftEyes" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">右眼</td>
-						<td id="rightEyes"></td>
+						<td id="rightEyes" colspan="2"></td>
 					</tr>
 					<tr>
 						<td class="header">全身浅表淋巴结</td>
@@ -311,4 +306,3 @@
 			</td>
 		</tr>
 	</table>
-</div>
