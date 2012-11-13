@@ -309,7 +309,11 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		List ret = new ArrayList();
 		List<CodExamlist> list = getSession().createQuery("from CodExamlist order by ord").list();
 		for(CodExamlist cod : list){
-			String sql = "select id from "+cod.getTablename()+" where fileNo = '"+fileNo+"' order by "+cod.getDatecol();
+			String sql = "select id from "+cod.getTablename()+" where fileNo = '"+fileNo+"'";
+			if(cod.getNamerule() != null && cod.getNamerule().length() >0){
+				sql = sql +" and "+ cod.getNamerule();
+			}
+			sql = sql +" order by "+cod.getDatecol();
 			if(cod.getHascount()){
 				sql +=","+cod.getCountcol();
 			}
@@ -325,6 +329,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 				vo.put("tablename",cod.getTablename());
 				vo.put("listcol",cod.getListcol());
 				vo.put("htmlurl", cod.getHtml());
+				vo.put("ord", cod.getOrd());
 				ret.add(vo);
 			}
 		}
