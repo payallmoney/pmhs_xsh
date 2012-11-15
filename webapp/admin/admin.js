@@ -580,10 +580,7 @@ function stopTask() {
   Ext.TaskMgr.stop(taskCheckSession);
 };
 function logout() {
- try{	
   stopTask();
- }catch(ex){
- }
   window.location = "/j_spring_security_logout";
 }
 
@@ -907,14 +904,16 @@ Ext.onReady(function() {
 		    	html : '<div style="width:100%;text-align: center;"><span>昆明恒辰科技有限公司</span><span style="margin-left:10px;">版权所有©2010-2012</span></div>'
 		    } ]
 		  });
-	  $('.menu_second_div img').hover(function(){
-		  $(this).css('margin-top','5px');
-		  $(this).css('margin-bottom','10px');
-	  },function(){
-		  $(this).css('margin-top','10px');
-		  $(this).css('margin-bottom','5px');
-	  });
 	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
+	  $('.menu_second_div img').hover(function(){
+		$(this).attr('style','margin-top:0px;');
+		$(this).next('div').attr('style','margin-top:5px;');
+		//$(this).attr('style','margin-bottom:20x;');
+	  },function(){
+		//$(this).attr('style','margin-bottom:10px;');
+		$(this).attr('style','margin-top:5px;');
+		$(this).next('div').attr('style','margin-top:0px;');
+	  });
   });
 }
   Ext.BLANK_IMAGE_URL = '/resources/images/default/s.gif';
@@ -927,13 +926,8 @@ Ext.onReady(function() {
       alert("Loading user menu failed.");
     }
   }
-  //try{
-	  UserMenuTreeService.genUserMenuTree(onGotMenuData);
-//  }catch(ex){
-//	  
-//  }
-  
 
+  UserMenuTreeService.genUserMenuTree(onGotMenuData);
   var showUserInfo = function(data) {
 //    console.log(data);
     if ( ! data ) {
@@ -1055,7 +1049,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 	}else if($templateId == 'fun_business_female_template'){
 		flag = true;
 		modItems = '<div class="div_child_business_container div_container">'+
-			'<div class="mod female_business_01 mod_disable"><img src="../image/menu/female_business_01.gif"/><div>建册</div><div class="remarks"></div></div>'+
+			'<div class="mod female_business_01 mod_disable"><img src="../image/menu/female_business_01.gif"/><div>孕产妇档案</div><div class="remarks"></div></div>'+
 			'<div class="mod female_business_02 mod_disable"><img src="../image/menu/female_business_02.gif"/><div>第1次产前随访</div><div class="remarks"></div></div>'+
 			'<div class="mod female_business_03 mod_disable"><img src="../image/menu/female_business_03.gif"/><div>第2~5次产前随访</div><div class="remarks"></div></div>'+
 			'<div class="mod female_business_04 mod_disable"><img src="../image/menu/female_business_04.gif"/><div>产后访视记录</div><div class="remarks"></div></div>'+
@@ -1087,9 +1081,16 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = '<div class="div_mxb_container div_container">'+
 			'<div class="mod mxb_01 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_02 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
+//			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_04 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_05 mod_disable"><img src="../image/menu/mxb_05.gif"/><div>2型糖尿病患者随访</div><div class="remarks"></div></div>'+
+//			'<div class="mod mxb_06 mod_disable"><img src="../image/menu/mxb_06.gif"/><div>重性精神病患者随访</div><div class="remarks"></div></div>'+
+//			'<div class="mod mxb_07 mod_disable"><img src="../image/menu/mxb_07.gif"/><div>重性精神病个人信息补充</div><div class="remarks"></div></div>'+
+		'</div>';
+	}else if($templateId == 'fun_zzjsb_template'){
+		flag = true;
+		modItems = '<div class="div_zzjsb_container div_container">'+
+			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_06 mod_disable"><img src="../image/menu/mxb_06.gif"/><div>重性精神病患者随访</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_07 mod_disable"><img src="../image/menu/mxb_07.gif"/><div>重性精神病个人信息补充</div><div class="remarks"></div></div>'+
 		'</div>';
