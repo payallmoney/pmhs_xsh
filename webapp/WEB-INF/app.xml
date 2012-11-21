@@ -21,5 +21,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>	
 	<!-- 修改结束 -->
-
+	<bean id="ScoreUtil"
+		class="cn.net.tongfang.web.service.score.ScoreUtil"   scope="singleton"> 
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
 </beans>

@@ -150,6 +150,13 @@
 		<dwr:remote javascript="SmsService" />
 		<aop:scoped-proxy />
 	</bean>
+	
+	<bean id="ScoreService" class="cn.net.tongfang.web.service.score.ScoreService">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="scoreUtil" ref="ScoreUtil"/>
+		<dwr:remote javascript="ScoreService" />
+		<aop:scoped-proxy />
+	</bean>
 
 	<bean id="UserMenuTreeService" class="cn.net.tongfang.framework.util.service.ModuleMgr">
 		<property name="sessionFactory" ref="sessionFactory" />

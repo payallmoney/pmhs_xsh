@@ -673,3 +673,44 @@ div.menu_second_div img{
 	margin-bottom: 10px;
 	margin-top:5px;
 }
+
+div.div_sms_container{
+    background-image: url(../image/menu/sms_bg.png) !important;
+    background-repeat: no-repeat;
+}
+
+div.sms_01{
+    margin-top: 190px;
+    margin-left: 330px;
+    width: 150px;
+}
+div.sms_02{
+    margin-top: 80px;
+    margin-left: 60px;
+    width: 150px;
+}
+div.sms_03{
+    margin-top: 40px;
+    margin-left: 330px;
+    width: 150px;
+}
+div.sms_04{
+    margin-top: 80px;
+    margin-left: 620px;
+    width: 150px;
+}
+div.sms_05{
+    margin-top: 300px;
+    margin-left: 60px;
+    width: 150px;
+}
+div.sms_06{
+    margin-top: 350px;
+    margin-left: 330px;
+    width: 150px;
+}
+div.sms_07{
+    margin-top: 300px;
+    margin-left: 620px;
+    width: 150px;
+}

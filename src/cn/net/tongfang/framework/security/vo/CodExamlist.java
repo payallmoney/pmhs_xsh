@@ -8,10 +8,10 @@ public class CodExamlist implements java.io.Serializable {
 
 	// Fields
 
-	private String tablename;
 	private String examname;
-	private long ord;
-	private boolean hascount;
+	private String tablename;
+	private Long ord;
+	private Boolean hascount;
 	private String countcol;
 	private String datecol;
 	private String namerule;
@@ -27,10 +27,10 @@ public class CodExamlist implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public CodExamlist(String tablename, String examname, long ord,
-			boolean hascount, String datecol, String queryMethod) {
-		this.tablename = tablename;
+	public CodExamlist(String examname, String tablename, Long ord,
+			Boolean hascount, String datecol, String queryMethod) {
 		this.examname = examname;
+		this.tablename = tablename;
 		this.ord = ord;
 		this.hascount = hascount;
 		this.datecol = datecol;
@@ -38,11 +38,11 @@ public class CodExamlist implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public CodExamlist(String tablename, String examname, long ord,
-			boolean hascount, String countcol, String datecol, String namerule,
+	public CodExamlist(String examname, String tablename, Long ord,
+			Boolean hascount, String countcol, String datecol, String namerule,
 			String queryMethod, String html, String listcol, String datetypecol) {
-		this.tablename = tablename;
 		this.examname = examname;
+		this.tablename = tablename;
 		this.ord = ord;
 		this.hascount = hascount;
 		this.countcol = countcol;
@@ -56,14 +56,6 @@ public class CodExamlist implements java.io.Serializable {
 
 	// Property accessors
 
-	public String getTablename() {
-		return this.tablename;
-	}
-
-	public void setTablename(String tablename) {
-		this.tablename = tablename;
-	}
-
 	public String getExamname() {
 		return this.examname;
 	}
@@ -72,19 +64,27 @@ public class CodExamlist implements java.io.Serializable {
 		this.examname = examname;
 	}
 
-	public long getOrd() {
+	public String getTablename() {
+		return this.tablename;
+	}
+
+	public void setTablename(String tablename) {
+		this.tablename = tablename;
+	}
+
+	public Long getOrd() {
 		return this.ord;
 	}
 
-	public void setOrd(long ord) {
+	public void setOrd(Long ord) {
 		this.ord = ord;
 	}
 
-	public boolean getHascount() {
+	public Boolean getHascount() {
 		return this.hascount;
 	}
 
-	public void setHascount(boolean hascount) {
+	public void setHascount(Boolean hascount) {
 		this.hascount = hascount;
 	}
 
