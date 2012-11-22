@@ -7,9 +7,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
-import cn.net.tongfang.framework.util.service.GenDefaultVal;
 import cn.net.tongfang.web.service.bo.PagedList;
 
 public class FileNumSearch extends HibernateDaoSupport{
@@ -20,14 +18,20 @@ public class FileNumSearch extends HibernateDaoSupport{
     	System.out.println("mcode is " + mcode);
     	PagedList res = new PagedList();
     	String hqlWoman = "";
-    	if(isWomanRecord != null && !isWomanRecord.equals("")){
-    		hqlWoman = " And p.sex = '女'";
+    	String otherTables = "";
+    	if(isWomanRecord != null){
+    		if(isWomanRecord.equals("1")){
+    			hqlWoman = " And p.sex = '女'";
+    		}else if(isWomanRecord.equals("2") || isWomanRecord.equals("3") || isWomanRecord.equals("8")){
+    			otherTables = " ,DiseaseHistory d ";
+    			hqlWoman = " And p.id = d.personalInfoId And diseaseId = " + isWomanRecord ;
+        	}
     	}
     	if(condVal.equals("1")){
     		likePrefix = likePrefix.replace("%", "");
     		mcode = mcode.replace("%", "");
     		String fileNo = EncryptionUtils.encry(likePrefix + mcode);
-    		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " +
+    		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where p.bornStatus = '是' And hf.fileNo = p.fileNo And substring(hf.fileNo,1," + fileNo.length() + ") = ?" + hqlWoman,fileNo).get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
@@ -35,7 +39,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	Query qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " +
+        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where  p.bornStatus = '是' And p.fileNo = hf.fileNo " +
         			"and substring(p.fileNo,1," + fileNo.length() + ") = ?" + hqlWoman);
         	qry.setParameter(0, fileNo);
@@ -56,7 +60,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     			otherCond = mcodes[0];
     		}
     		
-    		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " +
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where hf.fileNo = p.fileNo And substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
         			"And substring(hf.name,1," + otherCond.length() + ") = ?" +  hqlWoman);
     		qry.setParameter(0, districtNumber);
@@ -68,7 +72,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " +
+        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and substring(hf.districtNumber,1," + 
         			districtNumber.length() + ") = ? " +
         			"And substring(hf.name,1," + otherCond.length() + ") = ? " + hqlWoman);
@@ -90,7 +94,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     		}else{
     			otherCond = mcodes[0];
     		}
-    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " +
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo And substring(hf.districtNumber,1," + districtNumber.length() +
         			") = ? And substring(p.idnumber,1," + otherCond.length() + ") = ? " + hqlWoman);
     		qry.setParameter(0, districtNumber);
@@ -102,7 +106,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " +
+        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
         			"And substring(p.idnumber,1," + otherCond.length() + ") = ?  And hf.fileNo = p.fileNo " + hqlWoman);
         	qry.setParameter(0, districtNumber);
@@ -120,7 +124,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     		if(mcodes.length > 1){
     			otherCond = mcodes[1];
     		}
-    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " +
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hqlWoman);
 //    		qry.setParameter(0, districtNumber + "%");
         	qry.setParameter(0, otherCond);
@@ -131,7 +135,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " +
+        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo " +
         			"And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hqlWoman);
 //        	qry.setParameter(0, districtNumber + "%");

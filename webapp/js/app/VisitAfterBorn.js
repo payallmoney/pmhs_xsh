@@ -9,6 +9,7 @@ app.visitAfterBornPanel = new Ext.tf.HealthPanel({
     recordPk : 'id',
     detailUrl: '/visitAfterBorn.html',
     panelId : 'app.visitAfterBornPanel',
+    isWomanExam : true,
 //    Select A.FileNo 编号,B.Name 姓名,C.Birthday 出生日期,A.VisitDate 随访日期,Result 分类,
 //    A.NextVisitDate 下次随访日期,A.VisitDoctor 随访医生,D.UserName 录入人from VisitAfterBorn A
 //    left join dbo.HealthFile B on A.FileNo = B.FileNo

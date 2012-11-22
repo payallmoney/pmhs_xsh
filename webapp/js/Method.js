@@ -8,7 +8,7 @@
 	/**
 	 * 特殊情况记录
 	 */
-	function pregnancyRecordFunc(selections,type,grid){
+	function pregnancyRecordFunc(selections,type,grid,service,serviceType){
 //		console.log(selections);
 		var recordVal = '';
 		var dealOpinionVal = '';
@@ -50,15 +50,22 @@
 				handler : function(){
 					var formData = cPanel.getForm().getValues(false);
 					if(type == 0){
-						formData.healthFileMaternalId = selections[0].get('id');
+						if(serviceType == 0)
+							formData.healthFileMaternalId = selections[0].get('id');
+						else if(serviceType == 1)
+							formData.healthFileChildrenId = selections[0].get('id');
 					}else if(type == 1){
-						formData.healthFileMaternalId = selections[0].get('healthFileMaternalId');
+						if(serviceType == 0)
+							formData.healthFileMaternalId = selections[0].get('healthFileMaternalId');
+						else if(serviceType == 1)
+							formData.healthFileChildrenId = selections[0].get('healthFileChildrenId');
 						formData.id = selections[0].get('id');
 						formData.inputPersonId = selections[0].json.inputPersonId;
 						formData.inputDate = calculateTimeObj.formatDate(selections[0].json.inputDate);
 					}
 //					console.log(grid.getStore());
-					healthfileMaternalService.PregnancyRecordService(formData,function(){
+					console.log(service);
+					service(formData,function(){
 						showInfoObj.Infor('保存成功！');
 						if(grid != null)
 							grid.getStore().reload();

@@ -54,6 +54,7 @@ import cn.net.tongfang.framework.security.vo.FuriousInfo;
 import cn.net.tongfang.framework.security.vo.FuriousVisit;
 import cn.net.tongfang.framework.security.vo.HealthEducat;
 import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.HealthFileChildren;
 import cn.net.tongfang.framework.security.vo.HealthFileLoginOff;
 import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.HealthFileTransfer;
@@ -64,6 +65,7 @@ import cn.net.tongfang.framework.security.vo.InfectionReport;
 import cn.net.tongfang.framework.security.vo.MedicalExam;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.PregnancyRecord;
+import cn.net.tongfang.framework.security.vo.PregnancyRecordChild;
 import cn.net.tongfang.framework.security.vo.Reception;
 import cn.net.tongfang.framework.security.vo.SamModule;
 import cn.net.tongfang.framework.security.vo.SamModuleCategory;
@@ -741,6 +743,50 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	
+	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params) {
+		StringBuilder where = new StringBuilder();
+		buildGeneralWhereHealthFile(qryCond, params, where,0);		
+		if (params.size() != 0) {
+			where.replace(0, 4, " where ");
+		}
+		StringBuilder hql = new StringBuilder(
+				"from HealthFile a, HealthFileChildren b").append(where).append(
+				" order by a.name ASC");
+		log.debug("hql: " + hql.toString());
+		return hql;
+	}
+	public PagingResult<Map<String, Object>> findHealthfilesAlreadyBuildChild(
+			HealthFileQry qryCond, PagingParam pp) {
+		List params = new ArrayList();
+		StringBuilder hql = buildHealthAlreadyBuildChildHql(qryCond, params);
+
+		PagingResult<Object> p = query(hql, params, pp);
+		List list = p.getData();
+		List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
+		String tmpFileNo = "";
+		for (Object object : list) {
+			Object[] objs = (Object[]) object;
+			HealthFile file = (HealthFile) objs[0];
+			HealthFileChildren maternal = (HealthFileChildren) objs[1];
+			if(!tmpFileNo.equals(file.getFileNo())){
+				file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
+				file.setName(EncryptionUtils.decipher(file.getName()));
+//				maternal.setIdnumber(EncryptionUtils.decipher(maternal.getIdnumber()));
+				tmpFileNo = file.getFileNo();
+			}
+			getHibernateTemplate().evict(file);
+			getHibernateTemplate().evict(maternal);
+			Map map = new HashMap();
+			map.put("file", file);
+			map.put("children", maternal);
+			files.add(map);
+		}
+
+		PagingResult<Map<String, Object>> result = new PagingResult<Map<String, Object>>(
+				p.getTotalSize(), files);
+		return result;
+
+	}
 	public PagingResult<Map<String, Object>> findHealthfilesFinishGestation(
 			HealthFileQry qryCond, PagingParam pp) {
 		List params = new ArrayList();
@@ -4050,6 +4096,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ");
 				query.setParameter(0, fileNo);
 				query.executeUpdate();
+				query = getSession().createQuery(" Delete From PregnancyRecord Where healthFileMaternalId = ? ");
+				query.setParameter(0, maternal.getId());
+				query.executeUpdate();
 				getHibernateTemplate().delete(maternal);
 			}
 		}
@@ -4063,7 +4112,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		}
 	}
-	
+	public void removehealthfilePregnancyRecordChild(final List<String> recordIdList) {
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		for(String id : recordIdList){
+			PregnancyRecordChild pregnancy = (PregnancyRecordChild)getHibernateTemplate().get(PregnancyRecordChild.class, id);
+			if(pregnancy.getInputPersonId().equals(user.getUsername())){
+				getHibernateTemplate().delete(pregnancy);
+			}
+		}
+	}
 	public void removeHealthfilesFinishGestation(final List<String> recordIdList) {
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -4100,5 +4157,37 @@ public class ModuleMgr extends HibernateDaoSupport {
 		PagingResult<PregnancyRecord> result = new PagingResult<PregnancyRecord>(
 				totalSize, query.list());
 		return result;
+	}
+	
+	public PagingResult<PregnancyRecordChild> findhealthfilePregnancyRecordChild(PregnancyRecordChild qryCond,PagingParam pp){
+		String hql = " From PregnancyRecordChild Where healthFileChildrenId = ? ";
+		Query query = getSession().createQuery(" Select Count(*) " + hql);
+		query.setParameter(0, qryCond.getHealthFileChildrenId());
+		int totalSize = ((Long) query.uniqueResult()).intValue();
+		query = getSession().createQuery(hql + " Order By recordDate ");
+		query.setParameter(0, qryCond.getHealthFileChildrenId());
+		if(pp == null) pp = new PagingParam();
+		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+		PagingResult<PregnancyRecordChild> result = new PagingResult<PregnancyRecordChild>(
+				totalSize, query.list());
+		return result;
+	}
+	
+	public void removeHealthfilesAlreadyBuildChild(final List<String> recordIdList) {
+		Query query = null;
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		for(String id : recordIdList){
+			HealthFileChildren child = (HealthFileChildren)getHibernateTemplate().get(HealthFileChildren.class, id);
+			if(child.getInputPersonId().equals(user.getUsername())){
+				String fileNo = child.getFileNo();
+				query = getSession().createQuery(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ");
+				query.setParameter(0, fileNo);
+				query.executeUpdate();
+				query = getSession().createQuery(" Delete From PregnancyRecordChild Where healthFileChildrenId = ? ");
+				query.setParameter(0, child.getId());
+				query.executeUpdate();
+				getHibernateTemplate().delete(child);
+			}
+		}
 	}
 }

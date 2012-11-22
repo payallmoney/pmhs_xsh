@@ -96,7 +96,7 @@ public class BabyVisit implements java.io.Serializable {
 	private String highRiskRemark;
 	private String execDistrictNum;
 	private String highRiskSearch;
-	
+	private String foreignId;
 	
 	public BabyVisit() {
 	}
@@ -130,7 +130,7 @@ public class BabyVisit implements java.io.Serializable {
 			String exam28Other, BigDecimal exam29, BigDecimal exam30,
 			Integer exam31, Integer exam32, String exam33, Integer exam34,
 			String exam35,String highRisk,String highRiskRemark,
-			String execDistrictNum,String highRiskSearch) {
+			String execDistrictNum,String highRiskSearch,String foreignId) {
 		super();
 		this.id = id;
 		this.fileNo = fileNo;
@@ -214,6 +214,7 @@ public class BabyVisit implements java.io.Serializable {
 		this.highRiskRemark = highRiskRemark;
 		this.execDistrictNum = execDistrictNum;
 		this.highRiskSearch = highRiskSearch;
+		this.foreignId = foreignId;
 	}
 
 	public String getId() {
@@ -872,4 +873,13 @@ public class BabyVisit implements java.io.Serializable {
 	public void setHighRiskSearch(String highRiskSearch) {
 		this.highRiskSearch = highRiskSearch;
 	}
+
+	public String getForeignId() {
+		return foreignId;
+	}
+
+	public void setForeignId(String foreignId) {
+		this.foreignId = foreignId;
+	}
+	
 }

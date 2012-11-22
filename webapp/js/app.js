@@ -277,10 +277,12 @@ var allDisabled = false;
 
         function setFormVal(d) {
             for(var prop in d) {
+            	console.log(prop);
                 if(d.hasOwnProperty(prop)) { 
                     var c = form_fields[prop];
 //                    console.log(cfg);
                     if (c && c['val']){
+                    	console.log(c);
 //                    	console.log(prop + '---' + d[prop]);
                     	if(d[prop] == null)
                     		d[prop] = '';
@@ -471,7 +473,10 @@ var allDisabled = false;
                 } else {
                     //不需从server端加载，直接set
                     setFormVal(qo);
-                    //console.log(qo);
+                    console.log(qo);
+                    if(typeof(childOtherValJson) != 'undefined'){
+                    	setFormVal(childOtherValJson);
+                    }
                     if(typeof(saveBeforeObj) != 'undefined' && qo.fileNo != undefined && qo.fileNo != 'undefined'){
     					saveBeforeObj.IsAbortionFn(qo.fileNo,'');
                     }
@@ -687,8 +692,9 @@ var quitAfterSave = false;
 var foreignId = false;
 var storeId = null;
 $(function(){
+	console.log(window.location.search);
 	var json = parseParams(window.location.search);
-	console.log(json);
+//	console.log(json);
 	if(json.isNext != undefined){
 		isNextUrl = true;
 	}

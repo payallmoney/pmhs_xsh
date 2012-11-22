@@ -10,7 +10,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	closable : true,
 	currentNode : null, // 当前选择的树节点
 	layout : 'fit',
-	title : '档案',
+//	title : '档案',
 	pageSize : 20,
 	recordId : 'id',
 	recordPk : 'id',
@@ -21,8 +21,10 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	storeId : '',
 	advancedFeatures : false,
 	isMaternal : false,
+	maternalText : '建立孕产妇保健手册',
 	isAlreadyMaternal : false,
 	isFinishGestation : false,
+	isWomanExam : false,
 	// height:700,
 	// 是否需要在最末级才能增加？
 	checkLastLevel : true,
@@ -89,7 +91,12 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			}
 		}
 		var getParams = this.getAddParams();
-		if(getParams != '-1'){
+		if(getParams == '-1'){
+			showInfoObj.Infor('请选择档案');
+		}else if(getParams == '-2'){
+			var selections = this.grid.getSelections();
+			showInfoObj.Infor(selections[0].data.name + '小朋友已经建立了保健手册');
+		}else{
 			param = this.detailUrl + getParams;
 //			console.log(param);
 			if (this.visitDoctor != null) {
@@ -105,8 +112,6 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			} else {
 				this.openWin(param);
 			}
-		}else{
-			showInfoObj.Infor('请选择档案');
 		}
 		
 	},
@@ -123,7 +128,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			defaultSrc : targetUrl,
 			layout : 'fit',
 			width: win.getInnerWidth(),
-//			height: win.getInnerHeight() - 10,
+			height: win.getInnerHeight() - 10,
 			title : '',
 			loadMask : true,
 			autoScroll : false,
@@ -150,23 +155,31 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 									title : '第一次产前随访',
 									layout : 'fit',
 									id : 'firstvisit_tabpanel_id',
+									height : win.getInnerHeight() - 30,
+									border : true,
 									items : [this.generalItems(win,'/firstvisit.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 								});
 								Ext.getCmp('woman_generalItems_tabpanel').add({
 									title : '第2~5次产前随访',
 									layout : 'fit',
+									height : win.getInnerHeight() - 30,
+									border : true,
 									id : 'visitBeforeBorn_tabpanel_id',
 									items : [this.generalItems(win,'/VisitBeforeBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 								});
 								Ext.getCmp('woman_generalItems_tabpanel').add({
 									title : '产后访视',
 									layout : 'fit',
+									height : win.getInnerHeight() - 30,
+									border : true,
 									id : 'visitAfterBorn_tabpanel_id',
 									items : [this.generalItems(win,'/visitAfterBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 								});
 								Ext.getCmp('woman_generalItems_tabpanel').add({
 									title : '产后42天访视',
 									layout : 'fit',
+									height : win.getInnerHeight() - 30,
+									border : true,
 									id : 'visitAfterBorn42_tabpanel_id',
 									items : [this.generalItems(win,'/visitAfterBorn42.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 								});
@@ -183,7 +196,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 				modal : true,
 //				title : '录入记录',
 				border : false,
-				layout : 'fit'
+				layout : 'fit',
+				html : '<div id="woman_tabpanel" style="width:830px;margin:0 auto;"></div>'
 			});
 			if (param != null) {
 				window.other_init_param = param;
@@ -191,13 +205,15 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 
 			win.show();
 			win.maximize();
-			win.add({
-				xtype : 'tabpanel',
+			var tabs = new Ext.TabPanel({
 				activeTab: 0,
 				id : 'woman_generalItems_tabpanel',
+				renderTo: 'woman_tabpanel',
 				items : [{
 					title : '孕产妇保健手册',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : true,
 					items : [this.generalItems(win,targetUrl)]
 				}]
 			});
@@ -207,7 +223,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 				modal : true,
 //				title : '录入记录',
 				border : false,
-				layout : 'fit'
+				layout : 'fit',
+				html : '<div id="woman_tabpanel" style="width:830px;margin:0 auto;"></div>'
 			});
 			if (param != null) {
 				window.other_init_param = param;
@@ -215,28 +232,38 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 
 			win.show();
 			win.maximize();
-			win.add({
-				xtype : 'tabpanel',
-				activeTab: 0,
-				items : [{
+			var tabs = new Ext.TabPanel({
+			    renderTo: 'woman_tabpanel',
+			    activeTab: 0,
+			    items : [{
 					title : '孕产妇保健手册',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : true,
 					items : [this.generalItems(win,targetUrl)]
 				},{
 					title : '第一次产前随访',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : false,
 					items : [this.generalItems(win,'/firstvisit.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 				},{
 					title : '第2~5次产前随访',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : false,
 					items : [this.generalItems(win,'/VisitBeforeBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 				},{
 					title : '产后访视',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : false,
 					items : [this.generalItems(win,'/visitAfterBorn.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 				},{
 					title : '产后42天访视',
 					layout : 'fit',
+					height : win.getInnerHeight() - 30,
+					border : false,
 					items : [this.generalItems(win,'/visitAfterBorn42.html?fileNo=' + this.storeFileNo + '&foreignId=' + this.storeId)]
 				}]
 			});
@@ -408,10 +435,10 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		}else{
 			advancedF = dataExport;
 		}
-		var funcAction;
+		var funcAction = [];
 		if(this.isMaternal){
 			funcAction = [new Ext.Action({
-								text : '建立孕产妇保健手册',
+								text : this.maternalText,
 								iconCls : 'c_add',
 								handler : function() {
 									var selNode = this.getTreeSelNode();
@@ -574,19 +601,21 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 				}.createDelegate(this)
 			})];
 		} else{
-			funcAction = [
-							new Ext.Action({
-								text : '增加',
-								iconCls : 'c_add',
-								handler : function() {
-									var selNode = this.getTreeSelNode();
-									if (selNode) {
-										this.f_add();
-									}
-								}.createDelegate(this)
-							}),
-							this.editAction,
-							new Ext.Action({
+			this.addAction = new Ext.Action({
+				text : '增加',
+				iconCls : 'c_add',
+				handler : function() {
+					var selNode = this.getTreeSelNode();
+					if (selNode) {
+						this.f_add();
+					}
+				}.createDelegate(this)
+			});
+			if(!this.isWomanExam){
+				funcAction.push(this.addAction);
+			}
+			funcAction.push(this.editAction);
+			funcAction.push(new Ext.Action({
 								text : '删除',
 								iconCls : 'c_del',
 								handler : function() {
@@ -617,18 +646,18 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 												this);
 									}
 								}.createDelegate(this)
-							}),
-							'-',
-							this.combo,
-							this.filterField,
-							new Ext.Action({
+							}));
+			funcAction.push('-');
+			funcAction.push(this.combo);
+			funcAction.push(this.filterField);
+			funcAction.push(new Ext.Action({
 								text : '查询',
 								iconCls : 'c_query',
 								handler : function() {
 									this.load(true);
 								}.createDelegate(this)
-							}),
-							advancedF];
+							}));
+			funcAction.push(advancedF);
 		}
 		return funcAction;
 	},
@@ -724,18 +753,20 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		}.createDelegate(this));
 
 // this.grid.on('rowdblclick', this.editFn, this);
-		this.grid.on('rowdblclick', function(){
-			var selections = this.grid.getSelections();
-			if (selections.length == 1) {
-//				console.log(selections[0]);
-				if(this.isMaternal){
-					this.checkLastLevel = false;
-					this.f_add();
-				}else{
-					this.f_edit(selections[0]);
+		if(!this.isFinishGestation ){
+			this.grid.on('rowdblclick', function(){
+				var selections = this.grid.getSelections();
+				if (selections.length == 1) {
+//					console.log(selections[0]);
+					if(this.isMaternal){
+						this.checkLastLevel = false;
+						this.f_add();
+					}else{
+						this.f_edit(selections[0]);
+					}
 				}
-			}
-		}, this);
+			}, this);
+		}
 
 		this.menu = new Ext.tree.TreePanel({
 			// height : 465,
@@ -785,7 +816,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			},
 			dblclick : {
 				fn : function(n, e) {
-					if(!this.isAlreadyMaternal)
+					if(!this.isAlreadyMaternal && !this.isFinishGestation && !this.isWomanExam)
 						this.f_add(true);
 				}.createDelegate(this)
 			}

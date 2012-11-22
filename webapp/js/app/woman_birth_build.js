@@ -124,20 +124,22 @@ app.womanBirthBuildPanel = new Ext.Panel({
 //	        height:500,
 	        autoScroll: true,
 	        layout : 'fit',
-	        items: [new Ext.tf.HealthPanel({
+	        items: [new Ext.tf.HealthPregnancyRecordPanel({
 	        	treeLoaderFn : UserMenuTreeService.getUserDistrictNodes,
 	        	queryUrl : UserMenuTreeService.findHealthfilesAlreadyBuild,
+	        	queryUrl01 : UserMenuTreeService.findhealthfilePregnancyRecord,
 	        	deleteUrl : UserMenuTreeService.removeHealthfilesAlreadyBuild,
+	        	deleteUrl01 : UserMenuTreeService.removehealthfilePregnancyRecord,
 //	        	title : '居民健康档案',
-	        	detailUrl : '/healthfileEnableBuild.html',
 	        	recordId : 'id',
+	        	detailUrl : '/healthfileEnableBuild.html',
 	        	recordPk : 'id',
-//	        	height:500,
-		        autoScroll: true,
-	        	isAlreadyMaternal : true,
 	        	judgeCondId : 'isClosed',
 	        	judgeCondVal : '0',
-	        	panelId : 'app.healthfileAlreadyBuildPanelPanel',
+	        	isAlreadyMaternal : true,
+	        	panelId : 'app.healthfilePregnancyRecordPanel',
+	        	service : healthfileMaternalService.PregnancyRecordService,
+	        	serviceType : 0,
 	        	readerConfig : [ {
 	        		name : 'id',
 	        		mapping : 'maternal.id'
@@ -163,20 +165,23 @@ app.womanBirthBuildPanel = new Ext.Panel({
 	        		name : 'isClosed',
 	        		mapping : 'maternal.isClosed'
 	        	},{
-	        		name : 'closedDate',
-	        		mapping : 'maternal.closedDate'
+	        		name : 'township',
+	        		mapping : 'file.township'
+	        	},{
+	        		name : 'village',
+	        		mapping : 'file.village'
 	        	} ],
 	        	gridCmConfig : [ {
 	        		"header" : "状态",
 	        		"dataIndex" : "isClosed",
-	        		"renderer" : function(v){
-	        			if(v == '0'){
+	        		"renderer" : function(v) {
+	        			if (v == '0') {
 	        				return '<span>未结案</span>';
-	        			}else if(v == '1'){
+	        			} else if (v == '1') {
 	        				return '<span>已结案</span>';
-	        			}else if(v == '2'){
+	        			} else if (v == '2') {
 	        				return '<span>终止妊娠</span>';
-	        			}else{
+	        			} else {
 	        				return '';
 	        			}
 	        		}
@@ -206,34 +211,245 @@ app.womanBirthBuildPanel = new Ext.Panel({
 	        			return '';
 	        		}
 	        	},{
-	        		"header" : "结案时间",
-	        		"dataIndex" : "closedDate",
-	        		"renderer" : function(v){
-	        			if(v != null)
-	        				return calculateTimeObj.formatDate(v,'-');
-	        			return '';
+	        		"header" : "所属行政区划",
+	        		"width" : 150,
+	        		"renderer" : function(value, metadata, record, rowIndex, colIndex, store) {
+	        			return record.data.township + record.data.village;
 	        		}
+	        	} ],
+	        	readerConfig01 : [ {
+	        		name : 'id',
+	        		mapping : 'id'
+	        	}, {
+	        		name : 'recordDate',
+	        		mapping : 'recordDate'
+	        	}, {
+	        		name : 'record',
+	        		mapping : 'record'
+	        	}, {
+	        		name : 'dealOpinion',
+	        		mapping : 'dealOpinion'
+	        	}, {
+	        		name : 'doctor',
+	        		mapping : 'doctor'
+	        	}, {
+	        		name : 'healthFileMaternalId',
+	        		mapping : 'healthFileMaternalId'
+	        	} ],
+	        	gridCmConfig01 : [ {
+	        		"header" : "记录日期",
+	        		"dataIndex" : "recordDate",
+	        		"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
+	        	}, {
+	        		"header" : "特殊情况记录",
+	        		"dataIndex" : "record",
+	        		"width" : 300
+	        	}, {
+	        		"header" : "处理意见",
+	        		"dataIndex" : "dealOpinion",
+	        		"width" : 150
+	        	}, {
+	        		"header" : "医生签名",
+	        		"dataIndex" : "doctor"
 	        	} ]
-
-//	        	getAddParams : function() {
-//
-//	        		var node = this.getTreeSelNode();
-//
-//	        		var districtNumber = node.id;
-//	        		var township = '';
-//	        		// console.log(node.attributes.data.parentName);
-//	        		if (node.parentNode) {
-//	        			township = escape(node.parentNode.text);
-//	        			if (township == 'root')
-//	        				township = escape(node.attributes.data.parentName);
-//	        		}
-//	        		var village = escape(node.text);
-//
-//	        		var param = '?districtNumber=' + districtNumber + '&township='
-//	        				+ township + '&village=' + village;
-//	        		return param;
-//	        	}
 	        })]
+	    },{
+	    	 title: '第一次产前随访',
+		     layout : 'fit',
+		     autoScroll: true,
+		     items: [new Ext.tf.HealthPanel({
+		    	    title: '第一次产前随访记录',
+		    	    treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
+		    	    queryUrl : UserMenuTreeService.findFirstVisitRecords,
+		    	    deleteUrl : UserMenuTreeService.removeFirstVisitRecords,
+		    	    dataExportUrl : DataExportService.dataExportFirstBabyVisit,
+		    	    recordId : 'firstVisit.id',
+		    	    recordPk : 'id',
+		    	    detailUrl: '/firstvisit.html',
+		    	    panelId : 'app.firstvisitPanel',
+		    	    isWomanExam : true,
+//		    	    Select A.FileNo 编号,B.Name 姓名,C.Birthday 出生日期,Weeks 孕周,A.VisitDate 随访日期,
+//		    	    A.NextVisitDate 下次随访日期,A.VisitDoctor 随访医生,D.UserName 录入人from FirstVistBeforeBorn A
+//		    	    left join dbo.HealthFile B on A.FileNo = B.FileNo
+//		    	    left join PersonalInfo C on A.FileNo = B.FileNo
+//		    	    left join sam_taxempcode D on A.inputpersonId = D.loginname
+		    	    readerConfig : [
+		    	                    {name:'execOrgName', mapping: 'org.name'},
+		    	                    {name:'id', mapping: 'firstVisit.id'},
+		    	                    {name:'fileNo', mapping: 'file.fileNo'},
+		    	                    {name:'name', mapping: 'file.name'},
+		    	                    {name:'birthday', mapping: 'person.birthday'},
+		    	                    {name:'highRisk', mapping: 'firstVisit.highRisk'},
+		    	                    {name:'weeks', mapping: 'firstVisit.weeks'},
+		    	                    {name:'visitDate', mapping: 'firstVisit.visitDate'},
+		    	                    {name:'nextVisitDate', mapping: 'firstVisit.nextVisitDate'},
+		    	                    {name:'visitDoctor', mapping: 'firstVisit.visitDoctor'},
+		    	                    {name:'username', mapping: 'samTaxempcode.username'}
+		    	                   ],
+		    	    gridCmConfig :
+		    	                   [
+		    	                    { "header" : "执行机构", "dataIndex" : "execOrgName"}, 
+		    	                     { "header" : "编号", "dataIndex" : "fileNo", "width":130 },
+		    	                     { "header" : "姓名", "dataIndex" : "name" },
+		    	                     { "header" : "出生日期", "dataIndex" : "birthday",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                                         { "header" : "高危", "dataIndex" : "highRisk" },
+		    	                     { "header" : "孕周", "dataIndex" : "weeks" },
+		    	                     { "header" : "随访日期", "dataIndex" : "visitDate",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "下次随访日期", "dataIndex" : "nextVisitDate",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "随访医生", "dataIndex" : "visitDoctor" },
+		    	                     { "header" : "录入人", "dataIndex" : "username" }
+		    	                   ]
+		    	})]
+	    },{
+	    	 title: '第2~5次产前随访',
+		     layout : 'fit',
+		     autoScroll: true,
+		     items: [new Ext.tf.HealthPanel({
+		    	    title: '第2至5次产前随访记录',
+		    	    treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
+		    	    queryUrl : UserMenuTreeService.findVisitBeforeBornRecords,
+		    	    deleteUrl : UserMenuTreeService.removeVisitBeforeBornRecords,
+		    	    dataExportUrl : DataExportService.dataExportVisitBeforeBorn,
+		    	    recordId : 'visit.id',
+		    	    recordPk : 'id',
+		    	    detailUrl: '/VisitBeforeBorn.html',
+		    	    panelId : 'app.visitBeforeBornPanel',
+		    	    isWomanExam : true,
+//		    	    Select A.FileNo 编号,B.Name 姓名,C.Birthday 出生日期,Weeks 孕周,A.Item 项目,A.VisitDate 随访日期,
+//		    	    A.NextVisitDate 下次随访日期,A.VisitDoctor 随访医生,D.UserName 录入人from VisitBeforeBorn A
+//		    	    left join dbo.HealthFile B on A.FileNo = B.FileNo
+//		    	    left join PersonalInfo C on A.FileNo = B.FileNo
+//		    	    left join sam_taxempcode D on A.inputpersonId = D.loginname
+		    	    
+		    	    readerConfig : [
+		    	                    {name:'execOrgName', mapping: 'org.name'},
+		    	                    {name:'id', mapping: 'visit.id'},
+		    	                    {name:'fileNo', mapping: 'file.fileNo'},
+		    	                    {name:'name', mapping: 'file.name'},
+		    	                    {name:'birthday', mapping: 'person.birthday'},
+		    	                    {name:'highRisk', mapping: 'visit.highRisk'},
+		    	                    {name:'weeks', mapping: 'visit.weeks'},
+		    	                    {name:'item', mapping: 'visit.item'},
+		    	                    {name:'visitDate', mapping: 'visit.visitDate'},
+		    	                    {name:'nextVisitDate', mapping: 'visit.nextVisitDate'},
+		    	                    {name:'visitDoctor', mapping: 'visit.visitDoctor'},
+		    	                    {name:'username', mapping: 'samTaxempcode.username'}
+		    	                   ],
+		    	    gridCmConfig :
+		    	                   [
+		    	                    { "header" : "执行机构", "dataIndex" : "execOrgName"}, 
+		    	                     { "header" : "编号", "dataIndex" : "fileNo", "width":130 },
+		    	                     { "header" : "姓名", "dataIndex" : "name" },
+		    	                     { "header" : "出生日期", "dataIndex" : "birthday",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                                         { "header" : "高危", "dataIndex" : "highRisk" },   
+		    	                     { "header" : "孕周", "dataIndex" : "weeks" },
+		    	                     { "header" : "项目", "dataIndex" : "item","renderer" : function(val){
+		    	                    	 return "第" + val + "次";
+		    	                     }},
+		    	                     { "header" : "随访日期", "dataIndex" : "visitDate",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "下次随访日期", "dataIndex" : "nextVisitDate",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "随访医生", "dataIndex" : "visitDoctor" },
+		    	                     { "header" : "录入人", "dataIndex" : "username" }
+		    	                   ]
+		    	})]
+	    },{
+	    	 title: '产后访视记录',
+		     layout : 'fit',
+		     autoScroll: true,
+		     items: [new Ext.tf.HealthPanel({
+		    	    title: '产后访视记录',
+		    	    treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
+		    	    queryUrl : UserMenuTreeService.findVisitAfterBornRecords,
+		    	    deleteUrl : UserMenuTreeService.removeVisitAfterBornRecords,
+		    	    dataExportUrl : DataExportService.dataExportVisitAfterBorn,
+		    	    recordId : 'visit.id',
+		    	    recordPk : 'id',
+		    	    detailUrl: '/visitAfterBorn.html',
+		    	    panelId : 'app.visitAfterBornPanel',
+		    	    isWomanExam : true,
+//		    	    Select A.FileNo 编号,B.Name 姓名,C.Birthday 出生日期,A.VisitDate 随访日期,Result 分类,
+//		    	    A.NextVisitDate 下次随访日期,A.VisitDoctor 随访医生,D.UserName 录入人from VisitAfterBorn A
+//		    	    left join dbo.HealthFile B on A.FileNo = B.FileNo
+//		    	    left join PersonalInfo C on A.FileNo = B.FileNo
+//		    	    left join sam_taxempcode D on A.inputpersonId = D.loginnam
+		    	    readerConfig : [
+		    	                    {name:'execOrgName', mapping: 'org.name'},
+		    	                    {name:'id', mapping: 'visit.id'},
+		    	                    {name:'fileNo', mapping: 'file.fileNo'},
+		    	                    {name:'name', mapping: 'file.name'},
+		    	                    {name:'birthday', mapping: 'person.birthday'},
+		    	                    {name:'highRisk', mapping: 'visit.highRisk'},
+		    	                    {name:'visitDate', mapping: 'visit.visitDate'},
+		    	                    {name:'result', mapping: 'visit.result'},
+		    	                    {name:'nextVisitDate', mapping: 'visit.nextVisitDate'},
+		    	                    {name:'visitDoctor', mapping: 'visit.visitDoctor'},
+		    	                    {name:'username', mapping: 'samTaxempcode.username'}
+		    	                   ],
+		    	    gridCmConfig :
+		    	                   [
+		    	                    { "header" : "执行机构", "dataIndex" : "execOrgName"}, 
+		    	                     { "header" : "编号", "dataIndex" : "fileNo", "width":130 },
+		    	                     { "header" : "姓名", "dataIndex" : "name" },
+		    	                     { "header" : "出生日期", "dataIndex" : "birthday",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                                         { "header" : "高危", "dataIndex" : "highRisk" },
+		    	                     { "header" : "随访日期", "dataIndex" : "visitDate",
+		    	                                           "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "分类", "dataIndex" : "result" },
+		    	                     { "header" : "下次随访日期", "dataIndex" : "nextVisitDate",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "随访医生", "dataIndex" : "visitDoctor" },
+		    	                     { "header" : "录入人", "dataIndex" : "username" }
+		    	                   ]
+		    	})]
+	    },{
+	    	 title: '产后42天健康体检',
+		     layout : 'fit',
+		     autoScroll: true,
+		     items: [new Ext.tf.HealthPanel({
+		    	    title: '产后42天健康检查记录',
+		    	    treeLoaderFn: UserMenuTreeService.getUserDistrictNodes,
+		    	    queryUrl : UserMenuTreeService.findVisitAfterBorn42Records,
+		    	    deleteUrl : UserMenuTreeService.removeVisitAfterBornRecords,
+		    	    dataExportUrl : DataExportService.dataExportVisitAfterBorn42,
+		    	    recordId : 'visit.id',
+		    	    recordPk : 'id',
+		    	    detailUrl: '/visitAfterBorn42.html',
+		    	    panelId : 'app.visitAfterBorn42Panel',
+		    	    isWomanExam : true,
+		    	    readerConfig : [
+		    	                    {name:'execOrgName', mapping: 'org.name'},
+		    	                    {name:'id', mapping: 'visit.id'},
+		    	                    {name:'fileNo', mapping: 'file.fileNo'},
+		    	                    {name:'name', mapping: 'file.name'},
+		    	                    {name:'birthday', mapping: 'person.birthday'},
+		    	                    {name:'highRisk', mapping: 'visit.highRisk'},
+		    	                    {name:'visitDate', mapping: 'visit.visitDate'},
+		    	                    {name:'result', mapping: 'visit.result'},
+		    	                    {name:'visitDoctor', mapping: 'visit.visitDoctor'},
+		    	                    {name:'username', mapping: 'samTaxempcode.username'}
+		    	                   ],
+		    	    gridCmConfig :
+		    	                   [
+		    	                    { "header" : "执行机构", "dataIndex" : "execOrgName"},
+		    	                     { "header" : "编号", "dataIndex" : "fileNo", "width":130 },
+		    	                     { "header" : "姓名", "dataIndex" : "name" },
+		    	                     { "header" : "出生日期", "dataIndex" : "birthday",
+		    	                                         "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                                         { "header" : "高危", "dataIndex" : "highRisk" },
+		    	                     { "header" : "随访日期", "dataIndex" : "visitDate",
+		    	                                           "renderer": Ext.util.Format.dateRenderer('Y-m-d') },
+		    	                     { "header" : "分类", "dataIndex" : "result" },
+		    	                     { "header" : "随访医生", "dataIndex" : "visitDoctor" },
+		    	                     { "header" : "录入人", "dataIndex" : "username" }
+		    	                   ]
+		    	})]
 	    }]
 	}]
 });
