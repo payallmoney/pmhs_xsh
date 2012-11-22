@@ -1033,7 +1033,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod fun_mod_06 mod_disable"><img src="../image/menu/1.gif"/><div>组织机构维护</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_07 mod_disable"><img src="../image/menu/45.gif"/><div>出生医学证明初始化</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_08 mod_disable"><img src="../image/menu/60.gif"/><div>出生医学证明分配</div><div class="remarks"></div></div>'+
-			'<div class="mod fun_mod_09 mod_disable"><img src="../image/menu/60.gif"/><div>考试打分</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_09 mod_disable"><img src="../image/menu/score.png"/><div>在线考核</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_business_child_template'){
 		flag = true;
