@@ -40,18 +40,18 @@ gHeader{
 td.header {
     text-align: left; 
 	text-indent:5px;
-	height:100%;
+	height:30px;
 	white-space:nowrap;
 }
 td span{
-	height:100%;
+	height:30px;
 }
 td span .ie6input{
 	/*width:95%;*/
 }
 
 #fileNo{
-	height:100%;
+	height:30px;
 } 
 td span> input{
 	height:30px;

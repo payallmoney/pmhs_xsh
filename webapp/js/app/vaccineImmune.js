@@ -76,4 +76,4 @@ app.VaccineImmnuePanel = new Ext.tf.VaccineImmnuePanel({
 		}
 	}]
 });
-_tab = ModuleMgr.register(app.VaccineImmnuePanel);
+ModuleMgr.register(app.VaccineImmnuePanel);
