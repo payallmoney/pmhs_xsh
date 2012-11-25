@@ -1,11 +1,93 @@
 Ext.ns('Ext.tf')
 
+function genCenterContent(data,fileNo){
+	var $table_vacciProgram = '<table class="vacciProgram_table_cls" cellpadding="0" cellspacing="0">';
+	var head_info_vacciProgram = data[0];
+	var $thead_vacciProgram = '<thead><tr>';
+	for(var i = 1;i < head_info_vacciProgram.length;i++){
+		$thead_vacciProgram = $thead_vacciProgram + '<td>' + head_info_vacciProgram[i] + '</td>';
+	}
+	$thead_vacciProgram = $thead_vacciProgram + '</tr></thead>';
+	var $tbody_vacciProgram = '<tbody>';
+	for(var i=1;i<data.length;i++){
+		$tbody_vacciProgram = $tbody_vacciProgram + '<tr>';
+		for(var j=1;j<data[i].length;j++){
+			var val = data[i][j];
+			var cls = '';
+			var attr = '';
+			var rowNumber = data[i][0];
+			var isSpecail = 0;
+			if(val != '' && j != 1){
+				var splitVal = val.split(':');
+				var colNum = splitVal[1];
+				var type = 0;
+				if(splitVal.length > 2){
+					cls = 'background-color: #b2dece;text-align:left;cursor:pointer;';
+					if(colNum.indexOf('~') > 0){
+						isSpecail = 1; 
+						colNum = colNum.replace('~','');
+					}
+					var date = splitVal[2];
+					date = date.length > 10 ? date.substring(0,10) : date;
+					val = '<span>' + splitVal[0] + '<br />' + date + '</span><span class="ColAndRowVal" style="display:none;">' + 
+					colNum + ',' + rowNumber + '</span>';
+					type = 1;
+				}else{
+					if(colNum.indexOf('~') > 0){
+						isSpecail = 1; 
+						colNum = colNum.replace('~','');
+					}
+					if(colNum.indexOf('$') > 0){
+						
+						colNum = colNum.replace('$','');
+					}
+					cls = 'background-color: #f4fba3;cursor:pointer;';
+					val = '<span>' + splitVal[0] + '</span><span  class="ColAndRowVal" style="display:none;">' + 
+						colNum + ',' + rowNumber + '</span>';
+				}
+				var id = 'id-' + colNum + '-' + rowNumber;
+				attr = 'onclick="TDdbClick(\'' + colNum + '\',\'' + rowNumber + '\',\'' + type + '\',\'' + 
+						isSpecail + '\',\'' + fileNo + '\',\'' + id + '\')" id="' + id + '"';
+			}
+			$tbody_vacciProgram = $tbody_vacciProgram + '<td style="' + cls + '" ' + attr + '>' + val + '</td>';
+		}
+		$tbody_vacciProgram = $tbody_vacciProgram + '</tr>';
+	}
+	$tbody_vacciProgram = $tbody_vacciProgram + '</tbody>';
+	$tfoot_vacciProgram = '<tfoot><tr><td style="height:30px;line-height: 30px;" colspan="' + (data.length - 1) + '">温馨提示：1、单击即可弹出录入预防接种信息对话框&nbsp;&nbsp;&nbsp;&nbsp;2、黄色背景表示此预防信息还没有录入至系统中&nbsp;&nbsp;&nbsp;&nbsp;3、蓝绿色背景表示此预防接种信息已经录入至系统&nbsp;&nbsp;&nbsp;&nbsp;4、已接种疫苗（列表，可删除）选项卡删除已经录入的预防接种信息</td></tr></tfoot>';
+	$table_vacciProgram = $table_vacciProgram + $thead_vacciProgram + $tbody_vacciProgram + $tfoot_vacciProgram + '</table>';
+	return $table_vacciProgram;
+}
+
+function genBasicInfo(records){
+	var fileNo = records.get('fileNo');
+	var birthday = records.get('personalInfo_birthday');
+	var folk = records.get('personalInfo').folk;
+	folk =  folk != '' ? (folk == '少数民族' ? records.get('personalInfo').folkOther : folk ) : '';
+	var $table_basicInfo = '<table onselectstart= "return false;" cellpadding="0" cellspacing="0" class="table_BasicInfo">' +
+		'<thead>' + 
+			'<tr><td>名称</td><td>值</td></tr>'+
+		'</thead>' +
+		'<tbody>' + 
+			'<tr><td>档案编号</td><td>' + fileNo + '</td></tr>' + 
+			'<tr><td>姓名</td><td>' + records.get('name') + '</td></tr>' + 
+			'<tr><td>性别</td><td>' + records.get('personalInfo_sex') + '</td></tr>' + 
+			'<tr><td>民族</td><td>' + folk + '</td></tr>' + 
+			'<tr><td>出生日期</td><td>' + birthday.getFullYear() + '年' + (birthday.getMonth() + 1) + '月' + birthday.getDate() + '日' + '</td></tr>' + 
+			'<tr><td>身份证号</td><td>' + records.get('idnumber') + '</td></tr>' + 
+			'<tr><td>现住址</td><td>' + records.get('address') + '</td></tr>' + 
+			'<tr><td>户籍住址</td><td>' + records.get('residenceAddress') + '</td></tr>' + 
+		'</tbody>'
+	'</table>';
+	return $table_basicInfo;
+}
+
 function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2规划外的
 	var selections = Ext.getCmp('VacciInfoGrid').getSelections();
     if(selections.length > 0){
     	var records = selections[0];
     	var vaccineImmune = records.get('vaccineImmune');
-    	console.log(vaccineImmune);
+//    	console.log(vaccineImmune);
     	if(vaccineImmune != null){
     		var fileNo = records.get('fileNo');
         	var birthday = records.get('personalInfo_birthday');
@@ -108,7 +190,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			         Component.createTextfield('immuneBatchNum','immuneBatchNum',65,215,205,false,immuneBatchNum),
         			         Component.createLabel('companyText','companyText',5,248,'生产企业:'),
 //        			         Component.createTextfield('company','company',65,155,205),
-        			         Component.createDwrCombo(65,245,'Producers','companyId',200,205,companyId,'companyName','companyName'),
+        			         Component.createDwrCombo(65,245,'Producers','companyId',200,205,companyId),
         			         Component.createLabel('vacciDoctorText','vacciDoctorText',5,278,'接种医师:'),
         			         Component.createTextfield('vaccinationDoctor','vaccinationDoctor',65,275,205,false,defVacciDoctor),
         			         Component.createLabel('vacciPositionText','vacciPositionText',5,308,'接种部位:'),
@@ -146,9 +228,12 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			        			 	data.colNum + ',' + data.rowNumber + '</span>';
         			        			 $('#' + id).html(val);
         			        			 $('#' + id).attr('style',cls);
-        			        			 var attr = 'TDdbClick(\'' + data.colNum + '\',\'' + data.rowNumber + '\',\'1\',\'0\',\'' + fileNo + '\',\'' + id + '\')';
-        			        			 $('#' + id).attr('click',attr);
+        			        			 $('#' + id).removeAttr('onclick');
+        			        			 $('#' + id).bind("click",function(){
+        			        				 TDdbClick(data.colNum,data.rowNumber,'1','0',fileNo,id)
+        			        			 });
         			        		 });
+        			        		 
         			        		 this.win.close();
         			        	 }.createDelegate(this)
         			         },'保存'),
@@ -240,7 +325,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			    	Ext.getCmp('vaccinationWay').setValue(vrecords.get('vaccinationWay'));
         			    	Ext.getCmp('vacciDose').setValue(vrecords.get('vacciDose'));
         			    	Ext.getCmp('vaccinationDate').setValue(new Date());
-        			    	Ext.getCmp('companyName').setValue(0);
+//        			    	Ext.getCmp('companyName').setValue(0);
         			    	Ext.getCmp('remarks').setValue('');
         			    }
         			},
@@ -287,7 +372,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         				var vselections = Ext.getCmp(this.gridId).getSelections();
         			    if(vselections.length > 0){
         			    	var vrecords = vselections[0];
-        			    	console.log(vrecords);
+//        			    	console.log(vrecords);
         			    	Ext.getCmp('id').setValue(vrecords.get('id'));
         			    	Ext.getCmp('vaccinationName').setValue(vrecords.get('vaccinationName'));
         			    	Ext.getCmp('vaccinationPosition').setValue(vrecords.get('vaccinationPosition'));
@@ -297,7 +382,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			    	Ext.getCmp('vacciAddress').setValue(vrecords.get('vacciAddress'));
         			    	Ext.getCmp('vaccinationDoctor').setValue(vrecords.get('vaccinationDoctor'));
         			    	Ext.getCmp('remarks').setValue(vrecords.get('remarks'));
-        			    	Ext.getCmp('companyName').setValue(vrecords.get('companyId'));
+//        			    	Ext.getCmp('companyName').setValue(vrecords.get('companyId'));
         			    	Ext.getCmp('immuneBatchNum').setValue(vrecords.get('immuneBatchNum'));
         			    }
         			},
@@ -456,7 +541,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 		var isCrossDistrict = Ext.getCmp('isCrossDistrict').getValue();
 		var selNode = this.getTreeSelNode();
 		if (selNode || isCrossDistrict) {
-			console.log(isCrossDistrict);
+//			console.log(isCrossDistrict);
 			var filterKey = Ext.getCmp('combo').getValue();
 			var filterValue = Ext.getCmp('filterField').getValue();
 			var disNum = isCrossDistrict ? Ext.getCmp('districtNum').getValue() : selNode.id;
@@ -490,8 +575,8 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			autoScroll : false,
 			listeners : {
 				message : function(f, data) {
-					console.log("receive message...");
-					console.log(data);
+//					console.log("receive message...");
+//					console.log(data);
 					if (data.data == 'quit') {
 						win.close();
 						this.load(true);
@@ -525,81 +610,96 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 	    	if(vaccineImmune != null){
 	    		var fileNo = records.get('fileNo');
 		    	VaccinationService.vacciProgram(fileNo,function(data){
-		    		console.log(data);
-		    		var $table_vacciProgram = '<table class="vacciProgram_table_cls" cellpadding="0" cellspacing="0">';
-		    		var head_info_vacciProgram = data[0];
-		    		console.log(head_info_vacciProgram);
-		    		var $thead_vacciProgram = '<thead><tr>';
-		    		for(var i = 1;i < head_info_vacciProgram.length;i++){
-		    			$thead_vacciProgram = $thead_vacciProgram + '<td>' + head_info_vacciProgram[i] + '</td>';
-		    		}
-		    		$thead_vacciProgram = $thead_vacciProgram + '</tr></thead>';
-		    		var $tbody_vacciProgram = '<tbody>';
-		    		for(var i=1;i<data.length;i++){
-		    			$tbody_vacciProgram = $tbody_vacciProgram + '<tr>';
-		    			for(var j=1;j<data[i].length;j++){
-		    				var val = data[i][j];
-		    				var cls = '';
-		    				var attr = '';
-		    				var rowNumber = data[i][0];
-		    				var isSpecail = 0;
-		    				if(val != '' && j != 1){
-		    					var splitVal = val.split(':');
-		    					var colNum = splitVal[1];
-		    					var type = 0;
-		    					if(splitVal.length > 2){
-		    						cls = 'background-color: #b2dece;text-align:left;cursor:pointer;';
-		    						if(colNum.indexOf('~') > 0){
-		    							isSpecail = 1; 
-		    							colNum = colNum.replace('~','');
-		    						}
-		    						var date = splitVal[2];
-		    						date = date.length > 10 ? date.substring(0,10) : date;
-		    						val = '<span>' + splitVal[0] + '<br />' + date + '</span><span class="ColAndRowVal" style="display:none;">' + 
-		    						colNum + ',' + rowNumber + '</span>';
-		    						type = 1;
-		    					}else{
-		    						if(colNum.indexOf('~') > 0){
-		    							isSpecail = 1; 
-		    							colNum = colNum.replace('~','');
-		    						}
-		    						if(colNum.indexOf('$') > 0){
-		    							
-		    							colNum = colNum.replace('$','');
-		    						}
-		    						cls = 'background-color: #f4fba3;cursor:pointer;';
-		    						val = '<span>' + splitVal[0] + '</span><span  class="ColAndRowVal" style="display:none;">' + 
-		    							colNum + ',' + rowNumber + '</span>';
-		    					}
-		    					var id = 'id-' + colNum + '-' + rowNumber;
-		    					attr = 'onclick="TDdbClick(\'' + colNum + '\',\'' + rowNumber + '\',\'' + type + '\',\'' + 
-		    							isSpecail + '\',\'' + fileNo + '\',\'' + id + '\')" id="' + id + '"';
-		    				}
-		    				$tbody_vacciProgram = $tbody_vacciProgram + '<td style="' + cls + '" ' + attr + '>' + val + '</td>';
-		    			}
-		    			$tbody_vacciProgram = $tbody_vacciProgram + '</tr>';
-		    		}
-		    		$tbody_vacciProgram = $tbody_vacciProgram + '</tbody>';
-		    		$tfoot_vacciProgram = '<tfoot><tr><td colspan="' + (data.length - 1) + '">温馨提示：</td></tr></tfoot>';
-		    		$table_vacciProgram = $table_vacciProgram + $thead_vacciProgram + $tbody_vacciProgram + $tfoot_vacciProgram + '</table>';
-		    		var birthday = records.get('personalInfo_birthday');
-			    	var folk = records.get('personalInfo').folk;
-					folk =  folk != '' ? (folk == '少数民族' ? records.get('personalInfo').folkOther : folk ) : '';
-			    	var $table_basicInfo = '<table onselectstart= "return false;" cellpadding="0" cellspacing="0" class="table_BasicInfo">' +
-						'<thead>' + 
-							'<tr><td>名称</td><td>值</td></tr>'+
-						'</thead>' +
-						'<tbody>' + 
-							'<tr><td>档案编号</td><td>' + fileNo + '</td></tr>' + 
-							'<tr><td>姓名</td><td>' + records.get('name') + '</td></tr>' + 
-							'<tr><td>性别</td><td>' + records.get('personalInfo_sex') + '</td></tr>' + 
-							'<tr><td>民族</td><td>' + folk + '</td></tr>' + 
-							'<tr><td>出生日期</td><td>' + birthday.getFullYear() + '年' + (birthday.getMonth() + 1) + '月' + birthday.getDate() + '日' + '</td></tr>' + 
-							'<tr><td>身份证号</td><td>' + records.get('idnumber') + '</td></tr>' + 
-							'<tr><td>现住址</td><td>' + records.get('address') + '</td></tr>' + 
-							'<tr><td>户籍住址</td><td>' + records.get('residenceAddress') + '</td></tr>' + 
-						'</tbody>'+
-					'</table>';
+//		    		console.log(data);
+		    		var $table_vacciProgram = genCenterContent(data,fileNo);
+		    		var $table_basicInfo = genBasicInfo(records);
+			    	
+			    	var vacciedGridghnPanel = new Ext.tf.VaccineImmuneGridPanel({
+	        			queryUrl : VaccinationService.queryVacciInfo,
+//	        			singleSelect : true,
+	        			gridHeight : 430,
+	        			gridId : 'vacciedGridghn', 
+	        			selModel : true,
+	        			titleTxt : '',
+	        			queryType : 0,
+	        			fileNo : fileNo,
+	        			readerConfig : [ {
+	        				name : 'vaccinationName',
+	        				mapping : 'vaccinationName'
+	        			}, {
+	        				name : 'immuneBatchNum',
+	        				mapping : 'immuneBatchNum'
+	        			}, {
+	        				name : 'vaccinationDate',
+	        				mapping : 'vaccinationDate'
+	        			}, {
+	        				name : 'vaccinationDose',
+	        				mapping : 'vaccinationDose'
+	        			}, {
+	        				name : 'vaccinationDoctor',
+	        				mapping : 'vaccinationDoctor'
+	        			}, {
+	        				name : 'vaccinationPosition',
+	        				mapping : 'vaccinationPosition'
+	        			}, {
+	        				name : 'vaccinationWay',
+	        				mapping : 'vaccinationWay'
+	        			}, {
+	        				name : 'remarks',
+	        				mapping : 'remarks'
+	        			}, {
+	        				name : 'vacciAddress',
+	        				mapping : 'vacciAddress'
+	        			}, {
+	        				name : 'vacciDose',
+	        				mapping : 'vacciDose'
+	        			}, {
+	        				name : 'companyId',
+	        				mapping : 'companyId'
+	        			}, {
+	        				name : 'id',
+	        				mapping : 'id'
+	        			}, {
+	        				name : 'colNum',
+	        				mapping : 'colNum'
+	        			}, {
+	        				name : 'rowNumber',
+	        				mapping : 'rowNumber'
+	        			}, {
+	        				name : 'fileNo',
+	        				mapping : 'fileNo'
+	        			}, {
+	        				name : 'number',
+	        				mapping : 'number'
+	        			}, {
+	        				name : 'inputPersonId',
+	        				mapping : 'inputPersonId'
+	        			} ],
+	        			gridCmConfig : [{
+	        				"header" : "疫苗名称",
+	        				"dataIndex" : "vaccinationName",
+	        				"width" : 180
+	        			}, {
+	        				"header" : "疫苗批号",
+	        				"dataIndex" : "immuneBatchNum"
+	        			}, {
+	        				"header" : "剂数",
+	        				"dataIndex" : "number",
+	        				"renderer" : function(val){
+	        					if(val != ''){
+	        						return '第' + val + '剂';
+	        					}
+	        					return '';
+	        				}
+	        			}, {
+	        				"header" : "接种日期",
+	        				"dataIndex" : "vaccinationDate",
+	        				"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
+	        			}, {
+	        				"header" : "接种医师",
+	        				"dataIndex" : "vaccinationDoctor"
+	        			} ]
+	        		});
 			    	
 			    	var win = new Ext.Window({
 						title : '云南省免疫规划疫苗免疫程序（一类疫苗）',
@@ -615,11 +715,13 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 					        html : $table_basicInfo
 					    }, {
 					        region: 'center',
-					        xtype: 'panel',
+					        xtype: 'tabpanel',
 					        autoScroll: true,
+					        activeTab: 0,
 //					        split: true,
-					        items: {
-					            title: '疫苗免疫程度',
+					        id : 'tabpanel-xt-vacci',
+					        items: [{
+					            title: '疫苗免疫程序',
 					            tbar : [{
 									text : '打印',
 						        	iconCls: 'c_print',
@@ -628,8 +730,47 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 										printVacciImmuneInfoObj.init(vaccineImmune,0);
 									}.createDelegate(this)
 								}],
-					            html: $table_vacciProgram
-					        }
+								autoScroll: true,
+								id : 'tabpanel-01-vacci',
+					            html: '<div class="vacciContainer">' + $table_vacciProgram + '</div>'
+					        },{
+					        	title : '已接种疫苗（列表，可删除）',
+					        	height : 300,
+					        	layout : 'fit',
+					        	id : 'tabpanel-02-vacci',
+					        	tbar : [{
+									text : '删除',
+						        	iconCls: 'c_del',
+						        	handler : function(){					    	
+						        		var selections = Ext.getCmp('vacciedGridghn').getSelections();
+						        		if(selections.length > 0){
+						        			var ids = [];
+						        			for(var i = 0;i<selections.length;i++){
+						        				ids.push(selections[i].data);
+						        			}
+						        			console.log(ids);
+						        			VaccinationService.removeVacciInfo(ids,function(){
+						        				showInfoObj.Infor('删除成功');
+						        				Ext.getCmp('vacciedGridghn').getStore().reload();
+						        			});
+						        		}
+									}.createDelegate(this)
+								}],
+					        	items : [vacciedGridghnPanel]
+					        }],
+					        listeners : {
+		    					'tabchange' : function(){
+		    						var id = Ext.getCmp('tabpanel-xt-vacci').getActiveTab().id;
+		    						if(id == 'tabpanel-01-vacci'){
+		    							VaccinationService.vacciProgram(fileNo,function(data){
+		    								var $table_vacciProgram = genCenterContent(data,fileNo);
+		    								$('.vacciContainer').html($table_vacciProgram);
+		    							});
+		    						}else if(id == 'tabpanel-02-vacci'){
+		    							Ext.getCmp('vacciedGridghn').getStore().reload();
+		    						}
+		    					}.createDelegate(this)
+		    				}
 					    }]
 					});
 					win.show(this);
@@ -707,6 +848,26 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 									var url = '/Vaccination_New.html?' + where;
 									this.openWin(url,'VacciInfoGrid');
 								});
+							}
+					    }
+					}.createDelegate(this)
+				},{
+					text : '撤销预防接种证',
+		        	iconCls: 'c_del',
+		        	handler : function(){
+		        		var selections = this.grid.getSelections();
+					    if(selections.length > 0){
+					    	var records = selections[0];
+					    	var vaccineImmune = records.get('vaccineImmune');
+					    	if(vaccineImmune != null){
+					    		var id = vaccineImmune.id;
+					    		var load = this.load;
+					    		console.log(load);
+					    		VaccinationService.removeVaccineImmune(id,function(data){
+					    			showInfoObj.Infor('预防接种证撤销成功!');
+					    			Ext.getCmp('VacciInfoGrid').getStore().reload();
+					    		});
+					    		
 							}
 					    }
 					}.createDelegate(this)

@@ -10,8 +10,11 @@ Ext.tf.VaccineImmuneGridPanel = Ext.extend(Ext.Panel, {
 	editFn : Ext.emptyFn,
 	gridId : null,
 	fileNo : null,
+	selModel : false,
 	readerConfig : [],
 	gridCmConfig : [],
+	titleTxt : '<span style="color:red;">注意：双击可选中疫苗</span>',
+	queryType : 1,
 	initComponent : function() {
 		this.build();
 		Ext.tf.VaccineImmuneGridPanel.superclass.initComponent.call(this);
@@ -42,7 +45,7 @@ Ext.tf.VaccineImmuneGridPanel = Ext.extend(Ext.Panel, {
 						if (!params.limit)
 							params.limit = this.pageSize;
 						if(this.fileNo != null){
-							params[dataProxy.loadArgsKey] = [ this.fileNo,params ];
+							params[dataProxy.loadArgsKey] = [ this.fileNo,this.queryType,params ];
 						}else{
 							params[dataProxy.loadArgsKey] = [ params ];
 						}
@@ -59,18 +62,22 @@ Ext.tf.VaccineImmuneGridPanel = Ext.extend(Ext.Panel, {
 			displayMsg : '{0} - {1} of {2}',
 			emptyMsg : "没有记录"
 		});
-		// var sm = new Ext.grid.CheckboxSelectionModel({
-		// singleSelect : this.singleSelect
-		// });
-		// this.gridCmConfig.unshift(sm);
+		var sm = null;
+		if(this.selModel){
+			 sm = new Ext.grid.CheckboxSelectionModel({
+				 singleSelect : this.singleSelect
+			 });
+			 this.gridCmConfig.unshift(sm);
+		}
+		
 		this.grid = new Ext.grid.GridPanel({
-			title : '<span style="color:red;">注意：双击可选中疫苗</span>',
+			title : this.titleTxt,
 			id : this.gridId,
 			bbar : this.pagingBar,
 			layout : 'fit',
 			store : store,
 			cm : new Ext.grid.ColumnModel(this.gridCmConfig),
-			// sm : sm,
+			sm : sm,
 			height : this.gridHeight,
 			autoWidth : true,
 			bodyStyle : 'width:100%'
