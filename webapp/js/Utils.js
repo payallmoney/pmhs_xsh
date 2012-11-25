@@ -51,3 +51,4 @@ Utils.prototype.parseParams = function(url){
 	return null;
 }
 var Utils = new Utils();
+

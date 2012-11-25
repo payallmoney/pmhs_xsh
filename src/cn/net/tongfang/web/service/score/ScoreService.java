@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.ClassUtils;
 
+import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.CodScoreProp;
 import cn.net.tongfang.framework.security.vo.CodScoreRule;
 import cn.net.tongfang.framework.security.vo.CodTelUpdateCol;
@@ -45,6 +46,11 @@ public class ScoreService extends HibernateDaoSupport implements
 	public void refresh() {
 		scoreUtil.refresh();
 	}
+	
+	public Map<Integer, List<BasicInformation>> basicInformationMap() {
+		return scoreUtil.getBasicInformationMap();
+	}
+
 
 	// 生成分数规则
 	public PagingResult<Map> getScore(Map param) {
@@ -73,9 +79,14 @@ public class ScoreService extends HibernateDaoSupport implements
 				Method exeMethod = getExeMethod(obj, fun[1]);
 				Object bo1 = exeMethod.getParameterTypes()[0].newInstance();
 				setParamsValue(bo1, rule, rule.getStandard());
-				Object res1 = MethodUtils.invokeMethod(obj, fun[1], bo1);
-				standardMap.put(item, res1);
-				System.out.println(item+"========res1==========="+res1);
+				Object res1 ;
+				try{
+					res1 = MethodUtils.invokeMethod(obj, fun[1], bo1);
+					standardMap.put(item, res1);
+				}catch(Exception ex){
+					log.error("CodScoreRule中的考试["+item+"]的标准答案["+rule.getStandard()+"]在数据库中不存在!请与系统管理员联系!");
+					continue;
+				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -96,7 +107,6 @@ public class ScoreService extends HibernateDaoSupport implements
 			List detailList = new ArrayList();
 			for (Iterator iter = items.keySet().iterator(); iter.hasNext();) {
 				String item = (String) iter.next(); // 考试名称
-				System.out.println("===================\n================"+item+"====================\n===================");
 				// 根据项目分组得到项目明细
 				Map<String, CodScoreProp> detailsitem = (Map) scoreUtil
 						.getScoreMap("CodScoreProp", item);
@@ -107,7 +117,6 @@ public class ScoreService extends HibernateDaoSupport implements
 				// 根据项目名称得到项目的获取方式
 				CodScoreRule rule = (CodScoreRule) scoreUtil.getScoreMap(
 						"CodScoreRule", item);
-				System.out.println("========rule==========="+rule);
 				if(rule == null){
 					log.error("【异常】:CodScoreRule中配置的name与ScoreGroup中配置的item不同");
 					continue;
@@ -134,7 +143,6 @@ public class ScoreService extends HibernateDaoSupport implements
 						for (Iterator scoreiter = map1.keySet().iterator(); scoreiter
 								.hasNext();) {
 							String detailitem = (String) scoreiter.next();
-							System.out.println("==================="+detailitem+"====="+detailsitem.containsKey(detailitem));
 							if (detailsitem.containsKey(detailitem)) {
 								Object values1 = getValue(standard, detailitem);
 								Object values2 = getValue(res2, detailitem);

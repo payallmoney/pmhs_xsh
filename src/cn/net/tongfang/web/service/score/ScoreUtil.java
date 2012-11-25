@@ -1,5 +1,6 @@
 package cn.net.tongfang.web.service.score;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.CodScoreProp;
 import cn.net.tongfang.framework.security.vo.CodScoreRule;
 import cn.net.tongfang.framework.security.vo.ScoreGroup;
@@ -16,6 +18,7 @@ public class ScoreUtil extends HibernateDaoSupport {
 
 	private Map<String, Map> nameMaps = new HashMap<String, Map>();
 	private static String ScoreName = "12月培训考试";
+	private Map<Integer, List<BasicInformation>> basicInformationMap = new HashMap<Integer, List<BasicInformation>>();
 
 	public ScoreUtil(SessionFactory sessionFactory) {
 		this.setSessionFactory(sessionFactory);
@@ -28,10 +31,9 @@ public class ScoreUtil extends HibernateDaoSupport {
 		getScoreRule();
 		getScorePerson();
 		getScoreGroup();
+		buildBasicInformationMap();
 		System.out.println("==这里执行了几次?");
 	}
-
-	
 
 	/**
 	 * 得到考试科目的详细字段
@@ -98,7 +100,7 @@ public class ScoreUtil extends HibernateDaoSupport {
 	private void getScoreGroup() {
 		Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 		nameMaps.put("ScoreGroup", map);
-		List<ScoreGroup> list = getSession().createQuery("from ScoreGroup ")
+		List<ScoreGroup> list = getSession().createQuery("from ScoreGroup order by ord")
 				.list();
 		System.out.println("==============================");
 		System.out.println("getScoreGroup==" + list.size());
@@ -123,5 +125,29 @@ public class ScoreUtil extends HibernateDaoSupport {
 	public String getScoreName() {
 		return ScoreName;
 	}
+
+	private void buildBasicInformationMap() {
+		final String hql = "select p from BasicInformation p where isMain = 0 order by type, number";
+		Map<Integer, List<BasicInformation>> resMap = null;
+		List<BasicInformation> res = getSession().createQuery(hql).list();
+		resMap = new HashMap<Integer, List<BasicInformation>>();
+		for (BasicInformation i : res) {
+			int type = i.getType();
+			List<BasicInformation> info = resMap.get(type);
+			if (info == null) {
+				info = new ArrayList<BasicInformation>();
+				resMap.put(type, info);
+			}
+			info.add(i);
+//			System.out.println("==============basicinfo====="+i);
+		}
+		basicInformationMap = resMap;
+	}
+
+	public Map<Integer, List<BasicInformation>> getBasicInformationMap() {
+		return basicInformationMap;
+	}
+	
+	
 
 }

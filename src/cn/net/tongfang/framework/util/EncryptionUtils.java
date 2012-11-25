@@ -151,6 +151,10 @@ public class EncryptionUtils {
 	public static final String encry(String str) {
 		String result = "";
 		String tmpStr = "";
+		System.out.println("========str==========="+str+"===");
+		if(str == null){
+			return "";
+		}
 		char[] charData = str.toCharArray();
 		for(int i = 0;i < charData.length;i++){
 			tmpStr = String.copyValueOf(charData, i, 1);
@@ -175,6 +179,9 @@ public class EncryptionUtils {
 	public static final String decipher(String str) {
 		String result = "";
 		String tmpStr = "";
+		if(str == null){
+			return "";
+		}
 		char[] charData = str.toCharArray();
 		for(int i = 0;i < charData.length;i++){
 			tmpStr = String.copyValueOf(charData, i, 1);

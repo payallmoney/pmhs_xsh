@@ -694,14 +694,17 @@ function isOldMan(date) {
 							obj.hide();
 							if (setting.writeback) { // todo 代码重复
 								var _s = d[0];
-								setDisabledBySex(_s[2]);
-								isOldMan(_s[3]);
-								$.each(setting.writeback, function(i, v) {
-									var ctrl = setting.ctx.getCtrl(v.id);
-									if (ctrl && ctrl['val']) {
-										ctrl.val(_s[v.col]);
-									}
-								});
+								console.log("=s====="+_s)
+								if(_s && _s.length>4){
+    								setDisabledBySex(_s[2]);
+    								isOldMan(_s[3]);
+    								$.each(setting.writeback, function(i, v) {
+    									var ctrl = setting.ctx.getCtrl(v.id);
+    									if (ctrl && ctrl['val']) {
+    										ctrl.val(_s[v.col]);
+    									}
+    								});
+								}
 							}
 						});
 					} else if (values.length > 0 && setting.writeback) { // 使用原来的值

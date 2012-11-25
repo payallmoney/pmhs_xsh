@@ -1,6 +1,6 @@
 //todo remove these global dependencies
-var meta = {};
-
+//window.meta = {};
+var meta = parent.meta
 function getData(key) {
     return meta[key];
 }
@@ -113,14 +113,17 @@ var allDisabled = false;
 //        	go();
 //        }
 	      if (metaCodes.length > 0){
-	    	MetaProvider.getAll( {callback:function(data){
-	            meta = data;
-//	            console.log(metaCodes);
-	            go();
-	        }, errorHandler:function(errorString, exception) {
-	                hideDialog();
-	                showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
-	        }});
+	    	  if(meta){
+	    		  go();
+	    	  }else{
+			    	MetaProvider.getAll( {callback:function(data){
+			            meta = data;
+			            go();
+			        }, errorHandler:function(errorString, exception) {
+			                hideDialog();
+			                showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
+			        }});
+	    	  }
 	    } else {
 	    	meta = [];
 	    	go();
@@ -182,8 +185,6 @@ var allDisabled = false;
             }
             saving = true;
             if ($.isFunction(services.save)){
-                console.log("sending data");
-//                console.log(send);
                 showDialog("<li>正在提交数据...</li>");
                 if(storeId != null){
                 	send.id = storeId;
@@ -211,9 +212,7 @@ var allDisabled = false;
         						var result = infos.split(",");
             					var personId = result[0];
             					var personName = result[1];
-            					console.log("这里的异常?")
             		            var personBirthday = result[2].substring(0,10);
-            					console.log("这里的异常?")
             		            var personSex = result[3];
             		            var personAge = result[4];
                 				$(".personId").html(personId);
@@ -251,21 +250,26 @@ var allDisabled = false;
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
                     saving = false;
-                }, errorHandler:function(errorString, exception) {
-                    saving = false;
-                    hideDialog();
-                    showDialog("系统发生异常<br/> " + errorString, true);
-//                    console.error(exception);
-                }});
+                }, errorHandler:top.errorProcess});
             } else {
                 $.ajax({
                     url: services.save,
                     data: send,
                     dataType : "json",
                     success: function(data) {
-//                        console.log(data);
                        showDialog("<li>数据已经保存</li>"); 
-                    }//function
+                    },//function,
+                	error: function (XMLHttpRequest, textStatus, errorThrown) {
+                	    // 通常 textStatus 和 errorThrown 之中
+                	    // 只有一个会包含信息
+                		msg = errorThrown.javaClassName+":"+errorThrown.message;
+                        if(errorThrown.stackTrace!=null){
+                            for(var i = 0 ; i <errorThrown.stackTrace.length ; i++)
+                                msg= msg+"\n\tat "+ errorThrown.stackTrace[i].className+error.stackTrace[i].methodName+"("+errorThrown.stackTrace[i].fileName+":"+errorThrown.stackTrace[i].lineNumber+")";
+                        }
+	                    console.log(msg)
+	                    top.Ext.Msg.alert("错误", "解析数据时发生错误:请查看浏览器log.");
+                	}
                 });
             }
         }
@@ -277,13 +281,9 @@ var allDisabled = false;
 
         function setFormVal(d) {
             for(var prop in d) {
-            	console.log(prop);
                 if(d.hasOwnProperty(prop)) { 
                     var c = form_fields[prop];
-//                    console.log(cfg);
                     if (c && c['val']){
-                    	console.log(c);
-//                    	console.log(prop + '---' + d[prop]);
                     	if(d[prop] == null)
                     		d[prop] = '';
                     	else if(prop == 'idnumber' && d[prop] == '')
@@ -363,16 +363,13 @@ var allDisabled = false;
                             });
                             var i = 0;
                             var j = 0;
-//                            console.log(r);
                             if (eq){
                                 $.each(r.fields, function(_,v){
-//                                	console.log(v + ':+++' + j);
                                 	j = j + 1;
                                     form_fields[v].enable(true);
                                 });
                             } else {
                                 $.each(r.fields, function(_,v){
-//                                	console.log(v + '---:' + i);
                                 	i = i + 1;
                                     form_fields[v].disable(true);
                                     form_fields[v].val('');
@@ -449,7 +446,6 @@ var allDisabled = false;
                     //要从server端加载数据
                     showMsg("加载数据中.."+window.location.search);
                     services.get(qo, { callback : function(data){
-//                        console.log(data);
                         dataLoaded = data;
                         setFormVal(dataLoaded);
                         
@@ -466,14 +462,10 @@ var allDisabled = false;
                         if(typeof(printBirthObj) != 'undefined'){
                         	printBirthObj.init();
                         }
-                    }, errorHandler : function(errStr, e){
-						hideDialog();
-						showDialog("系统发生异常(app.js加载应用数据过程中)<br/>"+window.location.search + errStr, true);
-					}}); 
+                    }, errorHandler : top.errorProcess}); 
                 } else {
                     //不需从server端加载，直接set
                     setFormVal(qo);
-                    console.log(qo);
                     if(typeof(childOtherValJson) != 'undefined'){
                     	setFormVal(childOtherValJson);
                     }
@@ -538,7 +530,6 @@ var allDisabled = false;
                         //alert(key +"====="+val+"==="+typeof(val));
                     }
                 });
-//                console.log(model);
 
                 var r = $.map(required, function(v){
                     var id = v.id;
@@ -583,7 +574,6 @@ var allDisabled = false;
 
                 var updateMode = false;
                 if (!isEmpty(dataLoaded)){
-//                    console.log("dataLoaded is not empty");
                     //合并加载的数据(浅拷贝, 防止array中的主键也被保留，如果list需要update, 可以考虑深拷贝)
                      send = $.extend(false, {}, dataLoaded, model);
                      updateMode = true;
@@ -613,9 +603,7 @@ var allDisabled = false;
             }
 
             $(document).keyup(function(e){
-//                    console.log("body got key" + e.which);
                     if (e.which == 13 && (e.altKey || e.ctrlKey)) {
-//                        console.log("submit");
                         save();
                     } else if (e.ctrlKey) {
                     //tab移动
@@ -692,9 +680,7 @@ var quitAfterSave = false;
 var foreignId = false;
 var storeId = null;
 $(function(){
-	console.log(window.location.search);
 	var json = parseParams(window.location.search);
-//	console.log(json);
 	if(json.isNext != undefined){
 		isNextUrl = true;
 	}
