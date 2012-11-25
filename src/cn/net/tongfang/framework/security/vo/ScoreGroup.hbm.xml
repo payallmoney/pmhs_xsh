@@ -14,5 +14,8 @@
                 <column name="item" length="50" />
             </key-property>
         </composite-id>
+        <property name="ord" type="java.lang.Integer">
+            <column name="ord" not-null="true" />
+        </property>
     </class>
 </hibernate-mapping>
