@@ -107,10 +107,6 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		}
 		return null;
 	}
-	
-	public VaccineImmuneInfo getVaccineImmuneInfoObj(VaccineImmuneInfoBO vacciInfo){
-		return (VaccineImmuneInfo)getHibernateTemplate().get(VaccineImmuneInfo.class, vacciInfo.getId());
-	}
 
 	public VaccineImmuneInfo saveVaccineImmuneInfo(VaccineImmuneInfoBO vacciInfo) {
 //		if (vacciInfo.getLimitDate() != null) {
@@ -312,6 +308,26 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			VaccineImmuneInfo info = (VaccineImmuneInfo)getHibernateTemplate().get(VaccineImmuneInfo.class, id);
 			info.setIsPrint(1);//1代表打印成功
 			getHibernateTemplate().update(info);
+		}
+	}
+	
+	public void removeVaccineImmune(String id){
+		String hql = " From VaccineImmune Where id = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, id);
+		List list = query.list();
+		if(list.size() > 0){
+			VaccineImmune vacci = (VaccineImmune)list.get(0);
+			String fileNo = vacci.getFileNo();
+			hql = " Delete From VaccineImmuneHistoryStaticData Where fileNo = ?";
+			query = getSession().createQuery(hql);
+			query.setParameter(0, fileNo);
+			query.executeUpdate();
+			hql = " Delete From VaccineImmuneInfo Where fileNo = ?";
+			query = getSession().createQuery(hql);
+			query.setParameter(0, fileNo);
+			query.executeUpdate();
+			getHibernateTemplate().delete(vacci);
 		}
 	}
 }
