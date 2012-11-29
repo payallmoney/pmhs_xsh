@@ -295,6 +295,10 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			        			if(btn == 'yes'){
         			        				var formbean = leftPanel.getForm().getValues(false);	
         			        				formbean.fileNo = fileNo;
+        			        				formbean.colNum = '0';
+        			        				formbean.colNum = '0';
+        			        				formbean.rowNumber = 0;
+                                            formbean.number =0;
         			        				formbean.birthday = birthday.getFullYear() + '' + calculateTimeObj.addZero(birthday.getMonth() + 1) + calculateTimeObj.addZero(birthday.getDate());
         			        				VaccinationService.saveVaccineImmuneInfoUnPlaned(formbean,function(){
         	    			        			 showInfoObj.Infor('保存成功');

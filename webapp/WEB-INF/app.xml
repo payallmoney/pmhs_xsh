@@ -23,6 +23,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<!-- 修改结束 -->
 	<bean id="ScoreUtil"
 		class="cn.net.tongfang.web.service.score.ScoreUtil"   scope="singleton"> 
-		<constructor-arg ref="sessionFactory"/>
+		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 </beans>

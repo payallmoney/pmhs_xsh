@@ -107,6 +107,12 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		}
 		return null;
 	}
+	
+	public VaccineImmuneInfo getVaccineImmuneInfoObj(VaccineImmuneInfoBO vacciInfo){
+		VaccineImmuneInfo vo = (VaccineImmuneInfo)getHibernateTemplate().get(VaccineImmuneInfo.class, vacciInfo.getId());
+		getHibernateTemplate().evict(vo);
+		return vo;
+	}
 
 	public VaccineImmuneInfo saveVaccineImmuneInfo(VaccineImmuneInfoBO vacciInfo) {
 //		if (vacciInfo.getLimitDate() != null) {

@@ -6,15 +6,37 @@ Ext.hc.printScorePanel = new Ext.Panel({
         xtype : 'grid',
         title : '考试打分系统',
         autoWidth : true,
-                autoHeight : true,
+//        autoHeight : true,
+        height:600,
         tbar : [{
+            text : '查询',
+            iconCls : 'c_query',
+            handler : function() {
+                var store = Ext.hc.printScorePanel.items.item(0).getStore();
+                var tbar = Ext.hc.printScorePanel.items.item(0).getTopToolbar();
+                tbar.item(0).setDisabled(true);
+                tbar.item(1).setDisabled(true);
+                store.load();
+                Ext.hc.printScorePanel.render();
+                Ext.hc.printScorePanel.items.item(0).render();
+            }.createDelegate(this)
+        }, "-", {
             text : '打分',
             iconCls : 'c_query',
             handler : function() {
                 var store = Ext.hc.printScorePanel.items.item(0).getStore();
+                var tbar = Ext.hc.printScorePanel.items.item(0).getTopToolbar();
+                tbar.item(0).setDisabled(true);
+                tbar.item(1).setDisabled(true);
                 store.load();
                 Ext.hc.printScorePanel.render();
                 Ext.hc.printScorePanel.items.item(0).render();
+            }.createDelegate(this)
+        }, "-", {
+            text : '测试掉线',
+            iconCls : 'c_query',
+            handler : function() {
+            	ScoreService.clearSession();;
             }.createDelegate(this)
         }, "-", {
             text : '刷新配置',
@@ -42,24 +64,29 @@ Ext.hc.printScorePanel = new Ext.Panel({
 
                     }.createDelegate(this),
                     'load' : function ( obj, records, options ) {
+                    	var tbar = Ext.hc.printScorePanel.items.item(0).getTopToolbar();
+                    	tbar.item(0).setDisabled(false);
+                        tbar.item(1).setDisabled(false);
                         console.log("load=======================================================")
                         console.log(obj);
                         console.log(records);
                         console.log(options);
                         console.log("load=======================================================")
-                    },
+                    }
+                    /*,
                     'loadexception' : function(obj, options, response, error) {
                             if (error) {
                                 msg = error.javaClassName+":"+error.message;
                                     if(error.stackTrace!=null){
                                         for(var i = 0 ; i <error.stackTrace.length ; i++)
-                                            msg= msg+"\n\tat "+ error.stackTrace[i].className+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+                                            msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
                                     }
                                 console.log(msg)
                                 top.Ext.Msg.alert("错误", "解析数据时发生错误:请查看浏览器log.");
                                 return;
                             }
                     }
+                    */
                 }            }),
             reader : new Ext.data.JsonReader({
                 totalProperty : "totalSize", // 总记录数
