@@ -29,6 +29,8 @@ import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.CodScoreProp;
 import cn.net.tongfang.framework.security.vo.CodScoreRule;
 import cn.net.tongfang.framework.security.vo.CodTelUpdateCol;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.ScoreExamdate;
 import cn.net.tongfang.framework.security.vo.ScorePerson;
 import cn.net.tongfang.framework.security.vo.ScoreResults;
 import cn.net.tongfang.framework.security.vo.ScoreResultsDetail;
@@ -42,7 +44,6 @@ public class ScoreService extends HibernateDaoSupport implements
 	private static final Logger log = Logger.getLogger(ScoreService.class);
 	private ScoreUtil scoreUtil;
 	private ApplicationContext ac;
-	
 
 	public void setApplicationContext(ApplicationContext ac) {
 		this.ac = ac;
@@ -56,24 +57,40 @@ public class ScoreService extends HibernateDaoSupport implements
 		return scoreUtil.getBasicInformationMap();
 	}
 
-	// 生成分数规则
-	public PagingResult queryScore(Map param) {
-		String sql = " select a.username,b.* from sam_taxempcode a, score_person b "
-				+ "where a.loginname = b.personid "
-				+ "and b.personid = 'ywyfzzy' order by b.allcount";
-		List<String> idlist = this.getSession().createQuery(sql).list();
-		return new PagingResult(idlist.size(), idlist);
+	// 查询分数
+	public List queryScore(Map param) {
+		System.out.println("===================" + param);
+		String sql = " select a.username,b.id.scorename,b.id.personid,case when b.allcount = null then 0 else b.allcount end  as allcount  from SamTaxempcode a, ScorePerson b "
+				+ "where a.loginname = b.id.personid and b.examgroup = '"
+				+ param.get("group") + "'" + "order by b.allcount desc ";
+		List idlist = this.getSession().createQuery(sql).list();
+
+		return idlist;
 	}
-	
-	public void clearSession(){
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println( "auth is " + auth );
+
+	// 生成分数规则
+	public List queryGroup() {
+		System.out.println("===========111========");
+		List ret = getSession()
+				.createQuery(
+						"select groupname as code,groupname as name,scoredate from ScoreExamdate order by scoredate desc ")
+				.list();
+		System.out.println("===================" + ret.size());
+		return ret;
+	}
+
+	public void clearSession() {
+		Authentication auth = SecurityContextHolder.getContext()
+				.getAuthentication();
+		System.out.println("auth is " + auth);
 		SecurityContextHolder.getContext().setAuthentication(null);
-		System.out.println("==============清理??====="+SecurityContextHolder.getContext().getAuthentication());
+		System.out.println("==============清理??====="
+				+ SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	// 生成分数规则
 	public PagingResult<Map> getScore(Map param) {
+		System.out.println("===================" + (String) param.get("group"));
 		String examdate = "";
 		if (param != null && param.containsKey("examdate")) {
 			examdate = (String) param.get("examdate");
@@ -84,20 +101,26 @@ public class ScoreService extends HibernateDaoSupport implements
 		// 标准答案filno
 		Map<String, Object> standardMap = (Map) scoreUtil
 				.getScoreSetting("standardMap");
+		System.out.println("===================" + (String) param.get("group"));
 		// 得到考试名称
-		Map<String, ScorePerson> persons = (Map) scoreUtil.getScoreSetting(
-				"ScorePerson", scoreUtil.getScoreName());
+		Map<String, Object[]> persons = (Map) scoreUtil.getScoreSetting(
+				"ScorePerson", (String) param.get("group"));
 		List<ScorePerson> personsList = new ArrayList<ScorePerson>();
 		List<Map> retList = new ArrayList<Map>();
+		System.out.println("===================" + persons.size());
 		for (Iterator it = persons.keySet().iterator(); it.hasNext();) {
 			String key = (String) it.next();
-			ScorePerson person = persons.get(key);
+			System.out.println("===================" + key);
+			Object[] personobjs = persons.get(key);
+			ScorePerson person = (ScorePerson) personobjs[0];
+			SamTaxempcode emp = (SamTaxempcode) personobjs[1];
+			String scorestr="";
 			personsList.add(person);
 			// 根据考试名称得到考试项目分组
 			Map<String, Map> items = (Map) scoreUtil.getScoreSetting(
 					"ScoreGroup", person.getExamgroup());
-			Map allscore = new HashMap();
 			List detailList = new ArrayList();
+			Map allscore = new HashMap();
 			for (Iterator iter = items.keySet().iterator(); iter.hasNext();) {
 				String item = (String) iter.next(); // 考试名称
 				// 根据项目分组得到项目明细
@@ -176,10 +199,12 @@ public class ScoreService extends HibernateDaoSupport implements
 					}
 				}
 			}
-			saveScores(key, person, allscore, detailList);
+			scorestr = saveScores((String) param.get("group"), person, allscore, detailList);
 			try {
 				Map retmap = BeanUtils.describe(person);
 				retmap.putAll(BeanUtils.describe(person.getId()));
+				retmap.put("empname", emp.getUsername());
+				retmap.put("scorestr", scorestr);
 				retList.add(retmap);
 				// retList.addAll(detailList);
 			} catch (NoSuchMethodException ex) {
@@ -191,6 +216,125 @@ public class ScoreService extends HibernateDaoSupport implements
 			}
 		}
 		return new PagingResult<Map>(retList.size(), retList);
+	}
+
+	// 生成分数规则
+	public Map getPersonScore(Map param) {
+		System.out.println("===================" + (String) param.get("group"));
+		System.out.println("==================="
+				+ (String) param.get("personid"));
+		String examdate = "";
+		Map retmap=null;
+		if (param != null && param.containsKey("examdate")) {
+			examdate = (String) param.get("examdate");
+		} else {
+			examdate = (new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
+					.toString();
+		}
+		// 标准答案filno
+		Map<String, Object> standardMap = (Map) scoreUtil
+				.getScoreSetting("standardMap");
+		// 得到考试名称
+		Map<String, Object[]> persons = (Map) scoreUtil.getScoreSetting(
+				"ScorePerson", (String) param.get("group"));
+		List<ScorePerson> personsList = new ArrayList<ScorePerson>();
+		String key = (String) param.get("personid");
+		Object[] personobjs = persons.get(key);
+		ScorePerson person = (ScorePerson) personobjs[0];
+		SamTaxempcode emp = (SamTaxempcode) personobjs[1];
+		personsList.add(person);
+		// 根据考试名称得到考试项目分组
+		Map<String, Map> items = (Map) scoreUtil.getScoreSetting("ScoreGroup",
+				person.getExamgroup());
+		List detailList = new ArrayList();
+		for (Iterator iter = items.keySet().iterator(); iter.hasNext();) {
+			Map allscore = new HashMap();
+			String item = (String) iter.next(); // 考试名称
+			// 根据项目分组得到项目明细
+			Map<String, CodScoreProp> detailsitem = (Map) scoreUtil
+					.getScoreSetting("CodScoreProp", item);
+			if (detailsitem == null) {
+				log.error("【异常】:" + item + "的detailsitem未进行配置!");
+				continue;
+			}
+			// 根据项目名称得到项目的获取方式
+			CodScoreRule rule = (CodScoreRule) scoreUtil.getScoreSetting(
+					"CodScoreRule", item);
+			if (rule == null) {
+				log.error("【异常】:CodScoreRule中配置的name与ScoreGroup中配置的item不同");
+				continue;
+			}
+			String id = getIds(person, rule, examdate);
+			if (id == null) {
+				allscore.put(item, null);
+			} else {
+				String[] fun = rule.getMethod().split("\\.");
+				Object obj = ac.getBean(fun[0]);
+				Map scores = new HashMap();
+				try {
+					Method exeMethod = ScoreUtil.getExeMethod(obj, fun[1]);
+					if (exeMethod == null) {
+						log.error("【异常】:CodScoreRule中配置的method" + fun[1]
+								+ "不存在!");
+						continue;
+					}
+					Object bo2 = exeMethod.getParameterTypes()[0].newInstance();
+					ScoreUtil.setObjectValue(bo2, rule.getParamurl(), id);
+					Object res2 = MethodUtils.invokeMethod(obj, fun[1], bo2);
+
+					Object standard = standardMap.get(item);
+					if (standard == null) {
+						log.error("CodScoreRule的:" + item
+								+ "的考试答案standard配置查不到数据!");
+						continue;
+					}
+					Map map1 = BeanUtils.describe(standard);
+					for (Iterator scoreiter = map1.keySet().iterator(); scoreiter
+							.hasNext();) {
+						String detailitem = (String) scoreiter.next();
+						if (detailsitem.containsKey(detailitem)) {
+							Object values1 = getValue(standard, detailitem);
+							Object values2 = getValue(res2, detailitem);
+							CodScoreProp detail = detailsitem.get(detailitem);
+							int value = 0;
+							// TODO 这里做打分比较
+							if (detail.getPropother() != null
+									&& !detail.getPropother().trim().isEmpty()) {
+								Object othervalues1 = getValue(standard,
+										detail.getPropother());
+								Object othervalues2 = getValue(res2,
+										detail.getPropother());
+								if (getComparedRes(othervalues1, othervalues2) == 0) {
+									value = 0;
+								} else {
+									value = getComparedRes(values1, values2);
+								}
+							} else {
+								value = getComparedRes(values1, values2);
+							}
+							scores.put(detailitem, value);
+						}
+					}
+					allscore.put(item, scores);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			saveScores((String) param.get("group"), person, allscore, detailList);
+		}
+		try {
+			retmap = BeanUtils.describe(person);
+			retmap.putAll(BeanUtils.describe(person.getId()));
+			retmap.put("empname", emp.getUsername());
+			// retList.addAll(detailList);
+		} catch (NoSuchMethodException ex) {
+			ex.printStackTrace();
+		} catch (InvocationTargetException ex) {
+			ex.printStackTrace();
+		} catch (IllegalAccessException ex) {
+			ex.printStackTrace();
+		}
+		return retmap;
 	}
 
 	private Object getValue(Object obj, String propname) throws Exception {
@@ -250,8 +394,9 @@ public class ScoreService extends HibernateDaoSupport implements
 		return value;
 	}
 
-	private void saveScores(String scorename, ScorePerson person,
+	private String saveScores(String scorename, ScorePerson person,
 			Map allscores, List detailList) {
+		String retstr = "";
 		BigDecimal allcount = new BigDecimal(0);
 		// 保存得分情况
 		for (Iterator iter = allscores.keySet().iterator(); iter.hasNext();) {
@@ -266,6 +411,7 @@ public class ScoreService extends HibernateDaoSupport implements
 				detailmap.put("examdate",
 						new java.sql.Date(new Date().getTime()));
 				detailList.add(detailmap);
+				retstr = retstr+item+";";
 			} else {
 				Map scores = (Map) obj;
 				Map<String, CodScoreProp> detailsitem = (Map) scoreUtil
@@ -281,6 +427,11 @@ public class ScoreService extends HibernateDaoSupport implements
 				detailmap.put("examdate",
 						new java.sql.Date(new Date().getTime()));
 				detailList.add(detailmap);
+				if(score.equals(new BigDecimal(0))){
+					retstr = retstr+item+";";
+				}
+//				retstr = retstr+item+":"+score.divide(new BigDecimal(detailList.size()).multiply(new BigDecimal(100)), 2,
+//						RoundingMode.HALF_UP)+"分;";
 			}
 		}
 		allcount = allcount.divide(new BigDecimal(detailList.size()), 2,
@@ -288,6 +439,7 @@ public class ScoreService extends HibernateDaoSupport implements
 		person.setAllcount(allcount);
 		person.setExamdate(new java.sql.Date(new Date().getTime()));
 		saveVO(person);
+		return retstr;
 	}
 
 	private BigDecimal saveScores(String scorename, ScorePerson person,

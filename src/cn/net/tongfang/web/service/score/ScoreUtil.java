@@ -1,6 +1,7 @@
 package cn.net.tongfang.web.service.score;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import org.springframework.web.context.support.RequestHandledEvent;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.CodScoreProp;
 import cn.net.tongfang.framework.security.vo.CodScoreRule;
+import cn.net.tongfang.framework.security.vo.ScoreExamdate;
 import cn.net.tongfang.framework.security.vo.ScoreGroup;
 import cn.net.tongfang.framework.security.vo.ScorePerson;
 
@@ -55,6 +57,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 		getScoreGroup();
 		getStandard();
 		buildBasicInformationMap();
+		getExamdate();
 		System.out.println("============初始化成功=======");
 	}
 
@@ -90,24 +93,41 @@ public class ScoreUtil extends HibernateDaoSupport implements
 			map.put(cod.getName(), cod);
 		}
 	}
+	
+	/**
+	 * 得到科目的考试配置
+	 */
+	private void getExamdate() {
+		Map<String,  Timestamp> map = new HashMap<String,  Timestamp>();
+		nameMaps.put("ScoreExamdate", map);
+		List<ScoreExamdate> list = getSession()
+				.createQuery("from ScoreExamdate ").list();
+		for (ScoreExamdate cod : list) {
+			map.put(cod.getGroupname(), cod.getScoredate());
+		}
+	}
 
 	/**
 	 * 得到考试的参与人员
 	 */
 	private void getScorePerson() {
-		Map<String, Map<String, ScorePerson>> map = new HashMap<String, Map<String, ScorePerson>>();
+		Map<String, Map<String, Object[]>> map = new HashMap<String, Map<String, Object[]>>();
 		nameMaps.put("ScorePerson", map);
-		List<ScorePerson> list = getSession().createQuery("from ScorePerson ")
+		List<Object[]> list = getSession().createQuery(" select a,b from ScorePerson a,SamTaxempcode b where b.loginname = a.id.personid ")
 				.list();
-		for (ScorePerson cod : list) {
-			Map<String, ScorePerson> namemap;
-			if (map.containsKey(cod.getId().getScorename())) {
-				namemap = map.get(cod.getId().getScorename());
+		System.out.println("========ScorePerson==========="+list.size());
+		for (Object[] obj : list) {
+			ScorePerson cod = (ScorePerson) obj[0];
+			Map<String, Object[]> namemap;
+			System.out.println("==================="+cod.getExamgroup());
+			if (map.containsKey(cod.getExamgroup())) {
+				namemap = map.get(cod.getExamgroup());
 			} else {
 				namemap = new HashMap();
-				map.put(cod.getId().getScorename(), namemap);
+				map.put(cod.getExamgroup(), namemap);
 			}
-			namemap.put(cod.getId().getPersonid(), cod);
+			System.out.println("==================="+cod.getId().getPersonid());
+			namemap.put(cod.getId().getPersonid(), obj);
 		}
 	}
 
@@ -185,6 +205,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 					res1 = MethodUtils.invokeMethod(obj, fun[1], bo1);
 					standardMap.put(item, res1);
 				} catch (Exception ex) {
+					ex.printStackTrace();
 					log.error("CodScoreRule中的考试[" + item + "]的标准答案["
 							+ rule.getStandard() + "]在数据库中不存在!请与系统管理员联系!");
 					continue;
