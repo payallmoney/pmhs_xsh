@@ -285,7 +285,8 @@ Ext.hc.printScorePanel = new Ext.Panel(
 						mapping : 'examgroup'
 					}, {
 						name : 'allcount',
-						mapping : 'allcount'
+						mapping : 'allcount',
+						type : 'float'
 					}, {
 						name : 'examdate',
 						mapping : 'examdate'
