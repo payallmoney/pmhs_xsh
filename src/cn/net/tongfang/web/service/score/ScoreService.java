@@ -247,8 +247,8 @@ public class ScoreService extends HibernateDaoSupport implements
 		Map<String, Map> items = (Map) scoreUtil.getScoreSetting("ScoreGroup",
 				person.getExamgroup());
 		List detailList = new ArrayList();
+		Map allscore = new HashMap();
 		for (Iterator iter = items.keySet().iterator(); iter.hasNext();) {
-			Map allscore = new HashMap();
 			String item = (String) iter.next(); // 考试名称
 			// 根据项目分组得到项目明细
 			Map<String, CodScoreProp> detailsitem = (Map) scoreUtil
@@ -320,12 +320,13 @@ public class ScoreService extends HibernateDaoSupport implements
 					ex.printStackTrace();
 				}
 			}
-			saveScores((String) param.get("group"), person, allscore, detailList);
 		}
+		String scorestr = saveScores((String) param.get("group"), person, allscore, detailList);
 		try {
 			retmap = BeanUtils.describe(person);
 			retmap.putAll(BeanUtils.describe(person.getId()));
 			retmap.put("empname", emp.getUsername());
+			retmap.put("scorestr", scorestr);
 			// retList.addAll(detailList);
 		} catch (NoSuchMethodException ex) {
 			ex.printStackTrace();

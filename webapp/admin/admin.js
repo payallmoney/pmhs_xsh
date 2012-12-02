@@ -101,14 +101,19 @@ function dwrExceptionHandler(errorString, error){
 				 ]
 			});
 			exceptionwin.show(this);
+			exceptionwin.show(this);
 		}else{
-	        msg = error.javaClassName+":"+error.message;
-	            if(error.stackTrace!=null){
-	                for(var i = 0 ; i <error.stackTrace.length ; i++)
-	                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
-	            }
-	        console.log(msg)
-	        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+			if(error.javaClassName){
+		        msg = error.javaClassName+":"+error.message;
+		            if(error.stackTrace!=null){
+		                for(var i = 0 ; i <error.stackTrace.length ; i++)
+		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+		            }
+		        console.log(msg)
+		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+			}else{
+				throw error;
+			}
 		}
     }
 }

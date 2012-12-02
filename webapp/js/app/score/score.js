@@ -35,8 +35,8 @@ window.score_refresh = function(personid,rowindex){
 	}
 	ScoreService.getPersonScore(param, function(data) {
 //		alert(rowindex);
-		Ext.getCmp("score.grid").getStore().getAt(rowindex)["allcount"] = data.allcount;
-		Ext.getCmp("score.grid").getStore().getAt(rowindex)["scorestr"] = data.scorestr;
+		Ext.getCmp("score.grid").getStore().getAt(rowindex).set("allcount", data.allcount);
+		Ext.getCmp("score.grid").getStore().getAt(rowindex).set("scorestr",data.scorestr);
 		eventObj.disabled = false;
 	})
 	
@@ -296,23 +296,23 @@ Ext.hc.printScorePanel = new Ext.Panel(
 					}  ]))
 				}),
 				cm : new Ext.grid.ColumnModel([ {
-					"header" : "用户名称",
+					"header" : "姓名",
 					"sortable" : true,
 					"dataIndex" : "empname",
-					width : 50
+					width : 80
 				}, {
 					"header" : "登录名",
 					"sortable" : true,
 					"dataIndex" : "personid",
-					width : 50
+					width : 80
 				}, {
 					"header" : "考试名称",
 					"dataIndex" : "name",
-					width : 50
+					width : 100
 				}, {
 					"header" : "考试分组",
 					"dataIndex" : "examgroup",
-					width : 50
+					width : 70
 				}, {
 					"sortable" : true,
 					"header" : "总分",
@@ -322,7 +322,7 @@ Ext.hc.printScorePanel = new Ext.Panel(
 					"header" : "考试时间",
 					"dataIndex" : "examdate",
 					"renderer" : Ext.util.Format.dateRenderer('Y-m-d'),
-					width : 50
+					width : 80
 				}, {
 					header : "操作",
 					dataIndex : "personid",
