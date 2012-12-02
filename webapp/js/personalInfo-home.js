@@ -385,6 +385,7 @@
             xtype : "input",
             setting : {
                 format: "date",
+                maxlen: 8,
                 defaultVal : new Date()
             },
             required : [true, "建档日期"]

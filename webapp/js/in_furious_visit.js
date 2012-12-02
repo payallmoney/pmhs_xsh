@@ -363,7 +363,8 @@
         	id : "hospotalEndDate",
         	xtype : "input",
         	setting : {
-        		format : "date"
+        		format : "date",
+        		maxlen: 8,
         	}
         }
         

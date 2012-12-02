@@ -169,6 +169,7 @@
             xtype : "input",
             setting : {
               format: "date",
+              maxlen: 8,
                 size : 10
             },
             required : [true,"确诊日期"]
@@ -232,6 +233,7 @@
             xtype : "input",
             setting : {
                format: "date",
+               maxlen: 8,
                 defaultVal : new Date()
             },
             required : [true, "填表日期"]
@@ -247,7 +249,8 @@
         	id : "agreeSignDate",
         	xtype : "input",
         	setting : {
-        		format : "date"
+        		format : "date",
+        		maxlen: 8
         	}
         },{//签字
         	id : "agreeSign",
@@ -262,7 +265,8 @@
         	id : "outpatientDate",
         	xtype : "input",
         	setting : {
-        		format : "date"
+        		format : "date",
+        		maxlen: 8,
         	}
         },{//经济情况
         	id : "incomeStatus",
