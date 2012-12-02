@@ -13,7 +13,6 @@ function dwrExceptionHandler(errorString, error){
 				height:170,
 				layout:'fit',
 				modal :true,
-				
 				items:[{
 				       xtype:'form',
 				       id:'relogin_form',
@@ -115,13 +114,17 @@ function dwrExceptionHandler(errorString, error){
 			});
 			exceptionwin.show(this);
 		}else{
-	        msg = error.javaClassName+":"+error.message;
-	            if(error.stackTrace!=null){
-	                for(var i = 0 ; i <error.stackTrace.length ; i++)
-	                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
-	            }
-	        console.log(msg)
-	        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+			if(error.javaClassName){
+		        msg = error.javaClassName+":"+error.message;
+		            if(error.stackTrace!=null){
+		                for(var i = 0 ; i <error.stackTrace.length ; i++)
+		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+		            }
+		        console.log(msg)
+		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+			}else{
+				throw error;
+			}
 		}
     }
 }
@@ -317,6 +320,7 @@ var allDisabled = false;
         }
         
         window.saving = false;
+        
         function doSave(send, updateMode){
             if (saving) {
                 console.error("already saving");
@@ -375,9 +379,8 @@ var allDisabled = false;
                     	storeId = d;
                     	sendMessage('retId:' + d);
                     }else{
-                    	reset();
+                		reset();
                     }
-                    
                     if(quitAfterSave){
                     	showInfoObj.Infor('数据已保存成功',function(e){
                     		if(e == 'ok'){
@@ -388,7 +391,12 @@ var allDisabled = false;
                     	hideDialog();
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
-                    saving = false;
+                    if(!updateMode){
+                		go();
+                		saving = false;
+                		info("数据已保存<br/>" + ("请继续输入下一条" ));
+                	}
+                    
                 }
                 /**改用admin.js里面设置的统一异常处理
                 , errorHandler:function(errorstr, error) {
@@ -468,6 +476,7 @@ var allDisabled = false;
                 });
                 initListVal = shouldLoad;
             }
+            fields_array = [];
             //build controls
             $.each(cfg,function(_,v) {
                 var id = v.id;
@@ -630,6 +639,7 @@ var allDisabled = false;
                 if (fields_array[0].ctrl['focus']){
                     fields_array[0].ctrl.focus();
                 }
+                $(".save")[0].focus();//设置为第一个保存按钮foucs
             }
 
 
@@ -674,7 +684,7 @@ var allDisabled = false;
                 var model = {};
                 $.each(fields_array, function(i,v){
                     var _ccfg =  cfg[i];
-                    if (!_ccfg.setting.showOnly) {
+                    if (_ccfg && _ccfg.setting && !_ccfg.setting.showOnly) {
                         var key = v.id;
                         var val = v.ctrl['val'] ?  v.ctrl.val() : null;
                         model[key] = val;
@@ -776,11 +786,15 @@ var allDisabled = false;
                     } 
  
             }) //keyup
-
+            
+//            $('button.save').on("click",save);
+//            $('button.quit').on("click",quit);
+//            $('button.cancel').on("click",reset);		
+            		
             $('button.save').click(save);
             $('button.quit').click(quit);
-            $('button.cancel').click(reset);
-            
+            $('button.cancel').click(go);
+         
             showBody();
 
             function showHelp(force){

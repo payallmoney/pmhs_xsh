@@ -6,7 +6,7 @@ app.oldManExamPanel = new Ext.tf.HealthPanel({
     deleteUrl : UserMenuTreeService.removeMedicalExamRecords,
     recordId : 'medicalExam.id',
     recordPk : 'id',
-    detailUrl: '/medicalExam.html',
+    detailUrl: '/medicalExam_old.html',
     panelId : 'app.oldManExamPanel',
     readerConfig : [
                     {name:'id', mapping: 'medicalExam.id'},

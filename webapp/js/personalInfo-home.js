@@ -310,7 +310,7 @@
                         displayCols : ['number', 'name'],
                         displayColNames : ["编号", "疾病"]
                     },
-                    { format: 'date'},
+                    { maxlen : 8,format: 'date'},
                     {}
                 ],
                 required : ['diseaseId','confirmDate']
