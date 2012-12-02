@@ -124,6 +124,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		format : 'date',
+		maxlen : 8,
 		defaultVal : new Date()
 	}
 }, {

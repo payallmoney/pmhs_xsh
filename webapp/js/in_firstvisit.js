@@ -925,6 +925,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
+				maxlen : 8,
 				size : 10
 			}
 		}, {
@@ -1029,18 +1030,21 @@ var cfg = [
 			id : "hivdetectDate",
 			xtype : "input",
 			setting : {
+			    maxlen : 8,
 				format : 'date'
 			}
 		}, {
 			id : "syphilisDetectDate",
 			xtype : "input",
 			setting : {
+			    maxlen : 8,
 				format : 'date'
 			}
 		}, {
 			id : "hepatitisBdetectDate",
 			xtype : "input",
 			setting : {
+			    maxlen : 8,
 				format : 'date'
 			}
 		}, {
@@ -1080,6 +1084,7 @@ var cfg = [
 			id : "endAbortionDate",
 			xtype : "input",
 			setting : {
+			    maxlen : 8,
 				format : 'date'
 			}
 		}, {

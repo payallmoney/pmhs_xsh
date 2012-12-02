@@ -331,7 +331,8 @@
             xtype : "input",
             setting : {
                 format: 'date',
-                size : 10
+                size : 10,
+                maxlen : 8
             }
         },
         {

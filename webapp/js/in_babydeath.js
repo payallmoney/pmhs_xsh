@@ -367,6 +367,7 @@ var cfg = [ {
 	id : "bbirthday",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		size : 10,
 		format : 'date'
 	}
@@ -571,6 +572,7 @@ var cfg = [ {
 	id : "etime",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date',
 		size : 10
 	}
@@ -689,6 +691,7 @@ var cfg = [ {
 	id : "tdate",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date'
 	}
 } ];

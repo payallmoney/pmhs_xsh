@@ -69,6 +69,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		format : 'date',
+		maxlen : 8,
 		defaultVal : new Date()
 	},
 	required : [ true, "随访日期" ]
@@ -241,7 +242,8 @@ var cfg = [ {
 	id : "nextVisitDate",
 	xtype : "input",
 	setting : {
-		format : 'date'
+		format : 'date',
+		maxlen : 8,
 	}
 }, {
 	id : "transUnit",

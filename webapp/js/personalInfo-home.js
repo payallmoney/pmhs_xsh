@@ -186,7 +186,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { maxlen : 8,format: 'date'}
                 ],
                 required : ['opsname', 'opsdate']
             },
@@ -202,7 +202,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { format: 'date',maxlen : 8}
                 ],
                 required : ['traumaName', 'traumaDate']
             },

@@ -41,6 +41,7 @@
             setting : {
             	readonly : true,
 				showOnly : true,
+				maxlen : 8,
                 format: 'date'
             }
         },

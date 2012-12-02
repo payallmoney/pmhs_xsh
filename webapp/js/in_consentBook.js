@@ -80,6 +80,7 @@ var cfg = [ {
 	id : "agreeTime",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date'
 	}
 } ];
