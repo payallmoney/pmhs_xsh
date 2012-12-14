@@ -35,16 +35,13 @@
 <!--
 	<bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
 		<property name="authenticationManager" ref="authenticationManager"/>
-		
-		
 		<property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
 		<property name="defaultTargetUrl" value="/admin"/>
-		
 		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
+
 	-->
-	
 	<bean id="authenticationProcessingFilter" class="cn.net.tongfang.web.util.AuthFilter">
 		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
@@ -52,7 +49,6 @@
 		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
-	
 
     <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
         <property name="authenticationManager"><ref local="authenticationManager"/></property>

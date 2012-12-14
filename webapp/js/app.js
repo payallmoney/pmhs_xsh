@@ -3,118 +3,147 @@
 /** 增加dwr统一的异常处理**/
 function dwrExceptionHandler(errorString, error){
 	if (error) {
-		$.unblockUI();
-		window.saving = false;
 		if(error.javaClassName === "cn.net.tongfang.web.util.TimeoutException" ){
-			var exceptionwin = new Ext.Window({
-				title:'重新登录',
-				id:'relogin_exceptionwin',
-				width:420,
-				height:170,
-				layout:'fit',
-				modal :true,
-				items:[{
-				       xtype:'form',
-				       id:'relogin_form',
-				       url:'/j_spring_security_check',
-				       width:320,
-				       bodyStyle:'font-size: 10px !important;',
-				       style:'font-size: 10px !important;',
-				       height:150,
-				       layout:'table',
-				       monitorValid:true,
-				       buttonAlign:'center',
-						layoutConfig: {
-					        columns: 2
-					    },
-						buttons:[{
-							style:'font:normal 12px  宋体 !important;',
-							bodyStyle:'font-size: 10px !important;',
-							text:'重新登录',
-							formBind: true,
-							handler:function(){
-								Ext.getCmp("relogin_form").getForm().submit({
-									method:'POST',
-//									standardSubmit : true,
-									url:'/j_spring_security_check',
-//									headers:{'Content-Type': 'application/json; charset=UTF-8'},
-									success:function(){
-										Ext.getCmp("relogin_message").setText("登录成功!");
-										Ext.Msg.alert('登录成功!','登录成功!点击【确定】返回操作界面!');
-										Ext.getCmp("relogin_exceptionwin").close();
-									},
-									failure:function(form, action){
-										Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
-										Ext.getCmp("relogin_message").setText("登录失败!用户名或密码错误");
-									}
-								});
-							}
-						}],
-						buttonAlign:'center',
-						items:[
-							{
-								xtype:'label',
-								text : '您的登录已经超时，请输入用户名和密码重新登录！',
-								style :'padding-left:5px;padding-top:0px;color:red;font:normal 12px  宋体 !important;',
+			if(!window.errorShowing){
+				var exceptionwin = new Ext.Window({
+					title:'重新登录',
+					id:'relogin_exceptionwin',
+					width:420,
+					height:170,
+					layout:'fit',
+					modal :true,
+					listeners:{
+						beforeclose:function ( panel){
+							window.errorShowing = false;
+						},
+						afterlayout:function (container,layout){
+							window.errorShowing = true;
+						}
+					},
+					items:[{
+					       xtype:'form',
+					       id:'relogin_form',
+					       url:'/j_spring_security_check',
+					       width:320,
+					       bodyStyle:'font-size: 10px !important;',
+					       style:'font-size: 10px !important;',
+					       height:150,
+					       layout:'table',
+					       monitorValid:true,
+					        buttonAlign:'center',
+							layoutConfig: {
+						        columns: 2
+						    },
+							buttons:[{
+								style:'font:normal 12px  宋体 !important;',
 								bodyStyle:'font-size: 10px !important;',
-								id : 'relogin_message',
-								columnWidth: 1 ,
-								colspan: 2,
-								height:25
-							},
-							{
-								xtype:'label',
-								html : '用&nbsp;户&nbsp;名：',
-								style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px 宋体 !important;',
-								bodyStyle:'font-size: 10px !important;',
-								layoutConfig:{
-		                            animate:true
-		                        },
-								width:50,
-								height:25
-							},
-							{
-								xtype:'textfield',
-								fieldLabel : '用户名',
-								id : 'j_username',
-								style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
-								bodyStyle:'font-size: 10px !important;',
-								height:25,
-								allowBlank:false
-							},
-							{
-								xtype:'label',
-								html:'密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：',
-								style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px  宋体 !important;',
-								bodyStyle:'font-size: 10px !important;',
-								height:25
-							},{
-								xtype:'textfield',
-								//width:100,
-								style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
-								bodyStyle:'font-size: 10px !important;',
-								fieldLabel : '密码',
-								inputType : 'password',
-								id : 'j_password',
-								height:25,
-								allowBlank:false
-							}
-							,{
-								xtype:'hidden',
-								id : 'spring-security-redirect',
-								value :'/js/auth/ajaxlogin_success.js',
-								columnWidth: 1  ,
-								height:25,
-								colspan: 2,
-								allowBlank:false
-							}
-						]
-				}
-				 ]
-			});
-			exceptionwin.show(this);
+								text:'重新登录',
+								formBind: true,
+								handler:function(){
+									Ext.getCmp("relogin_form").getForm().submit({
+										method:'POST',
+										url:'/j_spring_security_check',
+										success:function(){
+											Ext.getCmp("relogin_message").setText("登录成功!");
+											Ext.Msg.show({
+											   title:'登录成功!',
+											   msg: '登录成功!点击【确定】返回操作界面!',
+											   buttons: Ext.Msg.OK,
+											   fn: function(btn, text){
+												    if (btn == 'ok'){
+												    	Ext.getCmp("relogin_exceptionwin").close();
+												    	if(!window.saving){
+															sendMessage('quit');
+														}
+												    }
+												    window.saving = false;
+												},
+											   animEl: 'elId'
+											});
+										},
+										failure:function(form, action){
+											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
+											Ext.getCmp("relogin_message").setText("登录失败!用户名或密码错误");
+										}
+									});
+								}
+							}],
+							buttonAlign:'center',
+							items:[
+								{
+									xtype:'label',
+									text : '您的登录已经超时，请输入用户名和密码重新登录！',
+									style :'padding-left:5px;padding-top:0px;color:red;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									id : 'relogin_message',
+									columnWidth: 1 ,
+									colspan: 2,
+									height:25
+								},
+								{
+									xtype:'label',
+									html : '用&nbsp;户&nbsp;名：',
+									style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px 宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									layoutConfig:{
+			                            animate:true
+			                        },
+									width:50,
+									height:25
+								},
+								{
+									xtype:'textfield',
+									fieldLabel : '用户名',
+									id : 'j_username',
+									style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									height:25,
+									allowBlank:false
+								},
+								{
+									xtype:'label',
+									html:'密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：',
+									style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									height:25
+								},{
+									xtype:'textfield',
+									//width:100,
+									style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									fieldLabel : '密码',
+									inputType : 'password',
+									id : 'j_password',
+									height:25,
+									allowBlank:false
+								}
+								,{
+									xtype:'hidden',
+									id : 'spring-security-redirect',
+									value :'/js/auth/ajaxlogin_success.js',
+									columnWidth: 1  ,
+									height:25,
+									colspan: 2,
+									allowBlank:false
+								},
+								{
+									xtype:'hidden',
+									id : 'authentication-failure-url',
+									value :'/js/auth/ajaxlogin_fail.js',
+									columnWidth: .85  ,
+									height:25,
+									allowBlank:false
+								}
+							]
+					}
+					 ]
+				});
+				$.unblockUI();
+				exceptionwin.show(this);
+			}
 		}else{
 			if(error.javaClassName){
+				$.unblockUI();
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
 		                for(var i = 0 ; i <error.stackTrace.length ; i++)
@@ -391,9 +420,9 @@ var allDisabled = false;
                     	hideDialog();
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
+                    window.saving = false;
                     if(!updateMode){
                 		go();
-                		saving = false;
                 		info("数据已保存<br/>" + ("请继续输入下一条" ));
                 	}
                     
