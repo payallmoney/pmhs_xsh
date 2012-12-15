@@ -25,11 +25,9 @@ public class AuthFilter extends AuthenticationProcessingFilter {
 		HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(
 				response);
 		Writer out = responseWrapper.getWriter();
-		System.out.println("========success===========");
 		String targetUrl = determineTargetUrl(request);
 		out.write("{success:true, targetUrl : \'" + targetUrl + "\'}");
 		out.close();
-
 	}
 
 	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
