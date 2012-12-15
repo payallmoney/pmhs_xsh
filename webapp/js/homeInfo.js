@@ -41,6 +41,7 @@
             setting : {
             	readonly : true,
 				showOnly : true,
+				maxlen : 8,
                 format: 'date'
             }
         },
@@ -138,6 +139,7 @@
         { id : "buildDate",
             xtype : "input",
             setting : {
+                maxlen: 8,
                 format: "date",
                 defaultVal : new Date()
             },

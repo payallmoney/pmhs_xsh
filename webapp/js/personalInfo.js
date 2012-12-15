@@ -441,6 +441,7 @@
         colXtypes: ["input", "input"],
         colSettings: [
           {}, {
+              maxlen: 8,
             format: "date"
           }
         ],
@@ -457,6 +458,7 @@
         colXtypes: ["input", "input"],
         colSettings: [
           {}, {
+              maxlen: 8,
             format: "date"
           }
         ],
@@ -572,6 +574,7 @@
             displayCols: ["number", "name"],
             displayColNames: ["编号", "疾病"]
           }, {
+              maxlen: 8,
             format: "date"
           }, {}
         ],
@@ -646,6 +649,7 @@
       id: "buildDate",
       xtype: "input",
       setting: {
+         maxlen: 8,
         format: "date"
       },
       required: [true, "建档日期"]

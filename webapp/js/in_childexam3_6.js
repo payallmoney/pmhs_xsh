@@ -341,7 +341,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
-				maxlen : 30,
+				maxlen : 8,
 				size : 10,
 				defaultVal : new Date((new Date()).getFullYear() + 1,
 						(new Date()).getMonth(), (new Date()).getDate())

@@ -267,6 +267,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		size : 10,
+		maxlen : 8,
 		format : 'date'
 	}
 }, {
@@ -402,6 +403,7 @@ var cfg = [ {
 	id : "tdate",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date'
 	}
 },{

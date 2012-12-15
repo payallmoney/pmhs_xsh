@@ -57,6 +57,7 @@
           id : "visitDate",
           xtype : "input",
           setting : {
+              maxlen : 8,
               format: 'date',
               size : 10
           }
@@ -328,6 +329,7 @@
             id : "nextVistDate",
             xtype : "input",
             setting : {
+                maxlen : 8,
                 format: 'date',
                 size : 10
             }
@@ -361,7 +363,8 @@
         	id : "hospotalEndDate",
         	xtype : "input",
         	setting : {
-        		format : "date"
+        		format : "date",
+        		maxlen: 8,
         	}
         }
         

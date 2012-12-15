@@ -15,7 +15,7 @@ var cfg = [{
 	id : "startIll",
     xtype : "input",
     setting : {
-        maxlen : 30,
+        maxlen : 8,
         size : 10,
         format : 'date'
     }
@@ -92,7 +92,7 @@ var cfg = [{
 	id : "recepTime",
     xtype : "input",
     setting : {
-        maxlen : 30,
+        maxlen : 8,
         size : 10,
         format : 'date'
     }

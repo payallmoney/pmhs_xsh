@@ -186,7 +186,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { maxlen : 8,format: 'date'}
                 ],
                 required : ['opsname', 'opsdate']
             },
@@ -202,7 +202,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { format: 'date',maxlen : 8}
                 ],
                 required : ['traumaName', 'traumaDate']
             },
@@ -310,7 +310,7 @@
                         displayCols : ['number', 'name'],
                         displayColNames : ["编号", "疾病"]
                     },
-                    { format: 'date'},
+                    { maxlen : 8,format: 'date'},
                     {}
                 ],
                 required : ['diseaseId','confirmDate']
@@ -385,6 +385,7 @@
             xtype : "input",
             setting : {
                 format: "date",
+                maxlen: 8,
                 defaultVal : new Date()
             },
             required : [true, "建档日期"]

@@ -169,7 +169,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
-				maxlen : 18,
+				maxlen : 8,
 				size : 8
 			}
 		},
@@ -202,7 +202,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
-				maxlen : 30,
+				maxlen : 8,
 				size : 8
 			}
 		},
@@ -859,6 +859,7 @@ var cfg = [
 			setting : {
 				format : 'date',
 				size : 10,
+				maxlen : 8,
 				blurFun : true,
 				fillField : [ 'textarea', 'fileNo span',
 						[ 'earlyDirect', 'dietDirect', 'protectDirect' ] ]
@@ -869,7 +870,8 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
-				size : 10
+				size : 10,
+				maxlen : 8
 			}
 		}, { // 下次随访地点
 			id : "nextVisitPlace",

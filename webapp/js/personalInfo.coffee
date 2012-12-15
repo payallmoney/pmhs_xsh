@@ -354,7 +354,8 @@ window.cfg = [
     displayColNames: ["名称", "时间"]
     colXtypes: ["input", "input"]
     colSettings: [{},
-      format: "date"
+      format: "date",
+        maxlen: 8
     ]
     required: ["opsname"]
 
@@ -368,7 +369,8 @@ window.cfg = [
     displayColNames: ["名称", "时间"]
     colXtypes: ["input", "input"]
     colSettings: [{},
-      format: "date"
+      format: "date",
+        maxlen: 8
     ]
     required: ["traumaName"]
 
@@ -475,7 +477,8 @@ window.cfg = [
       displayCols: ["number", "name"]
       displayColNames: ["编号", "疾病"]
     ,
-      format: "date"
+      format: "date",
+        maxlen: 8,
     , {}]
     required: ["diseaseId"]
 
@@ -539,7 +542,8 @@ window.cfg = [
   id: "buildDate"
   xtype: "input"
   setting:
-    format: "date"
+    format: "date",
+    maxlen: 8
 
   required: [true, "建档日期"]
 ,

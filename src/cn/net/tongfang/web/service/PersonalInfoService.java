@@ -45,8 +45,9 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public synchronized String save(PersonalInfoFBO data) throws Exception{
 		
 		// update switch
-		String fileno = data.getFileNo();
 		
+		String fileno = data.getFileNo();
+		System.out.println("=====old======oldfileno========"+fileno);
 		//if (fileno.length() == 18){
 		if(fileno != null && !fileno.equals("")){
 			System.out.println("updating...");
@@ -58,20 +59,20 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		String disNo = data.getDistrictNumber();
 //		String disNo = data.getId();
 		
-		//检查该档案是否已经存在，如果存在，则不允许保存，以防止一个人建多份档案，检查的条件：姓名、年龄、乡镇(街道)名称、村(居)委会名称
-		String checkName = data.getName();
-		Timestamp checkBirthday = data.getBirthday();
-		String checkTownship = data.getTownship();
-		String checkVillage = data.getVillage();
-		String checkSex = data.getSex();
-		String sql = "From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.name = '" + EncryptionUtils.encry(checkName) + "' And " +
-				"A.township = '" + checkTownship + "' And A.village = '" + checkVillage + "' And B.birthday = '" + checkBirthday + "' And " + 
-				"B.sex = '" + checkSex + "'";
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
-		if(list.size() > 0){
-			throw new RuntimeException(checkName + "已经建立档案，不需要重新建立!!!");
-		}
+		//这里不检查了----检查该档案是否已经存在，如果存在，则不允许保存，以防止一个人建多份档案，检查的条件：姓名、年龄、乡镇(街道)名称、村(居)委会名称
+//		String checkName = data.getName();
+//		Timestamp checkBirthday = data.getBirthday();
+//		String checkTownship = data.getTownship();
+//		String checkVillage = data.getVillage();
+//		String checkSex = data.getSex();
+//		String sql = "From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.name = '" + EncryptionUtils.encry(checkName) + "' And " +
+//				"A.township = '" + checkTownship + "' And A.village = '" + checkVillage + "' And B.birthday = '" + checkBirthday + "' And " + 
+//				"B.sex = '" + checkSex + "'";
+//		Query query = getSession().createQuery(sql);
+//		List list = query.list();
+//		if(list.size() > 0){
+//			throw new RuntimeException(checkName + "已经建立档案，不需要重新建立!!!");
+//		}
 		
 		if (disNo == null || disNo.trim().equals("")) {
 			throw new RuntimeException("no districtNum!!!");
@@ -86,6 +87,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 			fileNo = data.getHomeId() + fileno;
 		}*/
 		String fileNo = fileNoGen.getNextFileNo(disNo);
+		System.out.println("=======fileNo============"+fileNo);
 		String tmpFileNo = fileNo;
 //		String tmpFileNo = EncryptionUtils.encry(fileNo);
 		PersonalInfo info = new PersonalInfo();

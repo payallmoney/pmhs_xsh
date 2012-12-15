@@ -79,6 +79,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		size : 20,
+		maxlen : 8,
 		format : 'date'
 	}
 }, {

@@ -45,6 +45,7 @@
             id : "birthday",
             xtype : "input",
             setting : {
+                maxlen : 8,
                 format: 'date'
             }
         },
@@ -157,7 +158,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { maxlen : 8,format: 'date'}
                 ]
             }
         },
@@ -171,7 +172,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { maxlen : 8,format: 'date'}
                 ]
             }
         },
@@ -185,7 +186,7 @@
                 colXtypes : ['input', 'input'],
                 colSettings : [
                     {},
-                    { format: 'date'}
+                    { maxlen : 8,format: 'date'}
                 ]
             }
         },
@@ -253,7 +254,7 @@
                         displayCols : ['number', 'name'],
                         displayColNames : ["编号", "职业"]
                     },
-                    { format: 'date'},
+                    { maxlen : 8,format: 'date'},
                     {}
                 ]
             }

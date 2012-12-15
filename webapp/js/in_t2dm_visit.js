@@ -59,6 +59,7 @@
             xtype : "input",
             setting : {
                 format: "date",
+                maxlen: 8,
                 size : 10
             },
             required : [true, "随访日期"] 
@@ -331,7 +332,8 @@
             xtype : "input",
             setting : {
                 format: 'date',
-                size : 10
+                size : 10,
+                maxlen : 8
             }
         },
         {

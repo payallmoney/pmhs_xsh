@@ -59,6 +59,7 @@ function formSubmiter() {
 $().ready(function(){
 	systemInformationUtils.getVal(3,function(data){
 		$('.offlineDownload').attr('href',data + '/chrome_installer_552.210.exe');
+		$('.pptDownload').attr('href',data + '/公卫培训PPT.rar');
 	});
 	
 	clearInput();

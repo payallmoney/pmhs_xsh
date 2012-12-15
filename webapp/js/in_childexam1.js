@@ -78,7 +78,7 @@ var cfg = [
 			id : "visitDate",
 			xtype : "input",
 			setting : {
-				maxlen : 30,
+				maxlen : 8,
 				size : 10,
 				format : 'date',
 				blurFun : true,
@@ -130,7 +130,7 @@ var cfg = [
 			id : "nextVisitDate",
 			xtype : "input",
 			setting : {
-				maxlen : 30,
+				maxlen : 8,
 				size : 10,
 				format : 'date'
 			}
@@ -524,7 +524,7 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'date',
-				maxlen : 30,
+				maxlen : 8,
 				size : 10
 			}
 		}, { // 随访医生

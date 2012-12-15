@@ -129,6 +129,7 @@ var cfg = [ {
 	id : "birthday",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date'
 	}
 }, {
@@ -229,6 +230,7 @@ var cfg = [ {
 	xtype : "input",
 	setting : {
 		format : 'date',
+		maxlen : 8,
 		defaultVal : new Date()
 	}
 }, {
@@ -293,6 +295,7 @@ var cfg = [ {
 	id : "husbandBirthday",
 	xtype : "input",
 	setting : {
+	    maxlen : 8,
 		format : 'date'
 	}
 }, {
