@@ -17,6 +17,8 @@ function setDisabledBySex(sex) {
 }
 
 function isOldMan(date) {
+	if(date == null)
+		return;
 	var now = new Date();
 	var age = now.getFullYear() - date.getFullYear();
 	var feild_array = [ 'oldManHealthEstimate', 'oldManLifeEstimate',
@@ -322,15 +324,19 @@ function isOldMan(date) {
 		$shown.css(css).show();
 	}
 
-	med.search = function(dsFunc) {
+	med.search = function(dsFunc,setting) {
 		return function(cond) {
 			var subject = new Rx.AsyncSubject();
 			var isWomanRecord = '';
 			if ($('.isWomanRecord') != undefined) {
 				isWomanRecord = $('.isWomanRecord').html();
 			}
-			dsFunc(cond.pageNo, cond.mcode, cond.startWith, $('#condVal')
-					.html(), isWomanRecord, function(result) {
+			var condVal = $('#condVal').html();
+			if(setting.relatedInfoSearch){
+				isWomanRecord = setting.relatedInfoSearchValType;
+				condVal = $('#' + setting.relatedInfoSearchIds).val();
+			}
+			dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
 				subject.OnNext(result);
 				subject.OnCompleted();
 			});
@@ -382,7 +388,7 @@ function isOldMan(date) {
 		label.appendTo($(obj.parent()));
 		var searchCode = setting.multi ? undefined : setting.model.code; // 如果是多选，不过滤数据
 		var dsObservable = setting.local ? med.searchLocal(setting.ds,
-				searchCode) : med.search(setting.ds.search);
+				searchCode) : med.search(setting.ds.search,setting);
 
 		var observer = Rx.Observer.Create(function(results) {
 			// if (!obj.is(":hidden")){
@@ -439,7 +445,14 @@ function isOldMan(date) {
 				if (ctrl['show']) {
 					ctrl.show();
 				}
-
+				if(setting.showHistoryRecord){
+					var foreignId = $('#' + setting.showHistoryRecord.foreignIdName + ' input ').val();
+					immidiatelyLoadObj.reset(foreignId);
+				}
+				if(setting.showHistoryRecordSingle && healthBookSingleObj != undefined && healthBookSingleObj.getIsSetForm()){
+					healthBookSingleObj.setIsSetForm(false);
+					document.location.reload();
+				}
 				if (setting.writeback) {
 					$.each(setting.writeback, function(i, v) {
 						var ctrl = setting.ctx.getCtrl(v.id)
@@ -448,7 +461,6 @@ function isOldMan(date) {
 						}
 					});
 				}
-
 			}
 		}
 
@@ -590,14 +602,32 @@ function isOldMan(date) {
 			values = [].concat(selection);
 			editing = true;
 //			console.log(values);
+			if(setting.extendwriteback && selection.length > 0){
+				var _s = selection[0];
+				if(extendWriteBackObj.set != undefined){
+					extendWriteBackObj.set(setting,_s[0]);
+				}
+			}
+			
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
+//				console.log(_s);
 				$.each(setting.writeback, function(i, v) {
 					var ctrl = setting.ctx.getCtrl(v.id);
 					if (ctrl && ctrl['val']) {
 						ctrl.val(_s[v.col]);
 					}
 				});
+			}
+			if(setting.showHistoryRecord && selection.length > 0){
+				var _s = selection[0];
+				var foreignId = _s[setting.showHistoryRecord.foreignIdCol];
+				immidiatelyLoadObj.loadHistoryRecord(foreignId,services.tableName);
+			}
+			if(setting.showHistoryRecordSingle && selection.length > 0){
+				var _s = selection[0];
+				var foreignId = _s[setting.showHistoryRecordSingle.foreignIdCol];
+				healthBookSingleObj.loadRecord(foreignId,services.tableName);
 			}
 			if (values.length > 0) {
 				obj.val("");
@@ -657,7 +687,12 @@ function isOldMan(date) {
 			// showValues(); //影响选择值删除
 		});
 		function valFunc(v, forceSetVal) {
-			if (arguments.length == 0) {
+			var flag = false;
+			if(typeof(healthBookSingleObj) != 'undefined'){				
+				flag = healthBookSingleObj.getIsSetForm();
+//				healthBookSingleObj.setIsSetForm(false);
+			}
+			if (arguments.length == 0 || flag) {
 				return buildValue();
 			} else {
 				// todo local only
@@ -677,6 +712,9 @@ function isOldMan(date) {
 						});
 					});
 				} else {
+//					console.log(setting);
+//					console.log(obj);
+//					console.log('***************' + readonly);
 					if (readonly) {
 						obj.hide();
 					} else {
@@ -694,7 +732,7 @@ function isOldMan(date) {
 							obj.hide();
 							if (setting.writeback) { // todo 代码重复
 								var _s = d[0];
-								console.log("=s====="+_s)
+//								console.log("=s====="+_s)
 								if(_s && _s.length>4){
     								setDisabledBySex(_s[2]);
     								isOldMan(_s[3]);
@@ -719,7 +757,7 @@ function isOldMan(date) {
 						});
 					}
 				}
-				showValues();
+//				showValues();
 				if (cl) {
 					cl(null, buildValue());
 				}
@@ -734,6 +772,7 @@ function isOldMan(date) {
 			val : function(v) {
 				if (arguments.length > 0) {
 					// seting val
+					
 					if (setting.roWhenSet && !readonly) {
 						readonly = true;
 						valFunc(v, true);
@@ -745,11 +784,13 @@ function isOldMan(date) {
 						valFunc(v);
 					}
 				} else {
+//					readonly = false;
 					return valFunc();
 				}
 			},
 			reset : function() {
 				// if (!setting.roWhenSet){
+//				readonly = false;
 				if (!readonly) {
 					valFunc([]);
 				}

@@ -990,9 +990,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 					orgname[i++]= district.getName();
 					System.out.println("=="+district.getName());
 				}
-				orgnameMap.put(orgid.substring(0,2)+"0000", orgname[0]);
-				orgnameMap.put(orgid.substring(0,4)+"00", orgname[1]);
-				orgnameMap.put(orgid.substring(0,6), orgname[2]);
+				if(orgname.length >= 3){
+					orgnameMap.put(orgid.substring(0,2)+"0000", orgname[0]);
+					orgnameMap.put(orgid.substring(0,4)+"00", orgname[1]);
+					orgnameMap.put(orgid.substring(0,6), orgname[2]);
+				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();

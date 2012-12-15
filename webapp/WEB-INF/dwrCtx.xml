@@ -515,5 +515,10 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="healthfileMaternalService"></dwr:remote>
 	</bean>
-	
+	<bean id="HealthFileChildrenService"
+		class="cn.net.tongfang.web.service.HealthFileChildrenService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="HealthFileChildrenService"></dwr:remote>
+	</bean>
 </beans>

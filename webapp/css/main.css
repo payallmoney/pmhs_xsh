@@ -121,7 +121,7 @@ div.list {
 }
 
 .list-input, input.combo {
-    margin-left : 15px;
+    margin-left : 5px;
     border : solid 1px gray;
     width : 20px;
 }

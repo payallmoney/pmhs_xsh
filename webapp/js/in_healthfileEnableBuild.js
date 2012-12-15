@@ -14,12 +14,116 @@ var cfg = [ {
 	// readonly : true
 	}
 }, {
-	id : "fileNo",
+	id : "districtNumber",
 	xtype : "input",
 	setting : {
-		// showOnly : true,
-		readonly : true
-	// asLabel : true
+		showOnly : true,
+		asLabel : true
+	}
+}, {
+	id : "fileNo",
+	xtype : "combo",
+	setting : {
+		ds : {
+			search : FileNumSearch.listCodePage,
+			get : FileNumSearch.getItem
+		},
+		local : false,
+		width : 100,
+		model : {
+			id : 0,
+			code : 0,
+			display : 1
+		},
+		showDisplay : false,
+		roWhenSet : true,
+		writeback : [ {
+			id : "name",
+			col : 1
+		}, {
+			id : "birthday",
+			col : 3
+		}, {
+			id : "tel",
+			col : 8
+		}, {
+			id : "addressTownship",
+			col : 9
+		}, {
+			id : "addressVillage",
+			col : 10
+		}, {
+			id : "residenceTownship",
+			col : 9
+		}, {
+			id : "residenceVillage",
+			col : 10
+		}, {
+			id : "idnumber",
+			col : 5
+		}, {
+			id : "workUnit",
+			col : 11
+		}, {
+			id : "folk",
+			col : 12
+		}, {
+			id : "folkOther",
+			col : 13
+		}, {
+			id : "education",
+			col : 14
+		}, {
+			id : "occupation",
+			col : 15
+		} ],
+		mCodePrefixCtrlId : 'districtNumber',
+		displayCols : [ 1, 2, 3, 7 ],
+		displayColNames : [ "编号", "疾病", "", "" ]
+	},
+	required : [ true, "编号" ]
+}, {
+	id : "relatedInfoSearch",
+	xtype : "combo",
+	setting : {
+		ds : {
+			search : FileNumSearch.listCodePage,
+			get : FileNumSearch.getItem
+		},
+		local : false,
+		width : 200,
+		model : {
+			id : 0,
+			code : 0,
+			display : 1
+		},
+		showDisplay : false,
+		roWhenSet : false,
+		writeback : [ {
+			id : "husbandName",
+			col : 1
+		}, {
+			id : "husbandBirthday",
+			col : 3
+		}, {
+			id : "husbandTel",
+			col : 8
+		}, {
+			id : "husbandEducation",
+			col : 10
+		}, {
+			id : "husbandWorkUnit",
+			col : 9
+		}, {
+			id : "husbandOccupation",
+			col : 11
+		} ],
+		// mCodePrefixCtrlId : 'districtNumber',
+		relatedInfoSearch : true,
+		relatedInfoSearchIds : 'relatedInfoSearch_selectCond',
+		relatedInfoSearchValType : '5',
+		displayCols : [ 1, 2, 3, 7 ],
+		displayColNames : [ "编号", "疾病", "", "" ]
 	}
 }, {
 	id : "birthday",
@@ -215,7 +319,7 @@ var cfg = [ {
 	setting : {
 		format : 'int'
 	},
-	required : [true, "孕次"]
+	required : [ true, "孕次" ]
 }, {
 	id : "isClosed",
 	xtype : "input"
@@ -260,23 +364,28 @@ var cfg = [ {
 	}
 }, {
 	id : "folk",
-	xtype : "input",
+	xtype : "list",
 	setting : {
-		readonly : true,
-		size : 15
+		ds : "57"
+	},
+	requires : {
+		valEq : "2",
+		fields : [ "folkOther" ]
 	}
 }, {
 	id : "folkOther",
 	xtype : "input",
 	setting : {
-		readonly : true,
-		size : 15
+		disabled : true,
+		maxlen : 10,
+		size : 10,
+		caption : "其他民族"
 	}
 }, {
 	id : "occupation",
-	xtype : "input",
+	xtype : "list",
 	setting : {
-		readonly : true,
-		size : 40
+		ds : "137",
+		newlineStep : 1
 	}
 } ];

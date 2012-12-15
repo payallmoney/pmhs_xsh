@@ -43,7 +43,14 @@ var cfg = [ {
 		}, {
 			id : "barCode",
 			col : 6
+		},{
+			id : "foreignId",
+			col : 8
 		} ],
+		showHistoryRecord : {
+			foreignIdCol : 8,
+			foreignIdName : 'foreignId'
+		},
 		mCodePrefixCtrlId : 'districtNumber',
 		displayCols : [ 1, 2, 3, 7 ],
 		displayColNames : [ "编号", "疾病", "", "" ]
@@ -301,3 +308,26 @@ var cfg = [ {
 	id : "foreignId",
 	xtype : "input"
 } ];
+//(function(){
+//	var json = parseParams(window.location.search);
+//	console.log(json);
+//	if(json.foreignId != undefined){
+//		systemInformationUtils.getHistoryExamRecord(json.foreignId,services.tableName,function(data){
+//			console.log(data);
+//			if(data != null){
+////				$("#" + json.foreignId + "div_id").remove();
+//				$(".panes").append("<div class='span-22 last' id='" + json.foreignId + "div_id'> </div>");
+//				console.log($(".tabs").html());
+//		        $(".tabs").append("<li><a href=\"#\" style='color:blue !important;'>历史记录(" + data[0] + "次)</a></li>");
+//		        $("ul.tabs").tabs("div.panes > div", {
+//		        	api: true
+//		        });
+//		        var ids = data[1];
+//		        console.log($(".outerContainer").html());
+//		        console.log('***************1111111111******************');
+//			}
+//		});
+//	}else{
+//		console.log('***************在录入界面选择人员******************');
+//	}
+//}).call(this);

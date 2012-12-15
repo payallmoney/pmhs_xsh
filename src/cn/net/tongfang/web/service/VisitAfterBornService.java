@@ -26,7 +26,7 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 
 	@Override
 	public String save(VisitAfterBornBO data) throws Exception {
-		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
+		
 		if(data.getId() == null){
 			if(sysInfo.checkWomanMedicalExam(data.getFileNo()) == null){
 				String msg = "";
@@ -34,11 +34,11 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 					msg = "产后访视记录";
 				else
 					msg = "产后42天健康体检记录";
-				throw new RuntimeException("编号为" + EncryptionUtils.decipher(data.getFileNo()) + "的孕产妇的此次产期的" + 
+				throw new RuntimeException("编号为" + data.getFileNo() + "的孕产妇的此次产期的" + 
 						msg + "已经录入系统，不可以重复录入。");
 			}
 		}
-		
+		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		if(data.getRecordType().equals("1")){
 			PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("From PersonalInfo Where fileNo = ?", data.getFileNo()).get(0);
 			person.setBornStatus("否");

@@ -37,6 +37,7 @@ import cn.net.tongfang.framework.security.vo.SamRoleModuleId;
 import cn.net.tongfang.framework.security.vo.SamService;
 import cn.net.tongfang.framework.security.vo.SamTaxempcode;
 import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
+import cn.net.tongfang.framework.security.vo.SystemInformation;
 import cn.net.tongfang.framework.util.ChineseUtils;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
@@ -624,5 +625,15 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 					getHibernateTemplate().get(HighRisk.class, id));
 		}
 		return;
+	}
+	private static Integer ENCRYPTION_ID = 4;//是否加密的主键
+	private static Integer DEFAULT_VALUE = 0;//空值
+	
+	@Override
+	public Integer getEncryptionInfo() {
+		SystemInformation info = (SystemInformation)getHibernateTemplate().get(SystemInformation.class, ENCRYPTION_ID);
+		if(info == null)
+			return DEFAULT_VALUE;
+		return Integer.parseInt(info.getVal());
 	}
 }

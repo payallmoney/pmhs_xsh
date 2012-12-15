@@ -48,6 +48,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 	private String recuperateTownship;
 	private String recuperateVillage;
 	private String recuperateGroup;
+	private String relatedInfoSearch;
 	private String husbandName;
 	private Timestamp husbandBirthday;
 	private String husbandTel;
@@ -92,7 +93,8 @@ public class HealthFileMaternal implements java.io.Serializable {
 			String husbandEducation, String husbandOccupation,
 			String husbandOccupationOther, String husbandWorkUnit,
 			String inputPersonId, Timestamp inputDate, Integer gravidity,
-			String nationalityOther,String isClosed,Timestamp closedDate) {
+			String nationalityOther,String isClosed,Timestamp closedDate,
+			String relatedInfoSearch) {
 		this.fileNo = fileNo;
 		this.name = name;
 		this.birthday = birthday;
@@ -141,6 +143,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 		this.gravidity = gravidity;
 		this.nationalityOther = nationalityOther;
 		this.isClosed = isClosed;
+		this.relatedInfoSearch = relatedInfoSearch;
 	}
 
 	// Property accessors
@@ -543,6 +546,14 @@ public class HealthFileMaternal implements java.io.Serializable {
 
 	public void setClosedDate(Timestamp closedDate) {
 		this.closedDate = closedDate;
+	}
+
+	public String getRelatedInfoSearch() {
+		return relatedInfoSearch;
+	}
+
+	public void setRelatedInfoSearch(String relatedInfoSearch) {
+		this.relatedInfoSearch = relatedInfoSearch;
 	}
 
 }

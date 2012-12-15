@@ -118,6 +118,9 @@
         <property name="recuperateGroup" type="java.lang.String">
             <column name="RecuperateGroup" />
         </property>
+        <property name="relatedInfoSearch" type="java.lang.String">
+            <column name="RelatedInfoSearch" />
+        </property>
         <property name="husbandName" type="java.lang.String">
             <column name="HusbandName" />
         </property>

@@ -58,7 +58,14 @@ var cfg = [
 				}, {
 					id : "barCode",
 					col : 6
+				}, {
+					id : "foreignId",
+					col : 8
 				} ],
+				showHistoryRecordSingle : {
+					foreignIdCol : 8,
+					foreignIdName : 'foreignId'
+				},
 				mCodePrefixCtrlId : 'districtNumber',
 				displayCols : [ 1, 2, 3, 7 ],
 				displayColNames : [ "编号", "", "", "" ]

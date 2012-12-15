@@ -2,6 +2,8 @@ package cn.net.tongfang.framework.util;
 
 import java.util.HashMap;
 
+import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+
 public class EncryptionUtils {
 	private static final HashMap<String, String> ENCODE_HASHMAP = new HashMap<String, String>();
 	private static final HashMap<String, String> DECODE_HASHMAP = new HashMap<String, String>();
@@ -149,25 +151,27 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	public static final String encry(String str) {
-		String result = "";
-		String tmpStr = "";
-		System.out.println("========str==========="+str+"===");
-		if(str == null){
-			return "";
-		}
-		char[] charData = str.toCharArray();
-		for(int i = 0;i < charData.length;i++){
-			tmpStr = String.copyValueOf(charData, i, 1);
-			if (!tmpStr.equals("%") && tmpStr != "%") {
-				if (ENCODE_HASHMAP.get(tmpStr) == null) {
-					tmpStr = encryChinese(tmpStr);
-				} else {
-					tmpStr = ENCODE_HASHMAP.get(tmpStr);
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		if(user.getIsEncryption().equals(0)){
+			String result = "";
+			String tmpStr = "";
+			char[] charData = str.toCharArray();
+			for(int i = 0;i < charData.length;i++){
+				tmpStr = String.copyValueOf(charData, i, 1);
+				if (!tmpStr.equals("%") && tmpStr != "%") {
+					if (ENCODE_HASHMAP.get(tmpStr) == null) {
+						tmpStr = encryChinese(tmpStr);
+					} else {
+						tmpStr = ENCODE_HASHMAP.get(tmpStr);
+					}
 				}
+				result = result + tmpStr;
 			}
-			result = result + tmpStr;
+			return result;
+		}else if(user.getIsEncryption().equals(1)){
+			return str;
 		}
-		return result;
+		return str;		
 	}
 
 	/**
@@ -177,24 +181,27 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	public static final String decipher(String str) {
-		String result = "";
-		String tmpStr = "";
-		if(str == null){
-			return "";
-		}
-		char[] charData = str.toCharArray();
-		for(int i = 0;i < charData.length;i++){
-			tmpStr = String.copyValueOf(charData, i, 1);
-			if (!tmpStr.equals("%") && tmpStr != "%") {
-				if (DECODE_HASHMAP.get(tmpStr) == null) {
-					tmpStr = decipherChinese(tmpStr);
-				} else {
-					tmpStr = DECODE_HASHMAP.get(tmpStr);
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		if(user.getIsEncryption().equals(0)){
+			String result = "";
+			String tmpStr = "";
+			char[] charData = str.toCharArray();
+			for(int i = 0;i < charData.length;i++){
+				tmpStr = String.copyValueOf(charData, i, 1);
+				if (!tmpStr.equals("%") && tmpStr != "%") {
+					if (DECODE_HASHMAP.get(tmpStr) == null) {
+						tmpStr = decipherChinese(tmpStr);
+					} else {
+						tmpStr = DECODE_HASHMAP.get(tmpStr);
+					}
 				}
+				result = result + tmpStr;
 			}
-			result = result + tmpStr;
+			return result;
+		}else if(user.getIsEncryption().equals(1)){
+			return str;
 		}
-		return result;
+		return str;
 	}
 	
 	/**

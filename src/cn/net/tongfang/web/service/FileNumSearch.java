@@ -19,12 +19,28 @@ public class FileNumSearch extends HibernateDaoSupport{
     	PagedList res = new PagedList();
     	String hqlWoman = "";
     	String otherTables = "";
+    	String extendCols = "";
     	if(isWomanRecord != null){
-    		if(isWomanRecord.equals("1")){
-    			hqlWoman = " And p.sex = '女'";
-    		}else if(isWomanRecord.equals("2") || isWomanRecord.equals("3") || isWomanRecord.equals("8")){
+    		if(isWomanRecord.equals("1")){//孕产妇随访查询
+    			otherTables = " ,HealthFileMaternal hm ";
+    			hqlWoman = " And p.sex = '女' And hm.fileNo = hf.fileNo And hm.isClosed = '0' And p.bornStatus = '是' ";
+    			extendCols = " ,hm.id ";
+    		}else if(isWomanRecord.equals("2") || isWomanRecord.equals("3") || isWomanRecord.equals("8")){//慢病随访查询
     			otherTables = " ,DiseaseHistory d ";
     			hqlWoman = " And p.id = d.personalInfoId And diseaseId = " + isWomanRecord ;
+        	}else if(isWomanRecord.equals("4")){//孕产妇建册查询
+        		hqlWoman = " And p.sex = '女' And IsNULL(p.bornStatus,'') != '是' ";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation ";
+        	}else if(isWomanRecord.equals("5")){//丈夫信息
+        		hqlWoman = " And p.sex = '男'";
+        		extendCols = " ,hf.tel,p.workUnit,p.education,p.occupation ";
+        	}else if(isWomanRecord.equals("6")){//儿童建册查询 条件<=10岁
+        		hqlWoman = " And Month(p.birthday) <= 120 ";
+        		extendCols = " ,hf.township,hf.village,p.bloodTypeAbo,p.bloodTypeRh ";
+        	}else if(isWomanRecord.equals("7")){//
+        		otherTables = " ,HealthFileChildren hc ";
+        		hqlWoman = " And hf.isOverCount = 1 And hc.fileNo = hf.fileNo ";
+        		extendCols = " ,hc.id ";
         	}
     	}
     	if(condVal.equals("1")){
@@ -39,7 +55,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	Query qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where  p.bornStatus = '是' And p.fileNo = hf.fileNo " +
         			"and substring(p.fileNo,1," + fileNo.length() + ") = ?" + hqlWoman);
         	qry.setParameter(0, fileNo);
@@ -59,7 +75,6 @@ public class FileNumSearch extends HibernateDaoSupport{
     		}else{
     			otherCond = mcodes[0];
     		}
-    		
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where hf.fileNo = p.fileNo And substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
         			"And substring(hf.name,1," + otherCond.length() + ") = ?" +  hqlWoman);
@@ -72,7 +87,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and substring(hf.districtNumber,1," + 
         			districtNumber.length() + ") = ? " +
         			"And substring(hf.name,1," + otherCond.length() + ") = ? " + hqlWoman);
@@ -135,7 +150,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo " +
         			"And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hqlWoman);
 //        	qry.setParameter(0, districtNumber + "%");
@@ -173,7 +188,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     	if(list.size() > 0){
     		for(int i = 0;i < list.size();i++){
     			Object[] obj = (Object[])list.get(i);
-    			Object[] objArray = new Object[10];
+    			Object[] objArray = new Object[obj.length];
     			String name = (String)obj[1];
         		obj[1] = EncryptionUtils.decipher(name);
         		String idNum = (String)obj[5];

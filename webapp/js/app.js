@@ -34,12 +34,14 @@ var toolbar = '<div id="round" class="container toolbar">'+
 
 var flag = false;
 var allDisabled = false;
+var fieldsArray = {};
 (function(){
 
        med.buildForm = function(cfg){
         var med = ns('med');
         var $msgBox = $(msgBox).appendTo($('body'));
         var dataLoaded;
+        var qo;
         var reset;
 
         var form_fields = {};
@@ -200,7 +202,9 @@ var allDisabled = false;
                     if(typeof(printBirthObj) != 'undefined' && !flag){
                     	printBirthObj.print(d);
                     }
-                    
+                    if(typeof(immidiatelyLoadObj) != 'undefined'){
+                    	immidiatelyLoadObj.immidiatelyLoad(d,send.foreignId);
+                    }
                     var personId = $("#fileNo span").html();
                     if(personId == null || personId == '')
                     	personId = d;
@@ -223,14 +227,11 @@ var allDisabled = false;
             			}
             		});
                     if(!updateMode){
-                    	$('#districtNumber span').css('display','inline');
-                        $('#fileNo input').css('display','inline');
-                        $('#fileNo div').css('display','none');
-                    }
-                    
-                    if(isNextUrl){
-                    	$('#fileNo input').css('display','none');
-                    	$('#fileNo div').css('display','inline');
+                    	$('#districtNumber span').css('display','inline-block');
+                        $('.combo').css('display','inline');
+                        var districtNumberEmpty = $('#districtNumber span').html();
+                        if(districtNumberEmpty != '')
+                        	$('#fileNo div').css('display','none');
                     }
                     if(foreignId){
                     	storeId = d;
@@ -239,6 +240,10 @@ var allDisabled = false;
                     	reset();
                     }
                     
+                    if(isNextUrl){
+                    	$('#fileNo input').css('display','none');
+                    	$('#fileNo div').css('display','inline');
+                    }
                     if(quitAfterSave){
                     	showInfoObj.Infor('数据已保存成功',function(e){
                     		if(e == 'ok'){
@@ -250,6 +255,7 @@ var allDisabled = false;
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
                     saving = false;
+                    
                 }, errorHandler:top.errorProcess});
             } else {
                 $.ajax({
@@ -298,7 +304,7 @@ var allDisabled = false;
         function go(){
             showMsg("构造页面组件中..");
             
-            var qo = qryStrParser(window.location.search);
+            qo = qryStrParser(window.location.search);
             if (!isEmpty(qo)){
                 var shouldLoad = false;
               
@@ -337,7 +343,7 @@ var allDisabled = false;
                     showMsg("build control [" + id + ", " + v.xtype + "] failed. \n" + e.message);
                 }
             });
-
+            fieldsArray = form_fields;
             //build controls dependencies
             $.each(cfg,function(_,v) {
                if (v.requires){
@@ -466,12 +472,12 @@ var allDisabled = false;
                 } else {
                     //不需从server端加载，直接set
                     setFormVal(qo);
-                    if(typeof(childOtherValJson) != 'undefined'){
-                    	setFormVal(childOtherValJson);
-                    }
-                    if(typeof(saveBeforeObj) != 'undefined' && qo.fileNo != undefined && qo.fileNo != 'undefined'){
-    					saveBeforeObj.IsAbortionFn(qo.fileNo,'');
-                    }
+//                    if(typeof(childOtherValJson) != 'undefined'){
+//                    	setFormVal(childOtherValJson);
+//                    }
+//                    if(typeof(saveBeforeObj) != 'undefined' && qo.fileNo != undefined && qo.fileNo != 'undefined'){
+//    					saveBeforeObj.IsAbortionFn(qo.fileNo,'');
+//                    }
                 }
 //            }
             
@@ -681,6 +687,7 @@ var foreignId = false;
 var storeId = null;
 $(function(){
 	var json = parseParams(window.location.search);
+//	console.log(json);
 	if(json.isNext != undefined){
 		isNextUrl = true;
 	}
@@ -688,7 +695,6 @@ $(function(){
 		$('.i_enter').hide();
 		$('.showToolbar').hide();
 	}
-	
 	if(json.quitAfterSave  != undefined){
 		quitAfterSave = json.quitAfterSave;
 	}
@@ -700,11 +706,13 @@ $(function(){
 		var id = unescape(json.id);
 		MetaProvider.isInputPerson(id,services.tableName,function(data){
 			medObj = med.buildForm(cfg);
-			
 			if(!data){
 				flag = true;
 				$('.save').remove();
 				$('.cancel').remove();
+			}
+			if(json.extend_children_woman_param != undefined){
+				$('button.quit').remove();
 			}
 		});
 	}else if(json.certifiId != undefined){
@@ -721,7 +729,6 @@ $(function(){
 			$('.child').remove();
 		}else if(type == '5'){
 			allDisabled = true;
-			
 			$('.destroyReason').show();
 			$('.save').remove();
 			$('.cancel').remove();

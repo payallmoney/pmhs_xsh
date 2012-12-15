@@ -43,6 +43,9 @@ var cfg = [ {
 		}, {
 			id : "barCode",
 			col : 6
+		},{
+			id : "foreignId",
+			col : 8
 		} ],
 		mCodePrefixCtrlId : 'districtNumber',
 		displayCols : [ 1, 2, 3, 7 ],

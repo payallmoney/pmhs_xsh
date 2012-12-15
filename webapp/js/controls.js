@@ -1128,7 +1128,7 @@ function hideHUD($t, includeError){
                             } else {
                                 _v = unwrap(v);
                             }
-                        } else {
+                        }else {
                             _v = v;
                         }
                         combo.val(_v);
@@ -1137,7 +1137,7 @@ function hideHUD($t, includeError){
                     }
                 },
                 reset : function(){
-                    combo.val([]);
+//                    combo.val([]);
                     combo.reset();
                 }
 

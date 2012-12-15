@@ -35,7 +35,7 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 //		getHibernateTemplate().save(person);		
 //		getHibernateTemplate().save(gravidityKey);		
 		
-		if(data.getHighRisk().equals("是")){
+		if(data.getHighRisk() != null && data.getHighRisk().equals("是")){
 			womanRocordService.save(data.getFileNo(), data.getVisitDate(), data.getHighRiskRemark(), 1);
 		}
 		
