@@ -11,6 +11,8 @@
 	src='/dwr/interface/UserMenuTreeService.js'></script>
 <script type='text/javascript'
 	src='/dwr/interface/BirthCertificateMsgService.js'></script>
+<script type='text/javascript'
+	src='/dwr/interface/systemInformationUtils.js'></script>
 <script type='text/javascript' src='/dwr/engine.js'></script>
 <script type="text/javascript" src="js/rx.js"></script>
 <script type="text/javascript" src="js/jquery.tools.min.js"></script>
@@ -23,6 +25,7 @@
 <script type="text/javascript" src="js/validate.js"></script>
 <script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript" src="js/in_babyvisit.js"></script>
+<script type="text/javascript" src="js/health-book-multi.js"></script>
 <script type="text/javascript" src="js/tf.js"></script>
 
 <!-- Framework CSS -->
@@ -78,9 +81,11 @@
 <script type="text/javascript" src="js/childExam_print.js"></script>
 <!-- 在线拍照 -->
 <script language="javascript" src="js/onlineTakePhoto.js"></script>
-
+<link href="css/personalInfo.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/miframe.js"></script>
 </head>
 <body>
+	<div style="display: none;" class="isWomanRecord">7</div>
 	<button class="img childBabyVisit child i_print" style="display: none;">
 		<img title="打印" src="../image/print_positive_32_32.png" />打印
 	</button>

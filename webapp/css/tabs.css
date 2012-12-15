@@ -79,3 +79,13 @@ ul.tabs a.xl.current { background-position: 0 -62px; }
 .panes .pane {
 	display:none;		
 }
+/*
+.ie6input{
+	width:100%;
+}
+td span .ie6input{
+	width:95%;
+}*/
+li a {
+	font-size: 9px !important
+}

@@ -28,8 +28,7 @@ public interface SecurityService {
 	List<String[]> getModuleServices();
 	
 	
-	
-	
+	Integer getEncryptionInfo();
 	/**
 	 * Get Operator by username
 	 * @param username username

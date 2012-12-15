@@ -40,7 +40,7 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 			}
 		}
 		
-		if(sysInfo.checkWomanMedicalExam(data.getFileNo()) == null){
+		if(sysInfo.checkWomanMedicalExam(EncryptionUtils.decipher(data.getFileNo())) == null){
 			throw new RuntimeException("请先建立孕产妇保健手册。");
 		}
 		

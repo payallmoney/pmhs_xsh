@@ -196,4 +196,44 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 		}
 		return null;
 	}
+	
+	public List getHistoryExamRecord(String foreignId,String tableName,String where){
+		List retVal = new ArrayList();
+		String hql = "Select id From " + tableName + " Where foreignId = ? " + where + " Order By visitDate ";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, foreignId);
+		List list = query.list();
+		if(list.size() > 0){
+			retVal.add(list.size());
+			retVal.add(list);
+			return retVal;
+		}
+		return null;
+	}
+	
+	public String getHistoryExamId(String  foreignId,String tableName){
+		String where = "";
+		if(tableName.equals("VisitAfterBorn")){
+			where = " And recordType = 1 ";
+		}
+		String hql = "Select id From " + tableName + " Where foreignId = ? " + where + "Order By visitDate ";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, foreignId);
+		List list = query.list();
+		if(list.size() > 0){
+			return (String)list.get(0);
+		}
+		return null;
+	}
+	
+	public Object getSimgleHistoryExamRecord(String  foreignId,String tableName){
+		String hql = " From " + tableName + " Where foreignId = ? Order By visitDate ";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, foreignId);
+		List list = query.list();
+		if(list.size() > 0){
+			return list.get(0);
+		}
+		return null;
+	}
 }
