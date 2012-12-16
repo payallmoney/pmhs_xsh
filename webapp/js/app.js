@@ -1,5 +1,164 @@
 //todo remove these global dependencies
 //window.meta = {};
+/** 增加dwr统一的异常处理**/
+function dwrExceptionHandler(errorString, error){
+	if (error) {
+		if(error.javaClassName === "cn.net.tongfang.web.util.TimeoutException" ){
+			if(!window.errorShowing){
+				var exceptionwin = new Ext.Window({
+					title:'重新登录',
+					id:'relogin_exceptionwin',
+					width:420,
+					height:170,
+					layout:'fit',
+					modal :true,
+					listeners:{
+						beforeclose:function ( panel){
+							window.errorShowing = false;
+						},
+						afterlayout:function (container,layout){
+							window.errorShowing = true;
+						}
+					},
+					items:[{
+					       xtype:'form',
+					       id:'relogin_form',
+					       url:'/j_spring_security_check',
+					       width:320,
+					       bodyStyle:'font-size: 10px !important;',
+					       style:'font-size: 10px !important;',
+					       height:150,
+					       layout:'table',
+					       monitorValid:true,
+					        buttonAlign:'center',
+							layoutConfig: {
+						        columns: 2
+						    },
+							buttons:[{
+								style:'font:normal 12px  宋体 !important;',
+								bodyStyle:'font-size: 10px !important;',
+								text:'重新登录',
+								formBind: true,
+								handler:function(){
+									Ext.getCmp("relogin_form").getForm().submit({
+										method:'POST',
+										url:'/j_spring_security_check',
+										success:function(){
+											Ext.getCmp("relogin_message").setText("登录成功!");
+											Ext.Msg.show({
+											   title:'登录成功!',
+											   msg: '登录成功!点击【确定】返回操作界面!',
+											   buttons: Ext.Msg.OK,
+											   fn: function(btn, text){
+												    if (btn == 'ok'){
+												    	Ext.getCmp("relogin_exceptionwin").close();
+												    	if(!window.saving){
+															sendMessage('quit');
+														}
+												    }
+												    window.saving = false;
+												},
+											   animEl: 'elId'
+											});
+										},
+										failure:function(form, action){
+											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
+											Ext.getCmp("relogin_message").setText("登录失败!用户名或密码错误");
+										}
+									});
+								}
+							}],
+							buttonAlign:'center',
+							items:[
+								{
+									xtype:'label',
+									text : '您的登录已经超时，请输入用户名和密码重新登录！',
+									style :'padding-left:5px;padding-top:0px;color:red;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									id : 'relogin_message',
+									columnWidth: 1 ,
+									colspan: 2,
+									height:25
+								},
+								{
+									xtype:'label',
+									html : '用&nbsp;户&nbsp;名：',
+									style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px 宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									layoutConfig:{
+			                            animate:true
+			                        },
+									width:50,
+									height:25
+								},
+								{
+									xtype:'textfield',
+									fieldLabel : '用户名',
+									id : 'j_username',
+									style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									height:25,
+									allowBlank:false
+								},
+								{
+									xtype:'label',
+									html:'密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：',
+									style :'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									height:25
+								},{
+									xtype:'textfield',
+									//width:100,
+									style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
+									bodyStyle:'font-size: 10px !important;',
+									fieldLabel : '密码',
+									inputType : 'password',
+									id : 'j_password',
+									height:25,
+									allowBlank:false
+								}
+								,{
+									xtype:'hidden',
+									id : 'spring-security-redirect',
+									value :'/js/auth/ajaxlogin_success.js',
+									columnWidth: 1  ,
+									height:25,
+									colspan: 2,
+									allowBlank:false
+								},
+								{
+									xtype:'hidden',
+									id : 'authentication-failure-url',
+									value :'/js/auth/ajaxlogin_fail.js',
+									columnWidth: .85  ,
+									height:25,
+									allowBlank:false
+								}
+							]
+					}
+					 ]
+				});
+				$.unblockUI();
+				exceptionwin.show(this);
+			}
+		}else{
+			if(error.javaClassName){
+				$.unblockUI();
+		        msg = error.javaClassName+":"+error.message;
+		            if(error.stackTrace!=null){
+		                for(var i = 0 ; i <error.stackTrace.length ; i++)
+		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+		            }
+		        console.log(msg)
+		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+			}else{
+				throw error;
+			}
+		}
+    }
+}
+dwr.engine.setErrorHandler(dwrExceptionHandler);
+
 var meta = parent.meta
 function getData(key) {
     return meta[key];
@@ -121,10 +280,22 @@ var fieldsArray = {};
 			    	MetaProvider.getAll( {callback:function(data){
 			            meta = data;
 			            go();
-			        }, errorHandler:function(errorString, exception) {
-			                hideDialog();
-			                showDialog("系统发生异常(获取元数据过程)<br/> " + errorString, true);
-			        }});
+			        }
+			    	/**改用admin.js里面设置的统一异常处理
+			    	,  errorHandler:function(errorstr, error) {
+	                    if (error) {
+	                        msg = error.javaClassName+":"+error.message;
+                            if(error.stackTrace!=null){
+                                for(var i = 0 ; i <error.stackTrace.length ; i++)
+                                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+                            }
+	                        console.log(msg)
+	                        top.Ext.Msg.alert("错误", "查询数据时发生错误:请查看浏览器log.");
+	                        return;
+	                    }
+                    }
+			        **/
+			    	});
 	    	  }
 	    } else {
 	    	meta = [];
@@ -179,7 +350,8 @@ var fieldsArray = {};
         	$(obj).children().css("color","#aca899");
         }
         
-        var saving = false;
+        window.saving = false;
+        
         function doSave(send, updateMode){
             if (saving) {
                 console.error("already saving");
@@ -254,9 +426,27 @@ var fieldsArray = {};
                     	hideDialog();
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
-                    saving = false;
+                    window.saving = false;
+                    if(!updateMode){
+                		go();
+                		info("数据已保存<br/>" + ("请继续输入下一条" ));
+                	}
                     
-                }, errorHandler:top.errorProcess});
+                }
+                /**改用admin.js里面设置的统一异常处理
+                , errorHandler:function(errorstr, error) {
+	                    if (error) {
+	                        msg = error.javaClassName+":"+error.message;
+                            if(error.stackTrace!=null){
+                                for(var i = 0 ; i <error.stackTrace.length ; i++)
+                                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
+                            }
+	                        console.log(msg)
+	                        top.Ext.Msg.alert("错误", "保存数据时发生错误:请查看浏览器log.");
+	                        return;
+	                    }
+                    }**/
+                });
             } else {
                 $.ajax({
                     url: services.save,
@@ -264,8 +454,9 @@ var fieldsArray = {};
                     dataType : "json",
                     success: function(data) {
                        showDialog("<li>数据已经保存</li>"); 
-                    },//function,
-                	error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }//function,
+                    /**改用admin.js里面设置的统一异常处理
+                	,error: function (XMLHttpRequest, textStatus, errorThrown) {
                 	    // 通常 textStatus 和 errorThrown 之中
                 	    // 只有一个会包含信息
                 		msg = errorThrown.javaClassName+":"+errorThrown.message;
@@ -276,6 +467,7 @@ var fieldsArray = {};
 	                    console.log(msg)
 	                    top.Ext.Msg.alert("错误", "解析数据时发生错误:请查看浏览器log.");
                 	}
+                	**/
                 });
             }
         }
@@ -320,7 +512,7 @@ var fieldsArray = {};
                 });
                 initListVal = shouldLoad;
             }
-            
+            fields_array = [];
             //build controls
             $.each(cfg,function(_,v) {
                 var id = v.id;
@@ -343,7 +535,6 @@ var fieldsArray = {};
                     showMsg("build control [" + id + ", " + v.xtype + "] failed. \n" + e.message);
                 }
             });
-            fieldsArray = form_fields;
             //build controls dependencies
             $.each(cfg,function(_,v) {
                if (v.requires){
@@ -386,7 +577,6 @@ var fieldsArray = {};
                     });
                 } //if
             }); //each
-
             var tabs, tabNum = 0;
             
             var _$tabs= $("ul.tabs");
@@ -396,7 +586,6 @@ var fieldsArray = {};
             } else {
                 tabNum = 0;
             }
-            
             //设置不可用界面
             if(flag){
             	$('input').each(function(){
@@ -468,7 +657,8 @@ var fieldsArray = {};
                         if(typeof(printBirthObj) != 'undefined'){
                         	printBirthObj.init();
                         }
-                    }, errorHandler : top.errorProcess}); 
+                    }
+                    /**改用admin.js里面设置的统一异常处理, errorHandler : top.errorProcess **/}); 
                 } else {
                     //不需从server端加载，直接set
                     setFormVal(qo);
@@ -485,6 +675,7 @@ var fieldsArray = {};
                 if (fields_array[0].ctrl['focus']){
                     fields_array[0].ctrl.focus();
                 }
+                $(".save")[0].focus();//设置为第一个保存按钮foucs
             }
 
 
@@ -634,8 +825,8 @@ var fieldsArray = {};
 
             $('button.save').click(save);
             $('button.quit').click(quit);
-            $('button.cancel').click(reset);
-            
+            $('button.cancel').click(go);
+         
             showBody();
 
             function showHelp(force){
