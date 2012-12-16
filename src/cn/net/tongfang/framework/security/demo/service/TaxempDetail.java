@@ -16,7 +16,6 @@ public class TaxempDetail implements UserDetails {
     private boolean credentialsNonExpired;
     private boolean enabled;
     private Integer isLookAuthority;
-    private Integer isEncryption;
     //------------扩展业务属性----------
     //用户数据权限
     //暂空
@@ -31,8 +30,7 @@ public class TaxempDetail implements UserDetails {
 	public TaxempDetail(String loginname, String taxempname, String password,
 			District district, SamTaxorgcode org,
 			Integer orgId, String districtId, boolean validFlag,
-			GrantedAuthority[] authorities,Integer isLookAuthority,
-			Integer isEncryption) {
+			GrantedAuthority[] authorities,Integer isLookAuthority) {
 		this.accountNonExpired = true;
 		this.accountNonLocked = true;
 		this.authorities = authorities;
@@ -46,7 +44,6 @@ public class TaxempDetail implements UserDetails {
 		this.district = district;
 		this.org = org;
 		this.isLookAuthority = isLookAuthority;
-		this.isEncryption = isEncryption;
 	}
 	public String getTaxempname() {
 		return taxempname;
@@ -131,13 +128,6 @@ public class TaxempDetail implements UserDetails {
 	public String toString() {
 		String s = "username: "+username+", password: "+password+", authorities: "+authorities+"";
 		return s;
-	}
-	public Integer getIsEncryption() {
-		return isEncryption;
-	}
-	public void setIsEncryption(Integer isEncryption) {
-		this.isEncryption = isEncryption;
-	}
-	
+	}	
 	
 }

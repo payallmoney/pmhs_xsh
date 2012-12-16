@@ -65,9 +65,9 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
 		GrantedAuthority[] combinedAuthorities = grantList.toArray(new GrantedAuthority[grantList.size()]);
 		//edit by Daved 2009-03-17
 //		return new User(username, password,enabled,true, true, true, combinedAuthorities);
-		Integer encryption = securityService.getEncryptionInfo();
+//		Integer encryption = securityService.getEncryptionInfo();
 //		System.out.println(encryption);
-		return new TaxempDetail(operatorBo.getId(), operatorBo.getUsername(), operatorBo.getPassword(), operatorBo.getDistrict(), operatorBo.getOrg(), operatorBo.getOrgId(), operatorBo.getDistrictId(), enabled, combinedAuthorities,operatorBo.getIsLookAuthority(),encryption);
+		return new TaxempDetail(operatorBo.getId(), operatorBo.getUsername(), operatorBo.getPassword(), operatorBo.getDistrict(), operatorBo.getOrg(), operatorBo.getOrgId(), operatorBo.getDistrictId(), enabled, combinedAuthorities,operatorBo.getIsLookAuthority());
 	}
 
 	public void setSecurityService(SecurityService securityService) {

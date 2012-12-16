@@ -25,4 +25,12 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		class="cn.net.tongfang.web.service.score.ScoreUtil"   scope="singleton"> 
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
+	<bean id="ConfigUtils"
+		class="cn.net.tongfang.framework.util.ConfigUtils" scope="singleton"> 
+		<constructor-arg ref="systemInformationUtils"/>
+	</bean>
+	<bean id="EncryptionUtils"
+		class="cn.net.tongfang.framework.util.EncryptionUtils"> 
+		<constructor-arg ref="ConfigUtils"/>
+	</bean>
 </beans>

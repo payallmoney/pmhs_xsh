@@ -412,6 +412,9 @@ var fieldsArray = {};
                     	reset();
                     }
                     
+					if(typeof(healthBookSingleObj) != 'undefined' && !updateMode){
+                    	healthBookSingleObj.singleSave();
+                    }
                     if(isNextUrl){
                     	$('#fileNo input').css('display','none');
                     	$('#fileNo div').css('display','inline');
@@ -535,6 +538,7 @@ var fieldsArray = {};
                     showMsg("build control [" + id + ", " + v.xtype + "] failed. \n" + e.message);
                 }
             });
+			fieldsArray = form_fields;
             //build controls dependencies
             $.each(cfg,function(_,v) {
                if (v.requires){

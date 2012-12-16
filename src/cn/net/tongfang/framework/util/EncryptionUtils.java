@@ -5,6 +5,12 @@ import java.util.HashMap;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 
 public class EncryptionUtils {
+	private ConfigUtils config;
+	
+	public void setConfig(ConfigUtils config) {
+		this.config = config;
+	}
+
 	private static final HashMap<String, String> ENCODE_HASHMAP = new HashMap<String, String>();
 	private static final HashMap<String, String> DECODE_HASHMAP = new HashMap<String, String>();
 	private static final int STEP = 2;
@@ -143,16 +149,23 @@ public class EncryptionUtils {
 		DECODE_HASHMAP.put("£", "Y");
 		DECODE_HASHMAP.put("Á", "Z");
 	}
+	private static Boolean configFlag = false;
+	
+	public EncryptionUtils(ConfigUtils config) {
+		this.setConfig(config);
+		configFlag = config.getIsEncryption();
+	}
 
 	/**
 	 * 加密
-	 * 
+	 *
 	 * @param str
 	 * @return
 	 */
 	public static final String encry(String str) {
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-		if(user.getIsEncryption().equals(0)){
+		if(str == null || str.equals(""))
+			return "";
+		if(configFlag){
 			String result = "";
 			String tmpStr = "";
 			char[] charData = str.toCharArray();
@@ -168,8 +181,6 @@ public class EncryptionUtils {
 				result = result + tmpStr;
 			}
 			return result;
-		}else if(user.getIsEncryption().equals(1)){
-			return str;
 		}
 		return str;		
 	}
@@ -181,8 +192,9 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	public static final String decipher(String str) {
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-		if(user.getIsEncryption().equals(0)){
+		if(str == null || str.equals(""))
+			return "";
+		if(configFlag){
 			String result = "";
 			String tmpStr = "";
 			char[] charData = str.toCharArray();
@@ -198,8 +210,6 @@ public class EncryptionUtils {
 				result = result + tmpStr;
 			}
 			return result;
-		}else if(user.getIsEncryption().equals(1)){
-			return str;
 		}
 		return str;
 	}

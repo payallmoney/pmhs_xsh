@@ -12,8 +12,13 @@
 	healthBookSingleObj = {
 		loadRecord : loadRecord,
 		getIsSetForm : getIsSetForm,
-		setIsSetForm : setIsSetForm
+		setIsSetForm : setIsSetForm,
+		singleSave : singleSave
 	}
+	function singleSave(){
+		document.location.reload();
+	}
+	
 	function setForm(d){
 		 for(var prop in d) {
              if(d.hasOwnProperty(prop)) { 
