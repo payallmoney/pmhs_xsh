@@ -4192,4 +4192,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		}
 	}
+	public FinishGestation getFinishGestation(String healthFileMaternalId){
+		String hql = " From FinishGestation Where healthFileMaternalId = ? ";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, healthFileMaternalId);
+		List list = query.list();
+		if(list.size() > 0){
+			return (FinishGestation)list.get(0);
+		}
+		return null;
+	}
 }
