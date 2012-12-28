@@ -1,11 +1,20 @@
 package cn.net.tongfang.web.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.BeanUtils;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BloodTrans;
 import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
 import cn.net.tongfang.framework.security.vo.GravidityKey;
+import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
@@ -43,7 +52,6 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		data.setExecDistrictNum(user.getDistrictId());
 		return save_(data);
 	}
-
 	
 	@Override
 	public Object get(FirstVistBeforeBornBO data) throws Exception {
@@ -64,5 +72,57 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		data.setFemeFamilyHistory(femeFamilyHistory);
 		data.setFemeSecretion(femeSecretion);
 		return data;
+	}
+	public Map<String, Object> getPrintInfo_new(FirstVisitBeforeBornPrintBO data){
+		Map<String, Object> ret = new HashMap<String,Object>();
+		String id = data.getId();
+		FirstVistBeforeBorn firstVistBeforeBorn = (FirstVistBeforeBorn)getHibernateTemplate().get(FirstVistBeforeBorn.class, id);
+		//HealthFile a, PersonalInfo b, FirstVistBeforeBorn c, SamTaxempcode d,SamTaxorgcode
+		BeanUtils.copyProperties(firstVistBeforeBorn, data);
+		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
+		String femePastHistory = sysUtils.getPrintBasicInfo(id,"FemePastHistory","femePastHistoryId","firstVistBeforeBornId");
+		String femeFamilyHistory = sysUtils.getPrintBasicInfo(id,"FemeFamilyHistory","femeFamilyHistoryId","firstVistBeforeBornId");
+		String femeSecretion = sysUtils.getPrintBasicInfo(id,"FemeSecretion","femeSecretionId","firstVistBeforeBornId");
+//		String beforeBornCheckDirect = sysUtils.getPrintBasicInfo(id,"BeforeBornCheckDirect","beforeBornCheckDirectId","firstVistBeforeBornId");
+		data.setFemePastHistory(femePastHistory);
+		data.setFemeFamilyHistory(femeFamilyHistory);
+		data.setFemeSecretion(femeSecretion);
+		ret.put("firstVisit", data);
+		HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, firstVistBeforeBorn.getFileNo());
+		ret.put("file", file);
+		HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, firstVistBeforeBorn.getForeignId());
+		ret.put("maternal", maternal);
+		PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0, firstVistBeforeBorn.getFileNo()).list().get(0);
+		getSession().evict(person);
+		person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+		ret.put("person", person);
+		ret.put("firstVisit", data);
+		SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, firstVistBeforeBorn.getInputPersonId());
+		ret.put("samTaxempcode", samTaxempcode);
+		SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+		ret.put("org", samTaxorgcode);
+		FirstVisitBeforeBornPrintBO feme = new FirstVisitBeforeBornPrintBO();
+		String personalHistory = sysUtils.getPrintBasicInfo(id,"PersonalHistory","personalHistoryId","firstVistBeforeBornId");
+		String allergiesHistory = sysUtils.getPrintBasicInfo(id,"AllergiesHistory","allergiesId","personalInfoId");
+		feme.setFemePastHistory(femePastHistory);
+		feme.setFemeFamilyHistory(femeFamilyHistory);
+		feme.setFemeSecretion(femeSecretion);
+		feme.setExam01(personalHistory);
+		feme.setExam02(allergiesHistory);
+		StringBuilder hql1 = new StringBuilder(
+				"from BloodTrans ")
+				.append(" where personalInfoId = '"+person.getId()+"' ").append(" order by transDate desc ");
+		List<BloodTrans> bloodTrans = getSession().createQuery(hql1.toString()).list();
+		String str = "";
+		String str1 = "";
+		if(bloodTrans.size()>0){
+			feme.setExam03(bloodTrans.get(0).getTransDate());
+		}else{
+			feme.setExam03("无");
+		}
+		String beforeBornCheckDirect = sysUtils.getPrintBasicInfo(firstVistBeforeBorn.getId(),"BeforeBornCheckDirect","beforeBornCheckDirectId","firstVistBeforeBornId");
+		feme.setExam04(beforeBornCheckDirect);
+		ret.put("feme", feme);
+		return ret;
 	}
 }

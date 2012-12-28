@@ -1,18 +1,29 @@
 package cn.net.tongfang.web.service;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BasicInformation;
+import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
+import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.security.vo.WomanPhysicalItems;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.framework.util.service.GenDefaultVal;
+import cn.net.tongfang.web.service.bo.BabyVisitBO;
 import cn.net.tongfang.web.service.bo.ChildrenMediExam36BO;
+import cn.net.tongfang.web.service.bo.ChildrenMediExamBO;
 import cn.net.tongfang.web.util.BOHelper;
 
 public class ChildrenMediExam36Service extends HibernateDaoSupport {
@@ -135,6 +146,58 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 //		data.setExecDistrictNum(user.getDistrictId());
 		boHelper.loadDetails(data, getHibernateTemplate(), "childrenMediExam36id", childrenMediExam36.getId());
 		return data;
+	}
+	
+	public Map<String,Object> getPrintInfo_new(ChildrenMediExamBO data){
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			String id = data.getId();
+			BabyVisitBO bo = new BabyVisitBO();
+			bo.setId(id);
+			ChildrenMediExam36 childrenMediExam = (ChildrenMediExam36)getHibernateTemplate().get(ChildrenMediExam36.class,data.getId());
+			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, childrenMediExam.getFileNo());
+			map.put("file", file);
+			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,childrenMediExam.getFileNo()).list().get(0);
+			map.put("person", person);
+			map.put("child", childrenMediExam);
+			List child1list = getSession().createQuery("from WomanPhysicalItems where id=?").setParameter(0,childrenMediExam.getId()).list();
+			if(child1list.size()>0){
+				WomanPhysicalItems child1 = (WomanPhysicalItems)child1list.get(0);
+				map.put("child1",child1);
+			}
+			if(childrenMediExam.getInputPersonId()!=null){
+				SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, childrenMediExam.getInputPersonId());
+				map.put("samTaxempcode", samTaxempcode);
+				SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+				map.put("org", samTaxorgcode);
+			}
+			map.put("childrenMediExamExam09", getPrintBasicInfo(childrenMediExam.getId(),"ChildrenMediExamExam09","childrenMediExamExam09id","childrenMediExamId"));
+			map.put("childrenMediExamExam10", getPrintBasicInfo(childrenMediExam.getId(),"ChildrenMediExamExam10","childrenMediExamExam10id","childrenMediExamId"));
+			map.put("checkDirect", getPrintBasicInfo(childrenMediExam.getId(),"CheckDirect36","checkDirect36id","childrenMediExam36id"));
+			return map;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
+		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, id);
+		List list = query.list();
+		String ret = "未测";
+		if(list.size() > 0){
+			ret = "";
+			for(Object objs : list){
+				Object[] obj = (Object[])objs;
+				BasicInformation basicInformation = (BasicInformation)obj[0];
+				ret = ret + basicInformation.getName() + ",";
+			}
+			if(!ret.equals(""))
+				ret = ret.substring(0,ret.length() - 1);
+		}
+		return ret;
 	}
 
 }

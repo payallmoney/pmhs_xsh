@@ -1,20 +1,28 @@
 package cn.net.tongfang.web.service;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.BirthCertificate;
 import cn.net.tongfang.framework.security.vo.ChildBirthRecord;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.ChildBirthBO;
+import cn.net.tongfang.web.service.bo.VisitAfterBornBO;
 import cn.net.tongfang.web.util.BOHelper;
 import cn.net.tongfang.web.util.FileNoGen;
 
@@ -117,5 +125,46 @@ public class ChildBirthService extends HibernateDaoSupport {
 		BeanUtils.copyProperties(data, childBirthRecord); // spring beanutils
 		getHibernateTemplate().update(childBirthRecord);
 		return EncryptionUtils.decipher(childBirthRecord.getFileNo());
+	}
+	
+	public Map<String,Object> getPrintInfo_new(ChildBirthBO inputdata) throws Exception {
+		ChildBirthRecord data = (ChildBirthRecord)getHibernateTemplate().get(ChildBirthRecord.class, inputdata.getId());
+		getHibernateTemplate().evict(data);
+		Map<String,Object> map = new HashMap<String,Object>();
+		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
+		//"from HealthFile a, PersonalInfo b, VisitAfterBorn c, SamTaxempcode d,SamTaxorgcode e")
+		HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
+		map.put("file", file);
+		PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(data.getFileNo())).list().get(0);
+		getSession().evict(person);
+		person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+		map.put("person", person);
+		map.put("birthRecord", data);
+		SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, data.getInputPersonId());
+		map.put("samTaxempcode", samTaxempcode);
+		SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+		map.put("org", samTaxorgcode);
+		BirthCertificate cert = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, data.getCertifiId());
+		map.put("cert", cert);
+		return map;
+	}
+	
+	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
+		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, id);
+		List list = query.list();
+		String ret = "未测";
+		if(list.size() > 0){
+			ret = "";
+			for(Object objs : list){
+				Object[] obj = (Object[])objs;
+				BasicInformation basicInformation = (BasicInformation)obj[0];
+				ret = ret + basicInformation.getName() + ",";
+			}
+			if(!ret.equals(""))
+				ret = ret.substring(0,ret.length() - 1);
+		}
+		return ret;
 	}
 }

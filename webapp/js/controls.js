@@ -1198,6 +1198,7 @@ function hideHUD($t, includeError){
                         removeSelectionByMetaIdx(selfId);
                         self.removeClass('list-unselecting');
                         removeCandidateMarks(); //todo 偷懒
+                        
                         markSelections();
                         if (setting.multi) {
                             var inputs = findInputIndexByVal(data[selfId]);
@@ -1469,11 +1470,9 @@ function hideHUD($t, includeError){
                     var ret; 
                     var _val = data[idx];
                     if (! hasSelection(_val) ) {
-                        //console.log("none has selection");
                         val.push(_val);
                         ret = _val;
                     } else {
-                        //console.log("has selection");
                         ret = false;
                     }
                     return ret;
@@ -1529,6 +1528,7 @@ function hideHUD($t, includeError){
                         //hideHUD(self);
                         $(":input", ele).last().focus();
                         //e.preventDefault();
+                        console("=================keyDownHandler====");
                         markSelections();
 
                     } else {

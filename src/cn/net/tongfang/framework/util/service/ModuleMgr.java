@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -722,15 +724,18 @@ public class ModuleMgr extends HibernateDaoSupport {
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
+			getHibernateTemplate().evict(file);
 			HealthFileMaternal maternal = (HealthFileMaternal) objs[1];
+			getHibernateTemplate().evict(maternal);
 			if(!tmpFileNo.equals(file.getFileNo())){
 				file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
 				file.setName(EncryptionUtils.decipher(file.getName()));
+				getHibernateTemplate().evict(file.getPersonalInfo());
+				file.getPersonalInfo().setIdnumber(EncryptionUtils.decipher(file.getPersonalInfo().getIdnumber()));
 				maternal.setIdnumber(EncryptionUtils.decipher(maternal.getIdnumber()));
 				tmpFileNo = file.getFileNo();
 			}
-			getHibernateTemplate().evict(file);
-			getHibernateTemplate().evict(maternal);
+			
 			Map map = new HashMap();
 			map.put("file", file);
 			map.put("maternal", maternal);
@@ -779,6 +784,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			Map map = new HashMap();
 			map.put("file", file);
 			map.put("children", maternal);
+			map.put("status", DateUtils.toCalendar(new Date()).get(Calendar.YEAR) -  DateUtils.toCalendar(maternal.getBirthday()).get(Calendar.YEAR) >7 ?"结案":"未结案");
 			files.add(map);
 		}
 

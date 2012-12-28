@@ -457,7 +457,8 @@ function isOldMan(date) {
 					$.each(setting.writeback, function(i, v) {
 						var ctrl = setting.ctx.getCtrl(v.id)
 						if (ctrl && ctrl['reset']) {
-							ctrl.reset();
+						    if(Ext.isEmpty(ctrl.val()))
+							     ctrl.reset();
 						}
 					});
 				}
@@ -615,7 +616,8 @@ function isOldMan(date) {
 				$.each(setting.writeback, function(i, v) {
 					var ctrl = setting.ctx.getCtrl(v.id);
 					if (ctrl && ctrl['val']) {
-						ctrl.val(_s[v.col]);
+					    if(Ext.isEmpty(ctrl.val()))
+						  ctrl.val(_s[v.col]);
 					}
 				});
 			}
@@ -739,7 +741,8 @@ function isOldMan(date) {
     								$.each(setting.writeback, function(i, v) {
     									var ctrl = setting.ctx.getCtrl(v.id);
     									if (ctrl && ctrl['val']) {
-    										ctrl.val(_s[v.col]);
+    									    if(Ext.isEmpty(ctrl.val()))
+    										  ctrl.val(_s[v.col]);
     									}
     								});
 								}
@@ -752,7 +755,8 @@ function isOldMan(date) {
 						$.each(setting.writeback, function(i, _v) {
 							var ctrl = setting.ctx.getCtrl(_v.id);
 							if (ctrl && ctrl['val']) {
-								ctrl.val(_s[_v.col]);
+							    if(Ext.isEmpty(ctrl.val()))
+								    ctrl.val(_s[_v.col]);
 							}
 						});
 					}

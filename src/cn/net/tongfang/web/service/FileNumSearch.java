@@ -13,6 +13,7 @@ import cn.net.tongfang.web.service.bo.PagedList;
 public class FileNumSearch extends HibernateDaoSupport{
 	static int pageSize = 10;
 	
+	//OtherParamType 类型
 	public static String OtherParamType_Woman = "1";//妇女
 	
 	public static String OtherParamType_Hyp = "2";//高血压
@@ -24,32 +25,48 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String OtherParamType_ChildOther = "7";//儿童其他
 	public static String OtherParamType_Furious = "8";//精神病
 	public static String OtherParamType_Old = "9";//老年人
+	public static String OtherParamType_Child_NoCard = "10";//儿童未建册
+	
+	//condVal 类型
+	public static String CondVal_Barcode = "0";   //条形码
+	public static String CondVal_Fileno = "1";   //档案编号
+	public static String CondVal_Name = "2";   //姓名
+	public static String CondVal_CardId = "3";   //身份证号
 	
 	public  PagedList listCodePage(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
-		System.out.println("===========otherparamtype========"+otherparamtype);
+		System.out.println("=====FileNumSearch.listCodePage("+pageNo+","+mcode+","+startWith+","+condVal+","+otherparamtype+")");
     	String likePrefix = startWith ? "" : "%";
-    	System.out.println("prefix is " + likePrefix);
-    	System.out.println("mcode is " + mcode);
     	PagedList res = new PagedList();
     	String hsqlparam = "";
     	String otherTables = "";
     	String extendCols = "";
+    	
+    	String[] mcodes = mcode.split("%");
+    	String districtNumber = "";
+		String otherCond = "";
+		if(mcodes.length > 1){
+			districtNumber = mcodes[0];
+			otherCond = mcodes[1];
+		}else{
+			otherCond = mcodes[0];
+		}
+		
     	if(otherparamtype != null){
     		if(otherparamtype.equals(OtherParamType_Woman)){//孕产妇随访查询
     			otherTables = " ,HealthFileMaternal hm ";
-    			hsqlparam = " And p.sex = '女' And hm.fileNo = hf.fileNo And hm.isClosed = '0' And p.bornStatus = '是' ";
+    			hsqlparam = " And p.sex = '女' And hm.fileNo = hf.fileNo And (hm.isClosed = '0' or p.bornStatus = '是') ";
     			extendCols = " ,hm.id ";
     		}else if(otherparamtype.equals(OtherParamType_Hyp) || otherparamtype.equals(OtherParamType_T2dm) || otherparamtype.equals(OtherParamType_Furious)){//慢病随访查询
     			otherTables = " ,DiseaseHistory d ";
     			hsqlparam = " And p.id = d.personalInfoId And diseaseId = " + otherparamtype ;
         	}else if(otherparamtype.equals(OtherParamType_WomanBook)){//孕产妇建册查询
-        		hsqlparam = " And p.sex = '女' And IsNULL(p.bornStatus,'') != '是' ";
+        		hsqlparam = " And p.sex = '女'  ";
         		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation ";
         	}else if(otherparamtype.equals(OtherParamType_Husband)){//丈夫信息
         		hsqlparam = " And p.sex = '男'";
         		extendCols = " ,hf.tel,p.workUnit,p.education,p.occupation ";
-        	}else if(otherparamtype.equals(OtherParamType_Child)){//儿童建册查询 条件<=10岁
-        		hsqlparam = " And Month(p.birthday) <= 120 ";
+        	}else if(otherparamtype.equals(OtherParamType_Child)){//儿童建册查询 条件<=7岁
+        		hsqlparam = " And (year(getdate()) -  year(p.birthday)) <=7  and  NOT EXISTS (select 1 from HealthFileChildren hfchild where hfchild.fileNo = hf.fileNo ) ";
         		extendCols = " ,hf.township,hf.village,p.bloodTypeAbo,p.bloodTypeRh ";
         	}else if(otherparamtype.equals(OtherParamType_ChildOther)){//
         		otherTables = " ,HealthFileChildren hc ";
@@ -59,24 +76,26 @@ public class FileNumSearch extends HibernateDaoSupport{
         		hsqlparam = " And (year(getDate()) - year(p.birthday)) >= 65 ";
         	}
     	}
-    	
    	
     	
-    	if(condVal.equals("1")){
+    	if(condVal.equals(CondVal_Fileno)){
     		likePrefix = likePrefix.replace("%", "");
     		mcode = mcode.replace("%", "");
-    		String fileNo = EncryptionUtils.encry(likePrefix + mcode);
+    		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
+    		System.out.println("==========fileNo========="+fileNo);
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
-        			"where p.bornStatus = '是' And hf.fileNo = p.fileNo And substring(hf.fileNo,1," + fileNo.length() + ") = ?" + hsqlparam,fileNo).get(0);
+        			"where  hf.fileNo = p.fileNo And hf.fileNo like ? " + hsqlparam,fileNo).get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
         	res.pageSize = pageSize;
         	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
         	int from = pageNo * pageSize;
-        	Query qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        	String sql = "select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
-        			"where  p.bornStatus = '是' And p.fileNo = hf.fileNo " +
-        			"and substring(p.fileNo,1," + fileNo.length() + ") = ?" + hsqlparam);
+        			"where  p.fileNo = hf.fileNo " +
+        			"and hf.fileNo like ? "  + hsqlparam;
+        	System.out.println("==================="+sql);
+        	Query qry = getSession().createQuery(sql);
         	qry.setParameter(0, fileNo);
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
@@ -84,17 +103,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	System.out.println("res line is : " + list.size());
         	res.res = parseResult(list);
         	res.currentPage = pageNo + 1;
-    	}else if(condVal.equals("2")){
-    		String[] mcodes = mcode.split("%");
-    		String districtNumber = "";
-    		String otherCond = "";
-    		if(mcodes.length > 1){
-    			districtNumber = mcodes[0];
-    			otherCond = mcodes[1];
-    		}else{
-    			otherCond = mcodes[0];
-    		}
-    		
+    	}else if(condVal.equals(CondVal_Name)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where hf.fileNo = p.fileNo And substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
         			"And substring(hf.name,1," + otherCond.length() + ") = ?" +  hsqlparam);
@@ -119,16 +128,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	System.out.println("res line is : " + list.size());
         	res.res = parseResult(list);
         	res.currentPage = pageNo + 1;
-    	}else if(condVal.equals("3")){
-    		String[] mcodes = mcode.split("%");
-    		String districtNumber = "";
-    		String otherCond = "";
-    		if(mcodes.length > 1){
-    			districtNumber = mcodes[0];
-    			otherCond = mcodes[1];
-    		}else{
-    			otherCond = mcodes[0];
-    		}
+    	}else if(condVal.equals(CondVal_CardId)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo And substring(hf.districtNumber,1," + districtNumber.length() +
         			") = ? And substring(p.idnumber,1," + otherCond.length() + ") = ? " + hsqlparam);
@@ -152,13 +152,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	System.out.println("res line is : " + list.size());
         	res.res = parseResult(list);
         	res.currentPage = pageNo + 1;
-    	}else if(condVal.equals("0")){
-    		String[] mcodes = mcode.split("%");
-//    		String districtNumber = mcodes[0];
-    		String otherCond = mcodes[0];
-    		if(mcodes.length > 1){
-    			otherCond = mcodes[1];
-    		}
+    	}else if(condVal.equals(CondVal_Barcode)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hsqlparam);
 //    		qry.setParameter(0, districtNumber + "%");

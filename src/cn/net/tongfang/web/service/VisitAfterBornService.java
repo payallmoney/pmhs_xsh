@@ -1,11 +1,19 @@
 package cn.net.tongfang.web.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.Query;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.GravidityKey;
+import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.security.vo.WomanLastMedicalExamRecord;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
@@ -34,7 +42,7 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 					msg = "产后访视记录";
 				else
 					msg = "产后42天健康体检记录";
-				throw new RuntimeException("编号为" + data.getFileNo() + "的孕产妇的此次产期的" + 
+				throw new Exception("编号为" + data.getFileNo() + "的孕产妇的此次产期的" + 
 						msg + "已经录入系统，不可以重复录入。");
 			}
 		}
@@ -44,10 +52,13 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 			person.setBornStatus("否");
 //			person.setHomeId("曾经");
 			getHibernateTemplate().update(person);
-			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().find("From HealthFileMaternal Where fileNo = ? And isClosed = '0' ", data.getFileNo()).get(0);
-			maternal.setIsClosed("1");
-			maternal.setClosedDate(data.getVisitDate());
-			getHibernateTemplate().update(maternal);
+			List maternallist = getHibernateTemplate().find("From HealthFileMaternal Where fileNo = ? And isClosed = '0' ", data.getFileNo());
+			if(maternallist.size()>0){
+				HealthFileMaternal maternal = (HealthFileMaternal)maternallist.get(0);
+				maternal.setIsClosed("1");
+				maternal.setClosedDate(data.getVisitDate());
+				getHibernateTemplate().update(maternal);
+			}
 			
 //			List list = getHibernateTemplate().find("From GravidityKey Where fileNo = ?", data.getFileNo());
 //			if(list.size() > 0){
@@ -70,6 +81,46 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 		data = (VisitAfterBornBO)get_(data);;
 		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
 		return data;
+	}
+	
+	public Map<String,Object> getPrintInfo_new(VisitAfterBornBO data) throws Exception {
+		Map<String,Object> map = new HashMap<String,Object>();
+		data = (VisitAfterBornBO)get_(data);
+		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
+		//"from HealthFile a, PersonalInfo b, VisitAfterBorn c, SamTaxempcode d,SamTaxorgcode e")
+		HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
+		map.put("file", file);
+		PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(data.getFileNo())).list().get(0);
+		getSession().evict(person);
+		person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+		map.put("person", person);
+		map.put("visit", data);
+		SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, data.getInputPersonId());
+		map.put("samTaxempcode", samTaxempcode);
+		SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+		map.put("org", samTaxorgcode);
+		String afterBornDirect = getPrintBasicInfo(data.getId(),"AfterBornDirect","afterBornDirectId","visitAfterBornId");
+		map.put("afterBornDirect", afterBornDirect);
+		return map;
+	}
+	
+	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
+		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, id);
+		List list = query.list();
+		String ret = "未测";
+		if(list.size() > 0){
+			ret = "";
+			for(Object objs : list){
+				Object[] obj = (Object[])objs;
+				BasicInformation basicInformation = (BasicInformation)obj[0];
+				ret = ret + basicInformation.getName() + ",";
+			}
+			if(!ret.equals(""))
+				ret = ret.substring(0,ret.length() - 1);
+		}
+		return ret;
 	}
 
 }

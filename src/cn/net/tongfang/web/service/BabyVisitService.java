@@ -3,8 +3,10 @@ package cn.net.tongfang.web.service;
 import java.beans.PropertyDescriptor;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -13,6 +15,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BabyVisit;
+import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.security.vo.WomanPhysicalItems;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
@@ -142,6 +148,36 @@ public class BabyVisitService extends HibernateDaoSupport {
 			data.setBabySkins(babySkin);
 			return data;
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public Map<String,Object> getPrintInfo_new(BabyVisitPrintBO data){
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			String id = data.getId();
+			BabyVisitBO bo = new BabyVisitBO();
+			bo.setId(id);
+			BabyVisitBO babyVisit = get(bo);
+			String babySkin = sysUtils.getPrintBasicInfo(id,"BabySkin","babySkinId","babyVisitId");
+			data.setBabySkins(babySkin);
+			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, babyVisit.getFileNo());
+			map.put("file", file);
+			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(babyVisit.getFileNo())).list().get(0);
+			getSession().evict(person);
+			person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+			map.put("person", person);
+			map.put("child", babyVisit);
+			if(data.getInputPersonId()!=null){
+				SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, data.getInputPersonId());
+				map.put("samTaxempcode", samTaxempcode);
+				SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+				map.put("org", samTaxorgcode);
+			}
+			map.put("babyDirect", sysUtils.getPrintBasicInfo(babyVisit.getId(),"BabyDirect","babyDirectId","babyVisitId"));
+			return map;
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

@@ -46,8 +46,14 @@ app.childHealthFileEnblePanel = new Ext.tf.HealthBookRecordsPanel({
 	},{
 		name : 'village',
 		mapping : 'file.village'
-	} ],
-	gridCmConfig : [  {
+	},{
+        name : 'status',
+        mapping : 'status'
+    }  ],
+	gridCmConfig : [ {
+        "header" : "状态",
+        "dataIndex" : "status"
+    }, {
 		"header" : "档案编号",
 		"dataIndex" : "fileNo",
 		"width" : 200

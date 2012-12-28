@@ -41,11 +41,21 @@ function dwrExceptionHandler(errorString, error){
 	//									headers:{'Content-Type': 'application/json; charset=UTF-8'},
 										success:function(){
 											Ext.getCmp("relogin_message").setText("登录成功!");
-											Ext.Msg.prompt('登录成功!', '登录成功!点击【确定】返回操作界面!', function(btn, text){
-											    if (btn == 'ok'){
-											    	Ext.getCmp("relogin_exceptionwin").close();
-											    }
-											});
+											Ext.Msg.show({
+												   title:'登录成功!',
+												   msg: '登录成功!点击【确定】返回操作界面!',
+												   buttons: Ext.Msg.OK,
+												   fn: function(btn, text){
+													    if (btn == 'ok'){
+													    	Ext.getCmp("relogin_exceptionwin").close();
+													    	if(!window.saving){
+																sendMessage('quit');
+															}
+													    }
+													    window.saving = false;
+													},
+												   animEl: 'elId'
+												});
 										},
 										failure:function(form, action){
 											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
@@ -130,7 +140,7 @@ function dwrExceptionHandler(errorString, error){
 		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
 		            }
 		        console.log(msg)
-		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+		        top.Ext.Msg.alert("错误",  error.message);
 			}else{
 				throw error;
 			}
@@ -1106,8 +1116,15 @@ ModuleMgr.register = function(mod) {
 	//mod.height  = '100%';
   //mod.width  = Ext.getCmp('tabbody').getActiveTab().getInnerWidth();
   mod.height  = Ext.getCmp('tabbody').getActiveTab().getInnerHeight();
+  
+  console.log("height===="+mod.height);
+  
   //mod.width = '99%';
 		Ext.getCmp("tabbody").register(mod);
+//	if(mod.doLayout){
+//		mod.doLayout();
+//		console.log("height===="+mod.height);
+//	}
 	//tabPanel.setActiveTab(tab);
   //var newCmp = tabPanel.add(mod);
   //debugger;
@@ -1304,17 +1321,21 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = '<div class="div_sms_container div_container">'+
 			'<div class="mod sms_01 mod_disable"><img src="../image/menu/sms_01.png"/><div>电话提取规则</div><div class="remarks"></div></div>'+
 			'<div class="mod sms_02 mod_disable"><img src="../image/menu/sms_02.png"/><div>短信发送规则</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.png"/><div>居民联系电话维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.png"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.png"/><div>短信发布</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.png"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.png"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.png"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.png"/><div>短信发布</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.png"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.png"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.png"/><div>电话号码维护</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else{
 		flag = false;
 		var modItems = '<div class="navigateContainerOther">';
+		console.log($ArrayContent.length)
+		
 		for(var i=0;i<$ArrayContent.length;i++){
+			
 			var str = $ArrayContent[i];
+			//console.log(str)
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
 				modItems = modItems + '<div class="modContainer"><div class="modother" onclick="toUrl(\'' + arrayStr[1] 
