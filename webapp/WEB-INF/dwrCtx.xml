@@ -44,8 +44,6 @@
 			class="cn.net.tongfang.framework.security.demo.service.TaxempDetail" />
 		<dwr:convert type="bean"
 			class="org.springframework.security.GrantedAuthorityImpl" />
-
-
 	</dwr:configuration>
 
 	<bean id="DWRHelloService"
@@ -146,7 +144,19 @@
 	
 	<bean id="SmsService" class="cn.net.tongfang.web.service.sms.SmsService">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="smsUtil" ref="SmsUtil"/>
 		<dwr:remote javascript="SmsService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+		<aop:scoped-proxy />
+	</bean>
+	
+	<bean id="CacheService" class="cn.net.tongfang.web.service.cache.CacheService">
+		<property name="cacheList" >
+			<list>
+				<ref bean='ScoreUtil'/>
+				<ref bean='ModuleUtil'/>
+			</list>
+		</property>
+		<dwr:remote javascript="CacheService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
 	
@@ -159,6 +169,7 @@
 
 	<bean id="UserMenuTreeService" class="cn.net.tongfang.framework.util.service.ModuleMgr">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="moduleUtil" ref="ModuleUtil" />
 		<dwr:remote javascript="UserMenuTreeService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>

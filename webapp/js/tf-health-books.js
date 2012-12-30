@@ -24,8 +24,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 	addHealthBooksText : '新增孕产妇保健手册',
 	delHealthBooksText : '撤销孕产妇保健手册',
 	editHealthBooksText : '修改孕产妇保健手册',
-	printHealthBooksText :'打印保健手册【封面】',
-	printHealthBooksText1 :'打印保健手册【孕妇基本档案】',
 		
 	
 	// height:700,
@@ -66,6 +64,19 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 		var param = '?districtNumber=' + districtNumber;
 		return param;
 	},
+	/*
+	listeners:{
+	    afterlayout : function(){
+	        console.log(this.modId)
+	        
+	    }.createDelegate(this),
+	    beforerender : function(){
+	        console.log(window.global_modId)
+            if(this.modId == null && !Ext.isEmpty(window.global_modId)){
+                this.modId = window.global_modId;
+            } 
+	    }.createDelegate(this)
+	},*/
 
 	// 设置查询用的类别，比如档案，高血压等。。
 	queryType : 'demo',
@@ -78,11 +89,13 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 	initComponent : function() {
 		this.build();
 		Ext.tf.HealthBookRecordsPanel.superclass.initComponent.call(this);
+		
 	},
 
 	build : function() {
 // this.tbar = this.createActions();
 		this.items = [ this.createPanel() ];
+		
 	},
 
 	/**
@@ -449,7 +462,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			selectOnFocus : true,
 			editable : false,
 			width : 80,
-			value : '100'
+			value : '0'
 		});
 		var store02 = new Ext.data.SimpleStore({
             fields : [ 'type', 'display' ],
@@ -469,6 +482,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
             id : 'child_status'
         });
 		var funcAction = [];
+		
 		var healthBooksBtn = new Ext.Button({
 			text: '保健手册',
 			iconCls: 'addBusinessData',
@@ -520,73 +534,17 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 									this);
 						}
 					}.createDelegate(this)					
-				}),new Ext.Action({
-				    iconCls: 'c_print',
-                    text : this.printHealthBooksText,
-                    handler : function() {
-                        var selections = this.grid.getSelections();
-                        var array = [];
-                        var pk = this.recordPk;
-                        var judgeId = this.judgeCondId;
-                        var judgeVal = this.judgeCondVal;
-                        if (selections.length > 0) {
-                            Ext.Msg.show({
-                                title:'提示',
-                                msg: '请用放入保健手册【封面】！',
-                                buttons: Ext.Msg.OK,
-                                animEl: 'elId',
-                                icon: Ext.MessageBox.INFO,
-                                width :300,
-                                fn : function(e){
-                                    if(e == 'ok'){
-                                        Ext.each(selections, function(v) {
-                                            if(v.get(judgeId) == judgeVal){
-                                                array.push(v.get(pk));
-                                            }
-                                        });
-                                        var records = selections[0];
-                                        console.log(records);
-                                        printObj.printPreview(getPrintCfg01(records.json),-2);
-                                    }
-                                }
-                            });
-                        }
-                    }.createDelegate(this)             
-                }),new Ext.Action({
-                    iconCls: 'c_print',
-                    text : this.printHealthBooksText1,
-                    handler : function() {
-                        var selections = this.grid.getSelections();
-                        var array = [];
-                        var pk = this.recordPk;
-                        var judgeId = this.judgeCondId;
-                        var judgeVal = this.judgeCondVal;
-                        if (selections.length > 0) {
-                            Ext.Msg.show({
-                                title:'提示',
-                                msg: '请用放入保健手册【孕妇基本档案】页！',
-                                buttons: Ext.Msg.OK,
-                                animEl: 'elId',
-                                icon: Ext.MessageBox.INFO,
-                                width :300,
-                                fn : function(e){
-                                    if(e == 'ok'){
-                                        Ext.each(selections, function(v) {
-                                            if(v.get(judgeId) == judgeVal){
-                                                array.push(v.get(pk));
-                                            }
-                                        });
-                                        var records = selections[0];
-                                        console.log(records);
-                                        printObj.printPreview(getPrintCfg02(records.json,this.menu),-2);
-                                    }
-                                }
-                            });
-                        }
-                    }.createDelegate(this)                  
-                })]
+				})]
 			})
 		});
+        if(!Ext.isEmpty(window.global_modId)){
+            UserMenuTreeService.hasCatInfo(window.global_modId,function(data){
+                console.log(data);
+                if(!data){
+                    healthBooksBtn.disable();
+                }
+            });
+        }
 		var examBtn = this.createExamBtnActions();
 		var terminationBirthBtn = new Ext.Button({
 			text: '终止妊娠',

@@ -141,6 +141,9 @@ function dwrExceptionHandler(errorString, error){
 				$.unblockUI();
 				exceptionwin.show(this);
 			}
+		}else if(error.javaClassName === "java.lang.RuntimeException" ){
+			$.unblockUI();
+			top.Ext.Msg.alert("错误", error.message);
 		}else{
 			if(error.javaClassName){
 				$.unblockUI();
@@ -152,6 +155,7 @@ function dwrExceptionHandler(errorString, error){
 		        console.log(msg)
 		        top.Ext.Msg.alert("错误", error.message);
 			}else{
+				console.log(error.stack)
 				throw error;
 			}
 		}
@@ -737,7 +741,12 @@ var fieldsArray = {};
                     if (!_ccfg.setting.showOnly) {
                         var key = v.id;
                         var val = v.ctrl['val'] ?  v.ctrl.val() : null;
-                        model[key] = val;
+                        console.log(typeof(val))
+                        if(typeof(val)==="string"){
+                        	model[key] = Ext.util.Format.trim(val);
+                        }else{
+                        	model[key] = val;
+                        }
                         //alert(key +"====="+val+"==="+typeof(val));
                     }
                 });

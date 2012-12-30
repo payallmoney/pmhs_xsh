@@ -1,6 +1,7 @@
 package cn.net.tongfang.framework.security.bo;
 
 import java.util.Date;
+import java.util.Map;
 
 public class HealthFileQry {
     private String district;
@@ -8,12 +9,21 @@ public class HealthFileQry {
     private String filterValue;
     private int isFirst;
     private String filterVal01;
+    private Map<String ,String> params;
     
     private Date startDate;
     private Date endDate;
     
     
-    public HealthFileQry() {
+    public Map<String, String> getParams() {
+		return params;
+	}
+
+	public void setParams(Map<String, String> params) {
+		this.params = params;
+	}
+
+	public HealthFileQry() {
     }
     
 	public Date getStartDate() {

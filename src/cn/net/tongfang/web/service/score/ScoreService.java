@@ -49,9 +49,6 @@ public class ScoreService extends HibernateDaoSupport implements
 		this.ac = ac;
 	}
 
-	public void refresh() {
-		scoreUtil.refresh();
-	}
 
 	public Map<Integer, List<BasicInformation>> basicInformationMap() {
 		return scoreUtil.getBasicInformationMap();
@@ -59,7 +56,6 @@ public class ScoreService extends HibernateDaoSupport implements
 
 	// 查询分数
 	public List queryScore(Map param) {
-		System.out.println("===================" + param);
 		String sql = " select a.username,b.id.scorename,b.id.personid,case when b.allcount = null then 0 else b.allcount end  as allcount  from SamTaxempcode a, ScorePerson b "
 				+ "where a.loginname = b.id.personid and b.examgroup = '"
 				+ param.get("group") + "'" + "order by b.allcount desc ";
@@ -70,23 +66,13 @@ public class ScoreService extends HibernateDaoSupport implements
 
 	// 生成分数规则
 	public List queryGroup() {
-		System.out.println("===========111========");
 		List ret = getSession()
 				.createQuery(
 						"select groupname as code,groupname as name,scoredate from ScoreExamdate order by scoredate desc ")
 				.list();
-		System.out.println("===================" + ret.size());
 		return ret;
 	}
 
-	public void clearSession() {
-		Authentication auth = SecurityContextHolder.getContext()
-				.getAuthentication();
-		System.out.println("auth is " + auth);
-		SecurityContextHolder.getContext().setAuthentication(null);
-		System.out.println("==============清理??====="
-				+ SecurityContextHolder.getContext().getAuthentication());
-	}
 
 	// 生成分数规则
 	public PagingResult<Map> getScore(Map param) {

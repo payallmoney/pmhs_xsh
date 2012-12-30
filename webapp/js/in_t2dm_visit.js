@@ -235,6 +235,8 @@
             id : "exam03",
             xtype : "input",
             setting : {
+                format: "date",
+                maxlen: 8,
                 size : 10
             }
         },

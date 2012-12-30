@@ -95,6 +95,7 @@ public class BOHelper {
 				PropertyUtils.setProperty(dest, INPUT_DATE, property);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("Error on setting input person/date.", e);
 		}
 

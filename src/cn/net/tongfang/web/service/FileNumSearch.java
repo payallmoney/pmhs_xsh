@@ -34,7 +34,6 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String CondVal_CardId = "3";   //身份证号
 	
 	public  PagedList listCodePage(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
-		System.out.println("=====FileNumSearch.listCodePage("+pageNo+","+mcode+","+startWith+","+condVal+","+otherparamtype+")");
     	String likePrefix = startWith ? "" : "%";
     	PagedList res = new PagedList();
     	String hsqlparam = "";
@@ -77,12 +76,11 @@ public class FileNumSearch extends HibernateDaoSupport{
         	}
     	}
    	
-    	
+    	//改为like ,like 可以用索引 substring 不能用
     	if(condVal.equals(CondVal_Fileno)){
     		likePrefix = likePrefix.replace("%", "");
     		mcode = mcode.replace("%", "");
     		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
-    		System.out.println("==========fileNo========="+fileNo);
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where  hf.fileNo = p.fileNo And hf.fileNo like ? " + hsqlparam,fileNo).get(0);
         	System.out.println("total line is : " + count);
@@ -94,7 +92,6 @@ public class FileNumSearch extends HibernateDaoSupport{
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where  p.fileNo = hf.fileNo " +
         			"and hf.fileNo like ? "  + hsqlparam;
-        	System.out.println("==================="+sql);
         	Query qry = getSession().createQuery(sql);
         	qry.setParameter(0, fileNo);
         	qry.setMaxResults(pageSize);
@@ -105,10 +102,10 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_Name)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
-        			"where hf.fileNo = p.fileNo And substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
-        			"And substring(hf.name,1," + otherCond.length() + ") = ?" +  hsqlparam);
-    		qry.setParameter(0, districtNumber);
-        	qry.setParameter(1, EncryptionUtils.encry(otherCond));
+        			"where hf.fileNo = p.fileNo And hf.districtNumber like ? " +
+        			"And hf.name like ?" +  hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
@@ -117,11 +114,10 @@ public class FileNumSearch extends HibernateDaoSupport{
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo and substring(hf.districtNumber,1," + 
-        			districtNumber.length() + ") = ? " +
-        			"And substring(hf.name,1," + otherCond.length() + ") = ? " + hsqlparam);
-        	qry.setParameter(0, districtNumber);
-        	qry.setParameter(1, EncryptionUtils.encry(otherCond));
+        			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
+        			"And hf.name like  ? " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
         	List list = qry.list();
@@ -130,10 +126,9 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_CardId)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo And substring(hf.districtNumber,1," + districtNumber.length() +
-        			") = ? And substring(p.idnumber,1," + otherCond.length() + ") = ? " + hsqlparam);
-    		qry.setParameter(0, districtNumber);
-        	qry.setParameter(1, EncryptionUtils.encry(otherCond));
+        			"where p.fileNo = hf.fileNo And hf.districtNumber like ? And p.idnumber like ? " + hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
@@ -142,10 +137,10 @@ public class FileNumSearch extends HibernateDaoSupport{
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
-        			"where substring(hf.districtNumber,1," + districtNumber.length() + ") = ? " +
-        			"And substring(p.idnumber,1," + otherCond.length() + ") = ?  And hf.fileNo = p.fileNo " + hsqlparam);
-        	qry.setParameter(0, districtNumber);
-        	qry.setParameter(1, EncryptionUtils.encry(otherCond));
+        			"where hf.districtNumber like ? " +
+        			"And p.idnumber like ?  And hf.fileNo = p.fileNo " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
         	List list = qry.list();
@@ -154,9 +149,9 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_Barcode)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hsqlparam);
+        			"where p.fileNo = hf.fileNo  And hf.barCode like ? " + hsqlparam);
 //    		qry.setParameter(0, districtNumber + "%");
-        	qry.setParameter(0, otherCond);
+        	qry.setParameter(0, otherCond+ "%");
     		long count = (Long)qry.list().get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
@@ -165,10 +160,10 @@ public class FileNumSearch extends HibernateDaoSupport{
         	int from = pageNo * pageSize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo " +
-        			"And substring(hf.barCode,1," + otherCond.length() + ") = ? " + hsqlparam);
+        			"where p.fileNo = hf.fileNo  " +
+        			"And hf.barCode like ? " + hsqlparam);
 //        	qry.setParameter(0, districtNumber + "%");
-        	qry.setParameter(0, otherCond);
+        	qry.setParameter(0, otherCond+"%");
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
         	List list = qry.list();

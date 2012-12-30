@@ -1,8 +1,5 @@
 Ext.ns("Ext.hc");
-// ScoreService.getScore
 window.score_refresh = function(personid,rowindex){
-//	alert(personid);
-//	alert(rowindex);
 	var eventObj = event.srcElement;
 	eventObj.disabled = true;
 	var combobox = Ext.getCmp("score.query.groupcombo");
@@ -218,22 +215,6 @@ Ext.hc.printScorePanel = new Ext.Panel(
 								})
 								// Ext.getCmp("score.grid").getStore().reload();
 							}.createDelegate(this)
-						}, "-", {
-							text : '测试掉线',
-							iconCls : 'c_query',
-							handler : function() {
-								ScoreService.clearSession();
-								;
-							}.createDelegate(this)
-						}, "-", {
-							text : '刷新配置',
-							iconCls : 'c_refresh',
-							handler : function(obj) {
-								obj.disable();
-								ScoreService.refresh( function(data) {
-									obj.enable();
-								});
-							}
 						} ],
 
 				store : new Ext.data.Store({

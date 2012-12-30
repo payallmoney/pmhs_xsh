@@ -130,9 +130,13 @@ public final class CommonConvertUtils {
 	 * @return
 	 */
 	public static boolean birthCertifiIsSupply(Timestamp birthday,Timestamp issuingDate){
-		if(compareDate(birthday,issuingDate) > 61)
+		if(birthday ==null || issuingDate ==null){
 			return true;
-		return false;
+		}else{
+			if(compareDate(birthday,issuingDate) > 61)
+				return true;
+			return false;
+		}
 	}
 	
 	/**

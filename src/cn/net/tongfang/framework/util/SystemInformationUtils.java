@@ -82,12 +82,13 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Integer checkWomanMedicalExam(String fileNo){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From HealthFileMaternal Where fileNo = :fileNo And isClosed = '0'";
+		String hql = "From HealthFileMaternal Where fileNo = :fileNo";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("fileNo", fileNo);
 		List list = query.list();
 		if(list.size() > 0){
 			HealthFileMaternal gravidityKey = (HealthFileMaternal)list.get(0);
+			
 			return gravidityKey.getGravidity();
 		}
 		return null;

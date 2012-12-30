@@ -44,6 +44,7 @@ import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam3;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
 import cn.net.tongfang.framework.security.vo.ClinicLogs;
+import cn.net.tongfang.framework.security.vo.CodModuleMap;
 import cn.net.tongfang.framework.security.vo.Consultation;
 import cn.net.tongfang.framework.security.vo.CureBack;
 import cn.net.tongfang.framework.security.vo.CureSwitch;
@@ -84,6 +85,7 @@ import cn.net.tongfang.framework.security.vo.WomanLastMedicalExamRecord;
 import cn.net.tongfang.framework.security.vo.WomanPhysicalItems;
 import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
+import cn.net.tongfang.framework.util.ModuleUtil;
 import cn.net.tongfang.framework.util.service.vo.CatInfo;
 import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNode;
 import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNodeDefine;
@@ -93,6 +95,7 @@ import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
 
 public class ModuleMgr extends HibernateDaoSupport {
+	ModuleUtil moduleUtil;
 
 	private static final Logger log = Logger.getLogger(ModuleMgr.class);
 	public static final Integer DISEASE_HYP = 2;
@@ -121,7 +124,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<CatInfo> getUserCatInfo() {
-
+		System.out.println("================????===");
 		final String sql = "select {module.*}, {mc.*},{mc1.*} from sam_module_category mc, ( select m.* from"
 				+ " sam_module m where m.id in ( select rm.module_id from sam_role_module rm "
 				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
@@ -151,12 +154,29 @@ public class ModuleMgr extends HibernateDaoSupport {
 								SamModuleCategory secondcat = (SamModuleCategory) items[2];
 								results.add(new CatInfo(mod, cat,secondcat));
 							}
-
 							return results;
 						}
 
 					});
-
+			Map<String,String> addmodule = new HashMap<String,String>();
+			for(CatInfo cat : list){
+				for(CodModuleMap item :moduleUtil.getModuleList()){
+					if(item.getMainmoduleid().equals(cat.getModule().getId()) && !addmodule.containsKey(item.getMainmoduleid())){
+						addmodule.put(item.getMainmoduleid(), item.getMainmoduleid());
+					}
+				}
+			}
+			List addList = new ArrayList();
+			for(CatInfo cat : list){
+				for(CodModuleMap item :moduleUtil.getModuleList()){
+					if(item.getSubmoduleid().equals(cat.getModule().getId()) && !addmodule.containsKey(item.getMainmoduleid())){
+						SamModule mod = (SamModule)getHibernateTemplate().get(SamModule.class, item.getMainmoduleid());
+						addList.add(new CatInfo(mod, cat.getCategory(),cat.getRootCategory()));
+						addmodule.put(item.getMainmoduleid(), item.getMainmoduleid());
+					}
+				}
+			}
+			list.addAll(addList);
 			// log.debug("List size is " + list.size());
 			return list;
 		} catch (Throwable t) {
@@ -164,6 +184,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 			return new ArrayList<CatInfo>();
 		}
 
+	}
+	
+	public boolean hasCatInfo(String modid) {
+		System.out.println("================????===");
+		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
+				+ " sam_module m where m.id = '"+modid+"' and m.id in ( select rm.module_id from sam_role_module rm "
+				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
+				+ " sam_taxempcode u where u.loginname = '"+SecurityManager
+				.currentOperator().getUsername()+"' and u.loginname = ur.loginname) ) ) module," +
+				" sam_module_category mc1 where mc.id = module.category_id and mc.parentid = mc1.id ";
+
+		List ret = getSession().createSQLQuery(sql).list();
+		if(ret.size()>0){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	public List<ExtJSTreeNode> genUserMenuTree() {
@@ -4208,4 +4245,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		return null;
 	}
+
+	public ModuleUtil getModuleUtil() {
+		return moduleUtil;
+	}
+
+	public void setModuleUtil(ModuleUtil moduleUtil) {
+		this.moduleUtil = moduleUtil;
+	}
+	
+	
 }

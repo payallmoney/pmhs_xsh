@@ -1,6 +1,6 @@
 Ext.ns("app");
 
-app.childPanel = new Ext.tf.HealthPrintChildPanel({
+app.childPanel = new Ext.tf.HealthPanel({
 	title : '儿童健康档案管理',
 	treeLoaderFn : UserMenuTreeService.getUserDistrictNodes,
 	queryUrl : UserMenuTreeService.findChildHealthFiles,

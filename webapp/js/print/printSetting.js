@@ -1386,6 +1386,7 @@ function getPrintCfg08(data){
         value[count++] = "";
         value[count++] = "√";
         value[count++] = "";
+        value[count++] = "";
     }
     //会阴情况 无此字段
     if(data.birthRecord.lacerationOfPerineum =="无"){
