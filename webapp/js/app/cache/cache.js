@@ -5,8 +5,8 @@ Ext.hc.cachePanel = new Ext.Panel({
 	items : [ {
 		layout : 'fit',
 		xtype : 'grid',
-		id : 'score.grid',
-		title : '考试打分系统',
+		id : 'cache.grid',
+		title : '缓存管理',
 		autoWidth : true,
 		// height : 700,
 		tbar : [ {

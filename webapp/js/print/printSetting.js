@@ -61,8 +61,10 @@ function getPrintCfg01(data){
     pos[count++]=new Array("11.11cm","5.9cm","5cm","0.79cm");
 
     var risk = data.maternal.highRiskCode;
-    risk = "0"+risk.substring(0,risk.indexOf("、"));
-    risk = risk.substring(risk.length-2,2);
+    if(risk){
+        risk = "0"+risk.substring(0,risk.indexOf("、"));
+        risk = risk.substring(risk.length-2,2);
+    }
     
     var value = new Array();
     count = 0;
@@ -1290,7 +1292,7 @@ function getPrintCfg08(data){
     pos[count++] =  new Array("24.21cm","13.84cm","4cm","0.61cm");
     pos[count++] =  new Array("24.82cm","8.84cm","4cm","0.61cm");
     pos[count++] =  new Array("24.82cm","14.3cm","4cm","0.61cm");
-    
+    console.log("pos===="+count)
     var value = new Array();
     count = 0;
     //分娩时间
@@ -1302,8 +1304,24 @@ function getPrintCfg08(data){
     value[count++] = "";
     value[count++] = data.birthRecord.borthWeekly;//分娩孕周    
     //总产程 无此字段
-    value[count++] = data.birthRecord.totalLaborHours;
-    value[count++] = data.birthRecord.oneLaborHours;
+    var total =  data.birthRecord.totalLaborHours;
+    if(!total){
+        total = 0;
+    }
+    if(data.birthRecord.totalLaborMinutes){
+        var minutes = data.birthRecord.totalLaborMinutes/60 .toFixed(2);
+        total = total +minutes;
+    }
+    value[count++] = total;
+    var onlabor = data.birthRecord.oneLaborHours;
+    if(!onlabor){
+        onlabor = 0;
+    }
+    if(data.birthRecord.oneLaborMinutes){
+        var minutes = data.birthRecord.oneLaborMinutes/60 .toFixed(2);
+        onlabor = onlabor +minutes;
+    }
+    value[count++] = onlabor;
     value[count++] = data.birthRecord.twoLaborHours;
     value[count++] = data.birthRecord.twoLaborMinutes;
     value[count++] = data.birthRecord.threeLaborMinutes;
@@ -1501,6 +1519,7 @@ function getPrintCfg08(data){
         value[count++] = "";
         value[count++] = "";
         value[count++] = "";
+        value[count++] = "";
     }else{
         value[count++] = "";
         value[count++] = "√";
@@ -1517,6 +1536,7 @@ function getPrintCfg08(data){
             value[count++] = "";
             value[count++] = "√";
         }
+        value[count++] = "";
         value[count++] = data.birthRecord.suffocationOther01;
     }
     //产伤 无此字段
@@ -1608,7 +1628,7 @@ function getPrintCfg08(data){
     value[count++] = data.cert.borthOrganization;
     //接生者
     value[count++] = data.cert.widwife;
-    
+    console.log("value===="+count)
     for(var i = 0 ; i < count ; i++){
         if(value[i] == null || value[i] == NaN || (value[i].toLowerCase && (value[i].toLowerCase() ==="null" || value[i].toLowerCase() ==="nan")) ){
             value[i] = "";

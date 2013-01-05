@@ -34,6 +34,7 @@ function dwrExceptionHandler(errorString, error){
 								text:'重新登录',
 								formBind: true,
 								handler:function(){
+									window.saving = false;
 									Ext.getCmp("relogin_form").getForm().submit({
 										method:'POST',
 	//									standardSubmit : true,
@@ -52,7 +53,6 @@ function dwrExceptionHandler(errorString, error){
 																sendMessage('quit');
 															}
 													    }
-													    window.saving = false;
 													},
 												   animEl: 'elId'
 												});
@@ -134,8 +134,11 @@ function dwrExceptionHandler(errorString, error){
 			}
 		}else if(error.javaClassName === "java.lang.RuntimeException" ){
 			$.unblockUI();
+			window.saving = false;
 			top.Ext.Msg.alert("错误", error.message);
 		}else{
+			$.unblockUI();
+			window.saving = false;
 			if(error.javaClassName){
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
@@ -1050,6 +1053,7 @@ Ext.onReady(function() {
 				  items[catCount] = {title : rootCatName,collapsed:true,autoScroll : true,border : false,iconCls : settings,
 						  listeners:{
 							  expand : function(){
+								  console.log(this.body.dom.innerHTML)
 								  var c = $(this.body.dom.innerHTML).children('div').children('div').children('div').children('div');
 								  $(c[0]).attr('onclick')();
 //								  navigateContent($htmlContent,$templateId,rootCatName,$lastCatName);
@@ -1101,6 +1105,7 @@ Ext.onReady(function() {
 		    } ]
 		  });
 	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
+	  console.log("11111111111111111111111")
 	  $('.menu_second_div img').hover(function(){
 		$(this).attr('style','margin-top:0px;');
 		$(this).next('div').attr('style','margin-top:5px;');
@@ -1110,6 +1115,7 @@ Ext.onReady(function() {
 		$(this).attr('style','margin-top:5px;');
 		$(this).next('div').attr('style','margin-top:0px;');
 	  });
+	  console.log("22222222222222222222222222")
   });
 }
   Ext.BLANK_IMAGE_URL = '/resources/images/default/s.gif';
@@ -1215,6 +1221,9 @@ function idIsExists(id){
 
 
 function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName){
+	console.log($htmlContent)
+	console.log($templateId)
+	console.log($lastCatName)
 	//alert($templateId);
 	Ext.getCmp('navigateContainerPanel').setTitle("<font color='red'>当前位置：" +　$lastRootCatName + ' >> ' + $lastCatName + '</font>');
 //	console.log($lastRootCatName + ':' + $lastCatName);
@@ -1390,6 +1399,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = modItems + '</div>';
 	}
 	//alert(modItems)
+	console.log(modItems)
 	$('.navigateContainer').html(modItems);
 	if(flag){
 		for(var i=0;i<$ArrayContent.length;i++){
@@ -1423,6 +1433,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			$(this).removeClass('mod_hover');
 		}
 	});
+	console.log("结束navi")
 //	$('.navigateContainer').html(modItems);
 	
 }

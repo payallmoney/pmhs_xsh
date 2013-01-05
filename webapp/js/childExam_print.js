@@ -720,7 +720,7 @@ function dealData(data,beforeSkull01,beforeSkull02){
                             fn : function(e){
                                 if(e == 'ok'){
                                     console.log(data)
-                                    printObj.printPreview(getChildPrintCfg01(data),-2);
+                                    printObj.printPreview(getChildPrintCfg01(data),-3);
                                 }
                             }
                         });

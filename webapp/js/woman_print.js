@@ -572,7 +572,7 @@ function getBasicInfo(){
                             width :500,
                             fn : function(e){
                                 if(e == 'ok'){
-                                    printObj.printPreview(getPrintCfg01(data),-2);
+                                    printObj.printPreview(getPrintCfg01(data),-3);
                                 }
                             }
                         });

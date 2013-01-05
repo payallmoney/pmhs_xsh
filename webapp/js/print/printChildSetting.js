@@ -515,8 +515,8 @@ function getChildPrintCfg04(data,col){
     pos[count++] =  new Array("8.1cm",baseleft+"cm","2.9cm","0.5cm");
     pos[count++] =  new Array("8.6cm",baseleft+"cm","2.9cm","0.9cm");
     pos[count++] =  new Array("9.5cm",baseleft+"cm","2.9cm","1cm");
-    pos[count++] =  new Array("10.5cm",baseleft+"cm","2.9cm","0.5cm");
-    pos[count++] =  new Array("11cm",baseleft+"cm","2.9cm","0.4cm");
+    pos[count++] =  new Array("10.8cm",baseleft+"cm","2.9cm","0.5cm");
+    pos[count++] =  new Array("11.2cm",baseleft+"cm","2.9cm","0.4cm");
     var value = new Array();
     count=0
     if(data.child.exam14==="未见异常"){
@@ -624,8 +624,9 @@ function getChildPrintCfg05(data,col){
     value[count++] = Ext.util.Format.date(data.child.visitDate,"Y-m-d")//随访日期
     value[count++] = data.child.weight; //  体重
     value[count++] = data.child.height; //  身长
-    value[count++] = "";    //  头围
-    value[count++] = data.child.evaluate;   //  体格发育评价
+    value[count++] = data.child.head;    //  头围
+    value[count++] = data.child.evaluateChild;   //  体格发育评价-综合评估
+    console.log(data)
     value[count++] = data.child.face;   //  面色
     if(data.child.exam01==="未见异常"){
         value[count++] = data.child.exam01; //  皮肤
@@ -752,7 +753,7 @@ function getChildPrintCfg06(data,col){
     }else{
         value[count++]=data.child.exam11+" "+data.child.exam11other;//肛门/外生殖器
     }
-    value[count++] = "";//先天性髋关节发育不良筛查结果
+    value[count++] = data.child.pelvis;//先天性髋关节发育不良筛查结果
     value[count++] = data.child.exam12;//血红蛋白值
     value[count++] = data.child.activityTime;//户外活动
     value[count++] = data.child.breastMilk;//喂养方式
@@ -772,7 +773,7 @@ function getChildPrintCfg06(data,col){
         value[count++] = "无";
     }
     value[count++] = data.child1.checkDirect;//指导
-    value[count++] = data.child.nextVisitDate//下次随访日期
+    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
     value[count++] = data.org.name;//检查机构
     value[count++] = data.child.visitDoctor;//随访医生签名
 
@@ -950,7 +951,7 @@ function getChildPrintCfg10(data,col){
         value[count++] = "无";
     }
     value[count++] = data.checkDirect;//指导
-    value[count++] = data.child.nextVisitDate//下次随访日期
+    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
     value[count++] = data.org.name;//检查机构
     value[count++] = data.child.visitDoctor;//随访医生签名
     for(var i = 0 ; i < count ; i++){
@@ -1101,7 +1102,7 @@ function getChildPrintCfg12(data,col){
         value[count++] = "无";
     }
     value[count++] = data.checkDirect;//指导
-    value[count++] = data.child.nextVisitDate//下次随访日期
+    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
     value[count++] = data.child.visitDoctor;//随访医生签名
     
     for(var i = 0 ; i < count ; i++){

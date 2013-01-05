@@ -32,6 +32,7 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String CondVal_Fileno = "1";   //档案编号
 	public static String CondVal_Name = "2";   //姓名
 	public static String CondVal_CardId = "3";   //身份证号
+	public static String CondVal_LinkMan = "4";   //联系人
 	
 	public  PagedList listCodePage(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
     	String likePrefix = startWith ? "" : "%";
@@ -118,6 +119,30 @@ public class FileNumSearch extends HibernateDaoSupport{
         			"And hf.name like  ? " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
+        	qry.setMaxResults(pageSize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_LinkMan)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
+        			"where hf.fileNo = p.fileNo And hf.districtNumber like ? " +
+        			"And p.linkman like ?" +  hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, "%"+otherCond+"%");
+    		long count = (Long)qry.list().get(0);
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = pageSize;
+        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
+        	int from = pageNo * pageSize;
+        	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address,p.linkman " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
+        			"And p.linkman like ? " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, "%"+otherCond+"%");
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
         	List list = qry.list();

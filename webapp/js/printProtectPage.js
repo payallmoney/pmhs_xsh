@@ -46,9 +46,10 @@
 				PrintCommon(jsonPrint);
 			}else if(type === -2){//-1通用打印
 				PrintCommon1(jsonPrint);
-			}
-//			LODOP.PREVIEW();	
-			LODOP.PRINT_SETUP();
+			}else if(type === -3){//-1通用打印 封面打印,字体大
+                PrintCover(jsonPrint);
+            }
+			LODOP.PREVIEW();				//LODOP.PRINT_SETUP();
 		}
 	}
 	//多页打印预览
@@ -80,6 +81,19 @@
 			LODOP.ADD_PRINT_TEXT(item[0],item[1],item[2],item[3],item[4]);
 		}	
 	}
+	
+	//通用打印
+    function PrintCover(jsonPrint){
+        LODOP.PRINT_INITA(jsonPrint.title.intTop,jsonPrint.title.intLeft,jsonPrint.title.intWidth,jsonPrint.title.intHeight,jsonPrint.title.strContent);
+        LODOP.SET_PRINT_STYLE("FontColor","#0000FF");
+        
+        for(var i = 0 ; i< jsonPrint.data.length ;i++){
+            item = jsonPrint.data[i];
+            LODOP.ADD_PRINT_TEXT(item[0],item[1],item[2],item[3],item[4]);
+            LODOP.SET_PRINT_STYLEA(0,"FontSize",12);
+            LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        }   
+    }
 	//预防接种证打印
 	function PrintVacciImmune(jsonPrint){
 		LODOP.PRINT_INITA("0.26cm","0.26cm","20.8cm","14cm","预防接种证");

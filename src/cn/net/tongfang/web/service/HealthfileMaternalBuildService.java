@@ -107,6 +107,7 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 		getHibernateTemplate().evict(file);
 		getHibernateTemplate().evict(file.getPersonalInfo());
 		file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
+		file.setName(EncryptionUtils.decipher(file.getName()));
 		file.getPersonalInfo().setIdnumber(EncryptionUtils.decipher(file.getPersonalInfo().getIdnumber()));
 		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
 		data.setName(EncryptionUtils.decipher(data.getName()));

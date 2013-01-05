@@ -150,8 +150,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 							List<CatInfo> results = new ArrayList<CatInfo>();
 							for (Object[] items : objs) {
 								SamModule mod = (SamModule) items[1];
+								
 								SamModuleCategory cat = (SamModuleCategory) items[0];
 								SamModuleCategory secondcat = (SamModuleCategory) items[2];
+								System.out.println("======mod============="+mod);
+								if(mod == null){
+									System.out.println("==========null=========");
+								}
+								System.out.println("==================="+cat);
+								System.out.println("==================="+secondcat);
 								results.add(new CatInfo(mod, cat,secondcat));
 							}
 							return results;
@@ -170,6 +177,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			for(CatInfo cat : list){
 				for(CodModuleMap item :moduleUtil.getModuleList()){
 					if(item.getSubmoduleid().equals(cat.getModule().getId()) && !addmodule.containsKey(item.getMainmoduleid())){
+						System.out.println("==================="+item.getMainmoduleid());
 						SamModule mod = (SamModule)getHibernateTemplate().get(SamModule.class, item.getMainmoduleid());
 						addList.add(new CatInfo(mod, cat.getCategory(),cat.getRootCategory()));
 						addmodule.put(item.getMainmoduleid(), item.getMainmoduleid());
@@ -177,6 +185,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 			}
 			list.addAll(addList);
+			System.out.println("==================="+list.size());
 			// log.debug("List size is " + list.size());
 			return list;
 		} catch (Throwable t) {
@@ -186,10 +195,25 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	
-	public boolean hasCatInfo(String modid) {
-		System.out.println("================????===");
+	public boolean hasCatInfoId(String modid) {
 		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
 				+ " sam_module m where m.id = '"+modid+"' and m.id in ( select rm.module_id from sam_role_module rm "
+				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
+				+ " sam_taxempcode u where u.loginname = '"+SecurityManager
+				.currentOperator().getUsername()+"' and u.loginname = ur.loginname) ) ) module," +
+				" sam_module_category mc1 where mc.id = module.category_id and mc.parentid = mc1.id ";
+
+		List ret = getSession().createSQLQuery(sql).list();
+		if(ret.size()>0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean hasCatInfoName(String name) {
+		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
+				+ " sam_module m where m.name = '"+name+"' and m.id in ( select rm.module_id from sam_role_module rm "
 				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
 				+ " sam_taxempcode u where u.loginname = '"+SecurityManager
 				.currentOperator().getUsername()+"' and u.loginname = ur.loginname) ) ) module," +
@@ -220,6 +244,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				last.addChild(new ExtJSTreeNode(ci.getModule().getName(), ci
 						.getModule().getUrl(), "file", true));
 			} else {
+				System.out.println("=================ci=="+ci);
+				System.out.println("=================catId=="+catId+",==catName="+catName);
+				System.out.println("==================="+ci.getModule());
 				last = new ExtJSTreeNode(catName, catId, "folder", false);
 				last.addChild(new ExtJSTreeNode(ci.getModule().getName(), ci
 						.getModule().getUrl(), "file", true));

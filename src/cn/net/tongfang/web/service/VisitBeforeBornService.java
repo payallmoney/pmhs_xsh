@@ -38,8 +38,12 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	public String save(VisitBeforeBornBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		System.out.println("==================="+data.getId());
+		System.out.println("=============VisitBeforeBornBO.getForeignId()======"+data.getForeignId());
+		if(sysInfo.hasHealthFileMaternal(data.getForeignId()) == null){
+			throw new Exception("请先建立孕产妇保健手册。");
+		}
 		if(data.getItem().equals(2)){
-			FirstVistBeforeBorn fvb = sysInfo.checkWomanSeparateDate(data.getFileNo(),data.getGravidity());
+			FirstVistBeforeBorn fvb = sysInfo.hasFirstVistBeforeBorn(data.getForeignId(),data.getGravidity());
 			if(fvb != null){
 				Timestamp preVisitDate = fvb.getVisitDate();
 				Timestamp CurrentVisitDate = data.getVisitDate();
@@ -47,10 +51,6 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 				if(day < 28)
 					throw new Exception("第2次产前随访与第1次产前随访的时间间隔至少为4周。");
 			}
-		}
-		
-		if(sysInfo.checkWomanMedicalExam(EncryptionUtils.decipher(data.getFileNo())) == null){
-			throw new Exception("请先建立孕产妇保健手册。");
 		}
 		
 		if(data.getHighRisk().equals("是")){

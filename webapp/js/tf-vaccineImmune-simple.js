@@ -552,7 +552,8 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			var cond = {
 				district : disNum,
 				filterKey : filterKey,
-				filterValue : filterValue
+				filterValue : filterValue,
+				params : []
 			};
 			return cond;
 		}
@@ -787,6 +788,22 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 	},
 	
 	createPanel : function() {
+        var store01 = new Ext.data.SimpleStore({
+            fields : [ 'type', 'display' ],
+            data : [ [ '0', '全部' ], [ '1', '未建卡' ],['2','已建卡']]
+        });
+        this.combo01 = new Ext.form.ComboBox({
+            store : store01,
+            displayField : 'display',
+            valueField : 'type',
+            typeAhead : true,
+            mode : 'local',
+            triggerAction : 'all',
+            selectOnFocus : true,
+            editable : false,
+            width : 100,
+            value : '2'
+        });
 		var comboBoxStore = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
 			data : [ [ 'a.name', '姓名' ], [ 'c.highRisk', '高危筛选' ],
@@ -966,7 +983,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 					}
 				}
 			} 
-		}), new Ext.form.ComboBox({
+		}),this.combo01, new Ext.form.ComboBox({
 			id : 'combo',
 			store : comboBoxStore,
 			displayField : 'display',
@@ -1064,7 +1081,19 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 				dwrFunction : this.queryUrl,
 				listeners : {
 					'beforeload' : function(dataProxy, params) {
-						var o = this.getParams();
+					    var cond = {};
+                        if (selNode) {
+                            cond = {
+                                district : selNode.id,
+                                type : '0',
+                                conditions : []
+                            };
+                            if(this.combo1 && !Ext.isEmpty(this.combo1.getValue())){
+                                cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo1.getValue()};
+                            }
+                        }
+                        var o = cond;
+						//var o = this.getParams();
 						if (!params.limit)
 							params.limit = this.pageSize;
 						params[dataProxy.loadArgsKey] = [ o, params ];

@@ -6,10 +6,6 @@ import java.sql.Timestamp;
  * BirthCertificate entity. @author MyEclipse Persistence Tools
  */
 
-/**
- * @author Jackstraw
- *
- */
 public class BirthCertificate implements java.io.Serializable {
 
 	// Fields
@@ -40,7 +36,7 @@ public class BirthCertificate implements java.io.Serializable {
 	private String inputPersonId;
 	private Timestamp inputDate;
 	private String otherBorthAddressCategory;
-	private String widwife;
+	private String widWife;
 	private String province;
 	private String city;
 	private String county;
@@ -48,14 +44,14 @@ public class BirthCertificate implements java.io.Serializable {
 	private String familyAddress;
 	private String districtNum;
 	private String fileNo;
-	private Integer isPrint;
 	private String linkmanTel;
+	private Integer isPrint;
 	private Integer isSupply;
+
 	// Constructors
 
 	/** default constructor */
 	public BirthCertificate() {
-		
 	}
 
 	/** minimal constructor */
@@ -63,23 +59,20 @@ public class BirthCertificate implements java.io.Serializable {
 		this.certifiId = certifiId;
 	}
 
-	
-
+	/** full constructor */
 	public BirthCertificate(String certifiId, String name, String sex,
-			Timestamp birthday, String borthWeekly,
-			String healthStatus, Double weight, Double height,
-			String motherName, Integer motherAge, String motherNationality,
-			String motherNation, String motherIdCard, String fatherName,
-			Integer fatherAge, String fatherNationality, String fatherNation,
-			String fatherIdCard, String borthAddressCategory,
-			String borthOrganization, Timestamp issuingDate,
-			String issuingOrganization, Integer isEffectived,
-			String inputPersonId, Timestamp inputDate,
-			String otherBorthAddressCategory, String widwife, String province,
-			String city, String county, String township,String familyAddress,
-			String districtNum,String fileNo,Integer isPrint,String linkmanTel,
-			Integer isSupply) {
-		super();
+			Timestamp birthday, String borthWeekly, String healthStatus,
+			Double weight, Double height, String motherName, Integer motherAge,
+			String motherNationality, String motherNation, String motherIdCard,
+			String fatherName, Integer fatherAge, String fatherNationality,
+			String fatherNation, String fatherIdCard,
+			String borthAddressCategory, String borthOrganization,
+			Timestamp issuingDate, String issuingOrganization,
+			Integer isEffectived, String inputPersonId, Timestamp inputDate,
+			String otherBorthAddressCategory, String widWife, String province,
+			String city, String county, String township, String familyAddress,
+			String districtNum, String fileNo, String linkmanTel,
+			Integer isPrint, Integer isSupply) {
 		this.certifiId = certifiId;
 		this.name = name;
 		this.sex = sex;
@@ -106,7 +99,7 @@ public class BirthCertificate implements java.io.Serializable {
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
 		this.otherBorthAddressCategory = otherBorthAddressCategory;
-		this.widwife = widwife;
+		this.widWife = widWife;
 		this.province = province;
 		this.city = city;
 		this.county = county;
@@ -114,8 +107,8 @@ public class BirthCertificate implements java.io.Serializable {
 		this.familyAddress = familyAddress;
 		this.districtNum = districtNum;
 		this.fileNo = fileNo;
-		this.isPrint = isPrint;
 		this.linkmanTel = linkmanTel;
+		this.isPrint = isPrint;
 		this.isSupply = isSupply;
 	}
 
@@ -152,7 +145,6 @@ public class BirthCertificate implements java.io.Serializable {
 	public void setBirthday(Timestamp birthday) {
 		this.birthday = birthday;
 	}
-
 
 	public String getBorthWeekly() {
 		return this.borthWeekly;
@@ -307,7 +299,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getInputPersonId() {
-		return inputPersonId;
+		return this.inputPersonId;
 	}
 
 	public void setInputPersonId(String inputPersonId) {
@@ -315,7 +307,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public Timestamp getInputDate() {
-		return inputDate;
+		return this.inputDate;
 	}
 
 	public void setInputDate(Timestamp inputDate) {
@@ -323,23 +315,23 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getOtherBorthAddressCategory() {
-		return otherBorthAddressCategory;
+		return this.otherBorthAddressCategory;
 	}
 
 	public void setOtherBorthAddressCategory(String otherBorthAddressCategory) {
 		this.otherBorthAddressCategory = otherBorthAddressCategory;
 	}
 
-	public String getWidwife() {
-		return widwife;
+	public String getWidWife() {
+		return this.widWife;
 	}
 
-	public void setWidwife(String widwife) {
-		this.widwife = widwife;
+	public void setWidWife(String widWife) {
+		this.widWife = widWife;
 	}
 
 	public String getProvince() {
-		return province;
+		return this.province;
 	}
 
 	public void setProvince(String province) {
@@ -347,7 +339,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getCity() {
-		return city;
+		return this.city;
 	}
 
 	public void setCity(String city) {
@@ -355,7 +347,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getCounty() {
-		return county;
+		return this.county;
 	}
 
 	public void setCounty(String county) {
@@ -363,7 +355,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getTownship() {
-		return township;
+		return this.township;
 	}
 
 	public void setTownship(String township) {
@@ -371,7 +363,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getFamilyAddress() {
-		return familyAddress;
+		return this.familyAddress;
 	}
 
 	public void setFamilyAddress(String familyAddress) {
@@ -379,7 +371,7 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getDistrictNum() {
-		return districtNum;
+		return this.districtNum;
 	}
 
 	public void setDistrictNum(String districtNum) {
@@ -387,31 +379,31 @@ public class BirthCertificate implements java.io.Serializable {
 	}
 
 	public String getFileNo() {
-		return fileNo;
+		return this.fileNo;
 	}
 
 	public void setFileNo(String fileNo) {
 		this.fileNo = fileNo;
 	}
 
-	public Integer getIsPrint() {
-		return isPrint;
-	}
-
-	public void setIsPrint(Integer isPrint) {
-		this.isPrint = isPrint;
-	}
-
 	public String getLinkmanTel() {
-		return linkmanTel;
+		return this.linkmanTel;
 	}
 
 	public void setLinkmanTel(String linkmanTel) {
 		this.linkmanTel = linkmanTel;
 	}
 
+	public Integer getIsPrint() {
+		return this.isPrint;
+	}
+
+	public void setIsPrint(Integer isPrint) {
+		this.isPrint = isPrint;
+	}
+
 	public Integer getIsSupply() {
-		return isSupply;
+		return this.isSupply;
 	}
 
 	public void setIsSupply(Integer isSupply) {

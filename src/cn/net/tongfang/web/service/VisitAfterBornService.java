@@ -34,9 +34,13 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 
 	@Override
 	public String save(VisitAfterBornBO data) throws Exception {
-		
+		System.out.println("=====VisitAfterBornBO.getForeignId()=============="+data.getForeignId());
+		System.out.println("=====VisitAfterBornBO.getFileNo()============"+data.getFileNo());
+		if(sysInfo.hasHealthFileMaternal(data.getForeignId()) == null){
+			throw new Exception("请先建立孕产妇保健手册。");
+		}
 		if(data.getId() == null){
-			if(sysInfo.checkWomanMedicalExam(data.getFileNo()) == null){
+			if(sysInfo.hasVisitAfterBorn(data.getForeignId(),data.getRecordType())){
 				String msg = "";
 				if(data.getRecordType().equals("0"))
 					msg = "产后访视记录";

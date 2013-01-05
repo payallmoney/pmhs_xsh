@@ -112,7 +112,7 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 		for (CodTelSendRule rule : rules) {
 			String sql = 
 					" insert into Sms_SendLog "
-							+ "select distinct cast( getdate() as date) ,'"
+							+ "select distinct DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
 							+ rule.getName()
 							+ "', a.fileno,b.tel,'"
 							+ rule.getMsg()
@@ -121,12 +121,12 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 							+ " , null,null "
 							+ "from "
 							+ rule.getTablename()
-							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = cast( getdate() as date) and examname ='"
+							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ rule.getName()
 							+ "'  ) and a."
 							+ rule.getCol() + " = dateadd(day,"
 							+ rule.getDays()
-							+ ", cast( getdate() as date)) ";
+							+ ", DATEADD(D, 0, DATEDIFF(D, 0, GETDATE()))) ";
 			getSession()
 					.createSQLQuery(sql)
 					.executeUpdate();

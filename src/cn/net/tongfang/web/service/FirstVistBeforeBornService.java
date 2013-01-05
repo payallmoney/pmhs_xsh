@@ -43,7 +43,9 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 //		gravidityKey.setCurrentGravidity(data.getGravidity());
 //		getHibernateTemplate().save(person);		
 //		getHibernateTemplate().save(gravidityKey);		
-		
+		if(sysUtils.hasHealthFileMaternal(data.getForeignId()) == null){
+			throw new Exception("请先建立孕产妇保健手册。");
+		}
 		if(data.getHighRisk() != null && data.getHighRisk().equals("是")){
 			womanRocordService.save(data.getFileNo(), data.getVisitDate(), data.getHighRiskRemark(), 1);
 		}

@@ -52,9 +52,9 @@ function dwrExceptionHandler(errorString, error){
 											   fn: function(btn, text){
 												    if (btn == 'ok'){
 												    	Ext.getCmp("relogin_exceptionwin").close();
-												    	if(!window.saving){
-															sendMessage('quit');
-														}
+//												    	if(!window.saving){
+//															sendMessage('quit');
+//														}
 												    }
 												    window.saving = false;
 												},
@@ -142,11 +142,13 @@ function dwrExceptionHandler(errorString, error){
 				exceptionwin.show(this);
 			}
 		}else if(error.javaClassName === "java.lang.RuntimeException" ){
+			window.saving = false;
 			$.unblockUI();
 			top.Ext.Msg.alert("错误", error.message);
 		}else{
+			window.saving = false;
+			$.unblockUI();
 			if(error.javaClassName){
-				$.unblockUI();
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
 		                for(var i = 0 ; i <error.stackTrace.length ; i++)
