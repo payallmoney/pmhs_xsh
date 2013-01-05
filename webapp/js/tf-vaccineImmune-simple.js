@@ -984,7 +984,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 				}
 			} 
 		}),this.combo01, new Ext.form.ComboBox({
-			id : 'combo',
+			id : 'tf.vaccineImmune.multicombo',
 			store : comboBoxStore,
 			displayField : 'display',
 			valueField : 'type',
@@ -996,7 +996,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			width : 100,
 			value : 'a.name'
 		}),new Ext.form.TextField({
-			id : 'filterField',
+			id : 'tf.vaccineImmune.filterField',
 			enableKeyEvents : true,
 			listeners : {
 				'keypress' : function(field, event) {
@@ -1082,15 +1082,22 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 				listeners : {
 					'beforeload' : function(dataProxy, params) {
 					    var cond = {};
+					    var selNode = this.getTreeSelNode();
                         if (selNode) {
                             cond = {
                                 district : selNode.id,
                                 type : '0',
                                 conditions : []
                             };
-                            if(this.combo1 && !Ext.isEmpty(this.combo1.getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo1.getValue()};
+                            if(this.combo01 && !Ext.isEmpty(this.combo01.getValue())){
+                                cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo01.getValue()};
                             }
+                            var combo02 = Ext.getCmp("tf.vaccineImmune.multicombo");
+                            var value02 = Ext.getCmp("tf.vaccineImmune.filterField");
+                            if(combo02 && !Ext.isEmpty(combo02.getValue()) && value02 && !Ext.isEmpty(value02.getValue())){
+                                cond.conditions[cond.conditions.length] = {filterKey:combo02.getValue(),filterVal:value02.getValue()};
+                            }
+                            
                         }
                         var o = cond;
 						//var o = this.getParams();

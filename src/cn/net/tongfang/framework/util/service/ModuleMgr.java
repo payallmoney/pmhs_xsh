@@ -78,6 +78,7 @@ import cn.net.tongfang.framework.security.vo.SickInfo;
 import cn.net.tongfang.framework.security.vo.Stat;
 import cn.net.tongfang.framework.security.vo.Tuberculosis;
 import cn.net.tongfang.framework.security.vo.Vaccination;
+import cn.net.tongfang.framework.security.vo.VaccineImmune;
 import cn.net.tongfang.framework.security.vo.VaccineInfo;
 import cn.net.tongfang.framework.security.vo.VisitAfterBorn;
 import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
@@ -3373,37 +3374,49 @@ public class ModuleMgr extends HibernateDaoSupport {
 		removeRecords(recordIdList, ChildBirthRecord.class);
 	}
 	
-	public PagingResult<HealthFile> findVaccineImmune(HealthFileQry qryCond, PagingParam pp){
+	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp){
 		StringBuilder where = new StringBuilder();
 		genVaccineImmuneWhere(qryCond,where);
-		String hql = " From HealthFile a left join fetch a.personalInfo b left join fetch a.vaccineImmune c " +
+		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
 				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
-		Query q = getSession().createQuery(" select count(*) From HealthFile a,PersonalInfo b " + 
+		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
-				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' And a.fileNo = b.fileNo " + where.toString());
-		
-		int totalSize = ((Long) q.uniqueResult()).intValue();
+				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
+		SQLQuery q = getSession().createSQLQuery(countsql);
+		int totalSize = ((Integer) q.uniqueResult()).intValue();
 //		int totalSize = 100;
 		
-		Query query = getSession().createQuery(hql);
+		SQLQuery query = getSession().createSQLQuery(hql);
+		query.addEntity(HealthFile.class).addEntity(VaccineImmune.class);
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		List<Object[]> list = query.list();
 		List<HealthFile> files = new ArrayList<HealthFile>();
 		String tmpFileNo = "";
 		if(list.size() > 0){
-			for(Object obj : list){
-				HealthFile file = (HealthFile) obj;
-				PersonalInfo person = file.getPersonalInfo();
+			for(Object[] obj : list){
+				HealthFile file = (HealthFile) obj[0];
+				getHibernateTemplate().evict(file);
+//				PersonalInfo person = (PersonalInfo) obj[1];
+//				getHibernateTemplate().evict(person);
+//				file.setPersonalInfo(person);
+				List<PersonalInfo> personlist = getSession().createQuery(" from PersonalInfo where fileNo=?").setParameter(0, file.getFileNo()).list();
+				PersonalInfo person  = null;
+				if(personlist.size()>0){
+					person = personlist.get(0);
+					getHibernateTemplate().evict(person);
+				}
+				file.setPersonalInfo(person);
+				VaccineImmune vacc = (VaccineImmune) obj[1];
+				getHibernateTemplate().evict(vacc);
+				file.setVaccineImmune(vacc);
 				if(!tmpFileNo.equals(file.getFileNo())){
 					file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
 					file.setName(EncryptionUtils.decipher(file.getName()));
 					tmpFileNo = file.getFileNo();
-					person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+					if(personlist.size()>0)
+						person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 				}
-				getHibernateTemplate().evict(person);				
-				file.setPersonalInfo(person);
-				getHibernateTemplate().evict(file);
 				files.add(file);
 			}
 		}
@@ -3411,43 +3424,56 @@ public class ModuleMgr extends HibernateDaoSupport {
 				totalSize, files);
 		return result;
 	}
-	private void genVaccineImmuneWhere(HealthFileQry qryCond, StringBuilder where) {
-		String filterKey = qryCond.getFilterKey();
-		if (StringUtils.hasText(filterKey)) {
-			String filterValue = qryCond.getFilterValue();
-			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
-				filterValue = EncryptionUtils.encry(filterValue);
-			}
-			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
-				try {
-					Date startDate = null;
-					Date endDate = null;
-					if(filterValue.indexOf("-") > 0){
-						String[] valArray = filterValue.split("-");
-						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-						}
-						startDate = format.parse(valArray[0] + " 00:00:00");
-						endDate = format.parse(valArray[1] + " 23:59:59");
-					}else if(filterValue.indexOf("－") > 0){
-						String[] valArray = filterValue.split("－");
-						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-						}
-						startDate = format.parse(valArray[0] + " 00:00:00");
-						endDate = format.parse(valArray[1] + " 23:59:59");
-					}else{
-						startDate = format.parse(filterValue + " 00:00:00");
-						endDate = format.parse(filterValue + " 23:59:59");
+	private void genVaccineImmuneWhere(QryCondition qryConds, StringBuilder where) {
+		for(Condition qryCond : qryConds.getConditions()){
+			String filterKey = qryCond.getFilterKey();
+			System.out.println("===========filterKey========"+filterKey);
+			if (StringUtils.hasText(filterKey)) {
+				String filterValue = qryCond.getFilterVal();
+				if(filterKey.equals("type")){
+					if("0".equals(filterValue)){
+						where .append( "");
+					}else if("1".equals(filterValue)){
+						where .append(" and c.vfileNo is null ");
+					}else if("2".equals(filterValue)){
+						where .append(" and c.vfileNo is not null ");
 					}
-					where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
-				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-				}				
-			}else{
-				if (StringUtils.hasText(filterValue)) {
-					where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");
+				}else{
+					if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
+						filterValue = EncryptionUtils.encry(filterValue);
+					}
+					if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
+						SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+						try {
+							Date startDate = null;
+							Date endDate = null;
+							if(filterValue.indexOf("-") > 0){
+								String[] valArray = filterValue.split("-");
+								if(valArray.length > 2){
+									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+								}
+								startDate = format.parse(valArray[0] + " 00:00:00");
+								endDate = format.parse(valArray[1] + " 23:59:59");
+							}else if(filterValue.indexOf("－") > 0){
+								String[] valArray = filterValue.split("－");
+								if(valArray.length > 2){
+									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+								}
+								startDate = format.parse(valArray[0] + " 00:00:00");
+								endDate = format.parse(valArray[1] + " 23:59:59");
+							}else{
+								startDate = format.parse(filterValue + " 00:00:00");
+								endDate = format.parse(filterValue + " 23:59:59");
+							}
+							where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
+						} catch (ParseException e) {
+							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+						}				
+					}else{
+						if (StringUtils.hasText(filterValue)) {
+							where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");
+						}
+					}
 				}
 			}
 		}
