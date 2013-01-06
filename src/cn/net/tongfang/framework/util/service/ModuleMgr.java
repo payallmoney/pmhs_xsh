@@ -3443,32 +3443,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 						filterValue = EncryptionUtils.encry(filterValue);
 					}
 					if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
-						SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
-						try {
-							Date startDate = null;
-							Date endDate = null;
-							if(filterValue.indexOf("-") > 0){
-								String[] valArray = filterValue.split("-");
-								if(valArray.length > 2){
-									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-								}
-								startDate = format.parse(valArray[0] + " 00:00:00");
-								endDate = format.parse(valArray[1] + " 23:59:59");
-							}else if(filterValue.indexOf("－") > 0){
-								String[] valArray = filterValue.split("－");
-								if(valArray.length > 2){
-									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-								}
-								startDate = format.parse(valArray[0] + " 00:00:00");
-								endDate = format.parse(valArray[1] + " 23:59:59");
-							}else{
-								startDate = format.parse(filterValue + " 00:00:00");
-								endDate = format.parse(filterValue + " 23:59:59");
+						String startDate = null;
+						String endDate = null;
+						if(filterValue.indexOf("-") > 0){
+							String[] valArray = filterValue.split("-");
+							if(valArray.length > 2){
+								throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 							}
-							where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
-						} catch (ParseException e) {
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-						}				
+							startDate = valArray[0] + " 00:00:00";
+							endDate = valArray[1] + " 23:59:59";
+						}else{
+							startDate = filterValue + " 00:00:00";
+							endDate = filterValue + " 23:59:59";
+						}
+						where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
 					}else{
 						if (StringUtils.hasText(filterValue)) {
 							where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");

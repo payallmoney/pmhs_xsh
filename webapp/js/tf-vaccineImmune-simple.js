@@ -1094,8 +1094,9 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
                             }
                             var combo02 = Ext.getCmp("tf.vaccineImmune.multicombo");
                             var value02 = Ext.getCmp("tf.vaccineImmune.filterField");
+                            console.log("value02.getValue()==="+value02.getValue())
                             if(combo02 && !Ext.isEmpty(combo02.getValue()) && value02 && !Ext.isEmpty(value02.getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:combo02.getValue(),filterVal:value02.getValue()};
+                                cond.conditions[cond.conditions.length] = {filterKey:combo02.getValue(),filterVal:""+value02.getValue()};
                             }
                             
                         }

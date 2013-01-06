@@ -582,7 +582,10 @@ function getChildPrintCfg04(data,col){
         value[count++] = "无";//转诊建议
     }
     value[count++] = data.babyDirect;//指导
-    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    if(data.child.nextVisitDate)
+        value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    else
+        value[count++] = "";
     value[count++] = data.child.visitDoctor;//随访医生签名
 
     for(var i = 0 ; i < count ; i++){
@@ -773,7 +776,11 @@ function getChildPrintCfg06(data,col){
         value[count++] = "无";
     }
     value[count++] = data.child1.checkDirect;//指导
-    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    value[count++] = data.child.nextVisitDate;//下次随访日期
+    // if(data.child.nextVisitDate)
+        // value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    // else
+        // value[count++] = ""
     value[count++] = data.org.name;//检查机构
     value[count++] = data.child.visitDoctor;//随访医生签名
 
@@ -951,7 +958,8 @@ function getChildPrintCfg10(data,col){
         value[count++] = "无";
     }
     value[count++] = data.checkDirect;//指导
-    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    value[count++] = data.child.nextVisitDate;//下次随访日期
+    //value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
     value[count++] = data.org.name;//检查机构
     value[count++] = data.child.visitDoctor;//随访医生签名
     for(var i = 0 ; i < count ; i++){
@@ -1102,7 +1110,10 @@ function getChildPrintCfg12(data,col){
         value[count++] = "无";
     }
     value[count++] = data.checkDirect;//指导
-    value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    if(data.child.nextVisitDate)
+        value[count++] = Ext.util.Format.date(data.child.nextVisitDate,"Y-m-d")//下次随访日期
+    else
+        value[count++] = ""
     value[count++] = data.child.visitDoctor;//随访医生签名
     
     for(var i = 0 ; i < count ; i++){
