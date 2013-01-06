@@ -149,7 +149,7 @@
 		<dwr:remote javascript="SmsService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
-	
+
 	<bean id="ScoreService" class="cn.net.tongfang.web.service.score.ScoreService">
 		<property name="sessionFactory" ref="sessionFactory" />
 		<property name="scoreUtil" ref="ScoreUtil"/>
@@ -499,5 +499,14 @@
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="HealthFileChildrenService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
+	
+	<bean id="repeatFileNoService"
+		class=" cn.net.tongfang.web.service.ProcListExamByFilesservice">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="userMenuTreeService" ref="UserMenuTreeService"></property>
+		<property name="vaccinationService" ref="VaccinationService"></property>
+		<dwr:remote javascript="repeatFileNoService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
 </beans>
