@@ -158,8 +158,8 @@ Ext.tf.SmsPanel = Ext.extend(Ext.Panel, {
 	createActions : function() {
 		var store = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
-			data : [    [ 'name', '姓名' ], ['fileNo', '档案编码' ],
-						[ 'tel', '电话号码' ] ]
+			data : [    [ 'vo.name', '姓名' ], ['vo.fileNo', '档案编码' ],
+						[ 'vo.tel', '电话号码' ] ]
 		});
 		this.combo = new Ext.form.ComboBox({
 			store : store,
@@ -171,7 +171,7 @@ Ext.tf.SmsPanel = Ext.extend(Ext.Panel, {
 			selectOnFocus : true,
 			editable : false,
 			width : 100,
-			value : 'name'
+			value : 'vo.name'
 		});
 		this.filterField = new Ext.form.TextField({
 			fieldLabel : '',
@@ -328,8 +328,36 @@ Ext.tf.SmsPanel = Ext.extend(Ext.Panel, {
 
 		this.store = new Ext.data.Store({
 			proxy : new Ext.ux.data.DWRProxy({
-				dwrFunction : this.queryUrl
+				dwrFunction : this.queryUrl,
+				listeners : {
+                    'beforeload' : function(dataProxy, params) {
+                        var selNode = this.getTreeSelNode();
+                        var cond = {};
+                        if (selNode) {
+                            cond = {
+                                district : selNode.id,
+                                type : '0',
+                                conditions : []
+                            };
+                            if(this.combo1 && !Ext.isEmpty(this.combo1.getValue())){
+                                //cond.conditions["type"] = this.combo1.getValue();
+                                cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo1.getValue()};
+                            }
+                            if(this.combo && !Ext.isEmpty(this.filterField.getValue()))
+                                cond.conditions[cond.conditions.length] = {filterKey:this.combo.getValue(),filterVal:this.filterField.getValue()};
+                            console.log(cond);
+                        }
+                        
+                        var o = cond;
+                        console.log("getParams: ")
+                        console.log(o);
+                        if (!params.limit)
+                            params.limit = this.pageSize;
+                        params[dataProxy.loadArgsKey] = [ o, params ];
+                    }.createDelegate(this)
+                }
 			}),
+			
 			reader : this.reader
 		});
 
@@ -408,7 +436,7 @@ Ext.tf.SmsPanel = Ext.extend(Ext.Panel, {
 							n.expand();
 						this.currentNode = n;
 						this.isFirst.setValue(0);
-						// this.load();
+						this.load();
 					}
 				}.createDelegate(this)
 			}

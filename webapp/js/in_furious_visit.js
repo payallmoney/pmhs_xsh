@@ -70,10 +70,10 @@
                 multi : true,
                 save : "id",
                 mapping : {
-                        value : 'furiousVisitSymptomId'  
+                    value : 'furiousVisitSymptomId'  
                 },
-//                forceNewline : true,
-                newlineStep : 8
+                forceNewline : true,
+                newlineStep : 7
             },
             requires : { valEq : 12 , fields : ['symptomOther'] }
         },

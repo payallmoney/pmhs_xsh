@@ -1,0 +1,155 @@
+package cn.net.tongfang.framework.util;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import cn.net.tongfang.framework.security.vo.CodTelSendRule;
+
+public class SmsUtil extends HibernateDaoSupport implements ApplicationListener {
+	public static int IS_CREATED_FALSE = 0;
+	public static int IS_CREATED_TRUE = 1;
+	public static int IS_SENDED_FALSE = 0;
+	public static int IS_SENDED_TRUE = 1;
+	public static int IS_SENDED_ERROR = -1;
+
+	private String host;
+	private String name;
+	private String pwd;
+	private String apiId;
+	private String dbName;
+	
+	private boolean started = false;
+	private String processString = "";
+	
+	
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
+	public String getApiId() {
+		return apiId;
+	}
+
+	public void setApiId(String apiId) {
+		this.apiId = apiId;
+	}
+
+	public String getDbName() {
+		return dbName;
+	}
+
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
+
+	
+
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof ContextRefreshedEvent) {
+			startJobs();
+		}
+	}
+
+	public void startJobs() {
+		System.out.println("===SmsUtil================");
+		// TODO 启动时生成当天的任务信息 即Sms_Status 表的数据
+//		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+//		List isCreated = getSession()
+//				.createQuery("from SmsStatus where smsdate = ?")
+//				.setParameter(0, today).list();
+//		SmsStatus smsstatus = null;
+//		if (isCreated == null || isCreated.isEmpty()) {
+//			smsstatus = new SmsStatus();
+//			smsstatus.setSmsdate(new Timestamp(today.getTime()));
+//			smsstatus.setIscreated(IS_CREATED_FALSE);
+//			smsstatus.setIssended(IS_SENDED_FALSE);
+//			getSession().save(smsstatus);
+//		} else {
+//			smsstatus = (SmsStatus) isCreated.get(0);
+//		}
+//		// TODO 还要查看是否生成了当天应该发送的短信
+//		if (smsstatus.getIscreated() == IS_CREATED_FALSE) {
+//			smsstatus.setIscreated(IS_CREATED_TRUE);
+//			getSession().update(smsstatus);
+//		}
+		makeSendMsg();
+	}
+
+	public void makeSendMsg() {
+		// TODO 这里根据Cod_TelSendRule 表,生成Sms_SendLog表的内容 ,并且不生成重复的数据
+		List<CodTelSendRule> rules = getSession().createQuery(
+				"from CodTelSendRule ").list();
+		Date today = new Date();
+		today = DateUtils.truncate(today, Calendar.DAY_OF_MONTH);
+		for (CodTelSendRule rule : rules) {
+			String sql = 
+					" insert into Sms_SendLog "
+							+ "select distinct DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+							+ rule.getName()
+							+ "', a.fileno,b.tel,'"
+							+ rule.getMsg()
+							+ "',"
+							+ IS_SENDED_FALSE
+							+ " , null,null "
+							+ "from "
+							+ rule.getTablename()
+							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+							+ rule.getName()
+							+ "'  ) and a."
+							+ rule.getCol() + " = dateadd(day,"
+							+ rule.getDays()
+							+ ", DATEADD(D, 0, DATEDIFF(D, 0, GETDATE()))) ";
+			getSession()
+					.createSQLQuery(sql)
+					.executeUpdate();
+			System.out.println("========sql==========="+sql);
+		}
+		if(rules.size()>0)
+			getSession().flush();
+	}
+
+	public boolean isStarted() {
+		return started;
+	}
+
+	public String getProcessString() {
+		return processString;
+	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	public void setProcessString(String processString) {
+		this.processString = processString;
+	}
+
+}

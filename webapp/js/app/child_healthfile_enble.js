@@ -46,8 +46,14 @@ app.childHealthFileEnblePanel = new Ext.tf.HealthBookRecordsPanel({
 	},{
 		name : 'village',
 		mapping : 'file.village'
-	} ],
-	gridCmConfig : [  {
+	},{
+        name : 'status',
+        mapping : 'status'
+    }  ],
+	gridCmConfig : [ {
+        "header" : "状态",
+        "dataIndex" : "status"
+    }, {
 		"header" : "档案编号",
 		"dataIndex" : "fileNo",
 		"width" : 200
@@ -112,16 +118,20 @@ app.childHealthFileEnblePanel = new Ext.tf.HealthBookRecordsPanel({
 	examHtmlContainerId : 'children_tabpanel',
 	examShowParams :[ {
 		title : '新生儿家庭访视',
-		url : '/babyvisit.html'
+		url : '/babyvisit.html',
+		modName:'新生儿家庭访视记录'
 	},{
 		title : '1岁以内儿童体检',
-		url : '/childexam1.html'
+		url : '/childexam1.html',
+		modName:'1岁以内儿童体检记录'
 	},{
 		title : '1~2岁儿童体检',
-		url : '/childexam2.html'
+		url : '/childexam2.html',
+		modName:'1至2岁儿童体检记录'
 	},{
 		title : '3~6岁儿童体检',
-		url : '/childexam3_6.html'
+		url : '/childexam3_6.html',
+		modName:'3~6岁儿童体检记录'
 	}],
 	getAddParams : function() {
 		var node = this.getTreeSelNode();

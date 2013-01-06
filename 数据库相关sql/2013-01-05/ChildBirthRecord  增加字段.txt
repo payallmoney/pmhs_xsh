@@ -1,0 +1,1 @@
+alter table ChildBirthRecord  add totalLaborMinutes int null , oneLaborMinutes int null

@@ -2,11 +2,20 @@ package cn.net.tongfang.web.service;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.Query;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
 import cn.net.tongfang.framework.security.vo.GravidityKey;
+import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
@@ -28,20 +37,20 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	@Override
 	public String save(VisitBeforeBornBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
-		
+		System.out.println("==================="+data.getId());
+		System.out.println("=============VisitBeforeBornBO.getForeignId()======"+data.getForeignId());
+		if(sysInfo.hasHealthFileMaternal(data.getForeignId()) == null){
+			throw new Exception("请先建立孕产妇保健手册。");
+		}
 		if(data.getItem().equals(2)){
-			FirstVistBeforeBorn fvb = sysInfo.checkWomanSeparateDate(data.getFileNo(),data.getGravidity());
+			FirstVistBeforeBorn fvb = sysInfo.hasFirstVistBeforeBorn(data.getForeignId(),data.getGravidity());
 			if(fvb != null){
 				Timestamp preVisitDate = fvb.getVisitDate();
 				Timestamp CurrentVisitDate = data.getVisitDate();
 				long day = CommonConvertUtils.compareDate(preVisitDate, CurrentVisitDate);
 				if(day < 28)
-					throw new RuntimeException("第2次产前随访与第1次产前随访的时间间隔至少为4周。");
+					throw new Exception("第2次产前随访与第1次产前随访的时间间隔至少为4周。");
 			}
-		}
-		
-		if(sysInfo.checkWomanMedicalExam(EncryptionUtils.decipher(data.getFileNo())) == null){
-			throw new RuntimeException("请先建立孕产妇保健手册。");
 		}
 		
 		if(data.getHighRisk().equals("是")){
@@ -75,6 +84,54 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 			return null;
 		}
 		return data;
+	}
+	
+	public Map<String,Object> getPrintInfo_new(VisitBeforeBornBO data){
+		System.out.println("==================="+data.getId());
+		Map<String,Object> map = new HashMap<String,Object>();
+		try{
+			data = (VisitBeforeBornBO)get(data);
+			//HealthFile a, PersonalInfo b, VisitBeforeBorn c, SamTaxempcode d,SamTaxorgcode
+			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
+			map.put("file", file);
+			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(data.getFileNo())).list().get(0);
+			getSession().evict(person);
+			person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+			map.put("person", person);
+			map.put("visit", data);
+			SamTaxempcode samTaxempcode =  (SamTaxempcode)getHibernateTemplate().get(SamTaxempcode.class, data.getInputPersonId());
+			map.put("samTaxempcode", samTaxempcode);
+			SamTaxorgcode samTaxorgcode =  (SamTaxorgcode)getHibernateTemplate().get(SamTaxorgcode.class, samTaxempcode.getOrgId());
+			map.put("org", samTaxorgcode);
+			String beforeBornDirect = getPrintBasicInfo(data.getId(),"BeforeBornDirect","beforeBornDirectId","visitBeforeBornId");
+			map.put("beforeBornDirect", beforeBornDirect);
+			Integer items = data.getItem();
+			if(items > 5){
+				return null;
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+		return map;
+	}
+	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
+		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, id);
+		List list = query.list();
+		String ret = "未测";
+		if(list.size() > 0){
+			ret = "";
+			for(Object objs : list){
+				Object[] obj = (Object[])objs;
+				BasicInformation basicInformation = (BasicInformation)obj[0];
+				ret = ret + basicInformation.getName() + ",";
+			}
+			if(!ret.equals(""))
+				ret = ret.substring(0,ret.length() - 1);
+		}
+		return ret;
 	}
 	
 	public String getItems(String fileNo){

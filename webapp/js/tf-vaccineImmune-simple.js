@@ -552,7 +552,8 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			var cond = {
 				district : disNum,
 				filterKey : filterKey,
-				filterValue : filterValue
+				filterValue : filterValue,
+				params : []
 			};
 			return cond;
 		}
@@ -787,6 +788,22 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 	},
 	
 	createPanel : function() {
+        var store01 = new Ext.data.SimpleStore({
+            fields : [ 'type', 'display' ],
+            data : [ [ '0', '全部' ], [ '1', '未建卡' ],['2','已建卡']]
+        });
+        this.combo01 = new Ext.form.ComboBox({
+            store : store01,
+            displayField : 'display',
+            valueField : 'type',
+            typeAhead : true,
+            mode : 'local',
+            triggerAction : 'all',
+            selectOnFocus : true,
+            editable : false,
+            width : 100,
+            value : '2'
+        });
 		var comboBoxStore = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
 			data : [ [ 'a.name', '姓名' ], [ 'c.highRisk', '高危筛选' ],
@@ -966,8 +983,8 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 					}
 				}
 			} 
-		}), new Ext.form.ComboBox({
-			id : 'combo',
+		}),this.combo01, new Ext.form.ComboBox({
+			id : 'tf.vaccineImmune.multicombo',
 			store : comboBoxStore,
 			displayField : 'display',
 			valueField : 'type',
@@ -979,7 +996,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			width : 100,
 			value : 'a.name'
 		}),new Ext.form.TextField({
-			id : 'filterField',
+			id : 'tf.vaccineImmune.filterField',
 			enableKeyEvents : true,
 			listeners : {
 				'keypress' : function(field, event) {
@@ -1064,7 +1081,26 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 				dwrFunction : this.queryUrl,
 				listeners : {
 					'beforeload' : function(dataProxy, params) {
-						var o = this.getParams();
+					    var cond = {};
+					    var selNode = this.getTreeSelNode();
+                        if (selNode) {
+                            cond = {
+                                district : selNode.id,
+                                type : '0',
+                                conditions : []
+                            };
+                            if(this.combo01 && !Ext.isEmpty(this.combo01.getValue())){
+                                cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo01.getValue()};
+                            }
+                            var combo02 = Ext.getCmp("tf.vaccineImmune.multicombo");
+                            var value02 = Ext.getCmp("tf.vaccineImmune.filterField");
+                            if(combo02 && !Ext.isEmpty(combo02.getValue()) && value02 && !Ext.isEmpty(value02.getValue())){
+                                cond.conditions[cond.conditions.length] = {filterKey:combo02.getValue(),filterVal:value02.getValue()};
+                            }
+                            
+                        }
+                        var o = cond;
+						//var o = this.getParams();
 						if (!params.limit)
 							params.limit = this.pageSize;
 						params[dataProxy.loadArgsKey] = [ o, params ];

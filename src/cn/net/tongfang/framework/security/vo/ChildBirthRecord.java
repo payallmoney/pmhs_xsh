@@ -47,6 +47,7 @@ public class ChildBirthRecord implements java.io.Serializable {
 	private Timestamp placentaParturitionDate;
 	private String placentaParturitionWay;
 	private String isComplete;
+	private String isNotComplete;
 	private String cervicalLaceration;
 	private Integer cervicalLacerationPosition01;
 	private Integer cervicalLacerationPosition02;
@@ -58,6 +59,7 @@ public class ChildBirthRecord implements java.io.Serializable {
 	private String apgar02;
 	private String suffocation;
 	private String suffocationOther;
+	private String suffocationOther01;
 	private String birthTrauma;
 	private String birthTraumaOther;
 	private String birthDefects;
@@ -65,8 +67,9 @@ public class ChildBirthRecord implements java.io.Serializable {
 	private String dischargeDiagnosis01;
 	private String dischargeDiagnosis02;
 	private String diseaseScreeningOther;
-	private String isNotComplete;
-	private String suffocationOther01;
+	private Integer totalLaborMinutes;
+	private Integer oneLaborMinutes;
+
 	// Constructors
 
 	/** default constructor */
@@ -74,13 +77,14 @@ public class ChildBirthRecord implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public ChildBirthRecord(String fileNo, String certifiId) {
+	public ChildBirthRecord(String id, String fileNo, String certifiId) {
+		this.id = id;
 		this.fileNo = fileNo;
 		this.certifiId = certifiId;
 	}
 
 	/** full constructor */
-	public ChildBirthRecord(String fileNo, Integer childbirthYear,
+	public ChildBirthRecord(String id, String fileNo, Integer childbirthYear,
 			Integer childbirthMonth, Integer childbirthDay, Double flooding,
 			String childbirthAddress, String borthWeekly, String childbirthWay,
 			String deliverWay, String lacerationOfPerineum,
@@ -94,16 +98,17 @@ public class ChildBirthRecord implements java.io.Serializable {
 			Integer oneLaborHours, Integer twoLaborHours,
 			Integer twoLaborMinutes, Integer threeLaborMinutes,
 			Timestamp placentaParturitionDate, String placentaParturitionWay,
-			String isComplete, String cervicalLaceration,
+			String isComplete, String isNotComplete, String cervicalLaceration,
 			Integer cervicalLacerationPosition01,
 			Integer cervicalLacerationPosition02, Double bleeding01,
 			Double bleeding02, String complication, String complicationName,
 			String apgar01, String apgar02, String suffocation,
-			String suffocationOther, String birthTrauma,
-			String birthTraumaOther, String birthDefects,
+			String suffocationOther, String suffocationOther01,
+			String birthTrauma, String birthTraumaOther, String birthDefects,
 			String birthDefectsOther, String dischargeDiagnosis01,
 			String dischargeDiagnosis02, String diseaseScreeningOther,
-			String isNotComplete,String suffocationOther01) {
+			Integer totalLaborMinutes, Integer oneLaborMinutes) {
+		this.id = id;
 		this.fileNo = fileNo;
 		this.childbirthYear = childbirthYear;
 		this.childbirthMonth = childbirthMonth;
@@ -140,6 +145,7 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.placentaParturitionDate = placentaParturitionDate;
 		this.placentaParturitionWay = placentaParturitionWay;
 		this.isComplete = isComplete;
+		this.isNotComplete = isNotComplete;
 		this.cervicalLaceration = cervicalLaceration;
 		this.cervicalLacerationPosition01 = cervicalLacerationPosition01;
 		this.cervicalLacerationPosition02 = cervicalLacerationPosition02;
@@ -151,6 +157,7 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.apgar02 = apgar02;
 		this.suffocation = suffocation;
 		this.suffocationOther = suffocationOther;
+		this.suffocationOther01 = suffocationOther01;
 		this.birthTrauma = birthTrauma;
 		this.birthTraumaOther = birthTraumaOther;
 		this.birthDefects = birthDefects;
@@ -158,8 +165,8 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.dischargeDiagnosis01 = dischargeDiagnosis01;
 		this.dischargeDiagnosis02 = dischargeDiagnosis02;
 		this.diseaseScreeningOther = diseaseScreeningOther;
-		this.isNotComplete = isNotComplete;
-		this.suffocationOther01 = suffocationOther01;
+		this.totalLaborMinutes = totalLaborMinutes;
+		this.oneLaborMinutes = oneLaborMinutes;
 	}
 
 	// Property accessors
@@ -460,6 +467,14 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.isComplete = isComplete;
 	}
 
+	public String getIsNotComplete() {
+		return this.isNotComplete;
+	}
+
+	public void setIsNotComplete(String isNotComplete) {
+		this.isNotComplete = isNotComplete;
+	}
+
 	public String getCervicalLaceration() {
 		return this.cervicalLaceration;
 	}
@@ -550,6 +565,14 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.suffocationOther = suffocationOther;
 	}
 
+	public String getSuffocationOther01() {
+		return this.suffocationOther01;
+	}
+
+	public void setSuffocationOther01(String suffocationOther01) {
+		this.suffocationOther01 = suffocationOther01;
+	}
+
 	public String getBirthTrauma() {
 		return this.birthTrauma;
 	}
@@ -606,20 +629,20 @@ public class ChildBirthRecord implements java.io.Serializable {
 		this.diseaseScreeningOther = diseaseScreeningOther;
 	}
 
-	public String getIsNotComplete() {
-		return isNotComplete;
+	public Integer getTotalLaborMinutes() {
+		return this.totalLaborMinutes;
 	}
 
-	public void setIsNotComplete(String isNotComplete) {
-		this.isNotComplete = isNotComplete;
+	public void setTotalLaborMinutes(Integer totalLaborMinutes) {
+		this.totalLaborMinutes = totalLaborMinutes;
 	}
 
-	public String getSuffocationOther01() {
-		return suffocationOther01;
+	public Integer getOneLaborMinutes() {
+		return this.oneLaborMinutes;
 	}
 
-	public void setSuffocationOther01(String suffocationOther01) {
-		this.suffocationOther01 = suffocationOther01;
+	public void setOneLaborMinutes(Integer oneLaborMinutes) {
+		this.oneLaborMinutes = oneLaborMinutes;
 	}
 
 }

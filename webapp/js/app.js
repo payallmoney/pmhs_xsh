@@ -52,9 +52,9 @@ function dwrExceptionHandler(errorString, error){
 											   fn: function(btn, text){
 												    if (btn == 'ok'){
 												    	Ext.getCmp("relogin_exceptionwin").close();
-												    	if(!window.saving){
-															sendMessage('quit');
-														}
+//												    	if(!window.saving){
+//															sendMessage('quit');
+//														}
 												    }
 												    window.saving = false;
 												},
@@ -141,17 +141,23 @@ function dwrExceptionHandler(errorString, error){
 				$.unblockUI();
 				exceptionwin.show(this);
 			}
+		}else if(error.javaClassName === "java.lang.RuntimeException" ){
+			window.saving = false;
+			$.unblockUI();
+			top.Ext.Msg.alert("错误", error.message);
 		}else{
+			window.saving = false;
+			$.unblockUI();
 			if(error.javaClassName){
-				$.unblockUI();
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
 		                for(var i = 0 ; i <error.stackTrace.length ; i++)
 		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
 		            }
 		        console.log(msg)
-		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+		        top.Ext.Msg.alert("错误", error.message);
 			}else{
+				console.log(error.stack)
 				throw error;
 			}
 		}
@@ -433,6 +439,8 @@ var fieldsArray = {};
                     if(!updateMode){
                 		go();
                 		info("数据已保存<br/>" + ("请继续输入下一条" ));
+                	}else{
+                		initButtons();
                 	}
                     
                 }
@@ -456,7 +464,8 @@ var fieldsArray = {};
                     data: send,
                     dataType : "json",
                     success: function(data) {
-                       showDialog("<li>数据已经保存</li>"); 
+                       showDialog("<li>数据已经保存</li>");
+                       
                     }//function,
                     /**改用admin.js里面设置的统一异常处理
                 	,error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -482,7 +491,7 @@ var fieldsArray = {};
 
         function setFormVal(d) {
             for(var prop in d) {
-                if(d.hasOwnProperty(prop)) { 
+                if(d.hasOwnProperty(prop)) {
                     var c = form_fields[prop];
                     if (c && c['val']){
                     	if(d[prop] == null)
@@ -493,16 +502,33 @@ var fieldsArray = {};
                     }
                 }//if
             } //for
+            window.scroll(0,0);
+        }
+        
+        function initButtons(){
+        	$('.showWhenModify').show();
+            $('.hideWhenModify').hide();
+            if($('.toolbar .woman').length <= 0 ){
+	            $('.toolbar').append($('.woman'));
+	            $('.toolbar').append($('.child'));
+	        }
+	        $('.woman').show();
+	        $('.child').show();
+            if(typeof(initPrintPage) != 'undefined'){
+            	initPrintPage.init();
+            }
+            if(typeof(printBirthObj) != 'undefined'){
+            	printBirthObj.init();
+            }
         }
 
 
         function go(){
             showMsg("构造页面组件中..");
-            
+            var shouldLoad = false;
             qo = qryStrParser(window.location.search);
             if (!isEmpty(qo)){
-                var shouldLoad = false;
-              
+                shouldLoad = false;
                 //detect if we should load data from server -- update mode
                 if (typeof loadTriggerParameters == "undefined") {
                     loadTriggerParameters = ['id'];
@@ -516,6 +542,7 @@ var fieldsArray = {};
                 initListVal = shouldLoad;
             }
             fields_array = [];
+            form_fields = [];
             //build controls
             $.each(cfg,function(_,v) {
                 var id = v.id;
@@ -648,19 +675,8 @@ var fieldsArray = {};
                         dataLoaded = data;
                         setFormVal(dataLoaded);
                         
-						$('.showWhenModify').show();
-                        $('.hideWhenModify').hide();
+                        initButtons();
                         
-                        $('.toolbar').append($('.woman'));
-                        $('.woman').show();
-                        $('.toolbar').append($('.child'));
-                        $('.child').show();
-                        if(typeof(initPrintPage) != 'undefined'){
-                        	initPrintPage.init();
-                        }
-                        if(typeof(printBirthObj) != 'undefined'){
-                        	printBirthObj.init();
-                        }
                     }
                     /**改用admin.js里面设置的统一异常处理, errorHandler : top.errorProcess **/}); 
                 } else {
@@ -727,7 +743,12 @@ var fieldsArray = {};
                     if (!_ccfg.setting.showOnly) {
                         var key = v.id;
                         var val = v.ctrl['val'] ?  v.ctrl.val() : null;
-                        model[key] = val;
+                        console.log(typeof(val))
+                        if(typeof(val)==="string"){
+                        	model[key] = Ext.util.Format.trim(val);
+                        }else{
+                        	model[key] = val;
+                        }
                         //alert(key +"====="+val+"==="+typeof(val));
                     }
                 });
@@ -772,6 +793,7 @@ var fieldsArray = {};
                 }
 
                 var send = model;
+               
 
                 var updateMode = false;
                 if (!isEmpty(dataLoaded)){

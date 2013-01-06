@@ -1,6 +1,6 @@
 package cn.net.tongfang.framework.security.vo;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * CodTelSendRule entity. @author MyEclipse Persistence Tools
@@ -15,7 +15,8 @@ public class CodTelSendRule implements java.io.Serializable {
 	private String tablename;
 	private String col;
 	private Integer days;
-	private Date optdate;
+	private Timestamp optdate;
+	private String msg;
 
 	// Constructors
 
@@ -24,22 +25,26 @@ public class CodTelSendRule implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public CodTelSendRule(String tablename, String col, Integer days,
-			Date optdate) {
+	public CodTelSendRule(String id, String tablename, String col,
+			Integer days, Timestamp optdate, String msg) {
+		this.id = id;
 		this.tablename = tablename;
 		this.col = col;
 		this.days = days;
 		this.optdate = optdate;
+		this.msg = msg;
 	}
 
 	/** full constructor */
-	public CodTelSendRule(String name, String tablename, String col,
-			Integer days, Date optdate) {
+	public CodTelSendRule(String id, String name, String tablename, String col,
+			Integer days, Timestamp optdate, String msg) {
+		this.id = id;
 		this.name = name;
 		this.tablename = tablename;
 		this.col = col;
 		this.days = days;
 		this.optdate = optdate;
+		this.msg = msg;
 	}
 
 	// Property accessors
@@ -84,12 +89,20 @@ public class CodTelSendRule implements java.io.Serializable {
 		this.days = days;
 	}
 
-	public Date getOptdate() {
+	public Timestamp getOptdate() {
 		return this.optdate;
 	}
 
-	public void setOptdate(Date optdate) {
+	public void setOptdate(Timestamp optdate) {
 		this.optdate = optdate;
+	}
+
+	public String getMsg() {
+		return this.msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
 	}
 
 }

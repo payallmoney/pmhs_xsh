@@ -34,6 +34,7 @@ function dwrExceptionHandler(errorString, error){
 								text:'重新登录',
 								formBind: true,
 								handler:function(){
+									window.saving = false;
 									Ext.getCmp("relogin_form").getForm().submit({
 										method:'POST',
 	//									standardSubmit : true,
@@ -41,11 +42,20 @@ function dwrExceptionHandler(errorString, error){
 	//									headers:{'Content-Type': 'application/json; charset=UTF-8'},
 										success:function(){
 											Ext.getCmp("relogin_message").setText("登录成功!");
-											Ext.Msg.prompt('登录成功!', '登录成功!点击【确定】返回操作界面!', function(btn, text){
-											    if (btn == 'ok'){
-											    	Ext.getCmp("relogin_exceptionwin").close();
-											    }
-											});
+											Ext.Msg.show({
+												   title:'登录成功!',
+												   msg: '登录成功!点击【确定】返回操作界面!',
+												   buttons: Ext.Msg.OK,
+												   fn: function(btn, text){
+													    if (btn == 'ok'){
+													    	Ext.getCmp("relogin_exceptionwin").close();
+													    	if(!window.saving){
+																sendMessage('quit');
+															}
+													    }
+													},
+												   animEl: 'elId'
+												});
 										},
 										failure:function(form, action){
 											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
@@ -122,7 +132,13 @@ function dwrExceptionHandler(errorString, error){
 				});
 				exceptionwin.show(this);
 			}
+		}else if(error.javaClassName === "java.lang.RuntimeException" ){
+			$.unblockUI();
+			window.saving = false;
+			top.Ext.Msg.alert("错误", error.message);
 		}else{
+			$.unblockUI();
+			window.saving = false;
 			if(error.javaClassName){
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
@@ -130,8 +146,9 @@ function dwrExceptionHandler(errorString, error){
 		                    msg= msg+"\n\tat "+ error.stackTrace[i].className+"."+error.stackTrace[i].methodName+"("+error.stackTrace[i].fileName+":"+error.stackTrace[i].lineNumber+")";
 		            }
 		        console.log(msg)
-		        top.Ext.Msg.alert("错误", "解析数据时发生错误：请与系统管理员联系！");
+		        top.Ext.Msg.alert("错误",  error.message);
 			}else{
+				console.log(error.stack)
 				throw error;
 			}
 		}
@@ -672,7 +689,7 @@ App.mainframe.MainPanel = function() {
   plugins : new Ext.ux.TabCloseMenu(),
   items : [ {
     contentEl : 'center2',
-    title : '恒辰公共卫生服务管理系统',
+    title : '施甸县国家公共卫生服务管理系统',
     closable : false,
     autoScroll : true,
     items : [navigation]
@@ -844,6 +861,7 @@ Ext.onReady(function() {
         e.stopEvent();
         if (n.isLeaf()) {
           if (n.id.indexOf('.html') != -1) {
+        	  /*
             var iframeId = n.text + '_' + n.id;
 //            alert(iframeId);
             if (!Ext.get(iframeId)) {
@@ -869,7 +887,45 @@ Ext.onReady(function() {
               tabPanel.doLayout(); // if TabPanel is already rendered
               tabPanel.setActiveTab(newFrame);
             }
-
+            */
+            var tab = null;
+            var items = tabPanel.find('id', n.id);
+            if (items.length > 0) {
+              tab = items[0];
+            }
+            if (tab) {
+              tabPanel.setActiveTab(tab);
+            } else {
+            	//debugger;
+            	var autoLoad = {
+					url : "/"+n.id,
+					scripts : true,
+					nocache : true,
+					border : false
+				};
+				tab = new App.TabPagePanel({
+					id : n.id,
+					autoLoad : autoLoad,
+					title : n.text,
+					autoScroll : true,
+					closable : true,
+					//layout : "column",
+					border : false
+				});
+				var p = tabPanel.add(tab);
+				tabPanel.tabid = n.id;
+			    tabPanel.activate(p);
+              /*
+              new Ext.ux.JSLoader( {
+                url : n.id,
+                onError : function(options, e) {
+                  console.log(e);
+                  alert(e.description);
+                  alert('模块加载失败[' + n.id + ']');
+                }
+              });*/
+            }
+            
           } else {
 //            console.log("loading " + n.id);
             var tab = null;
@@ -997,6 +1053,7 @@ Ext.onReady(function() {
 				  items[catCount] = {title : rootCatName,collapsed:true,autoScroll : true,border : false,iconCls : settings,
 						  listeners:{
 							  expand : function(){
+								  console.log(this.body.dom.innerHTML)
 								  var c = $(this.body.dom.innerHTML).children('div').children('div').children('div').children('div');
 								  $(c[0]).attr('onclick')();
 //								  navigateContent($htmlContent,$templateId,rootCatName,$lastCatName);
@@ -1048,6 +1105,7 @@ Ext.onReady(function() {
 		    } ]
 		  });
 	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
+	  console.log("11111111111111111111111")
 	  $('.menu_second_div img').hover(function(){
 		$(this).attr('style','margin-top:0px;');
 		$(this).next('div').attr('style','margin-top:5px;');
@@ -1057,6 +1115,7 @@ Ext.onReady(function() {
 		$(this).attr('style','margin-top:5px;');
 		$(this).next('div').attr('style','margin-top:0px;');
 	  });
+	  console.log("22222222222222222222222222")
   });
 }
   Ext.BLANK_IMAGE_URL = '/resources/images/default/s.gif';
@@ -1106,8 +1165,16 @@ ModuleMgr.register = function(mod) {
 	//mod.height  = '100%';
   //mod.width  = Ext.getCmp('tabbody').getActiveTab().getInnerWidth();
   mod.height  = Ext.getCmp('tabbody').getActiveTab().getInnerHeight();
+  
+  console.log("height===="+mod.height);
+  console.log(mod.modId)
+  
   //mod.width = '99%';
 		Ext.getCmp("tabbody").register(mod);
+//	if(mod.doLayout){
+//		mod.doLayout();
+//		console.log("height===="+mod.height);
+//	}
 	//tabPanel.setActiveTab(tab);
   //var newCmp = tabPanel.add(mod);
   //debugger;
@@ -1154,7 +1221,9 @@ function idIsExists(id){
 
 
 function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName){
-	console.log($templateId);
+	console.log($htmlContent)
+	console.log($templateId)
+	console.log($lastCatName)
 	//alert($templateId);
 	Ext.getCmp('navigateContainerPanel').setTitle("<font color='red'>当前位置：" +　$lastRootCatName + ' >> ' + $lastCatName + '</font>');
 //	console.log($lastRootCatName + ':' + $lastCatName);
@@ -1174,11 +1243,12 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod fun_mod_07 mod_disable"><img src="../image/menu/45.gif"/><div>出生医学证明初始化</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_08 mod_disable"><img src="../image/menu/60.gif"/><div>出生医学证明分配</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_09 mod_disable"><img src="../image/menu/score.png"/><div>在线考核</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_10 mod_disable"><img src="../image/menu/cache.png"/><div>缓存管理</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_business_child_template'){
 		flag = true;
 		modItems = '<div class="div_child_business_container div_container">'+
-			'<div class="mod child_business_01 mod_disable"><img src="../image/menu/child_business_01.gif"/><div>建册</div><div class="remarks"></div></div>'+
+			'<div class="mod child_business_01 mod_disable"><img src="../image/menu/child_business_01.gif"/><div>儿童建册</div><div class="remarks"></div></div>'+
 			'<div class="mod child_business_02 mod_disable"><img src="../image/menu/child_business_02.gif"/><div>新生儿家庭访视</div><div class="remarks"></div></div>'+
 			'<div class="mod child_business_03 mod_disable"><img src="../image/menu/child_business_03.gif"/><div>1岁以内儿童健康体检</div><div class="remarks"></div></div>'+
 			'<div class="mod child_business_04 mod_disable"><img src="../image/menu/child_business_04.gif"/><div>1~2岁儿童健康体检</div><div class="remarks"></div></div>'+
@@ -1304,17 +1374,21 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = '<div class="div_sms_container div_container">'+
 			'<div class="mod sms_01 mod_disable"><img src="../image/menu/sms_01.png"/><div>电话提取规则</div><div class="remarks"></div></div>'+
 			'<div class="mod sms_02 mod_disable"><img src="../image/menu/sms_02.png"/><div>短信发送规则</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.png"/><div>居民联系电话维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.png"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.png"/><div>短信发布</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.png"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
-			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.png"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_03 mod_disable"><img src="../image/menu/sms_03.png"/><div>已发短信汇总</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_04 mod_disable"><img src="../image/menu/sms_04.png"/><div>短信发布</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_05 mod_disable"><img src="../image/menu/sms_05.png"/><div>系统自动短信审核</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_06 mod_disable"><img src="../image/menu/sms_06.png"/><div>短信常用语维护</div><div class="remarks"></div></div>'+
+			'<div class="mod sms_07 mod_disable"><img src="../image/menu/sms_07.png"/><div>电话号码维护</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else{
 		flag = false;
 		var modItems = '<div class="navigateContainerOther">';
+		console.log($ArrayContent.length)
+		
 		for(var i=0;i<$ArrayContent.length;i++){
+			
 			var str = $ArrayContent[i];
+			//console.log(str)
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
 				modItems = modItems + '<div class="modContainer"><div class="modother" onclick="toUrl(\'' + arrayStr[1] 
@@ -1325,6 +1399,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = modItems + '</div>';
 	}
 	//alert(modItems)
+	console.log(modItems)
 	$('.navigateContainer').html(modItems);
 	if(flag){
 		for(var i=0;i<$ArrayContent.length;i++){
@@ -1358,6 +1433,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			$(this).removeClass('mod_hover');
 		}
 	});
+	console.log("结束navi")
 //	$('.navigateContainer').html(modItems);
 	
 }
@@ -1374,35 +1450,36 @@ function showError(msg){
 
 function toUrl(modId,modName,url){
     if (url.indexOf('.html') != -1) {
-      var iframeId = modName + '_' + url;
-//      alert(iframeId);
-      if (!Ext.get(iframeId)) {
-        var newFrame = tabPanel.add( {
-          xtype : 'iframepanel',
-          id : iframeId,
-          //title : n.text,
-          loadMask : true,
-          // frameConfig: {{autoCreate:{id: 'frame1'}}, //optional, give
-          // the frame your own id and name
-          defaultSrc : url,
-          listeners : {
-            domready : function(frame) { // only raised for "same-origin"
-                                          // documents
-              // Set the tab Title to the Document Title
-              var doc = frame.getDocument();
-              if (doc) {
-                frame.ownerCt.setTitle(doc.title);
-              }
-            }
-          }
-        });
-        tabPanel.doLayout(); // if TabPanel is already rendered
-        tabPanel.setActiveTab(newFrame);
-        
-      }
-
+    	var tab = null;
+		var iframeId = modName + '_' + url;
+		var items = tabPanel.find('id', iframeId);
+		if (items.length > 0) {
+		  tab = items[0];
+		}
+		if (tab) {
+		    tabPanel.setActiveTab(tab);
+		} else {
+		    if (!Ext.get(iframeId)) {
+		    	tab =  new Ext.ux.ManagedIframePanel({
+		         xtype : 'iframepanel',
+		         id : iframeId,
+		         loadMask : true,
+		         defaultSrc : url,
+		         listeners : {
+		           domready : function(frame) { // only raised for "same-origin"
+		             var doc = frame.getDocument();
+		             if (doc) {
+		               frame.ownerCt.setTitle(doc.title);
+		             }
+		           }
+		         }
+		       });
+		       var newFrame = tabPanel.add(tab );
+		       tabPanel.tabid = iframeId;
+		       tabPanel.activate(newFrame);
+		    }
+		}
     } else {
-//      console.log("loading " + url);
       var tab = null;
       var items = tabPanel.find('id', url);
       if (items.length > 0) {
@@ -1411,26 +1488,27 @@ function toUrl(modId,modName,url){
       if (tab) {
         tabPanel.setActiveTab(tab);
       } else {
-      	//debugger;
       	var autoLoad = {
-							url : "/autoload.jsp?jsurl="+url,
-							scripts : true,
-							nocache : true,
-							border : false
-						};
-						tab = new App.TabPagePanel({
-							id : url,
-							autoLoad : autoLoad,
-							title : modName,
-							autoScroll : true,
-							closable : true,
-							//layout : "column",
-							border : false
-						});
-						var p = tabPanel.add(tab);
-						tabPanel.tabid = url;
-					  tab.jscript=url;
-		       	tabPanel.activate(p);
+			url : "/autoload.jsp?jsurl="+url,
+			scripts : true,
+			nocache : true,
+			border : false
+		};
+		tab = new App.TabPagePanel({
+			id : url,
+			autoLoad : autoLoad,
+			title : modName,
+			autoScroll : true,
+			closable : true,
+			//layout : "column",
+			border : false
+		});
+		var p = tabPanel.add(tab);
+		tabPanel.tabid = url;
+		tab.jscript=url;
+		tab.modId = modId;
+		window.global_modId =modId; 
+       	tabPanel.activate(p);
         /*
         new Ext.ux.JSLoader( {
           url : n.id,

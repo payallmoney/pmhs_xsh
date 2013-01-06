@@ -4,6 +4,7 @@ app.residentPanel = new Ext.tf.HealthPanel({
 	treeLoaderFn : UserMenuTreeService.getUserDistrictNodes,
 	queryUrl : UserMenuTreeService.findHealthFiles,
 	deleteUrl : UserMenuTreeService.removeHealthFiles,
+	dataExportUrl : DataExportService.dataExportHealthFile,
 	gridViewConfig : {
 		forceFit : true,
 		getRowClass : function(record, rowIndex, rowParams, store) {

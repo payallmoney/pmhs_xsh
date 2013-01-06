@@ -1,8 +1,5 @@
 Ext.ns("Ext.hc");
-// ScoreService.getScore
 window.score_refresh = function(personid,rowindex){
-//	alert(personid);
-//	alert(rowindex);
 	var eventObj = event.srcElement;
 	eventObj.disabled = true;
 	var combobox = Ext.getCmp("score.query.groupcombo");
@@ -35,7 +32,7 @@ window.score_refresh = function(personid,rowindex){
 	}
 	ScoreService.getPersonScore(param, function(data) {
 //		alert(rowindex);
-		Ext.getCmp("score.grid").getStore().getAt(rowindex).set("allcount", data.allcount);
+		Ext.getCmp("score.grid").getStore().getAt(rowindex).set("allcount", parseFloat(data.allcount));
 		Ext.getCmp("score.grid").getStore().getAt(rowindex).set("scorestr",data.scorestr);
 		eventObj.disabled = false;
 	})
@@ -43,13 +40,14 @@ window.score_refresh = function(personid,rowindex){
 }
 Ext.hc.printScorePanel = new Ext.Panel(
 		{
+			layout : 'fit',
 			items : [ {
 				layout : 'fit',
 				xtype : 'grid',
 				id : 'score.grid',
 				title : '考试打分系统',
 				autoWidth : true,
-				height : 700,
+				//height : 700,
 				tbar : [
 						{
 							// text : '--请选择期数--',
@@ -217,19 +215,6 @@ Ext.hc.printScorePanel = new Ext.Panel(
 								})
 								// Ext.getCmp("score.grid").getStore().reload();
 							}.createDelegate(this)
-						}, "-", {
-							text : '测试掉线',
-							iconCls : 'c_query',
-							handler : function() {
-								ScoreService.clearSession();
-								;
-							}.createDelegate(this)
-						}, "-", {
-							text : '刷新配置',
-							iconCls : 'c_refresh',
-							handler : function() {
-								ScoreService.refresh(null);
-							}
 						} ],
 
 				store : new Ext.data.Store({

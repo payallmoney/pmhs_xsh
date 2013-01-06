@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -42,6 +44,7 @@ import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam3;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
 import cn.net.tongfang.framework.security.vo.ClinicLogs;
+import cn.net.tongfang.framework.security.vo.CodModuleMap;
 import cn.net.tongfang.framework.security.vo.Consultation;
 import cn.net.tongfang.framework.security.vo.CureBack;
 import cn.net.tongfang.framework.security.vo.CureSwitch;
@@ -75,6 +78,7 @@ import cn.net.tongfang.framework.security.vo.SickInfo;
 import cn.net.tongfang.framework.security.vo.Stat;
 import cn.net.tongfang.framework.security.vo.Tuberculosis;
 import cn.net.tongfang.framework.security.vo.Vaccination;
+import cn.net.tongfang.framework.security.vo.VaccineImmune;
 import cn.net.tongfang.framework.security.vo.VaccineInfo;
 import cn.net.tongfang.framework.security.vo.VisitAfterBorn;
 import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
@@ -82,6 +86,7 @@ import cn.net.tongfang.framework.security.vo.WomanLastMedicalExamRecord;
 import cn.net.tongfang.framework.security.vo.WomanPhysicalItems;
 import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
+import cn.net.tongfang.framework.util.ModuleUtil;
 import cn.net.tongfang.framework.util.service.vo.CatInfo;
 import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNode;
 import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNodeDefine;
@@ -91,6 +96,7 @@ import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
 
 public class ModuleMgr extends HibernateDaoSupport {
+	ModuleUtil moduleUtil;
 
 	private static final Logger log = Logger.getLogger(ModuleMgr.class);
 	public static final Integer DISEASE_HYP = 2;
@@ -119,7 +125,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<CatInfo> getUserCatInfo() {
-
+		System.out.println("================????===");
 		final String sql = "select {module.*}, {mc.*},{mc1.*} from sam_module_category mc, ( select m.* from"
 				+ " sam_module m where m.id in ( select rm.module_id from sam_role_module rm "
 				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
@@ -145,16 +151,42 @@ public class ModuleMgr extends HibernateDaoSupport {
 							List<CatInfo> results = new ArrayList<CatInfo>();
 							for (Object[] items : objs) {
 								SamModule mod = (SamModule) items[1];
+								
 								SamModuleCategory cat = (SamModuleCategory) items[0];
 								SamModuleCategory secondcat = (SamModuleCategory) items[2];
+								System.out.println("======mod============="+mod);
+								if(mod == null){
+									System.out.println("==========null=========");
+								}
+								System.out.println("==================="+cat);
+								System.out.println("==================="+secondcat);
 								results.add(new CatInfo(mod, cat,secondcat));
 							}
-
 							return results;
 						}
 
 					});
-
+			Map<String,String> addmodule = new HashMap<String,String>();
+			for(CatInfo cat : list){
+				for(CodModuleMap item :moduleUtil.getModuleList()){
+					if(item.getMainmoduleid().equals(cat.getModule().getId()) && !addmodule.containsKey(item.getMainmoduleid())){
+						addmodule.put(item.getMainmoduleid(), item.getMainmoduleid());
+					}
+				}
+			}
+			List addList = new ArrayList();
+			for(CatInfo cat : list){
+				for(CodModuleMap item :moduleUtil.getModuleList()){
+					if(item.getSubmoduleid().equals(cat.getModule().getId()) && !addmodule.containsKey(item.getMainmoduleid())){
+						System.out.println("==================="+item.getMainmoduleid());
+						SamModule mod = (SamModule)getHibernateTemplate().get(SamModule.class, item.getMainmoduleid());
+						addList.add(new CatInfo(mod, cat.getCategory(),cat.getRootCategory()));
+						addmodule.put(item.getMainmoduleid(), item.getMainmoduleid());
+					}
+				}
+			}
+			list.addAll(addList);
+			System.out.println("==================="+list.size());
 			// log.debug("List size is " + list.size());
 			return list;
 		} catch (Throwable t) {
@@ -162,6 +194,38 @@ public class ModuleMgr extends HibernateDaoSupport {
 			return new ArrayList<CatInfo>();
 		}
 
+	}
+	
+	public boolean hasCatInfoId(String modid) {
+		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
+				+ " sam_module m where m.id = '"+modid+"' and m.id in ( select rm.module_id from sam_role_module rm "
+				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
+				+ " sam_taxempcode u where u.loginname = '"+SecurityManager
+				.currentOperator().getUsername()+"' and u.loginname = ur.loginname) ) ) module," +
+				" sam_module_category mc1 where mc.id = module.category_id and mc.parentid = mc1.id ";
+
+		List ret = getSession().createSQLQuery(sql).list();
+		if(ret.size()>0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean hasCatInfoName(String name) {
+		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
+				+ " sam_module m where m.name = '"+name+"' and m.id in ( select rm.module_id from sam_role_module rm "
+				+ " where rm.role_id in ( select ur.id from sam_taxempcode_role ur,"
+				+ " sam_taxempcode u where u.loginname = '"+SecurityManager
+				.currentOperator().getUsername()+"' and u.loginname = ur.loginname) ) ) module," +
+				" sam_module_category mc1 where mc.id = module.category_id and mc.parentid = mc1.id ";
+
+		List ret = getSession().createSQLQuery(sql).list();
+		if(ret.size()>0){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	public List<ExtJSTreeNode> genUserMenuTree() {
@@ -181,6 +245,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				last.addChild(new ExtJSTreeNode(ci.getModule().getName(), ci
 						.getModule().getUrl(), "file", true));
 			} else {
+				System.out.println("=================ci=="+ci);
+				System.out.println("=================catId=="+catId+",==catName="+catName);
+				System.out.println("==================="+ci.getModule());
 				last = new ExtJSTreeNode(catName, catId, "folder", false);
 				last.addChild(new ExtJSTreeNode(ci.getModule().getName(), ci
 						.getModule().getUrl(), "file", true));
@@ -722,15 +789,18 @@ public class ModuleMgr extends HibernateDaoSupport {
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
+			getHibernateTemplate().evict(file);
 			HealthFileMaternal maternal = (HealthFileMaternal) objs[1];
+			getHibernateTemplate().evict(maternal);
 			if(!tmpFileNo.equals(file.getFileNo())){
 				file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
 				file.setName(EncryptionUtils.decipher(file.getName()));
+				getHibernateTemplate().evict(file.getPersonalInfo());
+				file.getPersonalInfo().setIdnumber(EncryptionUtils.decipher(file.getPersonalInfo().getIdnumber()));
 				maternal.setIdnumber(EncryptionUtils.decipher(maternal.getIdnumber()));
 				tmpFileNo = file.getFileNo();
 			}
-			getHibernateTemplate().evict(file);
-			getHibernateTemplate().evict(maternal);
+			
 			Map map = new HashMap();
 			map.put("file", file);
 			map.put("maternal", maternal);
@@ -779,6 +849,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			Map map = new HashMap();
 			map.put("file", file);
 			map.put("children", maternal);
+			map.put("status", DateUtils.toCalendar(new Date()).get(Calendar.YEAR) -  DateUtils.toCalendar(maternal.getBirthday()).get(Calendar.YEAR) >7 ?"结案":"未结案");
 			files.add(map);
 		}
 
@@ -3303,37 +3374,49 @@ public class ModuleMgr extends HibernateDaoSupport {
 		removeRecords(recordIdList, ChildBirthRecord.class);
 	}
 	
-	public PagingResult<HealthFile> findVaccineImmune(HealthFileQry qryCond, PagingParam pp){
+	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp){
 		StringBuilder where = new StringBuilder();
 		genVaccineImmuneWhere(qryCond,where);
-		String hql = " From HealthFile a left join fetch a.personalInfo b left join fetch a.vaccineImmune c " +
+		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
 				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
-		Query q = getSession().createQuery(" select count(*) From HealthFile a,PersonalInfo b " + 
+		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
-				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' And a.fileNo = b.fileNo " + where.toString());
-		
-		int totalSize = ((Long) q.uniqueResult()).intValue();
+				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
+		SQLQuery q = getSession().createSQLQuery(countsql);
+		int totalSize = ((Integer) q.uniqueResult()).intValue();
 //		int totalSize = 100;
 		
-		Query query = getSession().createQuery(hql);
+		SQLQuery query = getSession().createSQLQuery(hql);
+		query.addEntity(HealthFile.class).addEntity(VaccineImmune.class);
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		List<Object[]> list = query.list();
 		List<HealthFile> files = new ArrayList<HealthFile>();
 		String tmpFileNo = "";
 		if(list.size() > 0){
-			for(Object obj : list){
-				HealthFile file = (HealthFile) obj;
-				PersonalInfo person = file.getPersonalInfo();
+			for(Object[] obj : list){
+				HealthFile file = (HealthFile) obj[0];
+				getHibernateTemplate().evict(file);
+//				PersonalInfo person = (PersonalInfo) obj[1];
+//				getHibernateTemplate().evict(person);
+//				file.setPersonalInfo(person);
+				List<PersonalInfo> personlist = getSession().createQuery(" from PersonalInfo where fileNo=?").setParameter(0, file.getFileNo()).list();
+				PersonalInfo person  = null;
+				if(personlist.size()>0){
+					person = personlist.get(0);
+					getHibernateTemplate().evict(person);
+				}
+				file.setPersonalInfo(person);
+				VaccineImmune vacc = (VaccineImmune) obj[1];
+				getHibernateTemplate().evict(vacc);
+				file.setVaccineImmune(vacc);
 				if(!tmpFileNo.equals(file.getFileNo())){
 					file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
 					file.setName(EncryptionUtils.decipher(file.getName()));
 					tmpFileNo = file.getFileNo();
-					person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+					if(personlist.size()>0)
+						person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 				}
-				getHibernateTemplate().evict(person);				
-				file.setPersonalInfo(person);
-				getHibernateTemplate().evict(file);
 				files.add(file);
 			}
 		}
@@ -3341,43 +3424,56 @@ public class ModuleMgr extends HibernateDaoSupport {
 				totalSize, files);
 		return result;
 	}
-	private void genVaccineImmuneWhere(HealthFileQry qryCond, StringBuilder where) {
-		String filterKey = qryCond.getFilterKey();
-		if (StringUtils.hasText(filterKey)) {
-			String filterValue = qryCond.getFilterValue();
-			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
-				filterValue = EncryptionUtils.encry(filterValue);
-			}
-			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
-				try {
-					Date startDate = null;
-					Date endDate = null;
-					if(filterValue.indexOf("-") > 0){
-						String[] valArray = filterValue.split("-");
-						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-						}
-						startDate = format.parse(valArray[0] + " 00:00:00");
-						endDate = format.parse(valArray[1] + " 23:59:59");
-					}else if(filterValue.indexOf("－") > 0){
-						String[] valArray = filterValue.split("－");
-						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-						}
-						startDate = format.parse(valArray[0] + " 00:00:00");
-						endDate = format.parse(valArray[1] + " 23:59:59");
-					}else{
-						startDate = format.parse(filterValue + " 00:00:00");
-						endDate = format.parse(filterValue + " 23:59:59");
+	private void genVaccineImmuneWhere(QryCondition qryConds, StringBuilder where) {
+		for(Condition qryCond : qryConds.getConditions()){
+			String filterKey = qryCond.getFilterKey();
+			System.out.println("===========filterKey========"+filterKey);
+			if (StringUtils.hasText(filterKey)) {
+				String filterValue = qryCond.getFilterVal();
+				if(filterKey.equals("type")){
+					if("0".equals(filterValue)){
+						where .append( "");
+					}else if("1".equals(filterValue)){
+						where .append(" and c.vfileNo is null ");
+					}else if("2".equals(filterValue)){
+						where .append(" and c.vfileNo is not null ");
 					}
-					where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
-				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
-				}				
-			}else{
-				if (StringUtils.hasText(filterValue)) {
-					where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");
+				}else{
+					if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
+						filterValue = EncryptionUtils.encry(filterValue);
+					}
+					if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
+						SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+						try {
+							Date startDate = null;
+							Date endDate = null;
+							if(filterValue.indexOf("-") > 0){
+								String[] valArray = filterValue.split("-");
+								if(valArray.length > 2){
+									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+								}
+								startDate = format.parse(valArray[0] + " 00:00:00");
+								endDate = format.parse(valArray[1] + " 23:59:59");
+							}else if(filterValue.indexOf("－") > 0){
+								String[] valArray = filterValue.split("－");
+								if(valArray.length > 2){
+									throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+								}
+								startDate = format.parse(valArray[0] + " 00:00:00");
+								endDate = format.parse(valArray[1] + " 23:59:59");
+							}else{
+								startDate = format.parse(filterValue + " 00:00:00");
+								endDate = format.parse(filterValue + " 23:59:59");
+							}
+							where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
+						} catch (ParseException e) {
+							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+						}				
+					}else{
+						if (StringUtils.hasText(filterValue)) {
+							where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");
+						}
+					}
 				}
 			}
 		}
@@ -4202,4 +4298,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		return null;
 	}
+
+	public ModuleUtil getModuleUtil() {
+		return moduleUtil;
+	}
+
+	public void setModuleUtil(ModuleUtil moduleUtil) {
+		this.moduleUtil = moduleUtil;
+	}
+	
+	
 }

@@ -11,16 +11,13 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.context.support.RequestHandledEvent;
 
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.CodScoreProp;
@@ -28,9 +25,10 @@ import cn.net.tongfang.framework.security.vo.CodScoreRule;
 import cn.net.tongfang.framework.security.vo.ScoreExamdate;
 import cn.net.tongfang.framework.security.vo.ScoreGroup;
 import cn.net.tongfang.framework.security.vo.ScorePerson;
+import cn.net.tongfang.framework.util.CacheUtil;
 
 public class ScoreUtil extends HibernateDaoSupport implements
-		ApplicationContextAware , ApplicationListener {
+		ApplicationContextAware , ApplicationListener,CacheUtil {
 	private static final Logger log = Logger.getLogger(ScoreUtil.class);
 	private Map<String, Map> nameMaps = new HashMap<String, Map>();
 	private static String ScoreName = "12月培训考试";
@@ -50,6 +48,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 
 
 	public void refresh() {
+		System.out.println("=========SmsUtil==========");
 		nameMaps.clear();
 		getScoreDetailItem();
 		getScoreRule();
@@ -115,18 +114,15 @@ public class ScoreUtil extends HibernateDaoSupport implements
 		nameMaps.put("ScorePerson", map);
 		List<Object[]> list = getSession().createQuery(" select a,b from ScorePerson a,SamTaxempcode b where b.loginname = a.id.personid ")
 				.list();
-		System.out.println("========ScorePerson==========="+list.size());
 		for (Object[] obj : list) {
 			ScorePerson cod = (ScorePerson) obj[0];
 			Map<String, Object[]> namemap;
-			System.out.println("==================="+cod.getExamgroup());
 			if (map.containsKey(cod.getExamgroup())) {
 				namemap = map.get(cod.getExamgroup());
 			} else {
 				namemap = new HashMap();
 				map.put(cod.getExamgroup(), namemap);
 			}
-			System.out.println("==================="+cod.getId().getPersonid());
 			namemap.put(cod.getId().getPersonid(), obj);
 		}
 	}
@@ -146,9 +142,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 			} else {
 				namemap = new HashMap();
 				map.put(cod.getId().getGroupname(), namemap);
-				System.out.println("=groupname=" + cod.getId().getGroupname());
 			}
-			System.out.println("==" + cod.getId().getItem());
 			namemap.put(cod.getId().getItem(), cod.getId().getItem());
 		}
 	}

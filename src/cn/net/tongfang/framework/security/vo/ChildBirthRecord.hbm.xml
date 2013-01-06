@@ -118,6 +118,9 @@
         <property name="isComplete" type="java.lang.String">
             <column name="IsComplete" />
         </property>
+        <property name="isNotComplete" type="java.lang.String">
+            <column name="isNotComplete" />
+        </property>
         <property name="cervicalLaceration" type="java.lang.String">
             <column name="CervicalLaceration" />
         </property>
@@ -151,6 +154,9 @@
         <property name="suffocationOther" type="java.lang.String">
             <column name="SuffocationOther" />
         </property>
+        <property name="suffocationOther01" type="java.lang.String">
+            <column name="SuffocationOther01" />
+        </property>
         <property name="birthTrauma" type="java.lang.String">
             <column name="BirthTrauma" />
         </property>
@@ -172,11 +178,11 @@
         <property name="diseaseScreeningOther" type="java.lang.String">
             <column name="DiseaseScreeningOther" />
         </property>
-        <property name="isNotComplete" type="java.lang.String">
-            <column name="isNotComplete" />
+        <property name="totalLaborMinutes" type="java.lang.Integer">
+            <column name="totalLaborMinutes" />
         </property>
-        <property name="suffocationOther01" type="java.lang.String">
-            <column name="SuffocationOther01" />
+        <property name="oneLaborMinutes" type="java.lang.Integer">
+            <column name="oneLaborMinutes" />
         </property>
     </class>
 </hibernate-mapping>

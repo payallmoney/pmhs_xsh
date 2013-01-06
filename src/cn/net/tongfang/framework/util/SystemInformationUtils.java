@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.util.StringUtils;
 
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
@@ -82,15 +83,29 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Integer checkWomanMedicalExam(String fileNo){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From HealthFileMaternal Where fileNo = :fileNo And isClosed = '0'";
+		String hql = "From HealthFileMaternal Where fileNo = :fileNo";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("fileNo", fileNo);
 		List list = query.list();
 		if(list.size() > 0){
 			HealthFileMaternal gravidityKey = (HealthFileMaternal)list.get(0);
+			
 			return gravidityKey.getGravidity();
 		}
 		return null;
+	}
+	
+	public Integer hasHealthFileMaternal(String foriegnKey){
+		if(StringUtils.hasText(foriegnKey)){
+			HealthFileMaternal maternal =(HealthFileMaternal) getSession().get(HealthFileMaternal.class, foriegnKey);
+			if(maternal==null){
+				return null;
+			}else{
+				return maternal.getGravidity();
+			}
+		}else{
+			return null;
+		}
 	}
 	
 	public boolean checkWomanMedicalExamIsInput(String fileNo,Integer items,String tableName,String type){
@@ -138,16 +153,27 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 		return false;
 	}
 	
-	public FirstVistBeforeBorn checkWomanSeparateDate(String fileNo,Integer gravidity){
-		String hql = "From FirstVistBeforeBorn Where fileNo = :fileNo And gravidity = :gravidity ";
+	public FirstVistBeforeBorn hasFirstVistBeforeBorn(String foreignId,Integer gravidity){
+		String hql = "From FirstVistBeforeBorn Where foreignId = :foreignId order by visitDate desc ";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		query.setParameter("gravidity", gravidity);
+		query.setParameter("foreignId", foreignId);
 		if(query.list().size() > 0){
 			return (FirstVistBeforeBorn)query.list().get(0);
 		}
 		return null;
 	}
+	
+	public boolean hasVisitAfterBorn(String foreignId,String recordType){
+		String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("foreignId", foreignId);
+		query.setParameter("recordType", recordType);
+		if(query.list().size() > 0){
+			return true;
+		}
+		return false;
+	}
+	
 	public PersonalInfo getPersonalInfo(String fileNo){
 		fileNo = EncryptionUtils.encry(fileNo);
 		return (PersonalInfo)getHibernateTemplate().find(" From PersonalInfo Where fileNo = ?", fileNo).get(0);

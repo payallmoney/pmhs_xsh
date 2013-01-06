@@ -1088,7 +1088,7 @@ Ext.tf.HealthPrintChildPanel = Ext.extend(Ext.Panel, {
 	gridViewConfig : {},
 	initComponent : function() {
 		this.build();
-		Ext.tf.HealthPrintPanel.superclass.initComponent.call(this);
+		Ext.tf.HealthPrintChildPanel.superclass.initComponent.call(this);
 	},
 
 	build : function() {

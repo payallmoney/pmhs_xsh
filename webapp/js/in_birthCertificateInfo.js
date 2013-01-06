@@ -604,23 +604,42 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'num',
-				size : 10
+				size : 5,
+				maxlen : 2
 			}
-		},
+		},{
+            id : "totalLaborMinutes",
+            xtype : "input",
+            setting : {
+                format : 'num',
+                size : 5,
+                maxlen : 2
+            }
+        },
 		{
 			id : "oneLaborHours",
 			xtype : "input",
 			setting : {
 				format : 'num',
-				size : 10
+				size : 5,
+                maxlen : 2
 			}
-		},
+		},{
+            id : "oneLaborMinutes",
+            xtype : "input",
+            setting : {
+                format : 'num',
+                size : 5,
+                maxlen : 2
+            }
+        },
 		{
 			id : "twoLaborHours",
 			xtype : "input",
 			setting : {
 				format : 'num',
-				size : 10
+				size : 5,
+                maxlen : 2
 			}
 		},
 		{
@@ -628,7 +647,8 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'int',
-				size : 10
+				size : 5,
+                maxlen : 2
 			}
 		},
 		{
@@ -636,7 +656,8 @@ var cfg = [
 			xtype : "input",
 			setting : {
 				format : 'int',
-				size : 10
+				size : 5,
+                maxlen : 2
 			}
 		},
 		{

@@ -881,6 +881,7 @@ function hideHUD($t, includeError){
                         ele.text(val);
                     }
                 } else {
+                    console.log("combovalue====="+val)
                     validate();
                     return val;
                 }
@@ -987,6 +988,7 @@ function hideHUD($t, includeError){
             			'<option value="1">档案编号</option>'+
             			'<option value="2">姓名</option>'+
             			'<option value="3">身份证号</option>'+
+            			'<option value="4">联系人</option>'+
         			'</select></font></span>');
             	$('#districtNumber').hide();
             	$('#selectCond').change(function(){
@@ -1187,6 +1189,7 @@ function hideHUD($t, includeError){
             var displayCss = setting.disabled ? "display:none;" : "";
             var caption = setting.caption ? ("<label class='caption' for=" + fieldName + ">" + setting.caption + ":" + "</label>") : "";
             c.html("<div class='list' id='" + fieldName  + "' style='" + displayCss + "'>" + caption + spans + newLine +  "<input class='list-input' type='text' size='1'></div>");
+            $(c).find(".list-input").keyup(parseVal);
             var ele = $("div", c);
             var input = $(":input", ele); //first
 
@@ -1198,6 +1201,7 @@ function hideHUD($t, includeError){
                         removeSelectionByMetaIdx(selfId);
                         self.removeClass('list-unselecting');
                         removeCandidateMarks(); //todo 偷懒
+                        
                         markSelections();
                         if (setting.multi) {
                             var inputs = findInputIndexByVal(data[selfId]);
@@ -1469,11 +1473,9 @@ function hideHUD($t, includeError){
                     var ret; 
                     var _val = data[idx];
                     if (! hasSelection(_val) ) {
-                        //console.log("none has selection");
                         val.push(_val);
                         ret = _val;
                     } else {
-                        //console.log("has selection");
                         ret = false;
                     }
                     return ret;
@@ -1529,6 +1531,7 @@ function hideHUD($t, includeError){
                         //hideHUD(self);
                         $(":input", ele).last().focus();
                         //e.preventDefault();
+                        console("=================keyDownHandler====");
                         markSelections();
 
                     } else {

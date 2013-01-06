@@ -1,6 +1,7 @@
 package cn.net.tongfang.web.service;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -19,6 +20,8 @@ import jxl.write.biff.RowsExceededException;
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.StringUtils;
+
+import com.csvreader.CsvWriter;
 
 import cn.net.tongfang.framework.security.bo.QryCondition;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -62,6 +65,10 @@ public class DataExportService extends HibernateDaoSupport{
 	
 	//第1次产前随访
 	private static String[] headerFirstVistBeforeBorn = {"执行机构","档案编号","姓名","性别","出生日期","孕周","高危","随访日期","下次随访日期","随访医生","操作人员"};
+	
+	//基本档案
+	//denc(a.fileNo) as  fileNo ,denc(a.name) as name,b.sex,b.birthday,b.idnumber,a.address,b.linkman,a.tel
+	private static String[] headerHealthFile = {"档案编号","姓名","性别","出生日期","身份证号码","地址","联系人","联系电话"};
 	//第2至5次产前随访
 	private static String[] headerVistBeforeBorn = {"执行机构","档案编号","姓名","性别","出生日期","孕周","项目","高危","随访日期","下次随访日期","随访医生","操作人员"};
 	//产后访视
@@ -91,6 +98,7 @@ public class DataExportService extends HibernateDaoSupport{
 	private static final String CHILDREN02 = "children02";
 	private static final String CHILDREN36 = "children36";
 	private static final String FIRSTVISIT = "firstvisit";
+	private static final String HEALTHFILE = "healthfile";
 	private static final String VISITBEFOREBORN = "visitbeforeborn";
 	private static final String VISITAFTERBORN = "visitafterborn";
 	private static final String VISITAFTERBORN42 = "visitafterborn42";
@@ -110,6 +118,7 @@ public class DataExportService extends HibernateDaoSupport{
 	private static final String CHILDREN02_TITLE = "1~2岁儿童体检记录";
 	private static final String CHILDREN36_TITLE = "3~6岁儿童体检记录";
 	private static final String FIRSTVISIT_TITLE = "第1次产前随访记录";
+	private static final String HEALTHFILE_TITLE = "居民健康档案";
 	private static final String VISITBEFOREBORN_TITLE = "第2~5次产前随访记录";
 	private static final String VISITAFTERBORN_TITLE = "产后访视记录";
 	private static final String VISITAFTERBORN42_TITLE = "产后42天访视记录";
@@ -152,6 +161,10 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @return
 	 */
 	private String writeExecl(String disNo,List list,String type,String title){
+		return writeCsvFile(disNo,list,type,title);
+	}
+	
+	private String writeExeclFile(String disNo,List list,String type,String title){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".xls";
 		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
@@ -188,6 +201,35 @@ public class DataExportService extends HibernateDaoSupport{
 				e.printStackTrace();
 			}    
 			 
+		}
+		return fileName;
+	}
+	
+	private String writeCsvFile(String disNo,List list,String type,String title){
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".csv";
+//		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
+		CsvWriter fw = null;
+		try {
+			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName);
+			for (Object object : list) {
+				List l = (List)object;
+				for(int j=0;j<l.size();j++){
+					String text = String.valueOf(l.get(j));
+					if(!StringUtils.hasText(text)){
+						text = "";
+					}
+					fw.write(text);
+				}		
+				fw.endRecord();
+			}
+			fw.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally{
+			if(fw !=null){
+				fw.close();
+			}
 		}
 		return fileName;
 	}
@@ -458,6 +500,70 @@ public class DataExportService extends HibernateDaoSupport{
 			dataList.add(contentList);
 		}
 		String fileName = writeExecl(disNo,dataList,CHILDREN36,CHILDREN36_TITLE);
+		return getDownloadURL() + fileName;
+	}
+	
+	/**
+	 * TODO 居民健康档案导出
+	 * @param disNo
+	 * @param filterKey
+	 * @param filterVal
+	 * @return
+	 */
+	public String dataExportHealthFile(String disNo,String filterKey,String filterVal){
+		List params = new ArrayList();
+		StringBuilder where = new StringBuilder();
+		buildExportHealthfileWhere(disNo,filterKey,filterVal,params,where,null);
+		where.append(" and d.org_id = e.taxorgcode ");
+		where.append(" and a.inputPersonId = d.loginname ");
+		if (params.size() != 0) {
+			where.replace(0, 4, " where ");
+		}
+		System.out.println("======where============="+where);
+		StringBuilder hql = new StringBuilder(
+				"select dbo.denc(a.fileNo) as  fileNo ," +
+				"dbo.denc(a.name) as name," +
+//				"b.sex, " +
+//				"REPLACE( CONVERT( CHAR(10), b.birthday, 102), '.', '-')," +
+//				"b.idnumber," +
+//				"a.address," +
+//				"b.linkman," +
+//				"a.tel " +
+				"from HealthFile a, PersonalInfo b,  Sam_Taxempcode d , Organization e")
+				.append(where).append(" order by a.fileNo");
+		System.out.println("=========hql=========="+hql);
+		List dataList = new ArrayList();
+		List headerList = new ArrayList();
+		for(int i = 0;i<headerHealthFile.length;i++){
+			headerList.add(headerHealthFile[i]);
+		}
+		dataList.add(headerList);
+//		List list = query(hql,params);
+		
+		Query query = getSession().createSQLQuery(hql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		List list =  query.list();
+//		for (Object object : list) {
+//			Object[] objs = (Object[]) object;
+////			HealthFile file = (HealthFile) objs[0];
+////			PersonalInfo person = (PersonalInfo) objs[1];
+////			SamTaxempcode samTaxempcode = (SamTaxempcode) objs[3];
+////			SamTaxorgcode samTaxorgcode = (SamTaxorgcode) objs[4];	
+//
+//			List contentList = new ArrayList();
+//			contentList.add(EncryptionUtils.decipher((String)objs[0]));
+//			contentList.add(EncryptionUtils.decipher((String)objs[1]));
+//			contentList.add((String)objs[2]);
+//			contentList.add((String)objs[3]);
+//			contentList.add((String)objs[4]);
+//			contentList.add((String)objs[5]);
+//			contentList.add((String)objs[6]);
+//			contentList.add((String)objs[7]);
+//			dataList.add(contentList);
+//		}
+		String fileName = writeExecl(disNo,list,HEALTHFILE,HEALTHFILE_TITLE);
 		return getDownloadURL() + fileName;
 	}
 	
@@ -747,6 +853,66 @@ public class DataExportService extends HibernateDaoSupport{
 		}
 
 		where.append(" and a.fileNo = b.fileNo and a.status = 0 ");
+		
+	}
+	
+	private void buildExportHealthfileWhere(String disNo,String filterKey,String filterVal, List params,
+			StringBuilder where,String appendVal) {
+		if(appendVal == null){
+			params.add(disNo + '%');
+			appendVal = " and (a.districtNumber like ?) ";
+		}
+		if (StringUtils.hasText(disNo)) {
+			where.append(appendVal);
+		}
+		if (StringUtils.hasText(filterKey)) {
+			
+			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
+				filterVal = EncryptionUtils.encry(filterVal);
+			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") ){
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+				try {
+					Date startDate = null;
+					Date endDate = null;
+					if(filterVal.indexOf("-") > 0){
+						String[] valArray = filterVal.split("-");
+						if(valArray.length > 2){
+							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+						}
+						startDate = format.parse(valArray[0] + " 00:00:00");
+						endDate = format.parse(valArray[1] + " 23:59:59");
+					}else if(filterVal.indexOf("－") > 0){
+						String[] valArray = filterVal.split("－");
+						if(valArray.length > 2){
+							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+						}
+						startDate = format.parse(valArray[0] + " 00:00:00");
+						endDate = format.parse(valArray[1] + " 23:59:59");
+					}else{
+						startDate = format.parse(filterVal + " 00:00:00");
+						endDate = format.parse(filterVal + " 23:59:59");
+					}
+					params.add(startDate);
+					params.add(endDate);
+					where.append(" and " + filterKey + " between ? and  ? ");
+				} catch (ParseException e) {
+					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+				}
+			}else if(filterKey.equals("c.highRisk")){
+				if (StringUtils.hasText(filterVal)) {
+					params.add(filterVal);
+					where.append(" and " + filterKey + " = ?");
+				}
+			}else{
+				if (StringUtils.hasText(filterVal)) {
+					params.add('%' + filterVal + '%');
+					where.append(" and " + filterKey + " like ?");
+				}
+			}
+		}
+
+		where.append(" and a.fileNo = b.fileNo and a.status = 0 ");
+		
 	}
 	
 	/**
