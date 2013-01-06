@@ -26,16 +26,14 @@ public class PregnancyRecordChild implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public PregnancyRecordChild(String id, String healthFileChildrenId) {
-		this.id = id;
+	public PregnancyRecordChild(String healthFileChildrenId) {
 		this.healthFileChildrenId = healthFileChildrenId;
 	}
 
 	/** full constructor */
-	public PregnancyRecordChild(String id, String healthFileChildrenId,
+	public PregnancyRecordChild(String healthFileChildrenId,
 			Timestamp recordDate, String record, String dealOpinion,
 			String doctor, String inputPersonId, Timestamp inputDate) {
-		this.id = id;
 		this.healthFileChildrenId = healthFileChildrenId;
 		this.recordDate = recordDate;
 		this.record = record;

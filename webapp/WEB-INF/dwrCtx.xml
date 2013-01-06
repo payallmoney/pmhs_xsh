@@ -44,6 +44,8 @@
 			class="cn.net.tongfang.framework.security.demo.service.TaxempDetail" />
 		<dwr:convert type="bean"
 			class="org.springframework.security.GrantedAuthorityImpl" />
+
+
 	</dwr:configuration>
 
 	<bean id="DWRHelloService"
@@ -144,22 +146,10 @@
 	
 	<bean id="SmsService" class="cn.net.tongfang.web.service.sms.SmsService">
 		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="smsUtil" ref="SmsUtil"/>
 		<dwr:remote javascript="SmsService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
-	
-	<bean id="CacheService" class="cn.net.tongfang.web.service.cache.CacheService">
-		<property name="cacheList" >
-			<list>
-				<ref bean='ScoreUtil'/>
-				<ref bean='ModuleUtil'/>
-			</list>
-		</property>
-		<dwr:remote javascript="CacheService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
-		<aop:scoped-proxy />
-	</bean>
-	
+
 	<bean id="ScoreService" class="cn.net.tongfang.web.service.score.ScoreService">
 		<property name="sessionFactory" ref="sessionFactory" />
 		<property name="scoreUtil" ref="ScoreUtil"/>
@@ -169,7 +159,6 @@
 
 	<bean id="UserMenuTreeService" class="cn.net.tongfang.framework.util.service.ModuleMgr">
 		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="moduleUtil" ref="ModuleUtil" />
 		<dwr:remote javascript="UserMenuTreeService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
@@ -510,5 +499,14 @@
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="HealthFileChildrenService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
+	
+	<bean id="repeatFileNoService"
+		class=" cn.net.tongfang.web.service.ProcListExamByFilesservice">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="userMenuTreeService" ref="UserMenuTreeService"></property>
+		<property name="vaccinationService" ref="VaccinationService"></property>
+		<dwr:remote javascript="repeatFileNoService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
 </beans>

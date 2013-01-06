@@ -62,11 +62,12 @@ public class HealthFileChildren implements java.io.Serializable {
 	private String birthDefectOther;
 	private String childIllScreening;
 	private String childIllScreeningOther;
-	private String childHereditary;
+	private Timestamp childHereditary;
 	private String childHereditaryOther;
 	private String inputPersonId;
 	private Timestamp inputDate;
-
+	private String motherTel;
+	private String fatherTel;
 	// Constructors
 
 	/** default constructor */
@@ -74,9 +75,7 @@ public class HealthFileChildren implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public HealthFileChildren(String id, String fileNo, String name,
-			String sex, String rh) {
-		this.id = id;
+	public HealthFileChildren(String fileNo, String name, String sex, String rh) {
 		this.fileNo = fileNo;
 		this.name = name;
 		this.sex = sex;
@@ -84,15 +83,15 @@ public class HealthFileChildren implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public HealthFileChildren(String id, String fileNo, String name,
-			String sex, String allergiesHistory, String fatherName,
-			String motherName, Timestamp buildDate, String buildUnit,
-			String residenceProvence, String residenceCity,
-			String residenceCounty, String residenceTownship,
-			String residenceVillage, String residenceGroup,
-			String addressProvence, String addressCity, String addressCounty,
-			String addressTownship, String addressVillage, String addressGroup,
-			String tel, Timestamp birthday, Double weight, Double height,
+	public HealthFileChildren(String fileNo, String name, String sex,
+			String allergiesHistory, String fatherName, String motherName,
+			Timestamp buildDate, String buildUnit, String residenceProvence,
+			String residenceCity, String residenceCounty,
+			String residenceTownship, String residenceVillage,
+			String residenceGroup, String addressProvence, String addressCity,
+			String addressCounty, String addressTownship,
+			String addressVillage, String addressGroup, String tel,
+			Timestamp birthday, Double weight, Double height,
 			String apgarOneMinuts, String apgarFiveMinuts, String abo,
 			String rh, String weekly, Integer gravidity, Integer parity,
 			String numberOfBirths, String bormWays, String birthOrgName,
@@ -103,10 +102,9 @@ public class HealthFileChildren implements java.io.Serializable {
 			String childrenExceptions, String childrenException1,
 			String childrenExceptionOhter, String birthDefect,
 			String birthDefectOther, String childIllScreening,
-			String childIllScreeningOther, String childHereditary,
+			String childIllScreeningOther, Timestamp childHereditary,
 			String childHereditaryOther, String inputPersonId,
-			Timestamp inputDate) {
-		this.id = id;
+			Timestamp inputDate,String fatherTel,String motherTel) {
 		this.fileNo = fileNo;
 		this.name = name;
 		this.sex = sex;
@@ -162,6 +160,8 @@ public class HealthFileChildren implements java.io.Serializable {
 		this.childHereditaryOther = childHereditaryOther;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
+		this.motherTel = motherTel;
+		this.fatherTel = fatherTel;
 	}
 
 	// Property accessors
@@ -582,11 +582,11 @@ public class HealthFileChildren implements java.io.Serializable {
 		this.childIllScreeningOther = childIllScreeningOther;
 	}
 
-	public String getChildHereditary() {
+	public Timestamp getChildHereditary() {
 		return this.childHereditary;
 	}
 
-	public void setChildHereditary(String childHereditary) {
+	public void setChildHereditary(Timestamp childHereditary) {
 		this.childHereditary = childHereditary;
 	}
 
@@ -612,6 +612,22 @@ public class HealthFileChildren implements java.io.Serializable {
 
 	public void setInputDate(Timestamp inputDate) {
 		this.inputDate = inputDate;
+	}
+
+	public String getMotherTel() {
+		return motherTel;
+	}
+
+	public void setMotherTel(String motherTel) {
+		this.motherTel = motherTel;
+	}
+
+	public String getFatherTel() {
+		return fatherTel;
+	}
+
+	public void setFatherTel(String fatherTel) {
+		this.fatherTel = fatherTel;
 	}
 
 }
