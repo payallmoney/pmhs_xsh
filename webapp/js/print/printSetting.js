@@ -55,7 +55,7 @@ function getPrintCfg01(data){
     pos[count++]=new Array("9.42cm","15.58cm","4cm","0.79cm");
     pos[count++]=new Array("10.24cm","3.39cm","4cm","0.79cm");
     pos[count++]=new Array("10.24cm","6.91cm","6.01cm","0.79cm");
-    pos[count++]=new Array("10.24cm","15cm","1.01cm","0.79cm");
+    pos[count++]=new Array("10.24cm","15cm","2.01cm","0.79cm");
     pos[count++]=new Array("10.24cm","16.99cm","1.01cm","0.79cm");
     pos[count++]=new Array("10.24cm","18.28cm","1.01cm","0.79cm");
     pos[count++]=new Array("11.11cm","5.9cm","5cm","0.79cm");
