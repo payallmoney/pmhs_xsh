@@ -99,8 +99,8 @@ Ext.tf.RepeatFiles = Ext.extend(Ext.Panel, {
 		if ( isReset ) {
     		this.centerpagingBar.changePage(1);
     	}
-		this.grid.getStore().reload();
-    	this.doLayout(true);
+//		this.grid.getStore().reload();
+//    	this.doLayout(true);
 	},
 	openWin : function(){
 		var searchCondition =  [[ 'a.name', '姓名' ],[ 'a.inputDate', '录入日期' ], 
@@ -556,7 +556,7 @@ Ext.tf.RepeatFiles = Ext.extend(Ext.Panel, {
 		var reader = new Ext.data.JsonReader({
 			totalProperty : 'totalSize',
 			root : 'data',
-			id : "fileNo"
+			id : "id"
 		},Ext.data.Record.create(this.readerConfig));
 		
 		var store = new Ext.data.Store({
@@ -589,7 +589,7 @@ Ext.tf.RepeatFiles = Ext.extend(Ext.Panel, {
 //			id : 'mygrid',
 			layout : 'fit',
 			region : 'center',
-			bbar : this.centerpagingBar,
+//			bbar : this.centerpagingBar,
 			autoScroll : true,
 			store: store,
 			cm : new Ext.grid.ColumnModel(this.gridCmConfig),
