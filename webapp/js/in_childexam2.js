@@ -104,7 +104,8 @@ var cfg = [
 			xtype : "list",
 			setting : {
 				ds : "172",
-				disabled : true
+				disabled : true,
+				scoredisable : true
 			}
 		},
 		{ // 身长
@@ -124,7 +125,8 @@ var cfg = [
 			xtype : "list",
 			setting : {
 				ds : "172",
-				disabled : true
+				disabled : true,
+				scoredisable : true
 			}
 		}, { // 面色
 			id : "face",

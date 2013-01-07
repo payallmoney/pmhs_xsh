@@ -1186,7 +1186,10 @@ function hideHUD($t, includeError){
             }).join("");
             c.empty();
             var newLine = setting.forceNewline ? "<br/>" : "";
-            var displayCss = setting.disabled ? "display:none;" : "";
+            var disable = true;
+            if(setting.scoredisable)
+            	disable = false;
+            var displayCss = setting.disabled && disable ? "display:none;" : "";
             var caption = setting.caption ? ("<label class='caption' for=" + fieldName + ">" + setting.caption + ":" + "</label>") : "";
             c.html("<div class='list' id='" + fieldName  + "' style='" + displayCss + "'>" + caption + spans + newLine +  "<input class='list-input' type='text' size='1'></div>");
             $(c).find(".list-input").keyup(parseVal);
@@ -1235,8 +1238,8 @@ function hideHUD($t, includeError){
             	fillInput($('#' + fieldName).children('span'),setting.defaultVal);
             	$('#' + fieldName).children('div').addClass('none-selected');
             }
-            
-            if(setting.disabled && (setting.display == undefined || !setting.display)){
+//            console.log(fieldName + ":::" + (setting.hasOwnProperty('displays')));
+            if(setting.disabled){
             	$('#' + fieldName + ' input').attr("readonly","readonly");
         		$('#' + fieldName).parent('td').attr('disabled','disabled');
         		$('#' + fieldName).parent('td').css('color','#ACA899');

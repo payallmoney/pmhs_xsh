@@ -108,7 +108,8 @@ var cfg = [
 			xtype : 'list',
 			setting : {
 				ds : "172",
-				disabled : true
+				disabled : true,
+				scoredisable : true
 			}
 		},
 		{
@@ -128,7 +129,8 @@ var cfg = [
 			xtype : 'list',
 			setting : {
 				ds : "172",
-				disabled : true
+				disabled : true,
+				scoredisable : true
 			}
 		},
 		{

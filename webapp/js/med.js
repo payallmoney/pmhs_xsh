@@ -761,7 +761,7 @@ function isOldMan(date) {
 						});
 					}
 				}
-//				showValues();
+				showValues();
 				if (cl) {
 					cl(null, buildValue());
 				}
