@@ -137,7 +137,8 @@ function dwrExceptionHandler(errorString, error){
 			window.saving = false;
 			top.Ext.Msg.alert("错误", error.message);
 		}else{
-			$.unblockUI();
+			if($.unblockUI)
+				$.unblockUI();
 			window.saving = false;
 			if(error.javaClassName){
 		        msg = error.javaClassName+":"+error.message;
