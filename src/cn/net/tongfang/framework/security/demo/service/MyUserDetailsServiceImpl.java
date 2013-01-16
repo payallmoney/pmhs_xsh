@@ -33,9 +33,9 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 		
-		if(!controlVersion.control())
-			return null;
-		
+//		if(!controlVersion.control())
+//			return null;
+//		
 		log.debug("load user by username[" + username + "]");
 		
 		OperatorBo operatorBo = securityService.getOperatorByUsername(username);
@@ -65,8 +65,6 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
 		GrantedAuthority[] combinedAuthorities = grantList.toArray(new GrantedAuthority[grantList.size()]);
 		//edit by Daved 2009-03-17
 //		return new User(username, password,enabled,true, true, true, combinedAuthorities);
-//		Integer encryption = securityService.getEncryptionInfo();
-//		System.out.println(encryption);
 		return new TaxempDetail(operatorBo.getId(), operatorBo.getUsername(), operatorBo.getPassword(), operatorBo.getDistrict(), operatorBo.getOrg(), operatorBo.getOrgId(), operatorBo.getDistrictId(), enabled, combinedAuthorities,operatorBo.getIsLookAuthority());
 	}
 

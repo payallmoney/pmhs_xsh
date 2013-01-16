@@ -422,7 +422,6 @@ public class SmsService extends HibernateDaoSupport {
 	//TODO 查询联系电话
 	public PagingResult<SmsPersonTel> findTels(QryCondition qryCond,
 			PagingParam pp) throws Exception {
-		System.out.println("==========11111111111111111=========");
 		if (pp == null)
 			pp = new PagingParam();
 		StringBuilder where = new StringBuilder(" where 1=1 ");
@@ -443,11 +442,9 @@ public class SmsService extends HibernateDaoSupport {
 			String key = obj.getFilterKey();
 			String value = obj.getFilterVal();
 			if(StringUtils.hasText(value)){
-				System.out.println(key+"==================="+value);
 				if(encMap.containsKey(key)){
 					value = EncryptionUtils.encry(value);
 				}
-				System.out.println("==================="+value);
 				if(!likemap.containsKey(key)){
 					where.append(" and " +key+ " = ? ");
 					params.add(value);

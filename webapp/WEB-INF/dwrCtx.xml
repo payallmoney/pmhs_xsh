@@ -159,6 +159,7 @@
 
 	<bean id="UserMenuTreeService" class="cn.net.tongfang.framework.util.service.ModuleMgr">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="moduleUtil" ref="ModuleUtil" />
 		<dwr:remote javascript="UserMenuTreeService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
