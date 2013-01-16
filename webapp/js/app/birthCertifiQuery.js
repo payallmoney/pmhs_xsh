@@ -29,6 +29,8 @@ app.birthCertifiQuery = new Ext.tf.BirthCertifiQueryPanel({
 		name : 'isEffectived'
 	},{
 		name : 'borthOrganization'
+	},{
+		name : 'linkmanTel'
 	}],
 	gridCmConfig : [{
 		"header" : "状态",
@@ -105,6 +107,10 @@ app.birthCertifiQuery = new Ext.tf.BirthCertifiQueryPanel({
 		"dataIndex" : "borthOrganization",
 		"id" : "borthOrganization",
 		"width" : 100
+	},{
+		"header" : "联系人电话",
+		"dataIndex" : "linkmanTel",
+		"id" : "linkmanTel",
 	}, {
 		"header" : "家庭住址",
 		"dataIndex" : "familyAddress",

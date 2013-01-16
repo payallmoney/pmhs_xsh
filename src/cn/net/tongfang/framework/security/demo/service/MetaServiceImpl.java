@@ -20,9 +20,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import com.googlecode.ehcache.annotations.Cacheable;
-
 import cn.net.tongfang.framework.security.vo.BasicInformation;
-import cn.net.tongfang.web.util.CacheUtil;
 
 public class MetaServiceImpl extends HibernateDaoSupport implements MetaService {
 	private static final Logger log = Logger.getLogger(MetaServiceImpl.class);
@@ -100,7 +98,7 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 		if(user != null){
 			username = user.getUsername();
 		}
-		String hql = "From " + tableName + " Where id = ? And inputPersonId = ?";
+		String hql = "From " + tableName + " Where id = ? And inputPersonId In(?,'admin')";
 		Query query = getSession().createQuery(hql);
 		query.setParameter(0, id);
 		query.setParameter(1, username);

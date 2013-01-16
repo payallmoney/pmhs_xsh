@@ -83,7 +83,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     		mcode = mcode.replace("%", "");
     		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
-        			"where  hf.fileNo = p.fileNo And hf.fileNo like ? " + hsqlparam,fileNo).get(0);
+        			"where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 " + hsqlparam,fileNo).get(0);
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
         	res.pageSize = pageSize;
@@ -104,7 +104,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     	}else if(condVal.equals(CondVal_Name)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where hf.fileNo = p.fileNo And hf.districtNumber like ? " +
-        			"And hf.name like ?" +  hsqlparam);
+        			"And hf.name like ?  and hf.status = 0" +  hsqlparam);
     		qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
@@ -140,7 +140,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address,p.linkman " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
-        			"And p.linkman like ? " + hsqlparam);
+        			"And p.linkman like ?  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, "%"+otherCond+"%");
         	qry.setMaxResults(pageSize);
@@ -151,7 +151,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_CardId)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo And hf.districtNumber like ? And p.idnumber like ? " + hsqlparam);
+        			"where p.fileNo = hf.fileNo And hf.districtNumber like ? And p.idnumber like ?  and hf.status = 0" + hsqlparam);
     		qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
@@ -174,7 +174,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_Barcode)){
     		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
-        			"where p.fileNo = hf.fileNo  And hf.barCode like ? " + hsqlparam);
+        			"where p.fileNo = hf.fileNo  And hf.barCode like ?  and hf.status = 0" + hsqlparam);
 //    		qry.setParameter(0, districtNumber + "%");
         	qry.setParameter(0, otherCond+ "%");
     		long count = (Long)qry.list().get(0);
@@ -188,7 +188,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         			"where p.fileNo = hf.fileNo  " +
         			"And hf.barCode like ?  and hf.status = 0 " + hsqlparam);
 //        	qry.setParameter(0, districtNumber + "%");
-        	qry.setParameter(0, otherCond+"%");
+        	qry.setParameter(0, "%"+otherCond+"%");
         	qry.setMaxResults(pageSize);
         	qry.setFirstResult(from);
         	List list = qry.list();

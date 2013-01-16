@@ -129,7 +129,7 @@ var cfg = [ {
 	id : "birthday",
 	xtype : "input",
 	setting : {
-	    maxlen : 8,
+		maxlen : 8,
 		format : 'date'
 	}
 }, {
@@ -295,7 +295,6 @@ var cfg = [ {
 	id : "husbandBirthday",
 	xtype : "input",
 	setting : {
-	    maxlen : 8,
 		format : 'date'
 	}
 }, {
@@ -390,5 +389,12 @@ var cfg = [ {
 	setting : {
 		ds : "137",
 		newlineStep : 1
+	}
+}, {
+	id : "barCode",
+	xtype : "input",
+	setting : {
+		maxlen : 18,
+		size : 18
 	}
 } ];

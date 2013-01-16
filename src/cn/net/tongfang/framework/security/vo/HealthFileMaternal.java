@@ -61,6 +61,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 	private Integer gravidity;
 	private String isClosed;
 	private Timestamp closedDate;
+	private String barCode;
 	// Constructors
 
 	/** default constructor */
@@ -94,7 +95,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 			String husbandOccupationOther, String husbandWorkUnit,
 			String inputPersonId, Timestamp inputDate, Integer gravidity,
 			String nationalityOther,String isClosed,Timestamp closedDate,
-			String relatedInfoSearch) {
+			String relatedInfoSearch,String barCode) {
 		this.fileNo = fileNo;
 		this.name = name;
 		this.birthday = birthday;
@@ -144,6 +145,7 @@ public class HealthFileMaternal implements java.io.Serializable {
 		this.nationalityOther = nationalityOther;
 		this.isClosed = isClosed;
 		this.relatedInfoSearch = relatedInfoSearch;
+		this.barCode = barCode;
 	}
 
 	// Property accessors
@@ -556,4 +558,11 @@ public class HealthFileMaternal implements java.io.Serializable {
 		this.relatedInfoSearch = relatedInfoSearch;
 	}
 
+	public String getBarCode() {
+		return barCode;
+	}
+
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
+	}
 }

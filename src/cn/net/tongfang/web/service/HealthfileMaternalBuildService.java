@@ -56,6 +56,12 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 				file.setInputDate(inputdate);
 				person.setInputDate(inputdate);
 				person.setBornStatus("是");
+				String barcode = "";
+				if(file.getBarCode() != null)
+					barcode = file.getBarCode();
+				if(data.getBarCode() == null)
+					data.setBarCode("");
+				file.setBarCode(data.getBarCode() + "," + barcode);
 				getHibernateTemplate().update(file);
 				getHibernateTemplate().update(person);
 			}

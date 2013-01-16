@@ -135,11 +135,12 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	}
 	
 	public String getItems(String fileNo){
-		List list = getHibernateTemplate().find("From VisitBeforeBorn Where fileNo = ? Order By item ASC", EncryptionUtils.encry(fileNo));
+		List list = getHibernateTemplate().find("From VisitBeforeBorn A,HealthFileMaternal B Where A.fileNo = ? And A.foreignId = B.id And B.isClosed = 0 Order By item ASC", EncryptionUtils.encry(fileNo));
 		String result = "";
 		if(list.size() > 0){
 			for(Object obj : list){
-				VisitBeforeBorn visitBeforeBorn = (VisitBeforeBorn)obj;
+				Object[] objs = (Object[])obj;
+				VisitBeforeBorn visitBeforeBorn = (VisitBeforeBorn)objs[0];
 				result += visitBeforeBorn.getItem() + ",";				
 			}
 		}

@@ -160,5 +160,8 @@
         <property name="closedDate" type="java.sql.Timestamp">
             <column name="ClosedDate" length="23" />
         </property>
+        <property name="barCode" type="string">
+			<column name="BarCode" />
+		</property>
     </class>
 </hibernate-mapping>

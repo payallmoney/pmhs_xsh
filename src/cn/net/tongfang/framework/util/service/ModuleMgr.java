@@ -4223,21 +4223,27 @@ public class ModuleMgr extends HibernateDaoSupport {
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
-			FinishGestation gestation = (FinishGestation)getHibernateTemplate().get(FinishGestation.class, id);
-			if(gestation.getInputPersonId().equals(user.getUsername())){
-				String maternalId = gestation.getHealthFileMaternalId();
-				HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, maternalId);
-				String fileNo = maternal.getFileNo();
-				query = getSession().createQuery(" From PersonalInfo Where bornStatus = '否' And fileNo = ? ");
-				query.setParameter(0, fileNo);
-				List list = query.list();
-				if(list.size() > 0){
-					PersonalInfo person = (PersonalInfo)list.get(0);
-					person.setBornStatus("是");
-					getHibernateTemplate().update(person);
-					maternal.setIsClosed("0");
-					getHibernateTemplate().update(maternal);
-					getHibernateTemplate().delete(gestation);
+			query = getSession().createQuery(" From FinishGestation Where healthFileMaternalId = ? ");
+			query.setParameter(0, id);
+			List l = query.list();
+//			FinishGestation gestation = (FinishGestation)getHibernateTemplate().get(FinishGestation.class, id);
+			if(l.size() > 0 ){
+				FinishGestation gestation = (FinishGestation)l.get(0);
+				if(gestation.getInputPersonId().equals(user.getUsername())){
+					String maternalId = gestation.getHealthFileMaternalId();
+					HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, maternalId);
+					String fileNo = maternal.getFileNo();
+					query = getSession().createQuery(" From PersonalInfo Where bornStatus = '否' And fileNo = ? ");
+					query.setParameter(0, fileNo);
+					List list = query.list();
+					if(list.size() > 0){
+						PersonalInfo person = (PersonalInfo)list.get(0);
+						person.setBornStatus("是");
+						getHibernateTemplate().update(person);
+						maternal.setIsClosed("0");
+						getHibernateTemplate().update(maternal);
+						getHibernateTemplate().delete(gestation);
+					}
 				}
 			}
 		}
