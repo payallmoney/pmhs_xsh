@@ -974,12 +974,13 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 			listeners : {
 				'check' : {
 					fn : function(checkbox,checked){
-						Ext.getCmp('districtNum').setValue('');
+						//Ext.getCmp('districtNum').setValue('');
 						if(checked){
 							Ext.getCmp('districtNum').setDisabled(false);
 						}else{
 							Ext.getCmp('districtNum').setDisabled(true);
 						}
+						console.log(checkbox.getValue())
 					}
 				}
 			} 
@@ -1089,6 +1090,9 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
                                 type : '0',
                                 conditions : []
                             };
+                            if(Ext.getCmp('isCrossDistrict').getValue()){
+                                cond.district = Ext.getCmp('districtNum').getValue();
+                            }
                             if(this.combo01 && !Ext.isEmpty(this.combo01.getValue())){
                                 cond.conditions[cond.conditions.length] = {filterKey:"type",filterVal:this.combo01.getValue()};
                             }
@@ -1098,7 +1102,6 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
                             if(combo02 && !Ext.isEmpty(combo02.getValue()) && value02 && !Ext.isEmpty(value02.getValue())){
                                 cond.conditions[cond.conditions.length] = {filterKey:combo02.getValue(),filterVal:""+value02.getValue()};
                             }
-                            
                         }
                         var o = cond;
 						//var o = this.getParams();
