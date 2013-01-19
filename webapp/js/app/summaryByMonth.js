@@ -9,6 +9,7 @@ app.summaryByMonth = new Ext.tf.SummaryStatisticDetailPanel({
 		healthfile : 'healthfile04',
 		children : 'children04',
 		maternal : 'maternal04',
+		vacciInfo : 'vacciInfo04',
 		chronicDisease : 'chronicDisease04',
 		grid : 'monthGrid',
 		isQryWipeOut : 'monthIsQryWipeOut'

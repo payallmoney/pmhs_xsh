@@ -9,6 +9,7 @@ app.summaryOptPerson = new Ext.tf.SummaryStatisticDetailPanel({
 		healthfile : 'healthfile02',
 		children : 'children02',
 		maternal : 'maternal02',
+		vacciInfo : 'vacciInfo02',
 		chronicDisease : 'chronicDisease02',
 		grid : 'optPersonGrid',
 		isQryWipeOut : 'optIsQryWipeOut'

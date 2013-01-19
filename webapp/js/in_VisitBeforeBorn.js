@@ -70,7 +70,7 @@ var cfg = [ {
 		width : 50,
 		format : 'int',
 		womanItem : true,
-		fileInput : [ 'fileNo span', 'showItemInfo', 'nextVisitDate' ]
+		fileInput : [ 'foreignId input', 'showItemInfo', 'nextVisitDate' ]
 	},
 	required : [ true, "项目" ]
 }, {
