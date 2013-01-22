@@ -6,34 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.cache.EhCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import com.googlecode.ehcache.annotations.Cacheable;
+
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 
 public class MetaServiceImpl extends HibernateDaoSupport implements MetaService {
 	private static final Logger log = Logger.getLogger(MetaServiceImpl.class);
-	
-	private CacheManager ehCacheManager;
-	
-	public CacheManager getEhCacheManager() {
-		return ehCacheManager;
-	}
-
-	public void setEhCacheManager(CacheManager ehCacheManager) {
-		this.ehCacheManager = ehCacheManager;
-	}
 
 	@Override
 	public Map<Integer, List<BasicInformation>> get(final List<Integer> code) {
@@ -46,10 +31,8 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 							throws HibernateException, SQLException {
 						Query qry = session.createQuery(hql);
 						qry.setParameterList("codes", code);
-
 						return (List<BasicInformation>) qry.list();
 					}
-
 				});
 
 		resMap = new HashMap<Integer, List<BasicInformation>>();

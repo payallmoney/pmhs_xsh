@@ -549,7 +549,7 @@ function getPrintCfg03(data){
         value[count++] =  "√";      
         var allergies = data.feme.exam02;
         if(data.person.allergiesOther.length>0){
-            allergies=allergies+","+data.person.allergiesOther;
+            allergies=data.person.allergiesOther;
         }
         value[count++] =  allergies;        
     }
@@ -959,9 +959,9 @@ function getPrintCfg04(data){
         value[count++] = data.firstVisit.transReason;
         value[count++] = data.firstVisit.transUnit;//建议转入机构及科室
     }
-    value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"Y");//下次随访时间
-    value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"m");//下次随访时间
-    value[count++] = Ext.util.Format.date(data.firstVisit.lastMenses,"d");//下次随访时间
+    value[count++] = Ext.util.Format.date(data.firstVisit.nextVisitDate,"Y");//下次随访时间
+    value[count++] = Ext.util.Format.date(data.firstVisit.nextVisitDate,"m");//下次随访时间
+    value[count++] = Ext.util.Format.date(data.firstVisit.nextVisitDate,"d");//下次随访时间
     value[count++] = data.org.name;//检查单位 无此字段
     value[count++] = data.firstVisit.visitDoctor;//主治医师
     for(var i = 0 ; i < count ; i++){

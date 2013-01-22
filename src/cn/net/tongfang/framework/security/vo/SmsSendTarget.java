@@ -1,21 +1,16 @@
 package cn.net.tongfang.framework.security.vo;
 
-import java.sql.Timestamp;
-
 /**
- * CodTelSendRule entity. @author MyEclipse Persistence Tools
+ * SmsSendTarget entity. @author MyEclipse Persistence Tools
  */
 
-public class CodTelSendRule implements java.io.Serializable {
+public class SmsSendTarget implements java.io.Serializable {
 
 	// Fields
 
 	private String id;
 	private String name;
 	private String tablename;
-	private String col;
-	private Integer days;
-	private Timestamp optdate;
 	private String msg;
 	private String wherestr;
 	private String tableidname;
@@ -23,31 +18,15 @@ public class CodTelSendRule implements java.io.Serializable {
 	// Constructors
 
 	/** default constructor */
-	public CodTelSendRule() {
-	}
-
-	/** minimal constructor */
-	public CodTelSendRule(String id, String tablename, String col,
-			Integer days, Timestamp optdate, String msg, String wherestr) {
-		this.id = id;
-		this.tablename = tablename;
-		this.col = col;
-		this.days = days;
-		this.optdate = optdate;
-		this.msg = msg;
-		this.wherestr = wherestr;
+	public SmsSendTarget() {
 	}
 
 	/** full constructor */
-	public CodTelSendRule(String id, String name, String tablename, String col,
-			Integer days, Timestamp optdate, String msg, String wherestr,
-			String tableidname) {
+	public SmsSendTarget(String id, String name, String tablename, String msg,
+			String wherestr, String tableidname) {
 		this.id = id;
 		this.name = name;
 		this.tablename = tablename;
-		this.col = col;
-		this.days = days;
-		this.optdate = optdate;
 		this.msg = msg;
 		this.wherestr = wherestr;
 		this.tableidname = tableidname;
@@ -77,30 +56,6 @@ public class CodTelSendRule implements java.io.Serializable {
 
 	public void setTablename(String tablename) {
 		this.tablename = tablename;
-	}
-
-	public String getCol() {
-		return this.col;
-	}
-
-	public void setCol(String col) {
-		this.col = col;
-	}
-
-	public Integer getDays() {
-		return this.days;
-	}
-
-	public void setDays(Integer days) {
-		this.days = days;
-	}
-
-	public Timestamp getOptdate() {
-		return this.optdate;
-	}
-
-	public void setOptdate(Timestamp optdate) {
-		this.optdate = optdate;
 	}
 
 	public String getMsg() {

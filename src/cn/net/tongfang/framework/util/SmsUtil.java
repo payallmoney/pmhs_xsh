@@ -1,5 +1,6 @@
 package cn.net.tongfang.framework.util;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.vo.CodTelSendRule;
+import cn.net.tongfang.framework.security.vo.SmsSendLog;
+import cn.net.tongfang.framework.security.vo.SmsSendLogId;
+import cn.net.tongfang.framework.security.vo.SmsStatus;
 
 public class SmsUtil extends HibernateDaoSupport implements ApplicationListener {
 	public static int IS_CREATED_FALSE = 0;
@@ -69,38 +73,71 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
 	}
-
 	
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {
-			startJobs();
+			createMsgJob();
 		}
 	}
 
-	public void startJobs() {
-		System.out.println("===SmsUtil================");
+	public void createMsgJob() {
 		// TODO 启动时生成当天的任务信息 即Sms_Status 表的数据
-//		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
-//		List isCreated = getSession()
-//				.createQuery("from SmsStatus where smsdate = ?")
-//				.setParameter(0, today).list();
-//		SmsStatus smsstatus = null;
-//		if (isCreated == null || isCreated.isEmpty()) {
-//			smsstatus = new SmsStatus();
-//			smsstatus.setSmsdate(new Timestamp(today.getTime()));
-//			smsstatus.setIscreated(IS_CREATED_FALSE);
-//			smsstatus.setIssended(IS_SENDED_FALSE);
-//			getSession().save(smsstatus);
-//		} else {
-//			smsstatus = (SmsStatus) isCreated.get(0);
-//		}
-//		// TODO 还要查看是否生成了当天应该发送的短信
-//		if (smsstatus.getIscreated() == IS_CREATED_FALSE) {
-//			smsstatus.setIscreated(IS_CREATED_TRUE);
-//			getSession().update(smsstatus);
-//		}
+		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+		List isCreated = getSession()
+				.createQuery("from SmsStatus where smsdate = ?")
+				.setParameter(0, today).list();
+		SmsStatus smsstatus = null;
+		if (isCreated == null || isCreated.isEmpty()) {
+			smsstatus = new SmsStatus();
+			smsstatus.setSmsdate(new Timestamp(today.getTime()));
+			smsstatus.setIscreated(IS_CREATED_FALSE);
+			smsstatus.setIssended(IS_SENDED_FALSE);
+			getSession().save(smsstatus);
+		} else {
+			smsstatus = (SmsStatus) isCreated.get(0);
+		}
+		// TODO 还要查看是否生成了当天应该发送的短信
+		if (smsstatus.getIscreated() == IS_CREATED_FALSE) {
+			smsstatus.setIscreated(IS_CREATED_TRUE);
+			getSession().update(smsstatus);
+		}
+		getSession().flush();
 		makeSendMsg();
+	}
+	
+	public void setSended(){
+		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+		List isCreated = getSession()
+				.createQuery("from SmsStatus where smsdate = ?")
+				.setParameter(0, today).list();
+		SmsStatus smsstatus = null;
+		if (isCreated == null || isCreated.isEmpty()) {
+			smsstatus = new SmsStatus();
+			smsstatus.setSmsdate(new Timestamp(today.getTime()));
+			smsstatus.setIscreated(IS_CREATED_FALSE);
+			smsstatus.setIssended(IS_SENDED_FALSE);
+			getSession().save(smsstatus);
+		} else {
+			smsstatus = (SmsStatus) isCreated.get(0);
+		}
+		smsstatus.setIssended(IS_SENDED_TRUE);
+		getSession().flush();
+	}
+	
+	public boolean isSended(){
+		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+		List isCreated = getSession()
+				.createQuery("from SmsStatus where smsdate = ?")
+				.setParameter(0, today).list();
+		SmsStatus smsstatus = null;
+		if (!isCreated.isEmpty()) {
+			smsstatus = (SmsStatus) isCreated.get(0);
+			if(smsstatus.getIssended() == IS_SENDED_TRUE){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void makeSendMsg() {
@@ -118,8 +155,8 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 							+ rule.getMsg()
 							+ "',"
 							+ IS_SENDED_FALSE
-							+ " , null,null "
-							+ "from "
+							+ " , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
+							+ " from "
 							+ rule.getTablename()
 							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ rule.getName()
@@ -130,7 +167,6 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 			getSession()
 					.createSQLQuery(sql)
 					.executeUpdate();
-			System.out.println("========sql==========="+sql);
 		}
 		if(rules.size()>0)
 			getSession().flush();

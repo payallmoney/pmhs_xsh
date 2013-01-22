@@ -61,21 +61,33 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="dbName" ><value>mas</value></property>
 	</bean>
 	
-	<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	<bean id="sendjobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	  <property name="targetObject" ref="SmsService" />
-	  <property name="targetMethod" value="schedulerJob" />
+	  <property name="targetMethod" value="sendMsgJob" />
 	</bean>
 	
-	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    	<property name="jobDetail" ref="jobDetail" />
+	<bean id="sendSmsJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    	<property name="jobDetail" ref="sendjobDetail" />
 	    <!-- run every morning at 10 AM -->
-	    <property name="cronExpression" value="0 0 0 * * ?" />
+	    <property name="cronExpression" value="0 55 12 * * ?" />
+	</bean>
+	
+	<bean id="makejobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	  <property name="targetObject" ref="SmsService" />
+	  <property name="targetMethod" value="makeMsgJob" />
+	</bean>
+	
+	<bean id="makeSmsjob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    	<property name="jobDetail" ref="makejobDetail" />
+	    <!-- run every morning at 10 AM -->
+	    <property name="cronExpression" value="0 50 12 * * ?" />
 	</bean>
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	    <property name="triggers">
 	        <list>
-	            <ref bean="cronTrigger" />
+	            <ref bean="sendSmsJob" />
+	            <ref bean="makeSmsjob" />
 	        </list>
 	    </property>
 	</bean>

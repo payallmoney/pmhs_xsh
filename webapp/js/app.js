@@ -165,6 +165,29 @@ function dwrExceptionHandler(errorString, error){
 }
 dwr.engine.setErrorHandler(dwrExceptionHandler);
 
+function denc(str){
+	var denclist = '$&@*!.:=>}€‚ƒˆ‰Š‹ŒŽ‘’•–àáâãäæççèéêëìßÞÝÜÛÜÛÚÙØÖÕÔÓÒÑÐÏÊÉÇÆÄÃ£Á';
+	var enclist =  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	var result = "";
+	var tmpStr = "";
+	for (var i = 0; i < str.length; i++) {
+		tmpStr = str.substr(i,1);
+		console.log(tmpStr)
+		if (tmpStr !== "%") {
+			var index = denclist.indexOf(tmpStr);
+			console.log(index)
+			if (index<0) {
+				tmpStr = String.fromCharCode(tmpStr.charCodeAt(0) ^ 'c'.charCodeAt(0));
+			} else {
+				tmpStr = enclist.substr(index,1);
+			}
+		}
+		console.log(tmpStr)
+		result = result + tmpStr;
+	}
+	return result;
+}
+
 var meta = parent.meta
 function getData(key) {
     return meta[key];

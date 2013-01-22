@@ -16,7 +16,6 @@ public class ConfigUtils {
 	 * @return
 	 */
 	public Boolean getIsEncryption(){
-		System.out.println("========取得加密值========");
 		String val = sysInfo.getVal(4);
 		if(val.equals("0")){
 			return true;

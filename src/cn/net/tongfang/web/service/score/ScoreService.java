@@ -76,7 +76,6 @@ public class ScoreService extends HibernateDaoSupport implements
 
 	// 生成分数规则
 	public PagingResult<Map> getScore(Map param) {
-		System.out.println("===================" + (String) param.get("group"));
 		String examdate = "";
 		if (param != null && param.containsKey("examdate")) {
 			examdate = (String) param.get("examdate");
@@ -87,16 +86,13 @@ public class ScoreService extends HibernateDaoSupport implements
 		// 标准答案filno
 		Map<String, Object> standardMap = (Map) scoreUtil
 				.getScoreSetting("standardMap");
-		System.out.println("===================" + (String) param.get("group"));
 		// 得到考试名称
 		Map<String, Object[]> persons = (Map) scoreUtil.getScoreSetting(
 				"ScorePerson", (String) param.get("group"));
 		List<ScorePerson> personsList = new ArrayList<ScorePerson>();
 		List<Map> retList = new ArrayList<Map>();
-		System.out.println("===================" + persons.size());
 		for (Iterator it = persons.keySet().iterator(); it.hasNext();) {
 			String key = (String) it.next();
-			System.out.println("===================" + key);
 			Object[] personobjs = persons.get(key);
 			ScorePerson person = (ScorePerson) personobjs[0];
 			SamTaxempcode emp = (SamTaxempcode) personobjs[1];
@@ -206,9 +202,6 @@ public class ScoreService extends HibernateDaoSupport implements
 
 	// 生成分数规则
 	public Map getPersonScore(Map param) {
-		System.out.println("===================" + (String) param.get("group"));
-		System.out.println("==================="
-				+ (String) param.get("personid"));
 		String examdate = "";
 		Map retmap=null;
 		if (param != null && param.containsKey("examdate")) {

@@ -1,0 +1,3 @@
+alter table Sms_SendLog add tablename varchar(50) , tableidvalue varchar(50)
+
+alter table Cod_TelSendRule add tableidname nvarchar(50)

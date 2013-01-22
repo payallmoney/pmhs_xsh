@@ -102,8 +102,7 @@ public class EncryptionUtils {
 			return "";
 		}
 		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
-		System.out.println("======util.isNeedEncry()============="+util.isNeedEncry());
-		if(util.isNeedEncry()){
+		if(util!=null && util.isNeedEncry()){
 			String result = "";
 			String tmpStr = "";
 			char[] charData = str.toCharArray();
@@ -123,6 +122,27 @@ public class EncryptionUtils {
 			return str;
 		}
 	}
+	
+	public static final String testEncry(String str) {
+		if (str == null) {
+			return "";
+		}
+		String result = "";
+		String tmpStr = "";
+		char[] charData = str.toCharArray();
+		for (int i = 0; i < charData.length; i++) {
+			tmpStr = String.copyValueOf(charData, i, 1);
+			if (!tmpStr.equals("%") && tmpStr != "%") {
+				if (ENCODE_HASHMAP.get(tmpStr) == null) {
+					tmpStr = encryChinese(tmpStr);
+				} else {
+					tmpStr = ENCODE_HASHMAP.get(tmpStr);
+				}
+			}
+			result = result + tmpStr;
+		}
+		return result;
+	}
 
 	/**
 	 * 解密
@@ -135,7 +155,7 @@ public class EncryptionUtils {
 			return "";
 		}
 		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
-		if(util.isNeedEncry()){
+		if(util!=null && util.isNeedEncry()){
 			String result = "";
 			String tmpStr = "";
 			char[] charData = str.toCharArray();
@@ -154,6 +174,27 @@ public class EncryptionUtils {
 		}else{
 			return str;
 		}
+	}
+	
+	public static final String testDecipher(String str) {
+		if (str == null) {
+			return "";
+		}
+		String result = "";
+		String tmpStr = "";
+		char[] charData = str.toCharArray();
+		for (int i = 0; i < charData.length; i++) {
+			tmpStr = String.copyValueOf(charData, i, 1);
+			if (!tmpStr.equals("%") && tmpStr != "%") {
+				if (DECODE_HASHMAP.get(tmpStr) == null) {
+					tmpStr = decipherChinese(tmpStr);
+				} else {
+					tmpStr = DECODE_HASHMAP.get(tmpStr);
+				}
+			}
+			result = result + tmpStr;
+		}
+		return result;
 	}
 
 	/**

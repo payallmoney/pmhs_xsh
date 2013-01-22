@@ -62,7 +62,7 @@ public class HealthFileChildren implements java.io.Serializable {
 	private String birthDefectOther;
 	private String childIllScreening;
 	private String childIllScreeningOther;
-	private Timestamp childHereditary;
+	private String childHereditary;
 	private String childHereditaryOther;
 	private String inputPersonId;
 	private Timestamp inputDate;
@@ -102,7 +102,7 @@ public class HealthFileChildren implements java.io.Serializable {
 			String childrenExceptions, String childrenException1,
 			String childrenExceptionOhter, String birthDefect,
 			String birthDefectOther, String childIllScreening,
-			String childIllScreeningOther, Timestamp childHereditary,
+			String childIllScreeningOther, String childHereditary,
 			String childHereditaryOther, String inputPersonId,
 			Timestamp inputDate,String fatherTel,String motherTel) {
 		this.fileNo = fileNo;
@@ -582,11 +582,11 @@ public class HealthFileChildren implements java.io.Serializable {
 		this.childIllScreeningOther = childIllScreeningOther;
 	}
 
-	public Timestamp getChildHereditary() {
+	public String getChildHereditary() {
 		return this.childHereditary;
 	}
 
-	public void setChildHereditary(Timestamp childHereditary) {
+	public void setChildHereditary(String childHereditary) {
 		this.childHereditary = childHereditary;
 	}
 

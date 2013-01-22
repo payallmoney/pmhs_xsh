@@ -24,7 +24,6 @@ public class EncryUtils extends HibernateDaoSupport implements
 	}
 
 	private void refresh() {
-		System.out.println("============EncryUtils=======");
 		SystemInformation sysInfo = (SystemInformation) getHibernateTemplate()
 				.get(SystemInformation.class, 4);
 		if (sysInfo == null) {

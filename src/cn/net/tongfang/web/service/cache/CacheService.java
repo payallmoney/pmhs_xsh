@@ -12,7 +12,6 @@ public class CacheService {
 
 
 	public void refresh() {
-		System.out.println("================refresh===");
 		for(CacheUtil util :cacheList){
 			util.refresh();
 		}
@@ -24,8 +23,6 @@ public class CacheService {
 				.getAuthentication();
 		System.out.println("auth is " + auth);
 		SecurityContextHolder.getContext().setAuthentication(null);
-		System.out.println("==============清理??====="
-				+ SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	public List<CacheUtil> getCacheList() {
