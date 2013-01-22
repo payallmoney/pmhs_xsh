@@ -124,6 +124,8 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		name : 'furiousHealthCount'
 	}, {
 		name : 'furiousVisitCount'
+	}, {
+		name : 'vacciInfoCount'
 	}],
 	gridCmConfig : [ {
 		"header" : "组织机构",
@@ -222,6 +224,10 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		"header" : "重性精神病随访",
 		"dataIndex" : "furiousVisitCount",
 		"id" : "furiousVisitCount"
+	}, {
+		"header" : "疫苗接种数",
+		"dataIndex" : "vacciInfoCount",
+		"id" : "vacciInfoCount"
 	}],
 	queryUrl : Ext.emptyFn,
 	
@@ -241,8 +247,10 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		var children = Ext.getCmp(this.idsArray.children).getValue();
 		var maternal = Ext.getCmp(this.idsArray.maternal).getValue();
 		var chronicDisease = Ext.getCmp(this.idsArray.chronicDisease).getValue();
+		var vacciInfor = Ext.getCmp(this.idsArray.vacciInfo).getValue();
 		var statisticResult = (healthfile ? '1' : '0') + (children ? '1' : '0') +
-			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '00';
+			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '0' +
+			(vacciInfor ? '1' : '0');;
 		var isQryWipeOut = Ext.getCmp(this.idsArray.isQryWipeOut).getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
 		var condition = {
@@ -260,7 +268,7 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		var children = Ext.getCmp(this.idsArray.children).getValue();
 		var maternal = Ext.getCmp(this.idsArray.maternal).getValue();
 		var chronicDisease = Ext.getCmp(this.idsArray.chronicDisease).getValue();
-		
+		var vacciInfor = Ext.getCmp(this.idsArray.vacciInfo).getValue();
 		if(healthfile || children || maternal || chronicDisease){
 			Ext.getCmp(this.idsArray.grid).getStore().reload();
 			
@@ -361,7 +369,11 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesVisitCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousVisitCount'));
 			}
-			
+			if(vacciInfor){
+				colsVisibleFalse.push(getColumnsIndex('vacciInfoCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndex('vacciInfoCount'));
+			}
 			setVisibleDetail(this.idsArray.grid,colsVisibleTrue,colsVisibleFalse);
 		}else{
 			showInfoObj.Error('请选择条件!');
@@ -439,6 +451,7 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 						 [createCheckBox('居民健康档案',true,this.idsArray.healthfile,this.idsArray.healthfile,0,0,1,null),
 						  createCheckBox('儿童业务数据',false,this.idsArray.children,this.idsArray.children,100,0,2,null),
 						  createCheckBox('孕产妇业务数据',false,this.idsArray.maternal,this.idsArray.maternal,0,25,3,null),
+						  createCheckBox('疫苗接种',false,this.idsArray.vacciInfo,this.idsArray.vacciInfo,110,25,3,null),
 						  createCheckBox('慢性病业务数据',false,this.idsArray.chronicDisease,this.idsArray.chronicDisease,0,50,4,null)],200)]
 			}]
 		});

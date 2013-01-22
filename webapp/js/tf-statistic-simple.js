@@ -106,9 +106,10 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 		var children = Ext.getCmp('children').getValue();
 		var maternal = Ext.getCmp('maternal').getValue();
 		var chronicDisease = Ext.getCmp('chronicDisease').getValue();
-		
+		var vacciInfor = Ext.getCmp('vacciInfor').getValue();
 		var statisticResult = (healthfile ? '1' : '0') + (children ? '1' : '0') +
-			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '00';
+			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '0' + 
+			(vacciInfor ? '1' : '0');
 		
 		var isQryWipeOut = Ext.getCmp('isQryWipeOut').getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
@@ -156,7 +157,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 		var children = Ext.getCmp('children').getValue();
 		var maternal = Ext.getCmp('maternal').getValue();
 		var chronicDisease = Ext.getCmp('chronicDisease').getValue();
-		
+		var vacciInfor = Ext.getCmp('vacciInfor').getValue();
 		if((org || inputPerson || year || month || day) && (healthfile || children || maternal || chronicDisease)){
 			if (isReset) {
 				this.pagingBar.changePage(1);
@@ -253,7 +254,11 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 				colsVisibleTrue.push(getColumnsIndex('diabetesVisitCount'));
 				colsVisibleTrue.push(getColumnsIndex('furiousVisitCount'));
 			}
-			
+			if(vacciInfor){
+				colsVisibleFalse.push(getColumnsIndex('vacciInfoCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndex('vacciInfoCount'));
+			}
 			setVisible(colsVisibleTrue,colsVisibleFalse);
 		}else{
 			showInfoObj.Error('请选择条件!');
@@ -362,6 +367,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 						 [createCheckBox('居民健康档案',true,'healthfile','healthfile',0,0,1,null),
 						  createCheckBox('儿童业务数据',false,'children','children',100,0,2,null),
 						  createCheckBox('孕产妇业务数据',false,'maternal','maternal',0,25,3,null),
+						  createCheckBox('疫苗接种',false,'vacciInfor','vacciInfor',110,25,3,null),
 						  createCheckBox('慢性病业务数据',false,'chronicDisease','chronicDisease',0,50,4,null)],200)]
 			}]
 		});

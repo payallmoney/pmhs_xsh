@@ -48,6 +48,8 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		name : 'furiousHealthCount'
 	}, {
 		name : 'furiousVisitCount'
+	}, {
+		name : 'vacciInfoCount'
 	}],
 	gridCmConfig : [ {
 		"header" : "组织机构",
@@ -147,6 +149,10 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		"header" : "重性精神病随访",
 		"dataIndex" : "furiousVisitCount",
 		"id" : "furiousVisitCount"
+	}, {
+		"header" : "疫苗接种数",
+		"dataIndex" : "vacciInfoCount",
+		"id" : "vacciInfoCount"
 	}]
 });
 

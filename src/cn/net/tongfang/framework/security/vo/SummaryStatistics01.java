@@ -33,6 +33,7 @@ public class SummaryStatistics01 implements java.io.Serializable {
 	private Long diabetesHealthCount;
 	private Long furiousVisitCount;
 	private Long furiousHealthCount;
+	private Long vacciInfoCount;
 	private String userName;
 	private String orgName;
 	private String optPersonId;
@@ -53,7 +54,8 @@ public class SummaryStatistics01 implements java.io.Serializable {
 			Long visitAfterBornCount, Long visitAfterBorn42count,
 			Long hypertensionVisitCount, Long hypertensionHealthCount,
 			Long diabetesVisitCount, Long diabetesHealthCount,
-			Long furiousVisitCount, Long furiousHealthCount, String optPersonId) {
+			Long furiousVisitCount, Long furiousHealthCount,
+			Long vacciInfoCount, String optPersonId) {
 		this.rowId = rowId;
 		this.orgId = orgId;
 		this.inputPersonId = inputPersonId;
@@ -77,6 +79,7 @@ public class SummaryStatistics01 implements java.io.Serializable {
 		this.diabetesHealthCount = diabetesHealthCount;
 		this.furiousVisitCount = furiousVisitCount;
 		this.furiousHealthCount = furiousHealthCount;
+		this.vacciInfoCount = vacciInfoCount;
 		this.optPersonId = optPersonId;
 	}
 
@@ -91,8 +94,8 @@ public class SummaryStatistics01 implements java.io.Serializable {
 			Long visitAfterBorn42count, Long hypertensionVisitCount,
 			Long hypertensionHealthCount, Long diabetesVisitCount,
 			Long diabetesHealthCount, Long furiousVisitCount,
-			Long furiousHealthCount, String userName, String orgName,
-			String optPersonId) {
+			Long furiousHealthCount, Long vacciInfoCount, String userName,
+			String orgName, String optPersonId) {
 		this.rowId = rowId;
 		this.orgId = orgId;
 		this.inputPersonId = inputPersonId;
@@ -117,6 +120,7 @@ public class SummaryStatistics01 implements java.io.Serializable {
 		this.diabetesHealthCount = diabetesHealthCount;
 		this.furiousVisitCount = furiousVisitCount;
 		this.furiousHealthCount = furiousHealthCount;
+		this.vacciInfoCount = vacciInfoCount;
 		this.userName = userName;
 		this.orgName = orgName;
 		this.optPersonId = optPersonId;
@@ -322,6 +326,14 @@ public class SummaryStatistics01 implements java.io.Serializable {
 
 	public void setFuriousHealthCount(Long furiousHealthCount) {
 		this.furiousHealthCount = furiousHealthCount;
+	}
+
+	public Long getVacciInfoCount() {
+		return this.vacciInfoCount;
+	}
+
+	public void setVacciInfoCount(Long vacciInfoCount) {
+		this.vacciInfoCount = vacciInfoCount;
 	}
 
 	public String getUserName() {

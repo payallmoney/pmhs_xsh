@@ -9,6 +9,7 @@ app.summaryByYear = new Ext.tf.SummaryStatisticDetailPanel({
 		healthfile : 'healthfile03',
 		children : 'children03',
 		maternal : 'maternal03',
+		vacciInfo : 'vacciInfo03',
 		chronicDisease : 'chronicDisease03',
 		grid : 'yearGrid',
 		isQryWipeOut : 'yearIsQryWipeOut'

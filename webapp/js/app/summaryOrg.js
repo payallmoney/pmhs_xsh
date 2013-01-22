@@ -9,6 +9,7 @@ app.summaryOrg = new Ext.tf.SummaryStatisticDetailPanel({
 		healthfile : 'healthfile01',
 		children : 'children01',
 		maternal : 'maternal01',
+		vacciInfo : 'vacciInfo01',
 		chronicDisease : 'chronicDisease01',
 		grid : 'orgGrid',
 		isQryWipeOut : 'orgIsQryWipeOut'

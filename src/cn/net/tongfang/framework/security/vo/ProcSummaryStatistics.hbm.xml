@@ -32,6 +32,7 @@
     		<return-property name="diabetesHealthCount" column="DiabetesHealthCount"></return-property>
     		<return-property name="furiousVisitCount" column="FuriousVisitCount"></return-property>
     		<return-property name="furiousHealthCount" column="FuriousHealthCount"></return-property>
+    		<return-property name="vacciInfoCount" column="VacciInfoCount"></return-property>
     		<return-property name="userName" column="UserName"></return-property>
     		<return-property name="orgName" column="OrgName"></return-property>
     		<return-property name="optPersonId" column="OptPersonID"></return-property>

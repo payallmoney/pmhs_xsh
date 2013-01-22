@@ -9,6 +9,7 @@ app.summaryByDay = new Ext.tf.SummaryStatisticDetailPanel({
 		healthfile : 'healthfile05',
 		children : 'children05',
 		maternal : 'maternal05',
+		vacciInfo : 'vacciInfo05',
 		chronicDisease : 'chronicDisease05',
 		grid : 'dayGrid',
 		isQryWipeOut : 'dayIsQryWipeOut'
