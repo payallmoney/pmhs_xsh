@@ -219,7 +219,8 @@
           xtype : "list",
           setting : {
               ds : "1411",
-              disabled : true
+            showOnly : true,
+            readonly : true
           },
           required : [true, "新生儿性别"] 
         },
