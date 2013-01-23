@@ -1,0 +1,2 @@
+alter table Sms_SendLog add personname varchar(50) null;
+alter table Sms_SendLog add querytype varchar(2) null;

@@ -38,5 +38,11 @@
         <property name="tableidvalue" type="java.lang.String">
             <column name="tableidvalue" length="50" />
         </property>
+        <property name="personname" type="java.lang.String">
+            <column name="personname" length="50" />
+        </property>
+        <property name="querytype" type="java.lang.String">
+            <column name="querytype" length="2" />
+        </property>
     </class>
 </hibernate-mapping>

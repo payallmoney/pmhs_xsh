@@ -1045,12 +1045,14 @@ Ext.sms.MsgSender = new Ext.Panel({
                 editable : false,
                 width : 80,
                 value : ''
-            },'-','发送时间：', {
+            },'-','发送日期：', {
                 xtype : 'datefield',
-                id : 'sms.msgsender.query.startdatefield'
+                id : 'sms.msgsender.query.startdatefield',
+                format : 'Y-m-d'
             },"至", {
                 xtype : 'datefield',
-                id : 'sms.msgsender.query.enddatefield'
+                id : 'sms.msgsender.query.enddatefield',
+                format : 'Y-m-d'
             }, "-", {
                 text : '查询发送日志',
                 iconCls : 'c_refresh',
@@ -1070,10 +1072,10 @@ Ext.sms.MsgSender = new Ext.Panel({
                                 conditions : []
                             };
                             if(!Ext.isEmpty(Ext.getCmp("sms.msgsender.query.startdatefield").getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:"vo.smsdate",filterVal:this.combo1.getValue(),opt:">="};
+                                cond.conditions[cond.conditions.length] = {filterKey:"vo.id.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.startdatefield").getValue(),opt:">="};
                             }
                             if(!Ext.isEmpty(Ext.getCmp("sms.msgsender.query.enddatefield").getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:"vo.smsdate",filterVal:this.combo1.getValue(),opt:"<="};
+                                cond.conditions[cond.conditions.length] = {filterKey:"vo.id.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.enddatefield").getValue(),opt:"<="};
                             }
                             if(!Ext.isEmpty(Ext.getCmp("sms.query.combo.type").getValue())){
                                 cond.district =Ext.getCmp("sms.query.combo.type").getValue();
@@ -1094,34 +1096,34 @@ Ext.sms.MsgSender = new Ext.Panel({
                     id : "smsdate" //
                 }, Ext.data.Record.create([{
                     name : 'smsdate',
-                    mapping : 'log.id.smsdate'
+                    mapping : 'id.smsdate'
                 }, {
                     name : 'examname',
-                    mapping : 'log.id.examname'
+                    mapping : 'id.examname'
                 }, {
                     name : 'fileno',
-                    mapping : 'log.id.fileno'
+                    mapping : 'id.fileno'
                 }, {
                     name : 'name',
-                    mapping : 'hf.name'
+                    mapping : 'personname'
                 }, {
                     name : 'examgroup',
-                    mapping : 'log.examgroup'
+                    mapping : 'examgroup'
                 }, {
                     name : 'tel',
-                    mapping : 'log.tel'
+                    mapping : 'tel'
                 }, {
                     name : 'msg',
-                    mapping : 'log.msg'
+                    mapping : 'msg'
                 }, {
                     name : 'status',
-                    mapping : 'log.status'
+                    mapping : 'status'
                 }, {
                     name : 'sendtime',
-                    mapping : 'log.sendtime'
+                    mapping : 'sendtime'
                 }, {
                     name : 'error',
-                    mapping : 'log.error'
+                    mapping : 'error'
                 }]))
             }),
             cm : new Ext.grid.ColumnModel([{

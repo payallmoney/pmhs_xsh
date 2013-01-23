@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import cn.net.tongfang.framework.security.vo.SmsSendLog;
 import cn.net.tongfang.framework.security.vo.SmsSendTarget;
 import cn.net.tongfang.framework.security.vo.SmsSendTargetOther;
 import cn.net.tongfang.framework.security.vo.SmsStatus;
+import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SmsUtil;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
@@ -53,6 +55,12 @@ public class SmsService extends HibernateDaoSupport {
 	public static final String Send_Status_CreatedNotSend = "0";
 	public static final String Send_Status_Sended = "1";
 	public static final String Send_Status_Sending = "2";
+	public static Map<String , Integer> typemap= new HashMap();
+	static{
+		typemap.put("y", GregorianCalendar.YEAR);
+		typemap.put("m", GregorianCalendar.MONTH);
+		typemap.put("d",GregorianCalendar.DAY_OF_MONTH);
+	}
 	private SmsUtil smsUtil;
 
 	//@Cacheable(cacheName = "messageCache")
@@ -325,18 +333,24 @@ public class SmsService extends HibernateDaoSupport {
 				}
 				//检查模板内容
 				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+module.getTablename());
-				String pattern = "\\$\\s*\\(\\s*(\\w+)\\s*\\)";
-				Pattern r = Pattern.compile(pattern);
-				Matcher m = r.matcher(module.getMsg());
-				while (m.find( )) {
+				Map<String,Boolean> propertys = getPropertysFromTemplate(module.getMsg());
+				for(String property : propertys.keySet()){
+					Field field = null;
 					try{
-						objClass.getDeclaredField(m.group(1));
+						field = objClass.getDeclaredField(property);
 					}catch(Exception ex){
 						ex.printStackTrace();
 						throw new Exception("表" + module.getTablename() + "中属性"
-								+ m.group(1) + "不存在!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+								+ property + "不存在!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
 					}
-				} 
+					if(field!=null){
+						boolean isDate = propertys.get(property);
+						if(isDate && !java.util.Date.class.isAssignableFrom(field.getType())){
+								throw new Exception("表" + module.getTablename() + "中属性"
+										+ property + "不是时间类型,不能使用$(date+10d)的模板格式!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+						}
+					}
+				}
 			}
 			
 		}
@@ -432,18 +446,24 @@ public class SmsService extends HibernateDaoSupport {
 				}
 				//检查模板内容
 				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+module.getTablename());
-				String pattern = "\\$\\s*\\(\\s*(\\w+)\\s*\\)";
-				Pattern r = Pattern.compile(pattern);
-				Matcher m = r.matcher(module.getMsg());
-				while (m.find( )) {
+				Map<String,Boolean> propertys = getPropertysFromTemplate(module.getMsg());
+				for(String property : propertys.keySet()){
+					Field field = null;
 					try{
-						objClass.getDeclaredField(m.group(1));
+						field = objClass.getDeclaredField(property);
 					}catch(Exception ex){
 						ex.printStackTrace();
 						throw new Exception("表" + module.getTablename() + "中属性"
-								+ m.group(1) + "不存在!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+								+ property + "不存在!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
 					}
-				} 
+					if(field!=null){
+						boolean isDate = propertys.get(property);
+						if(isDate && !java.util.Date.class.isAssignableFrom(field.getType())){
+								throw new Exception("表" + module.getTablename() + "中属性"
+										+ property + "不是时间类型,不能使用$(date+10d)的模板格式!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+						}
+					}
+				}
 			}
 		}
 		getHibernateTemplate().saveOrUpdate(module);
@@ -721,7 +741,7 @@ public class SmsService extends HibernateDaoSupport {
 		if(!smsUtil.isStarted()){
 			smsUtil.setStarted(true);
 		}
-		sendMsgJob();
+		sendMsgJobonly();
 		return "true";
 	}
 	
@@ -729,24 +749,26 @@ public class SmsService extends HibernateDaoSupport {
 		return smsUtil.isStarted();
 	}
 	
-	public  PagingResult<Map> queryLogs(QryCondition qryCond,
+	public  PagingResult<SmsSendLog> queryLogs(QryCondition qryCond,
 			PagingParam pp) throws Exception {
 		if (pp == null)
 			pp = new PagingParam();
+		Map leftlikemap = new HashMap();
+		leftlikemap.put("vo.id.fileNo", null);
+		Map likemap = new HashMap();
+		likemap.put("vo.name", null);
+		likemap.put("vo.tel", null);
+		Map encMap = new HashMap();
+		encMap.put("vo.name", null);
+		encMap.put("vo.id.fileNo", null);
+		Map intMap = new HashMap();
+		intMap.put("vo.status", null);
+		Map dateMap = new HashMap();
+		dateMap.put("vo.id.smsdate", null);
 		if("0".equals(qryCond.getDistrict())){
-			StringBuilder where = new StringBuilder(" where vo.id.fileno = hf.fileNo ");
+			getSession().createSQLQuery("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ").executeUpdate();
+			StringBuilder where = new StringBuilder(" where querytype='0' ");
 			List params = new ArrayList();
-			Map leftlikemap = new HashMap();
-			leftlikemap.put("vo.id.fileNo", null);
-			Map likemap = new HashMap();
-			likemap.put("hf.name", null);
-			likemap.put("vo.tel", null);
-			Map encMap = new HashMap();
-			encMap.put("hf.name", null);
-			encMap.put("vo.id.fileNo", null);
-			Map intMap = new HashMap();
-			intMap.put("vo.status", null);
-			
 			for(Condition obj : qryCond.getConditions()){
 				String key = obj.getFilterKey();
 				String value = obj.getFilterVal();
@@ -761,19 +783,23 @@ public class SmsService extends HibernateDaoSupport {
 						where.append(" and "+key+" like ?");
 						params.add("%" + value + "%");
 					}else{
-						where.append(" and " +key+ " = ? ");
 						if(intMap.containsKey(key)){
+							where.append(" and " +key+ " = ? ");
 							params.add(Integer.parseInt(value));
+						}else if(dateMap.containsKey(key)){
+							where.append(" and " +key + obj.getOpt()+ "  ? ");
+							params.add(new Date(Long.parseLong(value)));
 						}else{
+							where.append(" and " +key+ " = ? ");
 							params.add(value);
 						}
 					}
 				}
 			}
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
-			StringBuilder hql = new StringBuilder("select new map( vo as log, hf as hf)  from SmsSendLog vo , HealthFile hf  ").append(
+			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
 					where +" order by vo.id.smsdate desc,vo.sendtime desc ");
-			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo , HealthFile hf  ").append(
+			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo   ").append(
 					where);
 			log.debug("hql: " + hql.toString());
 			
@@ -794,20 +820,13 @@ public class SmsService extends HibernateDaoSupport {
 	
 			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 	
-			List<Map> list =  query.list();
+			List<SmsSendLog> list =  query.list();
 			
-			return new PagingResult<Map>(totalSize, list);
+			return new PagingResult<SmsSendLog>(totalSize, list);
 		}else{
-			StringBuilder where = new StringBuilder(" where vo.id.fileno = hf.id ");
+			getSession().createSQLQuery("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, Sms_SendTargetOther hf where vo.fileno = hf.id and vo.personname is null  and querytype='1' ").executeUpdate();
+			StringBuilder where = new StringBuilder(" where  querytype='1' ");
 			List params = new ArrayList();
-			Map leftlikemap = new HashMap();
-			leftlikemap.put("vo.id.fileNo", null);
-			Map likemap = new HashMap();
-			likemap.put("hf.name", null);
-			likemap.put("vo.tel", null);
-			Map encMap = new HashMap();
-			encMap.put("hf.name", null);
-			encMap.put("vo.id.fileNo", null);
 			for(Condition obj : qryCond.getConditions()){
 				String key = obj.getFilterKey();
 				String value = obj.getFilterVal();
@@ -822,15 +841,24 @@ public class SmsService extends HibernateDaoSupport {
 						where.append(" and "+key+" like ?");
 						params.add("%" + value + "%");
 					}else{
-						where.append(" and " +key+ " = ? ");
-						params.add(value);
+						if(intMap.containsKey(key)){
+							where.append(" and " +key+ " = ? ");
+							params.add(Integer.parseInt(value));
+						}else if(dateMap.containsKey(key)){
+							where.append(" and " +key + obj.getOpt()+ "  ? ");
+							params.add(new Date(Long.parseLong(value)));
+						}else{
+							where.append(" and " +key+ " = ? ");
+							params.add(value);
+						}
 					}
 				}
 			}
+			
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
-			StringBuilder hql = new StringBuilder("select new map( vo as log, hf as hf)  from SmsSendLog vo , SmsSendTargetOther hf  ").append(
+			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
 					where +" order by vo.id.smsdate desc,vo.sendtime desc ");
-			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo , SmsSendTargetOther hf  ").append(
+			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo  ").append(
 					where);
 			log.debug("hql: " + hql.toString());
 			
@@ -851,9 +879,9 @@ public class SmsService extends HibernateDaoSupport {
 	
 			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 	
-			List<Map> list =  query.list();
+			List<SmsSendLog> list =  query.list();
 			
-			return new PagingResult<Map>(totalSize, list);
+			return new PagingResult<SmsSendLog>(totalSize, list);
 		}
 	}
 	/**
@@ -868,6 +896,12 @@ public class SmsService extends HibernateDaoSupport {
 	public void sendMsgJob() throws Exception{
 		System.out.println("========发送短信的任务===========");
 		smsUtil.createMsgJob();
+		sendMsgJobonly();
+	}
+	
+	
+	public void sendMsgJobonly() throws Exception{
+		System.out.println("========只发送,不生成数据,发送短信的任务===========");
 		smsUtil.setStarted(true);
 		//这里进行短信的发送
 		APIClient handler = new APIClient();
@@ -969,7 +1003,7 @@ public class SmsService extends HibernateDaoSupport {
 							+ "', a.fileno,b.tel,'"
 							+ msg
 							+ "',0 , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
-							+ " from "
+							+ ",null,'0' from "
 							+ rule.getTablename()
 							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ title
@@ -982,7 +1016,7 @@ public class SmsService extends HibernateDaoSupport {
 			String where = " 1=1 ";
 			String districtNumber = (String)params.get("districtNumber");
 			if(StringUtils.hasText(districtNumber)){
-				where +=   " districtNumber like '"+districtNumber+"%' ";
+				where +=   " and districtNumber like '"+districtNumber+"%' ";
 			}
 			String type = (String)params.get("type");
 			if(StringUtils.hasText(type)){
@@ -1001,7 +1035,7 @@ public class SmsService extends HibernateDaoSupport {
 							+ "', id,tel,'"
 							+ msg
 							+ "',0 , null,null,'SmsSendTargetOther',id "
-							+ " from Sms_SendTargetOther other  where "+where+" and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = other.id and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+							+ ",null,'1' from Sms_SendTargetOther other  where "+where+" and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = other.id and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ title
 							+ "'  ) ";
 			getSession()
@@ -1009,36 +1043,110 @@ public class SmsService extends HibernateDaoSupport {
 					.executeUpdate();
 			ret = "发送成功!";
 		}
-		
-		sendMsgJob();
+		sendMsgJobonly();
 		return ret;
 	}
 	
 	//发送模板得到内容
 	private String getMsgFromTemplate(String template,Object obj){
 		String ret = template;
-		String pattern = "\\$\\s*\\(\\s*(\\w+)\\s*\\)";
+		String pattern = "\\$\\s*\\(\\s*([\\w$+-]+)\\s*\\)";
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(template);
 		while (m.find( )) {
 			try{
-				Object retobj = PropertyUtils.getProperty(obj, m.group(1));
-				String str = "";
-				if(retobj instanceof java.util.Date){
-					str =  new SimpleDateFormat("yyyy年M月d日").format((Date)retobj);
+				String str = m.group(0);
+				String testStr = m.group(1);
+				String pattern1 = "(\\w+)\\s*([+-])\\s*(\\d+)([ymd])";
+				Pattern p1 = Pattern.compile(pattern1);
+				if(testStr.startsWith("$")){
+					String testStr1 = testStr.substring(1);
+					Matcher m1 = p1.matcher(testStr1);
+					if(m1.find()){
+						if("today".equals(m1.group(1))){
+							GregorianCalendar today = new GregorianCalendar();
+							int num = Integer.parseInt(m1.group(3));
+							if("-".equals(m1.group(2))){
+								num = -num;
+							}
+							today.add(typemap.get(m1.group(4)), num);
+							str =  new SimpleDateFormat("yyyy年M月d日").format(today.getTime());
+						}
+					}
 				}else{
-					str =String.valueOf(retobj);
+					Matcher m1 = p1.matcher(testStr);
+					if(m1.find()){
+						Object retobj = PropertyUtils.getProperty(obj,m1.group(1));
+						if(retobj instanceof java.util.Date){
+							GregorianCalendar dateobj = new GregorianCalendar();
+							dateobj.setTime((Date)retobj);
+							int num = Integer.parseInt(m1.group(3));
+							if("-".equals(m1.group(2))){
+								num = -num;
+							}
+							dateobj.add(typemap.get(m1.group(4)), num);
+							str =  new SimpleDateFormat("yyyy年M月d日").format(dateobj.getTime());
+						}else{
+							str =String.valueOf(retobj);
+						}
+					}else{
+						Object retobj = PropertyUtils.getProperty(obj,testStr);
+						if(retobj instanceof java.util.Date){
+							str =  new SimpleDateFormat("yyyy年M月d日").format((Date)retobj);
+						}else{
+							str =String.valueOf(retobj);
+						}
+					}
 				}
 				ret = ret.replace(m.group(0), str);
-			}catch(Exception ex){
-//				ex.printStackTrace();
+			}catch(NoSuchMethodException ex){
+				ex.printStackTrace();
 				if(m.group(1).toLowerCase().indexOf("date")>=0){
 					String str =  new SimpleDateFormat("yyyy年M月d日").format(new Date());
 					ret = ret.replace(m.group(0), str);
 				}
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
-		} 
+		}
 		return ret;
+	}
+	
+	//发送模板得到内容
+	private Map<String,Boolean> getPropertysFromTemplate(String template){
+		String pattern = "\\$\\s*\\(\\s*([\\w$+-]+)\\s*\\)";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(template);
+		Map<String,Boolean> propertyList = new HashMap<String,Boolean>();
+		while (m.find( )) {
+			try{
+				String testStr = m.group(1);
+				String pattern1 = "(\\w+)\\s*([+-])\\s*(\\d+)([ymd])";
+				Pattern p1 = Pattern.compile(pattern1);
+				if(!testStr.startsWith("$")){
+					Matcher m1 = p1.matcher(testStr);
+					if(m1.find()){
+						propertyList.put(m1.group(1),true);
+					}else{
+						propertyList.put(testStr,false);
+					}
+				}
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+		}
+		return propertyList;
+	}
+	
+	public void Test(){
+		VisitBeforeBorn vb = new VisitBeforeBorn();
+		vb.setNextVisitDate(new Timestamp(new Date().getTime()));
+		System.out.println("==================="+getMsgFromTemplate("测试时间$(nextVisitDate-)",vb));
+	}
+	
+	public  static void main(String[]args){
+		SmsService ss = new SmsService();
+		ss.Test();
 	}
 	
 	public String querySendStatus(){

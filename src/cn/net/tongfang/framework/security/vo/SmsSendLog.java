@@ -20,8 +20,20 @@ public class SmsSendLog implements java.io.Serializable {
 	private String error;
 	private String tablename;
 	private String tableidvalue;
+	private String personname;
+	private String querytype;
+	
+	
 
 	// Constructors
+
+	public String getQuerytype() {
+		return querytype;
+	}
+
+	public void setQuerytype(String querytype) {
+		this.querytype = querytype;
+	}
 
 	/** default constructor */
 	public SmsSendLog() {
@@ -40,7 +52,7 @@ public class SmsSendLog implements java.io.Serializable {
 	/** full constructor */
 	public SmsSendLog(SmsSendLogId id, String tel, String msg, Integer status,
 			Timestamp sendtime, String error, String tablename,
-			String tableidvalue) {
+			String tableidvalue,String personname,String querytype) {
 		this.id = id;
 		this.tel = tel;
 		this.msg = msg;
@@ -49,7 +61,19 @@ public class SmsSendLog implements java.io.Serializable {
 		this.error = error;
 		this.tablename = tablename;
 		this.tableidvalue = tableidvalue;
+		this.personname = personname;
+		this.querytype = querytype;
 	}
+	
+	
+	public String getPersonname() {
+		return personname;
+	}
+
+	public void setPersonname(String personname) {
+		this.personname = personname;
+	}
+
 	public SmsSendLog(SmsSendLog vo,String flag) {
 		//取出加解密的结果  true 为进行解密, false为进行加密
 		if("denc".equals(flag)){

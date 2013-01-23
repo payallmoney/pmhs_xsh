@@ -156,12 +156,12 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 							+ "',"
 							+ IS_SENDED_FALSE
 							+ " , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
-							+ " from "
+							+ ",null,'0' from "
 							+ rule.getTablename()
 							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ rule.getName()
-							+ "'  ) and a."
-							+ rule.getCol() + " = dateadd(day,"
+							+ "'  ) and DATEADD(D, 0, DATEDIFF(D, 0, a."
+							+ rule.getCol() + ")) = dateadd(day,"
 							+ rule.getDays()
 							+ ", DATEADD(D, 0, DATEDIFF(D, 0, GETDATE()))) ";
 			getSession()
