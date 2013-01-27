@@ -48,7 +48,6 @@ public class ScoreUtil extends HibernateDaoSupport implements
 
 
 	public void refresh() {
-		System.out.println("=========SmsUtil==========");
 		nameMaps.clear();
 		getScoreDetailItem();
 		getScoreRule();
@@ -57,7 +56,6 @@ public class ScoreUtil extends HibernateDaoSupport implements
 		getStandard();
 		buildBasicInformationMap();
 		getExamdate();
-		System.out.println("============初始化成功=======");
 	}
 
 	/**
@@ -172,7 +170,6 @@ public class ScoreUtil extends HibernateDaoSupport implements
 				resMap.put(type, info);
 			}
 			info.add(i);
-			// System.out.println("==============basicinfo====="+i);
 		}
 		basicInformationMap = resMap;
 	}
@@ -199,7 +196,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 					res1 = MethodUtils.invokeMethod(obj, fun[1], bo1);
 					standardMap.put(item, res1);
 				} catch (Exception ex) {
-					ex.printStackTrace();
+//					ex.printStackTrace();
 					log.error("CodScoreRule中的考试[" + item + "]的标准答案["
 							+ rule.getStandard() + "]在数据库中不存在!请与系统管理员联系!");
 					continue;

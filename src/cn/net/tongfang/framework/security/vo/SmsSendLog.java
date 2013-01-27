@@ -18,24 +18,62 @@ public class SmsSendLog implements java.io.Serializable {
 	private Integer status;
 	private Timestamp sendtime;
 	private String error;
+	private String tablename;
+	private String tableidvalue;
+	private String personname;
+	private String querytype;
+	
+	
 
 	// Constructors
+
+	public String getQuerytype() {
+		return querytype;
+	}
+
+	public void setQuerytype(String querytype) {
+		this.querytype = querytype;
+	}
 
 	/** default constructor */
 	public SmsSendLog() {
 	}
 
+	/** minimal constructor */
+	public SmsSendLog(SmsSendLogId id, String tel, String msg, Integer status) {
+		this.id = id;
+		this.tel = tel;
+		this.msg = msg;
+		this.status = status;
+	}
+	
+	
+
 	/** full constructor */
 	public SmsSendLog(SmsSendLogId id, String tel, String msg, Integer status,
-			Timestamp sendtime, String error) {
+			Timestamp sendtime, String error, String tablename,
+			String tableidvalue,String personname,String querytype) {
 		this.id = id;
 		this.tel = tel;
 		this.msg = msg;
 		this.status = status;
 		this.sendtime = sendtime;
 		this.error = error;
+		this.tablename = tablename;
+		this.tableidvalue = tableidvalue;
+		this.personname = personname;
+		this.querytype = querytype;
 	}
 	
+	
+	public String getPersonname() {
+		return personname;
+	}
+
+	public void setPersonname(String personname) {
+		this.personname = personname;
+	}
+
 	public SmsSendLog(SmsSendLog vo,String flag) {
 		//取出加解密的结果  true 为进行解密, false为进行加密
 		if("denc".equals(flag)){
@@ -47,6 +85,8 @@ public class SmsSendLog implements java.io.Serializable {
 			this.msg = vo.getMsg();
 			this.status = vo.getStatus();
 			this.sendtime = vo.getSendtime();
+			this.tableidvalue = vo.getTableidvalue();
+			this.tablename = vo.getTablename();
 			this.error = vo.getError();
 		}else{
 			this.id = new SmsSendLogId();
@@ -58,6 +98,8 @@ public class SmsSendLog implements java.io.Serializable {
 			this.status = vo.getStatus();
 			this.sendtime = vo.getSendtime();
 			this.error = vo.getError();
+			this.tableidvalue = vo.getTableidvalue();
+			this.tablename = vo.getTablename();
 		}
 	}
 
@@ -109,6 +151,22 @@ public class SmsSendLog implements java.io.Serializable {
 
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public String getTablename() {
+		return this.tablename;
+	}
+
+	public void setTablename(String tablename) {
+		this.tablename = tablename;
+	}
+
+	public String getTableidvalue() {
+		return this.tableidvalue;
+	}
+
+	public void setTableidvalue(String tableidvalue) {
+		this.tableidvalue = tableidvalue;
 	}
 
 }

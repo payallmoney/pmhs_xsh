@@ -75,8 +75,8 @@ function getChildPrintCfg01(data){
     value[count++] = data.children.name;//   姓名
     value[count++] = data.children.sex;//   性别
     value[count++] = data.children.allergiesHistory;// 过敏史
-    value[count++] = data.children.fatherName;//  母亲姓名
-    value[count++] = data.children.motherName;//  父亲姓名
+    value[count++] = data.children.motherName;//  母亲姓名
+    value[count++] = data.children.fatherName;//  父亲姓名
     value[count++] = Ext.util.Format.date(data.children.buildDate,"Y-m-d");//    建册-日期
     value[count++] = data.children.buildUnit;//  建册单位
     value[count++] = data.children.residenceProvence;//  户籍-省
@@ -175,8 +175,6 @@ function getChildPrintCfg02(data){
     pos[count++] =  new Array("26.41cm","3.81cm","0.5cm","0.61cm");
     pos[count++] =  new Array("26.41cm","4.92cm","0.5cm","0.61cm");
     pos[count++] =  new Array("26.41cm","7.33cm","6.01cm","0.61cm");
-
-
 
     var value = new Array();
     count=0

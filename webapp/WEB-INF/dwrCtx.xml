@@ -146,6 +146,7 @@
 	
 	<bean id="SmsService" class="cn.net.tongfang.web.service.sms.SmsService">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="smsUtil" ref="SmsUtil" />
 		<dwr:remote javascript="SmsService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>

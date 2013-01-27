@@ -250,15 +250,18 @@ Ext.tf.SmsPanel = Ext.extend(Ext.Panel, {
 		}),'-',new Ext.Action({
 			text : '生成联系电话',
 			iconCls : 'c_del',
-			handler : function() {
+			handler : function(obj) {
+			    obj.disable();
 				this.deleteUrl(null, {
 					callback : function(data) {
 						showInfoObj.Infor(data);
 						this.load();
+						obj.enable();
 					}.createDelegate(this),
 					errorHandler : function(msg) {
 						console.log(msg);
 						showInfoObj.Infor('出错！错误信息:'+msg);
+						obj.enable();
 					}
 				});
 			}.createDelegate(this)

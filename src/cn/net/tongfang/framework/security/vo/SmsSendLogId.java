@@ -1,6 +1,6 @@
 package cn.net.tongfang.framework.security.vo;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * SmsSendLogId entity. @author MyEclipse Persistence Tools
@@ -10,9 +10,9 @@ public class SmsSendLogId implements java.io.Serializable {
 
 	// Fields
 
-	private Date smsdate;
 	private String examname;
 	private String fileno;
+	private Timestamp smsdate;
 
 	// Constructors
 
@@ -21,21 +21,13 @@ public class SmsSendLogId implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public SmsSendLogId(Date smsdate, String examname, String fileno) {
-		this.smsdate = smsdate;
+	public SmsSendLogId(String examname, String fileno, Timestamp smsdate) {
 		this.examname = examname;
 		this.fileno = fileno;
+		this.smsdate = smsdate;
 	}
 
 	// Property accessors
-
-	public Date getSmsdate() {
-		return this.smsdate;
-	}
-
-	public void setSmsdate(Date smsdate) {
-		this.smsdate = smsdate;
-	}
 
 	public String getExamname() {
 		return this.examname;
@@ -53,6 +45,14 @@ public class SmsSendLogId implements java.io.Serializable {
 		this.fileno = fileno;
 	}
 
+	public Timestamp getSmsdate() {
+		return this.smsdate;
+	}
+
+	public void setSmsdate(Timestamp smsdate) {
+		this.smsdate = smsdate;
+	}
+
 	public boolean equals(Object other) {
 		if ((this == other))
 			return true;
@@ -62,27 +62,26 @@ public class SmsSendLogId implements java.io.Serializable {
 			return false;
 		SmsSendLogId castOther = (SmsSendLogId) other;
 
-		return ((this.getSmsdate() == castOther.getSmsdate()) || (this
-				.getSmsdate() != null && castOther.getSmsdate() != null && this
-				.getSmsdate().equals(castOther.getSmsdate())))
-				&& ((this.getExamname() == castOther.getExamname()) || (this
-						.getExamname() != null
-						&& castOther.getExamname() != null && this
-						.getExamname().equals(castOther.getExamname())))
+		return ((this.getExamname() == castOther.getExamname()) || (this
+				.getExamname() != null && castOther.getExamname() != null && this
+				.getExamname().equals(castOther.getExamname())))
 				&& ((this.getFileno() == castOther.getFileno()) || (this
 						.getFileno() != null && castOther.getFileno() != null && this
-						.getFileno().equals(castOther.getFileno())));
+						.getFileno().equals(castOther.getFileno())))
+				&& ((this.getSmsdate() == castOther.getSmsdate()) || (this
+						.getSmsdate() != null && castOther.getSmsdate() != null && this
+						.getSmsdate().equals(castOther.getSmsdate())));
 	}
 
 	public int hashCode() {
 		int result = 17;
 
 		result = 37 * result
-				+ (getSmsdate() == null ? 0 : this.getSmsdate().hashCode());
-		result = 37 * result
 				+ (getExamname() == null ? 0 : this.getExamname().hashCode());
 		result = 37 * result
 				+ (getFileno() == null ? 0 : this.getFileno().hashCode());
+		result = 37 * result
+				+ (getSmsdate() == null ? 0 : this.getSmsdate().hashCode());
 		return result;
 	}
 

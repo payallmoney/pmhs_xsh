@@ -230,3 +230,5 @@ border-bottom:6px solid transparent;}
 	border-right: #FFF solid 1px;
 	border-bottom: #FFF solid 1px;
 }
+.float-left{float:left;clear:none!important;}
+.color-gray{color:GRAY}
