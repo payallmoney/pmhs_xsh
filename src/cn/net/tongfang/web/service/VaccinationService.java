@@ -136,30 +136,42 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 				}
 			}
 			String fileNo = EncryptionUtils.encry(vacciInfo.getFileNo());
-			vacciInfo.setFileNo(fileNo);
-			if (vacciInfo.getIsSpecail().equals(1)) {
-				String hql = " From VaccineImmuneInfo Where fileNo = ? And colNum = ? ";
-				Query query = getSession().createQuery(hql);
-				query.setParameter(0, fileNo);
-				query.setParameter(1, vacciInfo.getColNum());
-				List list = query.list();
-				if (list.size() == 2) {
-					throw new RuntimeException("规划内A群流脑疫苗接种完毕");
-				} else if (list.size() == 1) {
-					vacciInfo.setNumber(2);
-				} else if (list.size() == 0) {
-					vacciInfo.setNumber(1);
+			//检测此疫苗是否已接种
+			String sql = " From VaccineImmuneInfo Where fileNo = ? And colNum = ? And rowNumber = ? And number = ? ";
+			Query q = getSession().createQuery(sql);
+			q.setParameter(0, fileNo);
+			q.setParameter(1, vacciInfo.getColNum());
+			q.setParameter(2, vacciInfo.getRowNumber());
+			q.setParameter(3, vacciInfo.getNumber());
+			List l = q.list();
+			if(l.size() > 0){
+				return null;
+			}else{
+				vacciInfo.setFileNo(fileNo);
+				if (vacciInfo.getIsSpecail().equals(1)) {
+					String hql = " From VaccineImmuneInfo Where fileNo = ? And colNum = ? ";
+					Query query = getSession().createQuery(hql);
+					query.setParameter(0, fileNo);
+					query.setParameter(1, vacciInfo.getColNum());
+					List list = query.list();
+					if (list.size() == 2) {
+						throw new RuntimeException("规划内A群流脑疫苗接种完毕");
+					} else if (list.size() == 1) {
+						vacciInfo.setNumber(2);
+					} else if (list.size() == 0) {
+						vacciInfo.setNumber(1);
+					}
 				}
+				vacciInfo.setIsPlan(0);// 计划内
+				VaccineImmuneInfo info = new VaccineImmuneInfo();
+				BeanUtils.copyProperties(vacciInfo, info);
+				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+						.currentOperator();
+				info.setInputPersonId(user.getUsername());
+				info.setInputDate(new Timestamp(System.currentTimeMillis()));
+				getHibernateTemplate().save(info);
+				return info;
 			}
-			vacciInfo.setIsPlan(0);// 计划内
-			VaccineImmuneInfo info = new VaccineImmuneInfo();
-			BeanUtils.copyProperties(vacciInfo, info);
-			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
-					.currentOperator();
-			info.setInputPersonId(user.getUsername());
-			info.setInputDate(new Timestamp(System.currentTimeMillis()));
-			getHibernateTemplate().save(info);
-			return info;
 		} else {
 			throw new RuntimeException("请重新填写接种日期");
 		}

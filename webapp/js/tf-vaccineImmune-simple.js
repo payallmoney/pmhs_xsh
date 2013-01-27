@@ -96,6 +96,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         	var defPlantedDate = null;
         	//应种时间
         	var defLimitDate = null;
+        	var vaccinationDate = new Date();
         	var defVacci,defVacciPosition,defVacciWay,defVacciDose,defVacciDoctor,defVacciAddress,defVacciRemark;
         	defVacci = defVacciPosition = defVacciWay = defVacciDose = defVacciRemark = '';
         	defVacciDoctor = Ext.tf.currentUser.taxempname;
@@ -135,6 +136,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         		defVacciAddress = vacciInfo.vacciAddress;
         		companyId = vacciInfo.companyId;
         		immuneBatchNum = vacciInfo.immuneBatchNum;
+        		vaccinationDate = calculateTimeObj.formatDate(vacciInfo.vaccinationDate,'-');
         		if(vacciRules != null){
         			if(vacciRules.minMonthAge != null){
                 		defPlantedDate = new Date(birthday.getFullYear(),birthday.getMonth(),birthday.getDate());
@@ -150,6 +152,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         	}
 
         	if(type == 0 || type == 1){
+        		console.log(vaccinationDate);
         		var leftPanel = new Ext.FormPanel({
 //        			title : '疫苗接种信息',
         			region : 'west',
@@ -163,7 +166,7 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			         Component.createLabel('plantedDateText','plantedDateText',5,68,'应种日期:'),
         			         Component.createTextfield('plantedDate','plantedDate',65,65,205,true,defPlantedDate),
         			         Component.createLabel('vacciDateText','vacciDateText',5,98,'接种日期:'),
-        			         Component.createDatefield('vaccinationDate','vaccinationDate',65,95,'Y-m-d',205,new Date(),false,{
+        			         Component.createDatefield('vaccinationDate','vaccinationDate',65,95,'Y-m-d',205,vaccinationDate,false,{
         			        	 'select' : function(){
         			        		 var date = this.getValue().format('Y-m-d');
         			        		 if(defLimitDate != null){
@@ -220,18 +223,22 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
         			        		 formbean.birthday = birthday.format('Y-m-d');
         			        		 formbean.isSpecail = isSpecail; 
 //        			        		 console.log(formbean);
+        			        		 Ext.getCmp('tabpanel-01-vacci').el.mask('正在重新加载数据...');
         			        		 VaccinationService.saveVaccineImmuneInfo(formbean,function(data){
-        			        			 showInfoObj.Infor('保存成功');
-        			        			 cls = 'background-color: #b2dece;text-align:left;cursor:pointer;';
-        			        			 var date = data.vaccinationDate.format('Y-m-d');
-        			        			 var val = '<span>第' + data.number + '剂<br />' + date + '</span><span class="ColAndRowVal" style="display:none;">' + 
-        			        			 	data.colNum + ',' + data.rowNumber + '</span>';
-        			        			 $('#' + id).html(val);
-        			        			 $('#' + id).attr('style',cls);
-        			        			 $('#' + id).removeAttr('onclick');
-        			        			 $('#' + id).bind("click",function(){
-        			        				 TDdbClick(data.colNum,data.rowNumber,'1','0',fileNo,id)
-        			        			 });
+        			        			 if(data != null){
+        			        				 showInfoObj.Infor('保存成功');
+            			        			 cls = 'background-color: #b2dece;text-align:left;cursor:pointer;';
+            			        			 var date = data.vaccinationDate.format('Y-m-d');
+            			        			 var val = '<span>第' + data.number + '剂<br />' + date + '</span><span class="ColAndRowVal" style="display:none;">' + 
+            			        			 	data.colNum + ',' + data.rowNumber + '</span>';
+            			        			 $('#' + id).html(val);
+            			        			 $('#' + id).attr('style',cls);
+            			        			 $('#' + id).removeAttr('onclick');
+            			        			 $('#' + id).bind("click",function(){
+            			        				 TDdbClick(data.colNum,data.rowNumber,'1','0',fileNo,id)
+            			        			 }); 
+        			        			 }
+        			        			 Ext.getCmp('tabpanel-01-vacci').el.unmask();
         			        		 });
         			        		 
         			        		 this.win.close();
@@ -615,10 +622,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 	    	if(vaccineImmune != null){
 	    		var fileNo = records.get('fileNo');
 		    	VaccinationService.vacciProgram(fileNo,function(data){
-//		    		console.log(data);
-		    		var $table_vacciProgram = genCenterContent(data,fileNo);
-		    		var $table_basicInfo = genBasicInfo(records);
-			    	
+		    		var $table_basicInfo = genBasicInfo(records);			    	
 			    	var vacciedGridghnPanel = new Ext.tf.VaccineImmuneGridPanel({
 	        			queryUrl : VaccinationService.queryVacciInfo,
 //	        			singleSelect : true,
@@ -737,7 +741,7 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 								}],
 								autoScroll: true,
 								id : 'tabpanel-01-vacci',
-					            html: '<div class="vacciContainer">' + $table_vacciProgram + '</div>'
+					            html: '<div class="vacciContainer"></div>'
 					        },{
 					        	title : '已接种疫苗（列表，可删除）',
 					        	height : 300,
@@ -780,6 +784,10 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 					});
 					win.show(this);
 					win.maximize();
+		    		Ext.getCmp('tabpanel-01-vacci').el.mask('正在加载数据...');
+		    		var $table_vacciProgram = genCenterContent(data,fileNo);
+		    		$('.vacciContainer').html($table_vacciProgram);
+		    		Ext.getCmp('tabpanel-01-vacci').el.unmask();
 		    	});
 	    	}else{
 	    		showInfoObj.Infor('请先建证再进入接种疫苗免疫程序');
