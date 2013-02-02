@@ -237,7 +237,9 @@ function openWinForm(type,data,col,row,isSpecail,id){//type 0 新建 1修改 2�
             			        			 $('#' + id).bind("click",function(){
             			        				 TDdbClick(data.colNum,data.rowNumber,'1','0',fileNo,id)
             			        			 }); 
-        			        			 }
+        			        			 }else{
+											showInfoObj.Infor('此次预防接种已经保存，无需重复录入。');
+										 }
         			        			 Ext.getCmp('tabpanel-01-vacci').el.unmask();
         			        		 });
         			        		 
