@@ -4188,18 +4188,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if (gestation.getInputPersonId().equals(user.getUsername())) {
 					String maternalId = gestation.getHealthFileMaternalId();
 					HealthFileMaternal maternal = (HealthFileMaternal) getHibernateTemplate().get(HealthFileMaternal.class, maternalId);
+					maternal.setIsClosed("0");
+					getHibernateTemplate().update(maternal);
+					getHibernateTemplate().delete(gestation);
 					String fileNo = maternal.getFileNo();
-					query = getSession().createQuery(" From PersonalInfo Where bornStatus = '否' And fileNo = ? ");
+					query = getSession().createSQLQuery(" update PersonalInfo set bornStatus = '是'  Where fileNo = ? ");
 					query.setParameter(0, fileNo);
-					List list = query.list();
-					if (list.size() > 0) {
-						PersonalInfo person = (PersonalInfo) list.get(0);
-						person.setBornStatus("是");
-						getHibernateTemplate().update(person);
-						maternal.setIsClosed("0");
-						getHibernateTemplate().update(maternal);
-						getHibernateTemplate().delete(gestation);
-					}
+					query.executeUpdate();
 				}
 			}
 		}
