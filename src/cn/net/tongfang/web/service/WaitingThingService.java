@@ -121,7 +121,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		return result;
 	}
 
-	public void dealWaitingThing(List<WaitingThingDeal> deals) {
+	public void dealWaitingThing(List<WaitingThingDeal> deals) throws Exception{
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
@@ -255,7 +255,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		return null;
 	}
 
-	public void saveNewHealthFileWt(NewHealthFileWTBO file) {
+	public void saveNewHealthFileWt(NewHealthFileWTBO file) throws Exception{
 		String fileNo = fileNoGen
 				.getNextFileNo(file.getDistrictNumber().trim());
 		fileNo = EncryptionUtils.encry(fileNo);
@@ -301,7 +301,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		getHibernateTemplate().update(wt);
 	}
 
-	public void saveMBInfoWt(ChronicDiseaseWTBO mb) {
+	public void saveMBInfoWt(ChronicDiseaseWTBO mb)throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		String hql = " From DiseaseHistory Where personalInfoId = ? And diseaseId = ?";
@@ -324,7 +324,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		if(!mbType.equals(-1)) 
 			query.setParameter(1, mbType);
 		else
-			throw new RuntimeException();
+			throw new Exception("mbType类型不正确!");
 		List list = query.list();
 		if(list.size() == 0){
 			DiseaseHistory dh = new DiseaseHistory();

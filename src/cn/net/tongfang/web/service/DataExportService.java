@@ -234,7 +234,7 @@ public class DataExportService extends HibernateDaoSupport{
 		return fileName;
 	}
 	
-	public String dataExportChildFile(String disNo,String filterKey,String filterVal){
+	public String dataExportChildFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where," and a.districtNumber like ? ");
@@ -276,7 +276,7 @@ public class DataExportService extends HibernateDaoSupport{
 		return getDownloadURL() + fileName;
 	}
 	
-	public String dataExportWomanBirthFile(String disNo,String filterKey,String filterVal){
+	public String dataExportWomanBirthFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where," and a.districtNumber like ? ");
@@ -324,7 +324,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportBabyVisit(String disNo,String filterKey,String filterVal){
+	public String dataExportBabyVisit(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -380,7 +380,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param type
 	 * @return
 	 */
-	private String dataExportChild(String disNo,String filterKey,String filterVal,Integer type,String status,String title){
+	private String dataExportChild(String disNo,String filterKey,String filterVal,Integer type,String status,String title)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -435,7 +435,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportChildExam(String disNo,String filterKey,String filterVal){
+	public String dataExportChildExam(String disNo,String filterKey,String filterVal)throws Exception{
 		return dataExportChild(disNo,filterKey,filterVal,0,CHILDREN01,CHILDREN01_TITLE);
 	}
 	
@@ -446,7 +446,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportChildExam2(String disNo,String filterKey,String filterVal){
+	public String dataExportChildExam2(String disNo,String filterKey,String filterVal)throws Exception{
 		return dataExportChild(disNo,filterKey,filterVal,1,CHILDREN02,CHILDREN02_TITLE);
 	}
 	
@@ -457,7 +457,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportChildExam36(String disNo,String filterKey,String filterVal){
+	public String dataExportChildExam36(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -510,7 +510,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportHealthFile(String disNo,String filterKey,String filterVal){
+	public String dataExportHealthFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportHealthfileWhere(disNo,filterKey,filterVal,params,where,null);
@@ -574,7 +574,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportFirstBabyVisit(String disNo,String filterKey,String filterVal){
+	public String dataExportFirstBabyVisit(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -627,7 +627,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportVisitBeforeBorn(String disNo,String filterKey,String filterVal){
+	public String dataExportVisitBeforeBorn(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -682,7 +682,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @return
 	 */
 	private String dataExportVisitAfter(String disNo,String filterKey,String filterVal,String type,
-			String status,String title){
+			String status,String title)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
@@ -736,7 +736,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportVisitAfterBorn(String disNo,String filterKey,String filterVal){
+	public String dataExportVisitAfterBorn(String disNo,String filterKey,String filterVal)throws Exception{
 		return dataExportVisitAfter(disNo,filterKey,filterVal,VISIT_AFTER_DEFAULT,VISITAFTERBORN,VISITAFTERBORN_TITLE);
 	}
 	
@@ -747,7 +747,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
-	public String dataExportVisitAfterBorn42(String disNo,String filterKey,String filterVal){
+	public String dataExportVisitAfterBorn42(String disNo,String filterKey,String filterVal)throws Exception{
 		return dataExportVisitAfter(disNo,filterKey,filterVal,VISIT_AFTER_42,VISITAFTERBORN42,VISITAFTERBORN42_TITLE);
 	}
 	
@@ -797,7 +797,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param where
 	 */
 	private void buildExportDataGeneralWhere(String disNo,String filterKey,String filterVal, List params,
-			StringBuilder where,String appendVal) {
+			StringBuilder where,String appendVal) throws Exception{
 		if(appendVal == null){
 			params.add(disNo + '%');
 			appendVal = " and (a.districtNumber like ? or c.execDistrictNum like ?) ";
@@ -818,14 +818,14 @@ public class DataExportService extends HibernateDaoSupport{
 					if(filterVal.indexOf("-") > 0){
 						String[] valArray = filterVal.split("-");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = format.parse(valArray[0] + " 00:00:00");
 						endDate = format.parse(valArray[1] + " 23:59:59");
 					}else if(filterVal.indexOf("－") > 0){
 						String[] valArray = filterVal.split("－");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = format.parse(valArray[0] + " 00:00:00");
 						endDate = format.parse(valArray[1] + " 23:59:59");
@@ -837,7 +837,7 @@ public class DataExportService extends HibernateDaoSupport{
 					params.add(endDate);
 					where.append(" and " + filterKey + " between ? and  ? ");
 				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterVal)) {
@@ -857,7 +857,7 @@ public class DataExportService extends HibernateDaoSupport{
 	}
 	
 	private void buildExportHealthfileWhere(String disNo,String filterKey,String filterVal, List params,
-			StringBuilder where,String appendVal) {
+			StringBuilder where,String appendVal)throws Exception {
 		if(appendVal == null){
 			params.add(disNo + '%');
 			appendVal = " and (a.districtNumber like ?) ";
@@ -877,14 +877,14 @@ public class DataExportService extends HibernateDaoSupport{
 					if(filterVal.indexOf("-") > 0){
 						String[] valArray = filterVal.split("-");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = format.parse(valArray[0] + " 00:00:00");
 						endDate = format.parse(valArray[1] + " 23:59:59");
 					}else if(filterVal.indexOf("－") > 0){
 						String[] valArray = filterVal.split("－");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = format.parse(valArray[0] + " 00:00:00");
 						endDate = format.parse(valArray[1] + " 23:59:59");
@@ -896,7 +896,7 @@ public class DataExportService extends HibernateDaoSupport{
 					params.add(endDate);
 					where.append(" and " + filterKey + " between ? and  ? ");
 				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterVal)) {
@@ -1007,7 +1007,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param qryCond
 	 * @return
 	 */
-	public String dataExportByHighRisk(QryCondition qryCond){
+	public String dataExportByHighRisk(QryCondition qryCond)throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerHighRiskInfo.length;i++){
@@ -1040,7 +1040,7 @@ public class DataExportService extends HibernateDaoSupport{
 		return url;
 	}
 	
-	public String dataExportByChildHighRisk(QryCondition qryCond){
+	public String dataExportByChildHighRisk(QryCondition qryCond)throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerChildHighRiskInfo.length;i++){

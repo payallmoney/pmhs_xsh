@@ -93,7 +93,7 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 		getHibernateTemplate().update(file);
 	}
 	
-	public void sureTransferService(HealthFileTransfer transferModifyInfo){
+	public void sureTransferService(HealthFileTransfer transferModifyInfo)throws Exception{
 		String newfileNo = fileNoGen.getNextFileNo(transferModifyInfo.getToDistrictNumber());
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String hql = " Exec Proc_HealthFile_Transfer ?,?,?,?,?,?,?,? ";

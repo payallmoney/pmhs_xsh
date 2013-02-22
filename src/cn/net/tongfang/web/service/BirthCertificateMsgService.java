@@ -429,13 +429,13 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param d
 	 * @return
 	 */
-	private Date convertStrToDate(String d) {
+	private Date convertStrToDate(String d)throws Exception {
 		SimpleDateFormat format = new SimpleDateFormat("y-m-d h:m:s");
 		Date date = null;
 		try {
 			date = format.parse(d);
 		} catch (ParseException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 		return date;
 	}
@@ -962,7 +962,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertifi.getCertifiId();
 	}
 	
-	public String save(BirthCertificateBO birthCertificate){	
+	public String save(BirthCertificateBO birthCertificate)throws Exception{	
 		birthCertificate.setInputDate(new Timestamp(System.currentTimeMillis()));
 		BirthCertificate birthCertifi01 = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class,birthCertificate.getCertifiId());		
 		if(birthCertifi01.getIsSupply().equals(1)){
@@ -972,7 +972,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 			return birthCertifi01.getCertifiId();
 		}
 		if(CommonConvertUtils.birthCertifiIsSupply(birthCertificate.getBirthday(),birthCertificate.getIssuingDate()))
-			throw new RuntimeException("您没有权限补发出生医学证明！");
+			throw new Exception("您没有权限补发出生医学证明！");
 		
 		BirthCertificate birthCertifi = new BirthCertificate();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -1087,7 +1087,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param certifiId
 	 * @return
 	 */
-	public boolean setCancelUsed(String certifiId){
+	public boolean setCancelUsed(String certifiId)throws Exception{
 		BirthCertificate birthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, certifiId);
 		Class clazz = birthCertifi.getClass();
 		Method[] method = clazz.getMethods();
@@ -1104,15 +1104,15 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 //					m.invoke(birthCertifi, null);
 				}
 			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
+				throw e;
 			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
+				throw e;
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
+				throw e;
 			} catch (SecurityException e) {
-				throw new RuntimeException(e);
+				throw e;
 			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
+				throw e;
 			}
 		}
 		birthCertifi.setIsEffectived(BIRTH_UNUSED);

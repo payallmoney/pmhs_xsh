@@ -75,7 +75,7 @@ public class SummaryService extends HibernateDaoSupport{
 		return list;
 	}
 	
-	public List queryBusinessDataDelphi(String fileNo){
+	public List queryBusinessDataDelphi(String fileNo)throws Exception{
 		List list = new ArrayList();
 		PersonalInfoFBO personinfo = new PersonalInfoFBO();
 		personinfo.setFileNo(fileNo);
@@ -85,7 +85,7 @@ public class SummaryService extends HibernateDaoSupport{
 			list.add(personinfo);
 			list.add(queryBusinessData(fileNo));
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 		return list;
 	}

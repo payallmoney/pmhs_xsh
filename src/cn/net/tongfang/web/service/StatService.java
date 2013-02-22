@@ -21,7 +21,7 @@ public class StatService extends HealthMainService<StatBO> {
 		return get_(data);
 	}
 	
-	public StatBO stat(String districtNumber, String reportMonth) {
+	public StatBO stat(String districtNumber, String reportMonth)throws Exception {
 		
 		StatBO bo = new StatBO();
 		
@@ -52,7 +52,7 @@ public class StatService extends HealthMainService<StatBO> {
 		@SuppressWarnings({ "rawtypes" })
 		List list = getHibernateTemplate().find("from Stat where reportMonth = ?", reportMonth);
 		if ( list.size() > 0 ) {
-			throw new RuntimeException("exist [" + reportMonth + "] report.");
+			throw new Exception("exist [" + reportMonth + "] report.");
 		}
 		
 		Timestamp beginDate, endDate;

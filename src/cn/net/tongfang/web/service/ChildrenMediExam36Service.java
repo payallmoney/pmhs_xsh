@@ -98,7 +98,7 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 		
 		
 		if(sysInfo.checkChildrenMedicalExamIsInput(data.getFileNo(),data.getCheckItem(),"ChildrenMediExam36",null)){
-			throw new RuntimeException("编号为" + EncryptionUtils.decipher(data.getFileNo()) + "的" + 
+			throw new Exception("编号为" + EncryptionUtils.decipher(data.getFileNo()) + "的" + 
 					data.getCheckItem() + "儿童体检记录已经录入系统，不可以重复录入。");
 		}
 		
@@ -148,7 +148,7 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 		return data;
 	}
 	
-	public Map<String,Object> getPrintInfo_new(ChildrenMediExamBO data){
+	public Map<String,Object> getPrintInfo_new(ChildrenMediExamBO data)throws Exception{
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
 			String id = data.getId();
@@ -177,7 +177,7 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 			return map;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 	

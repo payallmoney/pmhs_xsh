@@ -8,14 +8,14 @@ import java.io.OutputStream;
 import java.util.Properties;
 
 public class OnlineTakePhotoService {
-	public static void save(String key,String picName){
+	public static void save(String key,String picName)throws Exception{
 		File parentFile = new File(Thread.currentThread().getContextClassLoader().getResource("log4j.properties").getPath()).getParentFile();
 		File file = new File(parentFile.getPath() + "/onlineTakePhoto.properties");
 		if(!file.exists()){
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw e;
 			}
 		}
 		Properties prop = new Properties();
@@ -27,19 +27,19 @@ public class OnlineTakePhotoService {
 			out = new FileOutputStream(file);
 			prop.store(out,key + "=" + picName);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}finally{
 			if(out != null){
 				try {
 					out.close();
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					throw e;
 				}
 			}
 		}
 	}
 	
-	public static String get(String key){
+	public static String get(String key)throws Exception{
 		File parentFile = new File(Thread.currentThread().getContextClassLoader().getResource("log4j.properties").getPath()).getParentFile();
 		File file = new File(parentFile.getPath() + "/onlineTakePhoto.properties");
 		Properties prop = new Properties();
@@ -59,13 +59,13 @@ public class OnlineTakePhotoService {
 				return "";
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}finally{
 			if(out != null){
 				try {
 					out.close();
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					throw e;
 				}
 			}
 		}

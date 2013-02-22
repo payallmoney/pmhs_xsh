@@ -43,7 +43,7 @@ public final class ControlVersion {
 		NumMapChar.put('9', '%');
 	}
 
-	public boolean control() {
+	public boolean control()throws Exception {
 		Properties prop = new Properties();
 		try {
 			File file = new File("C:\\WINDOWS\\pmhs\\version.properties");
@@ -80,13 +80,13 @@ public final class ControlVersion {
 			System.out.println(now);
 			return compareDate(date,now);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw e;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 
-	private static boolean compareDate(String date,String now) {
+	private static boolean compareDate(String date,String now) throws Exception{
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date d = null;
 		Date n = null;
@@ -96,7 +96,7 @@ public final class ControlVersion {
 			if(d.compareTo(n) >= 0 )
 				return true;
 		} catch (ParseException e) {
-			throw new RuntimeException(e);
+			throw new Exception(e);
 		}
 		delFile();
 		return false;
@@ -134,7 +134,7 @@ public final class ControlVersion {
 		}
 	}
 	
-	private static boolean compareCurrentDate(String now,Date currentDate) {
+	private static boolean compareCurrentDate(String now,Date currentDate)throws Exception {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date d = null;
 		try {
@@ -142,7 +142,7 @@ public final class ControlVersion {
 			if(d.compareTo(currentDate) >= 0 )
 				return true;
 		} catch (ParseException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 		return false;
 	}

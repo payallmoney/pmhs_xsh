@@ -95,7 +95,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 		
 		
 		if(sysInfo.checkChildrenMedicalExamIsInput(data.getFileNo(),data.getCheckItem(),"ChildrenMediExam",data.getDataType())){
-			throw new RuntimeException("编号为" + EncryptionUtils.decipher(data.getFileNo()) + "的" + 
+			throw new Exception("编号为" + EncryptionUtils.decipher(data.getFileNo()) + "的" + 
 					data.getCheckItem() + "儿童体检记录已经录入系统，不可以重复录入。");
 		}
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -146,7 +146,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 		return data;
 	}
 	
-	public Map<String,Object> getPrintInfo_new(ChildrenMediExamBO data){
+	public Map<String,Object> getPrintInfo_new(ChildrenMediExamBO data)throws Exception{
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
 			String id = data.getId();
@@ -175,7 +175,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 			return map;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 	

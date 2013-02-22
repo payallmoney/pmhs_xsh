@@ -30,7 +30,7 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 * @param visitDate
 	 * @return
 	 */
-	public List<String> get(String fileNo,String visitDate){
+	public List<String> get(String fileNo,String visitDate)throws Exception{
 		Calendar vsCalendar = CommonConvertUtils.stringToCalendar(visitDate);
 		if(vsCalendar == null)
 			return null;
@@ -60,7 +60,7 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 * @param birthday
 	 * @return
 	 */
-	public String getAge(Date birthday,Timestamp visitDate){
+	public String getAge(Date birthday,Timestamp visitDate)throws Exception{
 		Calendar cBirthday = CommonConvertUtils.timestampToCalendar(new Timestamp(birthday.getTime()));
 		Calendar vsCalendar = CommonConvertUtils.timestampToCalendar(visitDate);
 		return getBabyAge(vsCalendar,cBirthday);
@@ -72,7 +72,7 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 * @param visitDate
 	 * @return
 	 */
-	public String getAge(String fileNo,Timestamp visitDate){
+	public String getAge(String fileNo,Timestamp visitDate)throws Exception{
 		List list = getHibernateTemplate().find("From PersonalInfo Where fileNo = ?",fileNo);
 		if(list.size() > 0){
 			PersonalInfo person = (PersonalInfo)list.get(0);
@@ -119,9 +119,9 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 * @param birthCalendar
 	 * @return
 	 */
-	public String getBabyAge(Calendar vsCalendar,Calendar birthCalendar){
+	public String getBabyAge(Calendar vsCalendar,Calendar birthCalendar) throws Exception{
 		if(vsCalendar.before(birthCalendar)){
-			throw new RuntimeException(ERROR_DATE_OVER);
+			throw new Exception(ERROR_DATE_OVER);
 		}
 		Integer vsDay = vsCalendar.get(Calendar.DAY_OF_MONTH);
 		Integer vsMonth = vsCalendar.get(Calendar.MONTH) + 1;

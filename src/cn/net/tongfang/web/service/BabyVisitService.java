@@ -137,7 +137,7 @@ public class BabyVisitService extends HibernateDaoSupport {
 		return data;
 	}
 
-	public BabyVisitPrintBO getPrintInfo(BabyVisitPrintBO data){
+	public BabyVisitPrintBO getPrintInfo(BabyVisitPrintBO data) throws Exception{
 		try {
 			String id = data.getId();
 			BabyVisitBO bo = new BabyVisitBO();
@@ -148,11 +148,11 @@ public class BabyVisitService extends HibernateDaoSupport {
 			data.setBabySkins(babySkin);
 			return data;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 	
-	public Map<String,Object> getPrintInfo_new(BabyVisitPrintBO data){
+	public Map<String,Object> getPrintInfo_new(BabyVisitPrintBO data) throws Exception{
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
 			String id = data.getId();
@@ -178,7 +178,7 @@ public class BabyVisitService extends HibernateDaoSupport {
 			return map;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 	

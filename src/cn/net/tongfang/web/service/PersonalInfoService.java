@@ -75,7 +75,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 //		}
 		
 		if (disNo == null || disNo.trim().equals("")) {
-			throw new RuntimeException("no districtNum!!!");
+			throw new Exception("no districtNum!!!");
 		}
 		
 		/*if(fileno.length() != 5 && fileno.length() != 2){
@@ -296,7 +296,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	 * 获得头像
 	 * @return
 	 */
-	public String getHeadPicture(){
+	public String getHeadPicture()throws Exception{
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		return OnlineTakePhotoService.get(user.getUsername());
 	}

@@ -114,7 +114,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return vo;
 	}
 
-	public VaccineImmuneInfo saveVaccineImmuneInfo(VaccineImmuneInfoBO vacciInfo) {
+	public VaccineImmuneInfo saveVaccineImmuneInfo(VaccineImmuneInfoBO vacciInfo)throws Exception {
 //		if (vacciInfo.getLimitDate() != null) {
 //			if (vacciInfo.getVaccinationDate().compareTo(
 //					vacciInfo.getLimitDate()) > 0) {
@@ -132,7 +132,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 					log.debug("VaccineImmuneInfo Updated Successed...");
 					return info;
 				} else {
-					throw new RuntimeException("你无权限修改其他人录入的接种信息");
+					throw new Exception("你无权限修改其他人录入的接种信息");
 				}
 			}
 			String fileNo = EncryptionUtils.encry(vacciInfo.getFileNo());
@@ -155,7 +155,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 					query.setParameter(1, vacciInfo.getColNum());
 					List list = query.list();
 					if (list.size() == 2) {
-						throw new RuntimeException("规划内A群流脑疫苗接种完毕");
+						throw new Exception("规划内A群流脑疫苗接种完毕");
 					} else if (list.size() == 1) {
 						vacciInfo.setNumber(2);
 					} else if (list.size() == 0) {
@@ -173,11 +173,11 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 				return info;
 			}
 		} else {
-			throw new RuntimeException("请重新填写接种日期");
+			throw new Exception("请重新填写接种日期");
 		}
 	}
 	
-	public void saveVaccineImmuneInfoUnPlaned(VaccineImmuneInfoBO vacciInfo){
+	public void saveVaccineImmuneInfoUnPlaned(VaccineImmuneInfoBO vacciInfo)throws Exception{
 		if (vacciInfo.getVaccinationDate().compareTo(vacciInfo.getBirthday()) >= 0) {
 			if (vacciInfo.getId() != null && !vacciInfo.getId().equals("")) {
 				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
@@ -189,7 +189,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 					getHibernateTemplate().update(info);
 					log.debug("VaccineImmuneInfo Updated Successed...");
 				} else {
-					throw new RuntimeException("你无权限修改其他人录入的接种信息");
+					throw new Exception("你无权限修改其他人录入的接种信息");
 				}
 				return;
 			}
@@ -205,7 +205,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			info.setInputDate(new Timestamp(System.currentTimeMillis()));
 			getHibernateTemplate().save(info);
 		} else {
-			throw new RuntimeException("请重新填写接种日期");
+			throw new Exception("请重新填写接种日期");
 		}
 	}
 	

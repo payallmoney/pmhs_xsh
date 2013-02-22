@@ -10,7 +10,7 @@ import cn.net.tongfang.framework.security.vo.HealthFileKey;
 public class FileNoGen extends HibernateDaoSupport{
 	private static final Logger log = Logger.getLogger(FileNoGen.class);
 	
-	public String getNextFileNo(String districtNumber){
+	public String getNextFileNo(String districtNumber) throws Exception{
 		List<HealthFileKey> c = getHibernateTemplate().find("select p from HealthFileKey p where p.districtNumber = ?" , districtNumber);
 		int key = 1;
 		HealthFileKey hf = null;
@@ -33,7 +33,7 @@ public class FileNoGen extends HibernateDaoSupport{
 		if (spaces < 0) {
 			String msg = "流水号超长！！！！！";
 			log.error(msg);
-			throw new RuntimeException(msg);
+			throw new Exception(msg);
 		}
 		
 		for(int i = 0; i < spaces; i++) {

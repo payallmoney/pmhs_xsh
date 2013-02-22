@@ -54,7 +54,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 		log.debug("save HomeInfo...");
 		String disNo = data.getDistrictNumber();
 		if (disNo == null || disNo.trim().equals("")) {
-			throw new RuntimeException("no districtNum!!!");
+			throw new Exception("no districtNum!!!");
 		}
 		
 		String homeId = disNo + id;
@@ -71,7 +71,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 		try{
 			getHibernateTemplate().save(home);
 		}catch(Exception ex){
-			throw new RuntimeException("家庭编号已经存在!!!");
+			throw new Exception("家庭编号已经存在!!!");
 		}
 		log.debug("save successed!");
 		return homeId;

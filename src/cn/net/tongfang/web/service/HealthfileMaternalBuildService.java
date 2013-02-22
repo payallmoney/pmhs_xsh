@@ -67,7 +67,7 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 			}
 			return save_(data);
 		}else{
-			throw new RuntimeException("此孕产妇的第" + data.getGravidity() + "次怀孕保健手册已经建立，不能重复建立。");
+			throw new Exception("此孕产妇的第" + data.getGravidity() + "次怀孕保健手册已经建立，不能重复建立。");
 		}
 //		return "";
 	}

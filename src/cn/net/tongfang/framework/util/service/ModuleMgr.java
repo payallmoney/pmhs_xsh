@@ -708,14 +708,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<HealthFile> findHealthFiles(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder());
 		return queryHealthFiles(pp, params, hql);
 	}
 
 	public PagingResult<HealthFile> findHealthFilesEnableBuild(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder().append(" and b.sex = '女' and DateDiff(Year,b.birthday,GETDATE()) >= 10 And a.fileNo not in(Select Distinct fileNo From HealthFileMaternal Where isClosed = '0' )"));
 		return queryHealthFiles(pp, params, hql);
@@ -749,7 +749,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 
-	private StringBuilder buildHealthHql(HealthFileQry qryCond, List params,StringBuilder otherParams) {
+	private StringBuilder buildHealthHql(HealthFileQry qryCond, List params,StringBuilder otherParams)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 		
@@ -766,7 +766,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findHealthfilesAlreadyBuild(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthAlreadyBuildHql(qryCond, params);
 
@@ -801,7 +801,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	
-	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params) {
+	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);		
 		if (params.size() != 0) {
@@ -814,7 +814,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return hql;
 	}
 	public PagingResult<Map<String, Object>> findHealthfilesAlreadyBuildChild(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthAlreadyBuildChildHql(qryCond, params);
 
@@ -847,7 +847,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	public PagingResult<Map<String, Object>> findHealthfilesFinishGestation(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
@@ -889,7 +889,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	
-	private StringBuilder buildHealthAlreadyBuildHql(HealthFileQry qryCond, List params) {
+	private StringBuilder buildHealthAlreadyBuildHql(HealthFileQry qryCond, List params)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 		if(!qryCond.getFilterVal01().equals("100")){
@@ -908,7 +908,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	private void buildGeneralWhereHealthFile(HealthFileQry qryCond, List params,
-			StringBuilder where,Integer status) {
+			StringBuilder where,Integer status) throws Exception{
 		String districtId = qryCond.getDistrict();
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId);
@@ -920,7 +920,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private void genQueryParams(HealthFileQry qryCond, List params,
-			StringBuilder where) {
+			StringBuilder where) throws Exception{
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {
 			String filterValue = qryCond.getFilterValue();
@@ -935,7 +935,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(filterValue.indexOf("-") > 0){
 						String[] valArray = filterValue.split("-");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = valArray[0] + " 00:00:00.000";
 						endDate = valArray[1] + " 23:59:59.999";
@@ -947,7 +947,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					params.add(format.parse(endDate));
 					where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
 				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}				
 			}else{
 				if (StringUtils.hasText(filterValue)) {
@@ -959,7 +959,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private void buildGeneralWhere(HealthFileQry qryCond, List params,
-			StringBuilder where) {
+			StringBuilder where)throws Exception {
 		String districtId = qryCond.getDistrict();
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId + '%');
@@ -981,7 +981,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(filterValue.indexOf("-") > 0){
 						String[] valArray = filterValue.split("-");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = valArray[0] + " 00:00:00.000";
 						endDate = valArray[1] + " 23:59:59.999";
@@ -995,7 +995,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 						filterKey = "c.inputDate";
 					where.append(" and " + filterKey + " >= ? and " + filterKey + "<= ? ");
 				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterValue)) {
@@ -1014,7 +1014,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<HealthFile> findChildHealthFiles(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildChildHealthHql(qryCond, params);
 		return queryHealthFiles(pp, params, hql);
@@ -1052,7 +1052,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findChildPrint1(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhere(qryCond, params, where);
@@ -1122,7 +1122,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findChildPrint2(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1178,34 +1178,34 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<HealthFile> findWomanBirthHealthFiles(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildWomanBirthHealthHql(qryCond, params);
 		return queryHealthFiles(pp, params, hql);
 	}
 	
 	public PagingResult<HealthFile> findHypHealthFiles(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildDiseaseHealthHql(qryCond, params, DISEASE_HYP);
 		return queryHealthFiles(pp, params, hql);
 	}
 
 	public PagingResult<HealthFile> findFuriosusHealthFiles(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildDiseaseHealthHql(qryCond, params, DISEASE_FURI);
 		return queryHealthFiles(pp, params, hql);
 	}
 
 	public PagingResult<HealthFile> findDiabetesHealthFiles(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildDiseaseHealthHql(qryCond, params, DISEASE_DIAB);
 		return queryHealthFiles(pp, params, hql);
 	}
 
-	private StringBuilder buildWomanBirthHealthHql(HealthFileQry qryCond, List params) {
+	private StringBuilder buildWomanBirthHealthHql(HealthFileQry qryCond, List params) throws Exception{
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
@@ -1220,7 +1220,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return hql;
 	}
 	
-	private StringBuilder buildChildHealthHql(HealthFileQry qryCond, List params) {
+	private StringBuilder buildChildHealthHql(HealthFileQry qryCond, List params) throws Exception{
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
@@ -1239,7 +1239,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return hql;
 	}
 
-	private StringBuilder buildHypHealthHql(HealthFileQry qryCond, List params) {
+	private StringBuilder buildHypHealthHql(HealthFileQry qryCond, List params)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhere(qryCond, params, where);
 
@@ -1259,7 +1259,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private StringBuilder buildDiseaseHealthHql(HealthFileQry qryCond,
-			List params, Integer DiseaseType) {
+			List params, Integer DiseaseType)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
@@ -1336,7 +1336,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private void removeRecords(final List<String> recordIdList,
-			final Class clazz) {
+			final Class clazz)throws Exception {
 		if (recordIdList == null || recordIdList.size() == 0) {
 			return;
 		}
@@ -1362,26 +1362,26 @@ public class ModuleMgr extends HibernateDaoSupport {
 					return null;
 				}
 			});
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
 
-	public void removeBabyVisitRecords(final List<String> recordIdList) {
+	public void removeBabyVisitRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, BabyVisit.class);
 	}
 
-	public void removeChildExamRecords(final List<String> recordIdList) {
+	public void removeChildExamRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildrenMediExam.class);
 	}
 
-	public void removeChildExam3Records(final List<String> recordIdList) {
+	public void removeChildExam3Records(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildrenMediExam3.class);
 	}
 
 	public PagingResult<Map<String, Object>> findBabyVisitRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1437,7 +1437,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findBabyVisitPrint(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1494,17 +1494,17 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<Map<String, Object>> findChildExam1Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		return findChildExamRecords(qryCond, pp, 0);
 	}
 
 	public PagingResult<Map<String, Object>> findChildExam2Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		return findChildExamRecords(qryCond, pp, 1);
 	}
 
 	private PagingResult<Map<String, Object>> findChildExamRecords(
-			HealthFileQry qryCond, PagingParam pp, Integer type) {
+			HealthFileQry qryCond, PagingParam pp, Integer type) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1564,7 +1564,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findChildExam1print(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1627,7 +1627,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findChildExam2print(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1691,7 +1691,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findChildExam3print(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1753,7 +1753,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findChildExam3Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhere(qryCond, params, where);
@@ -1803,7 +1803,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<Map<String, Object>> findMedicalExamRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1858,12 +1858,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeMedicalExamRecords(List ids) {
+	public void removeMedicalExamRecords(List ids) throws Exception{
 		removeRecords(ids, MedicalExam.class);
 	}
 
 	public PagingResult<Map<String, Object>> findHypVisitRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1926,12 +1926,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeHypVisitRecords(List ids) {
+	public void removeHypVisitRecords(List ids) throws Exception{
 		removeRecords(ids, HypertensionVisit.class);
 	}
 
 	public PagingResult<Map<String, Object>> findDiabVisitRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -1994,12 +1994,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeDiabVisitRecords(List ids) {
+	public void removeDiabVisitRecords(List ids)throws Exception {
 		removeRecords(ids, DiabetesVisit.class);
 	}
 
 	public PagingResult<Map<String, Object>> findFuriousVisitRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2062,12 +2062,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeFuriousVisitRecords(List ids) {
+	public void removeFuriousVisitRecords(List ids)throws Exception {
 		removeRecords(ids, FuriousVisit.class);
 	}
 
 	public PagingResult<Map<String, Object>> findFuriousInfoRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2122,12 +2122,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeFuriousInfoRecords(List ids) {
+	public void removeFuriousInfoRecords(List ids)throws Exception {
 		removeRecords(ids, FuriousInfo.class);
 	}
 
 	public PagingResult<Map<String, Object>> findFirstVisitRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2209,7 +2209,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
+	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey)throws Exception{
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
 		Query query = getSession().createQuery(hql);
 		query.setParameter(0, id);
@@ -2228,12 +2228,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return ret;
 	}
 
-	public void removeFirstVisitRecords(List ids) {
+	public void removeFirstVisitRecords(List ids)throws Exception {
 		removeRecords(ids, FirstVistBeforeBorn.class);
 	}
 
 	public PagingResult<Map<String, Object>> findVisitBeforeBornRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2290,22 +2290,22 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVisitBeforeBornRecords(List ids) {
+	public void removeVisitBeforeBornRecords(List ids)throws Exception {
 		removeRecords(ids, VisitBeforeBorn.class);
 	}
 
 	public PagingResult<Map<String, Object>> findVisitAfterBornRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		return findVisitAfterBornRecords(qryCond, pp, VISIT_AFTER_DEFAULT);
 	}
 
 	public PagingResult<Map<String, Object>> findVisitAfterBorn42Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		return findVisitAfterBornRecords(qryCond, pp, VISIT_AFTER_42);
 	}
 
 	private PagingResult<Map<String, Object>> findVisitAfterBornRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2372,12 +2372,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVisitAfterBornRecords(List ids) {
+	public void removeVisitAfterBornRecords(List ids)throws Exception {
 		removeRecords(ids, VisitAfterBorn.class);
 	}
 
 	public PagingResult<Map<String, Object>> findReceptionRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2434,12 +2434,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeReceptionRecords(List ids) {
+	public void removeReceptionRecords(List ids)throws Exception {
 		removeRecords(ids, Reception.class);
 	}
 
 	public PagingResult<Map<String, Object>> findConsultationRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2492,12 +2492,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeConsultationRecords(List ids) {
+	public void removeConsultationRecords(List ids)throws Exception {
 		removeRecords(ids, Consultation.class);
 	}
 
 	public PagingResult<Map<String, Object>> findCureswitchRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2554,12 +2554,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeCureswitchRecords(List ids) {
+	public void removeCureswitchRecords(List ids) throws Exception{
 		removeRecords(ids, CureSwitch.class);
 	}
 
 	public PagingResult<Map<String, Object>> findCurebackRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2614,7 +2614,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeCurebackRecords(List ids) {
+	public void removeCurebackRecords(List ids)throws Exception {
 		removeRecords(ids, CureBack.class);
 	}
 
@@ -2661,12 +2661,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeHealtheducatRecords(List ids) {
+	public void removeHealtheducatRecords(List ids)throws Exception {
 		removeRecords(ids, HealthEducat.class);
 	}
 
 	public PagingResult<Map<String, Object>> findVaccineInfoRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2715,12 +2715,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVaccineInfoRecords(List ids) {
+	public void removeVaccineInfoRecords(List ids)throws Exception {
 		removeRecords(ids, VaccineInfo.class);
 	}
 
 	public PagingResult<Map<String, Object>> findVaccinationRecords(
-			HealthFileQry qryCond, PagingParam pp, String type) {
+			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -2773,7 +2773,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVaccinationRecords(List ids) {
+	public void removeVaccinationRecords(List ids)throws Exception {
 		removeRecords(ids, Vaccination.class);
 	}
 
@@ -2818,7 +2818,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeInfectionReportRecords(List ids) {
+	public void removeInfectionReportRecords(List ids)throws Exception {
 		removeRecords(ids, InfectionReport.class);
 	}
 
@@ -2841,7 +2841,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeStats(List ids) {
+	public void removeStats(List ids) throws Exception{
 		removeRecords(ids, Stat.class);
 	}
 
@@ -2852,7 +2852,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @param pp
 	 */
 	public PagingResult<HomeInfo> getHomeResidents(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildWhereByHome(qryCond, params, where);
@@ -3087,7 +3087,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<ClinicLogs> queryClinicLogs(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuffer where = new StringBuffer();
 		String districtId = qryCond.getDistrict();
@@ -3119,7 +3119,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<HealthFile> findOldManHealthFiles(HealthFileQry qryCond,
-			PagingParam pp) {
+			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuilder hql = buildOldManHealthHql(qryCond, params);
 		return queryHealthFiles(pp, params, hql);
@@ -3133,7 +3133,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	private StringBuilder buildOldManHealthHql(HealthFileQry qryCond,
-			List params) {
+			List params)throws Exception {
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
@@ -3155,7 +3155,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findOldManExamRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3214,7 +3214,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findChildExam36Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhere(qryCond, params, where);
@@ -3271,7 +3271,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * 移除3~6岁儿童的健康体检记录
 	 * @param recordIdList
 	 */
-	public void removeChildExam36Records(final List<String> recordIdList) {
+	public void removeChildExam36Records(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildrenMediExam36.class);
 	}
 	
@@ -3283,7 +3283,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findBirthChildRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildGeneralWhere(qryCond, params, where);
@@ -3344,11 +3344,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public void removeBirthChildRecords(final List<String> recordIdList) {
+	public void removeBirthChildRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildBirthRecord.class);
 	}
 	
-	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp){
+	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp)throws Exception{
 		StringBuilder where = new StringBuilder();
 		genVaccineImmuneWhere(qryCond,where);
 		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
@@ -3398,7 +3398,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				totalSize, files);
 		return result;
 	}
-	private void genVaccineImmuneWhere(QryCondition qryConds, StringBuilder where) {
+	private void genVaccineImmuneWhere(QryCondition qryConds, StringBuilder where) throws Exception{
 		for(Condition qryCond : qryConds.getConditions()){
 			String filterKey = qryCond.getFilterKey();
 			if (StringUtils.hasText(filterKey)) {
@@ -3421,7 +3421,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 						if(filterValue.indexOf("-") > 0){
 							String[] valArray = filterValue.split("-");
 							if(valArray.length > 2){
-								throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+								throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 							}
 							startDate = valArray[0] + " 00:00:00.0";
 							endDate = valArray[1] + " 23:59:59.999";
@@ -3441,7 +3441,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	public PagingResult<Map<String, Object>> findHighRiskRecords(
-			QryCondition qryCond, PagingParam pp) {
+			QryCondition qryCond, PagingParam pp) throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
 		
@@ -3483,7 +3483,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	public PagingResult<Map<String, Object>> findChildHighRiskRecords(
-			QryCondition qryCond, PagingParam pp) {
+			QryCondition qryCond, PagingParam pp) throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
 		
@@ -3523,7 +3523,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public List getPrintHighRiskRecords(QryCondition qryCond){
+	public List getPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
 		Query query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
@@ -3531,7 +3531,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return query.list();
 	}
 	
-	public List getChildPrintHighRiskRecords(QryCondition qryCond){
+	public List getChildPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
 		Query query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
@@ -3539,7 +3539,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return query.list();
 	}
 	
-	private String genQryCondition(QryCondition qryCond) {
+	private String genQryCondition(QryCondition qryCond) throws Exception{
 		String where = "";
 		if(qryCond.getConditions() != null){
 			for(Condition cond : qryCond.getConditions()){
@@ -3584,7 +3584,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findBabyDeathRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3639,7 +3639,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 
 	}
-	public void removeBabyDeathRecords(final List<String> recordIdList) {
+	public void removeBabyDeathRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, BabyDeathSurvey.class);
 	}
 	
@@ -3650,7 +3650,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findChildDeath01Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3705,7 +3705,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 
 	}
-	public void removeChildDeath01Records(final List<String> recordIdList) {
+	public void removeChildDeath01Records(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildrenDeathSurvey01.class);
 	}
 	
@@ -3716,7 +3716,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findChildDeath02Records(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3771,7 +3771,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 
 	}
-	public void removeChildDeath02Records(final List<String> recordIdList) {
+	public void removeChildDeath02Records(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, ChildrenDeathSurvey02.class);
 	}
 	
@@ -3782,7 +3782,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findConsentBookRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3836,7 +3836,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		return result;
 	}
-	public void removeConsentBookRecords(final List<String> recordIdList) {
+	public void removeConsentBookRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, DiseaseAndHearScreenConsent.class);
 	}
 	/**
@@ -3846,7 +3846,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findExportCardRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3900,7 +3900,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		return result;
 	}
-	public void removeExportCardRecords(final List<String> recordIdList) {
+	public void removeExportCardRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, HearScreenReportCard.class);
 	}
 	/**
@@ -3910,7 +3910,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> findBabyBarrierRegRecords(
-			HealthFileQry qryCond, PagingParam pp) {
+			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();
@@ -3964,7 +3964,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		return result;
 	}
-	public void removeBabyBarrierRegRecords(final List<String> recordIdList) {
+	public void removeBabyBarrierRegRecords(final List<String> recordIdList)throws Exception {
 		removeRecords(recordIdList, BabyBarrierReg.class);
 	}
 	
@@ -3974,7 +3974,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @param pp
 	 * @return
 	 */
-	public PagingResult<Map<String, Object>> getTransferHealthfile(TransferHealthFileQry qry,PagingParam pp){
+	public PagingResult<Map<String, Object>> getTransferHealthfile(TransferHealthFileQry qry,PagingParam pp)throws Exception{
 		StringBuffer where = new StringBuffer();
 		List params = new ArrayList();
 		String filterVal = qry.getFilterValue().trim();
@@ -3992,7 +3992,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(filterVal.indexOf("-") > 0){
 						String[] valArray = filterVal.split("-");
 						if(valArray.length > 2){
-							throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 						}
 						startDate = valArray[0] + " 00:00:00.000";
 						endDate = valArray[1] + " 23:59:59.999";
@@ -4004,7 +4004,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					params.add(format.parse(endDate));
 					where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
 				} catch (ParseException e) {
-					throw new RuntimeException("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else{
 				where.append(" And " + filterKey + " = ? ");
@@ -4073,7 +4073,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> HealthFileLoginOff(
-			TransferHealthFileQry qryCond, PagingParam pp) {
+			TransferHealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
 		StringBuilder where = new StringBuilder();

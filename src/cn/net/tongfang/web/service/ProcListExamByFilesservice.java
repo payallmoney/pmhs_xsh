@@ -59,7 +59,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public void delListExam(List<ListExamBeanBO> listExamBo){
+	public void delListExam(List<ListExamBeanBO> listExamBo)throws Exception{
 		for(ListExamBeanBO bean : listExamBo){
 			List ids = new ArrayList();
 			ids.add(bean.getId());

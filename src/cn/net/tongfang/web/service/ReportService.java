@@ -713,13 +713,13 @@ public class ReportService extends HibernateDaoSupport {
 	// private String
 
 	// 日期转换
-	private Date convertToDate(String date) {
+	private Date convertToDate(String date)throws Exception {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date d = null;
 		try {
 			d = format.parse(date);
 		} catch (ParseException e) {
-			throw new RuntimeException(e);
+			throw e;
 		}
 		return d;
 	}

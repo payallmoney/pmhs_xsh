@@ -38,7 +38,7 @@ public class ChildBirthService extends HibernateDaoSupport {
 	}
 	public synchronized String save(ChildBirthBO data) throws Exception{
 		if(CommonConvertUtils.birthCertifiIsSupply(data.getBirthdaybo(),data.getIssuingDatebo()))
-			throw new RuntimeException("您没有权限补发出生医学证明！");
+			throw new Exception("您没有权限补发出生医学证明！");
 		
 		String id = data.getId();
 		if(id != null && !id.equals("")){

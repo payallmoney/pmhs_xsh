@@ -80,7 +80,7 @@ public class BOHelper {
 		}
 	}
 
-	private void setInputInfo(final Object src, Object dest) {
+	private void setInputInfo(final Object src, Object dest) throws Exception{
 		try {
 			PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(superClass,
 					INPUT_PERSON_ID);
@@ -96,12 +96,12 @@ public class BOHelper {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("Error on setting input person/date.", e);
+			throw new Exception("Error on setting input person/date.", e);
 		}
 
 	}
 
-	private void setInputInfo(Object main) {
+	private void setInputInfo(Object main) throws Exception{
 		try {
 			PropertyDescriptor pd = BeanUtils.getPropertyDescriptor( superClass, INPUT_PERSON_ID);
 			if ( pd != null ) {
@@ -115,7 +115,7 @@ public class BOHelper {
 				pd.getWriteMethod().invoke(main, new Timestamp(System.currentTimeMillis()));
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Error on setting input person/date.", e);
+			throw new Exception("Error on setting input person/date.", e);
 		}
 	}
 
