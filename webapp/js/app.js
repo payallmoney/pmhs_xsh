@@ -38,6 +38,7 @@ function dwrExceptionHandler(errorString, error){
 								style:'font:normal 12px  宋体 !important;',
 								bodyStyle:'font-size: 10px !important;',
 								text:'重新登录',
+								id:'bt_submit',
 								formBind: true,
 								handler:function(){
 									Ext.getCmp("relogin_form").getForm().submit({
@@ -98,7 +99,16 @@ function dwrExceptionHandler(errorString, error){
 									style :'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
 									bodyStyle:'font-size: 10px !important;',
 									height:25,
-									allowBlank:false
+									allowBlank:false,
+	                                listeners:{
+	                                    render:function(){
+	                                        $("#j_username").bind("keypress", function(e,el){
+	                                            if(e.charCode ===Ext.EventObject.ENTER){
+	                                                $("#j_password").focus();
+	                                            }
+	                                        });
+	                                    }
+	                                }
 								},
 								{
 									xtype:'label',
@@ -115,7 +125,16 @@ function dwrExceptionHandler(errorString, error){
 									inputType : 'password',
 									id : 'j_password',
 									height:25,
-									allowBlank:false
+									allowBlank:false,
+	                                listeners:{
+	                                    render:function(){
+	                                        $("#j_password").bind("keypress", function(e,el){
+	                                            if(e.charCode ===Ext.EventObject.ENTER){
+	                                                $("#bt_submit").click();
+	                                            }
+	                                        });
+	                                    }
+	                                }
 								}
 								,{
 									xtype:'hidden',
@@ -148,6 +167,7 @@ function dwrExceptionHandler(errorString, error){
 		}else{
 			window.saving = false;
 			$.unblockUI();
+			console.log(error)
 			if(error.javaClassName){
 		        msg = error.javaClassName+":"+error.message;
 		            if(error.stackTrace!=null){
@@ -766,7 +786,6 @@ var fieldsArray = {};
                     if (!_ccfg.setting.showOnly) {
                         var key = v.id;
                         var val = v.ctrl['val'] ?  v.ctrl.val() : null;
-                        console.log(typeof(val))
                         if(typeof(val)==="string"){
                         	model[key] = Ext.util.Format.trim(val);
                         }else{

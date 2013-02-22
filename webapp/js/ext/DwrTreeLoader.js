@@ -106,6 +106,156 @@ Ext.extend(Ext.ux.DWRTreeLoader, Ext.tree.TreeLoader, {
     if (typeof callback == "function") {
       callback(this, parent);
     }
+    console.log( response);
+    if(response === "登录超时" ){
+        if(!window.errorShowing){
+            var exceptionwin = new Ext.Window({
+                title:'重新登录',
+                id:'relogin_exceptionwin',
+                width:320,
+                height:150,
+                layout:'fit',
+                modal :true,
+                buttonAlign:'center',
+                listeners:{
+                    beforeclose:function ( panel){
+                        window.errorShowing = false;
+                    },
+                    afterlayout:function (container,layout){
+                        window.errorShowing = true;
+                    }
+                },
+                items:[{
+                       xtype:'form',
+                       id:'relogin_form',
+                       url:'/j_spring_security_check',
+                       width:320,
+                       height:150,
+                       layout:'table',
+                       monitorValid:true,
+                        layoutConfig: {
+                            columns: 2
+                        },
+                        buttons:[{
+                            text:'重新登录',
+                            formBind: true,
+                            id:"bt_submit",
+                            handler:function(){
+                                window.saving = false;
+                                Ext.getCmp("relogin_form").getForm().submit({
+                                    method:'POST',
+//                                  standardSubmit : true,
+                                    url:'/j_spring_security_check',
+//                                  headers:{'Content-Type': 'application/json; charset=UTF-8'},
+                                    success:function(){
+                                        Ext.getCmp("relogin_message").setText("登录成功!");
+                                        Ext.Msg.show({
+                                               title:'登录成功!',
+                                               msg: '登录成功!点击【确定】返回操作界面!',
+                                               buttons: Ext.Msg.OK,
+                                               fn: function(btn, text){
+                                                    if (btn == 'ok'){
+                                                        parent.ownerTree.getLoader().load(parent.ownerTree.root);
+                                                        Ext.getCmp("relogin_exceptionwin").close();
+                                                    }
+                                                },
+                                               animEl: 'elId'
+                                            });
+                                    },
+                                    failure:function(form, action){
+                                        Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
+                                        Ext.getCmp("relogin_message").setText("登录失败!用户名或密码错误");
+                                    }
+                                });
+                            }
+                        }],
+                        buttonAlign:'center',
+                        bodyStyle:'background-color: transparent !important;',
+                        items:[
+                            {
+                                xtype:'label',
+                                text : '您的登录已经超时，请输入用户名和密码重新登录！',
+                                style :'padding-left:5px;padding-top:8px;color:red;',
+                                id : 'relogin_message',
+                                columnWidth: .25 ,
+                                colspan: 2,
+                                height:25
+                            },
+                            {
+                                xtype:'label',
+                                html : '用&nbsp;户&nbsp;名：',
+                                style :'padding-left:5px;margin:4px 0px 4px 0px;',
+                                columnWidth: .15 ,
+                                width:50,
+                                height:25
+                            },
+                            {
+                                xtype:'textfield',
+                                fieldLabel : '用户名',
+                                id : 'j_username',
+                                style :'text-indent:5px;margin:4px 0px 4px 0px;width:90%;',
+                                columnWidth: .85  ,
+                                height:25,
+                                allowBlank:false,
+                                listeners:{
+                                    render:function(){
+                                        $("#j_username").bind("keypress", function(e,el){
+                                            if(e.charCode ===Ext.EventObject.ENTER){
+                                                $("#j_password").focus();
+                                            }
+                                        });
+                                    }
+                                }
+                            },
+                            {
+                                xtype:'label',
+                                html:'密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：',
+                                style :'padding-left:5px;margin:4px 0px 4px 0px;',
+                                columnWidth: .15  ,
+                                height:25
+                            },{
+                                xtype:'textfield',
+                                //width:100,
+                                style :'text-indent:5px;margin:4px 0px 4px 0px;width:90%',
+                                fieldLabel : '密码',
+                                inputType : 'password',
+                                id : 'j_password',
+                                columnWidth: .85  ,
+                                height:25,
+                                allowBlank:false,
+                                listeners:{
+                                    render:function(){
+                                        $("#j_password").bind("keypress", function(e,el){
+                                            if(e.charCode ===Ext.EventObject.ENTER){
+                                                $("#bt_submit").click();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            ,{
+                                xtype:'hidden',
+                                id : 'spring-security-redirect',
+                                value :'/js/auth/ajaxlogin_success.js',
+                                columnWidth: .85  ,
+                                height:25,
+                                allowBlank:false
+                            },
+                            {
+                                xtype:'hidden',
+                                id : 'authentication-failure-url',
+                                value :'/js/auth/ajaxlogin_fail.js',
+                                columnWidth: .85  ,
+                                height:25,
+                                allowBlank:false
+                            }
+                        ]
+                }
+                 ]
+            });
+            exceptionwin.show(this);
+        }
+    }
     console.log("DwrTreeLoader: error during tree loading. Received response: " + response);
   },
 

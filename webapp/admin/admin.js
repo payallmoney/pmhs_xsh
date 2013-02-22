@@ -33,6 +33,7 @@ function dwrExceptionHandler(errorString, error){
 							buttons:[{
 								text:'重新登录',
 								formBind: true,
+								id:'bt_submit',
 								handler:function(){
 									window.saving = false;
 									Ext.getCmp("relogin_form").getForm().submit({
@@ -88,7 +89,16 @@ function dwrExceptionHandler(errorString, error){
 									style :'text-indent:5px;margin:4px 0px 4px 0px;width:90%;',
 									columnWidth: .85  ,
 									height:25,
-									allowBlank:false
+									allowBlank:false,
+	                                listeners:{
+	                                    render:function(){
+	                                        $("#j_username").bind("keypress", function(e,el){
+	                                            if(e.charCode ===Ext.EventObject.ENTER){
+	                                                $("#j_password").focus();
+	                                            }
+	                                        });
+	                                    }
+	                                }
 								},
 								{
 									xtype:'label',
@@ -105,7 +115,16 @@ function dwrExceptionHandler(errorString, error){
 									id : 'j_password',
 									columnWidth: .85  ,
 									height:25,
-									allowBlank:false
+									allowBlank:false,
+	                                listeners:{
+	                                    render:function(){
+	                                        $("#j_password").bind("keypress", function(e,el){
+	                                            if(e.charCode ===Ext.EventObject.ENTER){
+	                                                $("#bt_submit").click();
+	                                            }
+	                                        });
+	                                    }
+	                                }
 								}
 								,{
 									xtype:'hidden',
