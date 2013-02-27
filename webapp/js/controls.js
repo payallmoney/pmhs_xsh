@@ -487,7 +487,7 @@ function hideHUD($t, includeError){
             
             if(setting.womanItem){
             	$('#' + fieldName + ' input').focus(function(){
-            		var fileNo = $('#' + setting.fileInput[0]).html();
+            		var fileNo = $('#' + setting.fileInput[0]).val();
             		if(fileNo != null){
             			var showItemInfo = setting.fileInput[1];
             			VisitBeforeBornService.getItems(fileNo,function(data){
@@ -881,7 +881,6 @@ function hideHUD($t, includeError){
                         ele.text(val);
                     }
                 } else {
-                    console.log("combovalue====="+val)
                     validate();
                     return val;
                 }
