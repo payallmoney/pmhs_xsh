@@ -313,9 +313,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 					}.createDelegate(this),
 					listeners :{
 					    render:function(obj,position){
-					        console.log(this.examShowParams[0].modName)
 					        UserMenuTreeService.hasCatInfoName(this.examShowParams[0].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -334,7 +332,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
                     listeners:{
                         render:function(obj,position){
                             UserMenuTreeService.hasCatInfoName(this.examShowParams[1].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -353,7 +350,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
                     listeners:{
                         render:function(obj,position){
                             UserMenuTreeService.hasCatInfoName(this.examShowParams[2].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -372,7 +368,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
                     listeners:{
                         render:function(obj,position){
                             UserMenuTreeService.hasCatInfoName(this.examShowParams[3].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -390,7 +385,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 		e.stopEvent();
 		
 		var record = grid.getStore().getAt(rowIndex);
-		console.log(record);
 //		var selections = grid.getSelections();
 		if(record != null && record != undefined){
 			this.storeId = record.data.id;
@@ -407,9 +401,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			}.createDelegate(this),
 			listeners :{
                     render  :function(obj,position){
-                        console.log(this.examShowParams[0].modName)
                         UserMenuTreeService.hasCatInfoName(this.examShowParams[0].modName,function(data){
-                            console.log(data);
                             if(!data){
                                 obj.disable();
                             }
@@ -426,9 +418,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			}.createDelegate(this),
 			listeners :{
                     render  :function(obj,position){
-                        console.log(this.examShowParams[1].modName)
                         UserMenuTreeService.hasCatInfoName(this.examShowParams[1].modName,function(data){
-                            console.log(data);
                             if(!data){
                                 obj.disable();
                             }
@@ -444,9 +434,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			}.createDelegate(this),
 			listeners :{
                         render  :function(obj,position){
-                            console.log(this.examShowParams[2].modName)
                             UserMenuTreeService.hasCatInfoName(this.examShowParams[2].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -462,9 +450,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			}.createDelegate(this),
 			listeners :{
                         render :function(obj,position){
-                            console.log(this.examShowParams[3].modName)
                             UserMenuTreeService.hasCatInfoName(this.examShowParams[3].modName,function(data){
-                                console.log(data);
                                 if(!data){
                                     obj.disable();
                                 }
@@ -628,7 +614,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 		});
         if(!Ext.isEmpty(window.global_modId)){
             UserMenuTreeService.hasCatInfoId(window.global_modId,function(data){
-                console.log(data);
                 if(!data){
                     healthBooksBtn.disable();
                 }
@@ -658,11 +643,8 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 						if (selections.length > 0) {
 							var array = [];
 							var pk = this.recordPk;
-							console.log(selections);
 							Ext.each(selections, function(v) {
-								console.log(v);
 								if(v.data.isClosed == '2'){
-									console.log(true);
 									array.push(v.get(pk));
 								}
 							});
@@ -680,7 +662,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 									});
 								}
 							};
-							console.log(array);
 							if(array.length > 0){
 								Ext.MessageBox.confirm("提示", "确认要撤销所选择的记录么？", del,
 										this);
@@ -1066,7 +1047,22 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 					this.currentNode = n;
 					this.f_add();
 				}.createDelegate(this)
-			}
+			},
+			'contextmenu' :function(node,e){
+                e.preventDefault();
+                node.select();
+                var contextmenu=new Ext.menu.Menu({
+                    id:'leafcontextmeun',
+                    items:[{text:'刷新',
+                            handler:function(){
+                                this.menu.getLoader().load(this.menu.root);
+                            }
+                        }]
+                    }
+                );
+                leafcontextmenu.showAt(e.getXY());
+                
+            }
 		});
 
 		var panel = new Ext.Panel({
