@@ -30,6 +30,11 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 
 	@Override
 	public String save(VaccinationBO data) throws Exception {
+		String fileno = EncryptionUtils.encry(data.getFileNo());
+		List checklist = getHibernateTemplate().find("from VaccineImmune where vfileno = '"+fileno+"'");
+		if(checklist.size()>0){
+			throw new Exception(""+data.getFileNo()+data.getVname()+"已建卡,不能重复建卡!");
+		}
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
@@ -38,6 +43,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		if (data.getId() == null || data.getId().equals("")) {
 			data.setVinputDate(new Timestamp(System.currentTimeMillis()));
 		}
+		
 		HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
 		if(file.getName().trim().equals("") && !data.getVname().trim().equals("")){
 			file.setName(data.getVname().trim());
