@@ -1,0 +1,43 @@
+CREATE TABLE [dbo].[ChildrenMediExam3_6]
+(
+[ID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[FileNo] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[InputPersonID] [nvarchar] (30) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[InputDate] [datetime] NOT NULL,
+[CheckItem] [nvarchar] (10) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[VisitDate] [datetime] NULL,
+[Weight] [decimal] (10, 2) NULL,
+[WeightScore] [nvarchar] (10) COLLATE Chinese_PRC_CI_AS NULL,
+[Height] [decimal] (10, 2) NULL,
+[HeightScore] [nvarchar] (10) COLLATE Chinese_PRC_CI_AS NULL,
+[Body] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Sight] [decimal] (10, 2) NULL,
+[Hearing] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Tooth] [int] NULL,
+[Caries] [int] NULL,
+[Heart] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[HeartOther] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Venter] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[VenterOther] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Hemoglobin] [decimal] (10, 2) NULL,
+[CheckSickness] [bit] NULL,
+[Scour] [int] NULL,
+[CheckSicknessOther] [nvarchar] (50) COLLATE Chinese_PRC_CI_AS NULL,
+[Wound] [int] NULL,
+[Pneumonia] [int] NULL,
+[Other] [nvarchar] (50) COLLATE Chinese_PRC_CI_AS NULL,
+[Transfer] [bit] NULL,
+[TransReason] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[TransUnit] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[DirectOther] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[NextVisitDate] [datetime] NULL,
+[VisitDoctor] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[High_Risk] [nvarchar] (2) COLLATE Chinese_PRC_CI_AS NULL,
+[High_Risk_Remark] [nvarchar] (1000) COLLATE Chinese_PRC_CI_AS NULL,
+[ExecDistrictNum] [nvarchar] (32) COLLATE Chinese_PRC_CI_AS NULL,
+[HighRiskSearch] [nvarchar] (100) COLLATE Chinese_PRC_CI_AS NULL,
+[ForeignId] [nvarchar] (36) COLLATE Chinese_PRC_CI_AS NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[ChildrenMediExam3_6] ADD CONSTRAINT [pk_ChildrenMediExam3_6] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+GO

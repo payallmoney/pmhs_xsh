@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[EatHabit]
+(
+[MedicalExamID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[ID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[EatHabitID] [int] NOT NULL CONSTRAINT [DF__EatHabit__EatHab__269AB60B] DEFAULT ((0))
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[EatHabit] ADD CONSTRAINT [pk_EatHabit] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+GO
