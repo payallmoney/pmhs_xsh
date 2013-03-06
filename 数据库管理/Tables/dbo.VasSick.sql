@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[VasSick]
+(
+[MedicalExamID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[ID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[VasSickID] [int] NOT NULL CONSTRAINT [DF__VasSick__VasSick__297722B6] DEFAULT ((0))
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[VasSick] ADD CONSTRAINT [pk_VasSick] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+GO

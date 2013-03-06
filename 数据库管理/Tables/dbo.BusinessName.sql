@@ -1,0 +1,8 @@
+CREATE TABLE [dbo].[BusinessName]
+(
+[ID] [int] NOT NULL CONSTRAINT [DF__BusinessName__ID__3E52440B] DEFAULT ((0)),
+[Name] [varchar] (100) COLLATE Chinese_PRC_CI_AS NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[BusinessName] ADD CONSTRAINT [PK__BusinessName__3D5E1FD2] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+GO

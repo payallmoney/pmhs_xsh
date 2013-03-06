@@ -1,0 +1,43 @@
+CREATE TABLE [dbo].[BirthCertificate]
+(
+[CertifiID] [nvarchar] (30) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[Name] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Sex] [nvarchar] (2) COLLATE Chinese_PRC_CI_AS NULL,
+[Birthday] [datetime] NULL,
+[BorthWeekly] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[HealthStatus] [nvarchar] (30) COLLATE Chinese_PRC_CI_AS NULL,
+[Weight] [decimal] (10, 2) NULL,
+[Height] [decimal] (10, 2) NULL,
+[MotherName] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[MotherAge] [int] NULL,
+[MotherNationality] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[MotherNation] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[MotherIdCard] [nvarchar] (18) COLLATE Chinese_PRC_CI_AS NULL,
+[FatherName] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[FatherAge] [int] NULL,
+[FatherNationality] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[FatherNation] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[FatherIdCard] [nvarchar] (18) COLLATE Chinese_PRC_CI_AS NULL,
+[BorthAddressCategory] [nvarchar] (30) COLLATE Chinese_PRC_CI_AS NULL,
+[BorthOrganization] [nvarchar] (50) COLLATE Chinese_PRC_CI_AS NULL,
+[IssuingDate] [datetime] NULL,
+[IssuingOrganization] [nvarchar] (50) COLLATE Chinese_PRC_CI_AS NULL,
+[IsEffectived] [int] NULL,
+[InputPersonId] [nvarchar] (30) COLLATE Chinese_PRC_CI_AS NULL,
+[InputDate] [datetime] NULL,
+[OtherBorthAddressCategory] [nvarchar] (100) COLLATE Chinese_PRC_CI_AS NULL,
+[WidWife] [nvarchar] (50) COLLATE Chinese_PRC_CI_AS NULL,
+[Province] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[City] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[County] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[Township] [nvarchar] (20) COLLATE Chinese_PRC_CI_AS NULL,
+[FamilyAddress] [nvarchar] (200) COLLATE Chinese_PRC_CI_AS NULL,
+[DistrictNum] [nvarchar] (18) COLLATE Chinese_PRC_CI_AS NULL,
+[FileNo] [nvarchar] (18) COLLATE Chinese_PRC_CI_AS NULL,
+[LinkmanTEL] [nvarchar] (11) COLLATE Chinese_PRC_CI_AS NULL,
+[isPrint] [int] NULL CONSTRAINT [DF__BirthCert__isPri__6CF8245B] DEFAULT ((0)),
+[IsSupply] [int] NULL CONSTRAINT [DF__BirthCert__IsSup__0D64F3ED] DEFAULT ((0))
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[BirthCertificate] ADD CONSTRAINT [PK_BirthCertificate] PRIMARY KEY CLUSTERED  ([CertifiID]) ON [PRIMARY]
+GO

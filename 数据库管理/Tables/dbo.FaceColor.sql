@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[FaceColor]
+(
+[BabyVisitID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[ID] [char] (36) COLLATE Chinese_PRC_CI_AS NOT NULL,
+[FaceColorID] [int] NOT NULL CONSTRAINT [DF__FaceColor__FaceC__451F3D2B] DEFAULT ((0))
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[FaceColor] ADD CONSTRAINT [pk_FaceColor] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+GO
