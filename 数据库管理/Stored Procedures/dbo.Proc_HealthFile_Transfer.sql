@@ -1,4 +1,5 @@
-SET QUOTED_IDENTIFIER OFF
+
+SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
@@ -38,6 +39,7 @@ BEGIN
 		IF @Sex = '女'
 		BEGIN
 			--孕产妇业务数据
+			UPDATE HealthFileMaternal SET FileNo = @NewFileNo WHERE FileNo = @OldFileNo--第1次产前随访
 			UPDATE FirstVistBeforeBorn SET FileNo = @NewFileNo WHERE FileNo = @OldFileNo--第1次产前随访
 			UPDATE VisitBeforeBorn SET FileNo = @NewFileNo WHERE FileNo = @OldFileNo--第2~5次产前随访
 			UPDATE VisitAfterBorn SET FileNo = @NewFileNo WHERE FileNo = @OldFileNo--产后访视及产后42天健康体检
