@@ -1093,8 +1093,8 @@ Ext.onReady(function() {
 							  expand : function(){
 								  //console.log(this.body.dom.innerHTML)
 								  var c = $(this.body.dom.innerHTML).children('div').children('div').children('div').children('div');
-								  if($(c[0]) && $(c[0]).fireEvent)
-									  $(c[0]).fireEvent('onclick');
+								  if($(c[0]) && $(c[0]).triggerHandler)
+									  $(c[0]).triggerHandler('click');
 //								  navigateContent($htmlContent,$templateId,rootCatName,$lastCatName);
 							  }
 						  },
