@@ -1093,7 +1093,8 @@ Ext.onReady(function() {
 							  expand : function(){
 								  //console.log(this.body.dom.innerHTML)
 								  var c = $(this.body.dom.innerHTML).children('div').children('div').children('div').children('div');
-								  $(c[0]).attr('onclick')();
+								  if($(c[0]) && $(c[0]).fireEvent)
+									  $(c[0]).fireEvent('onclick');
 //								  navigateContent($htmlContent,$templateId,rootCatName,$lastCatName);
 							  }
 						  },
@@ -1360,7 +1361,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod personInfo_01 mod_disable"><img src="../image/menu/personInfo_01.gif"/><div>个人健康记录索引</div><div class="remarks"></div></div>'+
 		'</div>';
 	}
-	/*else if($templateId == 'fun_complex_template'){
+	else if($templateId == 'fun_complex_template'){
 		flag = true;
 		modItems = '<div class="div_container">'+
 			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
@@ -1369,13 +1370,14 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
 		'</div>';
 	}
-	*/
+	
 	else if($templateId == 'fun_exam_template'){
 		flag = true;
 		modItems = '<div class="div_container">'+
 			'<div class="mod exam_01 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
 			'<div class="mod exam_02 mod_disable"><img src="../image/menu/exam_02.gif"/><div>老年人健康体检</div><div class="remarks"></div></div>'+
 			'<div class="mod exam_03 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
+			'<div class="mod exam_04 mod_disable"><img src="../image/menu/exam_04.gif"/><div>重复档案管理</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_clinics_template'){
 		flag = true;
@@ -1419,7 +1421,6 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		var modItems = '<div class="navigateContainerOther">';
 		
 		for(var i=0;i<$ArrayContent.length;i++){
-			
 			var str = $ArrayContent[i];
 			//console.log(str)
 			if(str.trim() != ''){
@@ -1482,34 +1483,33 @@ function showError(msg){
 function toUrl(modId,modName,url){
     if (url.indexOf('.html') != -1) {
     	var tab = null;
-		var iframeId = modName + '_' + url;
-		var items = tabPanel.find('id', iframeId);
-		if (items.length > 0) {
-		  tab = items[0];
-		}
-		if (tab) {
-		    tabPanel.setActiveTab(tab);
-		} else {
-		    if (!Ext.get(iframeId)) {
-		    	tab =  new Ext.ux.ManagedIframePanel({
-		         xtype : 'iframepanel',
-		         id : iframeId,
-		         loadMask : true,
-		         defaultSrc : url,
-		         listeners : {
-		           domready : function(frame) { // only raised for "same-origin"
-		             var doc = frame.getDocument();
-		             if (doc) {
-		               frame.ownerCt.setTitle(doc.title);
-		             }
-		           }
-		         }
-		       });
-		       var newFrame = tabPanel.add(tab );
-		       tabPanel.tabid = iframeId;
-		       tabPanel.activate(newFrame);
-		    }
-		}
+        var items = tabPanel.find('id', url);
+        if (items.length > 0) {
+          tab = items[0];
+        }
+        if (tab) {
+          tabPanel.setActiveTab(tab);
+        } else {
+        	//debugger;
+        	var autoLoad = {
+				url : url,
+				scripts : true,
+				border : false,
+				disableCaching :false,
+				text:"加载中..."
+			};
+			tab = new App.TabPagePanel({
+				id : url,
+				autoLoad : autoLoad,
+				title : modName,
+				autoScroll : false,
+				closable : true,
+				border : false
+			});
+			var p = tabPanel.add(tab);
+			tabPanel.tabid = url;
+		    tabPanel.activate(p);
+        }
     } else {
       var tab = null;
       var items = tabPanel.find('id', url);
