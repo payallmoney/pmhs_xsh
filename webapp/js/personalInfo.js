@@ -814,7 +814,8 @@
       xtype: "list",
       setting: {
         ds: "171",
-        disabled: true
+        disabled: true,
+        scoredisable : true
       }
     }
   ];
