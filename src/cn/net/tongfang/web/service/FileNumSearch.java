@@ -70,7 +70,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         		extendCols = " ,hf.township,hf.village,p.bloodTypeAbo,p.bloodTypeRh ";
         	}else if(otherparamtype.equals(OtherParamType_ChildOther)){//
         		otherTables = " ,HealthFileChildren hc ";
-        		hsqlparam = " And hf.isOverCount = 1 And hc.fileNo = hf.fileNo ";
+        		hsqlparam = " And hc.fileNo = hf.fileNo ";
         		extendCols = " ,hc.id ";
         	}else if(otherparamtype.equals(OtherParamType_Old)){
         		hsqlparam = " And (year(getDate()) - year(p.birthday)) >= 65 ";
@@ -80,7 +80,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     	//改为like ,like 可以用索引 substring 不能用
     	if(condVal.equals(CondVal_Fileno)){
     		likePrefix = likePrefix.replace("%", "");
-    		mcode = mcode.replace("%", "");
+//    		mcode = mcode.replace("%", "");
     		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 " + hsqlparam,fileNo).get(0);
