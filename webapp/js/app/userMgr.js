@@ -129,14 +129,30 @@ var addUser = function() {
 			}, {
 				name : 'name',
 				mapping : 'name'
-			} ],
+			} , {
+                name : 'district.name',
+                mapping : 'district.name'
+            }, {
+                name : 'district.parentName',
+                mapping : 'district.parentName'
+            } ],
 			gridCm : [ {
 				"header" : "ID",
-				"dataIndex" : "id"
+				"dataIndex" : "id",
+                "sortable" : "true"
 			}, {
 				"header" : "名称",
-				"dataIndex" : "name"
-			} ],
+				"dataIndex" : "name",
+                "sortable" : "true"
+			} , {
+                "header" : "上级机构",
+                "dataIndex" : "district.name",
+                "sortable" : "true"
+            } , {
+                "header" : "上上级机构",
+                "dataIndex" : "district.parentName",
+                "sortable" : "true"
+            }  ],
 			name : 'org.name'
 		}, {
 			name : 'orgId',
@@ -437,14 +453,30 @@ function edit(rec) {
 			}, {
 				name : 'name',
 				mapping : 'name'
-			} ],
+			} , {
+                name : 'district.name',
+                mapping : 'district.name'
+            } , {
+                name : 'district.parentName',
+                mapping : 'district.parentName'
+            }],
 			gridCm : [ {
 				"header" : "ID",
-				"dataIndex" : "id"
+				"dataIndex" : "id",
+				"sortable" : "true"
 			}, {
 				"header" : "名称",
-				"dataIndex" : "name"
-			} ],
+				"dataIndex" : "name",
+				"sortable" : "true"
+			} , {
+                "header" : "上级机构",
+                "dataIndex" : "district.name",
+                "sortable" : "true"
+            } , {
+                "header" : "上上级机构",
+                "dataIndex" : "district.parentName",
+                "sortable" : "true"
+            }  ],
 			name : 'org.name'
 		}, {
 			name : 'orgId',
