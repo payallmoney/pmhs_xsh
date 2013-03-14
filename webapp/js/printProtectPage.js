@@ -312,10 +312,14 @@
 		LODOP.ADD_PRINT_TEXT("5.95cm","6.16cm","8.73cm","0.53cm",jsonPrint.motherIdCard);
 		LODOP.SET_PRINT_STYLEA(0,"LetterSpacing","0.20cm");
 		LODOP.ADD_PRINT_TEXT("6.75cm","6.01cm","2.65cm","0.53cm",jsonPrint.fatherName);
-		LODOP.ADD_PRINT_TEXT("6.83cm","8.63cm","1.27cm","0.53cm",jsonPrint.fatherAge);
+		if(jsonPrint.fatherAge == 0 ){
+            LODOP.ADD_PRINT_TEXT("6.83cm","8.63cm","1.27cm","0.53cm","不详");
+		}else{
+    		LODOP.ADD_PRINT_TEXT("6.83cm","8.63cm","1.27cm","0.53cm",jsonPrint.fatherAge);
+		}
 		LODOP.ADD_PRINT_TEXT("6.85cm","10.72cm","1.14cm","0.53cm",jsonPrint.fatherNationality);
-		LODOP.ADD_PRINT_TEXT("6.85cm","13.2cm","1.06cm","0.53cm",jsonPrint.fatherNation);
-		LODOP.ADD_PRINT_TEXT("7.65cm","6.14cm","8.65cm","0.53cm",jsonPrint.fatherIdCard);
+        LODOP.ADD_PRINT_TEXT("6.85cm","13.2cm","1.06cm","0.53cm",jsonPrint.fatherNation);
+        LODOP.ADD_PRINT_TEXT("7.65cm","6.14cm","8.65cm","0.53cm",jsonPrint.fatherIdCard);
 		LODOP.SET_PRINT_STYLEA(0,"LetterSpacing","0.20cm");
 		LODOP.ADD_PRINT_TEXT("8.44cm","8.41cm","1.16cm","0.53cm",jsonPrint.generalHospital);
 		LODOP.ADD_PRINT_TEXT("8.44cm","10.72cm","0.69cm","0.53cm",jsonPrint.MCHhospital);
@@ -353,9 +357,17 @@
 		LODOP.ADD_PRINT_TEXT("5.24cm","21.33cm","3.86cm","0.53cm",jsonPrint.motherIdCard);
 		LODOP.ADD_PRINT_TEXT("5.29cm","26.7cm","4cm","0.53cm",jsonPrint.motherIdCard);
 		LODOP.ADD_PRINT_TEXT("5.95cm","20.96cm","2.78cm","0.53cm",jsonPrint.fatherName);
-		LODOP.ADD_PRINT_TEXT("5.93cm","23.84cm","1.06cm","0.53cm",jsonPrint.fatherAge);
+		if(jsonPrint.fatherAge == 0 ){
+            LODOP.ADD_PRINT_TEXT("5.93cm","23.84cm","1.06cm","0.53cm","不详");
+        }else{
+            LODOP.ADD_PRINT_TEXT("5.93cm","23.84cm","1.06cm","0.53cm",jsonPrint.fatherAge);
+        }
 		LODOP.ADD_PRINT_TEXT("5.93cm","26.46cm","2.65cm","0.53cm",jsonPrint.fatherName);
-		LODOP.ADD_PRINT_TEXT("5.9cm","29.63cm","0.79cm","0.53cm",jsonPrint.fatherAge);
+		if(jsonPrint.fatherAge == 0 ){
+            LODOP.ADD_PRINT_TEXT("5.9cm","29.32cm","1.06cm","0.53cm","不详");
+        }else{
+            LODOP.ADD_PRINT_TEXT("5.9cm","29.32cm","1.06cm","0.53cm",jsonPrint.fatherAge);
+        }
 		LODOP.ADD_PRINT_TEXT("6.56cm","20.98cm","2.78cm","0.53cm",jsonPrint.fatherNationality);
 		LODOP.ADD_PRINT_TEXT("6.54cm","23.76cm","1.06cm","0.53cm",jsonPrint.fatherNation);
 		LODOP.ADD_PRINT_TEXT("6.61cm","26.33cm","2.65cm","0.53cm",jsonPrint.fatherNationality);
