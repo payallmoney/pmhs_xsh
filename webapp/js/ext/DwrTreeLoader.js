@@ -149,18 +149,20 @@ Ext.extend(Ext.ux.DWRTreeLoader, Ext.tree.TreeLoader, {
 //                                  headers:{'Content-Type': 'application/json; charset=UTF-8'},
                                     success:function(){
                                         Ext.getCmp("relogin_message").setText("登录成功!");
-                                        Ext.Msg.show({
-                                               title:'登录成功!',
-                                               msg: '登录成功!点击【确定】返回操作界面!',
-                                               buttons: Ext.Msg.OK,
-                                               fn: function(btn, text){
-                                                    if (btn == 'ok'){
-                                                        parent.ownerTree.getLoader().load(parent.ownerTree.root);
-                                                        Ext.getCmp("relogin_exceptionwin").close();
-                                                    }
-                                                },
-                                               animEl: 'elId'
-                                            });
+                                        parent.ownerTree.getLoader().load(parent.ownerTree.root);
+                                        Ext.getCmp("relogin_exceptionwin").close();
+                                        // Ext.Msg.show({
+                                               // title:'登录成功!',
+                                               // msg: '登录成功!点击【确定】返回操作界面!',
+                                               // buttons: Ext.Msg.OK,
+                                               // fn: function(btn, text){
+                                                    // if (btn == 'ok'){
+                                                        // parent.ownerTree.getLoader().load(parent.ownerTree.root);
+                                                        // Ext.getCmp("relogin_exceptionwin").close();
+                                                    // }
+                                                // },
+                                               // animEl: 'elId'
+                                            // });
                                     },
                                     failure:function(form, action){
                                         Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");

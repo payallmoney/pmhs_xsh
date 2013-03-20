@@ -1,4 +1,5 @@
 ModuleMgr = {};
+EasyuiDestroyList = new Array();
 function dwrExceptionHandler(errorString, error){
 	if (error) {
 		if(error.javaClassName === "cn.net.tongfang.web.util.TimeoutException" ){
@@ -43,17 +44,18 @@ function dwrExceptionHandler(errorString, error){
 	//									headers:{'Content-Type': 'application/json; charset=UTF-8'},
 										success:function(){
 											Ext.getCmp("relogin_message").setText("登录成功!");
-											Ext.Msg.show({
-												   title:'登录成功!',
-												   msg: '登录成功!点击【确定】返回操作界面!',
-												   buttons: Ext.Msg.OK,
-												   fn: function(btn, text){
-													    if (btn == 'ok'){
-													    	Ext.getCmp("relogin_exceptionwin").close();
-													    }
-													},
-												   animEl: 'elId'
-												});
+											Ext.getCmp("relogin_exceptionwin").close();
+//											Ext.Msg.show({
+//												   title:'登录成功!',
+//												   msg: '登录成功!点击【确定】返回操作界面!',
+//												   buttons: Ext.Msg.OK,
+//												   fn: function(btn, text){
+//													    if (btn == 'ok'){
+//													    	Ext.getCmp("relogin_exceptionwin").close();
+//													    }
+//													},
+//												   animEl: 'elId'
+//												});
 										},
 										failure:function(form, action){
 											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
@@ -595,33 +597,37 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
     closable: true,
     autoScroll:true,
     destroy :function(){
-    
-    App.TabPagePanel.superclass.destroy.call(this);
+//    	$(this.el).panel("destroy");
+    	App.TabPagePanel.superclass.destroy.call(this);
+//    	console.log($(this.el).panel("destroy"));
+    	
     	if(!this || !this.items || !this.items.items || !this.items.items.length){
     		return;
     	}
      	var len=this.items.items.length;
     	var items=this.items.items;
     	var bar;
-    	for(var i=0;i<len;i++){
-			if(items[i].items){
-				var citems = items[i].items.items;
-				for(var j=0;j<citems.length;j++){
-	          	 citems[j].body.dom=null;	
-	             citems[j].el.dom=null;
-	             delete citems[j].el.dom;
-	          	}
-	          	if(citems[0] && citems[0].container){
-	              citems[0].container.dom=null;
-	     	      delete citems[0].container.dom; 
-	          	}
-
-			}
-			items[i].body.dom=null;
-	        items[i].el.dom=null;
-	        delete items[i].body.dom;
-            delete items[i].el.dom;
-       
+    	if(len && items){
+	    	for(var i=0;i<len;i++){
+				if(items[i].items){
+					var citems = items[i].items.items;
+					for(var j=0;j<citems.length;j++){
+		          	 citems[j].body.dom=null;	
+		             citems[j].el.dom=null;
+		             delete citems[j].el.dom;
+		          	}
+		          	if(citems[0] && citems[0].container){
+		              citems[0].container.dom=null;
+		     	      delete citems[0].container.dom; 
+		          	}
+	
+				}
+				items[i].body.dom=null;
+		        items[i].el.dom=null;
+		        delete items[i].body.dom;
+	            delete items[i].el.dom;
+	       
+	    	}
     	}
     	
 	    this.el.dom=null;
@@ -653,7 +659,6 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
     }  
     ,
     beforeDestroy:function(){
-      
     	if(this.header) {
             this.header.removeAllListeners();
             if (this.headerAsText){
@@ -701,6 +706,7 @@ App.TabPagePanel=Ext.extend(Ext.Panel, {
          
         }
         this.itemTabStrip = null;
+        
     }
 });
 
@@ -1482,6 +1488,8 @@ function showError(msg){
 
 function toUrl(modId,modName,url){
     if (url.indexOf('.html') != -1) {
+    	
+    	console.log(url)
     	var tab = null;
         var items = tabPanel.find('id', url);
         if (items.length > 0) {
@@ -1491,21 +1499,35 @@ function toUrl(modId,modName,url){
           tabPanel.setActiveTab(tab);
         } else {
         	//debugger;
-        	var autoLoad = {
-				url : url,
-				scripts : true,
-				border : false,
-				disableCaching :false,
-				text:"加载中..."
-			};
-			tab = new App.TabPagePanel({
-				id : url,
-				autoLoad : autoLoad,
-				title : modName,
-				autoScroll : false,
-				closable : true,
-				border : false
-			});
+			if(url.indexOf("easyui")==0){
+	    		url = url.substr(6);
+	    		tab = new Ext.ux.panel.ManagedIframe({
+					id : url,
+					defaultSrc : url,
+					title : '',
+					loadMask : true,
+					title : modName,
+					autoScroll : false,
+					closable : true,
+					border : false
+				});
+	    	}else{
+	    		var autoLoad = {
+	    				url : url,
+	    				scripts : true,
+	    				border : false,
+	    				nocache :true,
+	    				text:"加载中..."
+    			};
+    			tab = new App.TabPagePanel({
+    				id : url,
+    				autoLoad : autoLoad,
+    				title : modName,
+    				autoScroll : false,
+    				closable : true,
+    				border : false
+    			});
+	    	}
 			var p = tabPanel.add(tab);
 			tabPanel.tabid = url;
 		    tabPanel.activate(p);

@@ -46,21 +46,23 @@ function dwrExceptionHandler(errorString, error){
 										url:'/j_spring_security_check',
 										success:function(){
 											Ext.getCmp("relogin_message").setText("登录成功!");
-											Ext.Msg.show({
-											   title:'登录成功!',
-											   msg: '登录成功!点击【确定】返回操作界面!',
-											   buttons: Ext.Msg.OK,
-											   fn: function(btn, text){
-												    if (btn == 'ok'){
-												    	Ext.getCmp("relogin_exceptionwin").close();
-//												    	if(!window.saving){
-//															sendMessage('quit');
-//														}
-												    }
-												    window.saving = false;
-												},
-											   animEl: 'elId'
-											});
+											Ext.getCmp("relogin_exceptionwin").close();
+											window.saving = false;
+//											Ext.Msg.show({
+//											   title:'登录成功!',
+//											   msg: '登录成功!点击【确定】返回操作界面!',
+//											   buttons: Ext.Msg.OK,
+//											   fn: function(btn, text){
+//												    if (btn == 'ok'){
+//												    	Ext.getCmp("relogin_exceptionwin").close();
+////												    	if(!window.saving){
+////															sendMessage('quit');
+////														}
+//												    }
+//												    window.saving = false;
+//												},
+//											   animEl: 'elId'
+//											});
 										},
 										failure:function(form, action){
 											Ext.Msg.alert('登录失败!',"登录失败!用户名或密码错误!");
