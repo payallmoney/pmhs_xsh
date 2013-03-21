@@ -34,7 +34,8 @@ Ext.onReady(function(){
 				text : '关闭窗口',
 				handler : function(){
 					PersonalInfoService.getHeadPicture(function(data){
-						if(data != ''){
+					    console.log(data);
+						if(data){
 							$('#onlinePhoto img').attr('src','headPicture/' + data);
 							$('.onlineTakePhoto').hide();
 						}

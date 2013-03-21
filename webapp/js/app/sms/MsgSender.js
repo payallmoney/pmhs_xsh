@@ -1072,10 +1072,10 @@ Ext.sms.MsgSender = new Ext.Panel({
                                 conditions : []
                             };
                             if(!Ext.isEmpty(Ext.getCmp("sms.msgsender.query.startdatefield").getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:"vo.id.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.startdatefield").getValue(),opt:">="};
+                                cond.conditions[cond.conditions.length] = {filterKey:"vo.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.startdatefield").getValue(),opt:">="};
                             }
                             if(!Ext.isEmpty(Ext.getCmp("sms.msgsender.query.enddatefield").getValue())){
-                                cond.conditions[cond.conditions.length] = {filterKey:"vo.id.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.enddatefield").getValue(),opt:"<="};
+                                cond.conditions[cond.conditions.length] = {filterKey:"vo.smsdate",filterVal:Ext.getCmp("sms.msgsender.query.enddatefield").getValue(),opt:"<="};
                             }
                             if(!Ext.isEmpty(Ext.getCmp("sms.query.combo.type").getValue())){
                                 cond.district =Ext.getCmp("sms.query.combo.type").getValue();
@@ -1093,16 +1093,16 @@ Ext.sms.MsgSender = new Ext.Panel({
                 reader : new Ext.data.JsonReader({
                     totalProperty : "totalSize", // 总记录数
                     root : "data", // 分页对象中的数据集
-                    id : "smsdate" //
+                    id : "id" //
                 }, Ext.data.Record.create([{
                     name : 'smsdate',
-                    mapping : 'id.smsdate'
+                    mapping : 'smsdate'
                 }, {
                     name : 'examname',
-                    mapping : 'id.examname'
+                    mapping : 'examname'
                 }, {
                     name : 'fileno',
-                    mapping : 'id.fileno'
+                    mapping : 'fileno'
                 }, {
                     name : 'name',
                     mapping : 'personname'

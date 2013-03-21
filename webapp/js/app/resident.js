@@ -82,6 +82,9 @@ app.residentPanel = new Ext.tf.HealthPanel({
 	}, {
 		"header" : "电话",
 		"dataIndex" : "personalInfo_tel"
+	}, {
+		"header" : "建档医生",
+		"dataIndex" : "personalInfo_tel"
 	} ],
 
 	getAddParams : function() {

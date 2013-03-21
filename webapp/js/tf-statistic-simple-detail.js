@@ -78,6 +78,7 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 	recordId : 'id',
 	statisticType : null,
 	idsArray : {},
+	currentNode : null,
 	readerConfig : [ {
 		name : 'orgName'
 	}, {
@@ -253,12 +254,19 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 			(vacciInfor ? '1' : '0');;
 		var isQryWipeOut = Ext.getCmp(this.idsArray.isQryWipeOut).getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
+		var containLowerLevel = Ext.getCmp('containLowerLevel').getValue();
+		containLowerLevel = containLowerLevel ? '1' : '0';
+		var orgId = '';
+		if(this.currentNode != null)
+			orgId = this.currentNode.id;
 		var condition = {
 			startDate : startDate,
 			endDate : endDate,
 			statisticType : this.statisticType,
 			statisticResult : statisticResult,
-			isQryWipeOut : isQryWipeOut
+			isQryWipeOut : isQryWipeOut,
+			orgId : orgId,
+			containLowerLevel : containLowerLevel
 		};
 		return condition;
 	},
@@ -370,9 +378,9 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousVisitCount'));
 			}
 			if(vacciInfor){
-				colsVisibleFalse.push(getColumnsIndex('vacciInfoCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'vacciInfoCount'));
 			}else{
-				colsVisibleTrue.push(getColumnsIndex('vacciInfoCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'vacciInfoCount'));
 			}
 			setVisibleDetail(this.idsArray.grid,colsVisibleTrue,colsVisibleFalse);
 		}else{
@@ -437,7 +445,13 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				handler : function(){
 					printDataExportObj.printGrid(grid,printDataExportObj.initDateRange(this.idsArray.startDate,this.idsArray.endDate));
 				}.createDelegate(this)				
-			},exportButton],
+			},exportButton,{
+				text : '刷新',
+				iconCls : 'c_refresh',
+				handler : function(){
+					this.load(true);
+				}.createDelegate(this)
+			}],
 			items : [{
 				xtype : 'panel',
 				layout : 'absolute',
@@ -455,11 +469,66 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 						  createCheckBox('慢性病业务数据',false,this.idsArray.chronicDisease,this.idsArray.chronicDisease,0,50,4,null)],200)]
 			}]
 		});
-		
+		this.menu = new Ext.tree.TreePanel({
+			layout : 'fit',
+			animate : true,
+			enableDD : false,
+			loader : new Ext.ux.DWRTreeLoader({
+				dwrCall : UserMenuTreeService.getOrganizationNodes
+			}),
+			lines : true,
+			autoScroll : true,
+			border : false,
+			root : new Ext.tree.AsyncTreeNode({
+				text : 'root',
+				draggable : false,
+				id : 'org'
+			}),
+			rootVisible : false
+		});
+		this.menu.getRootNode().on({
+			append : {
+				stopEvent : true,
+				fn : function(t, me, n, index) {
+					// 自动展开根节点的第一个孩子
+					if (index == 0) {
+						if (!n.leaf)
+							n.expand();
+						this.currentNode = n;
+//						this.isFirst.setValue(0);
+						// this.load();
+					}
+				}.createDelegate(this)
+			}
+		});
+		this.menu.on({
+			click : {
+				stopEvent : true,
+				fn : function(n, e) {
+					e.stopEvent();
+					this.currentNode = n;
+//					console.log(n);
+					this.load(true);
+				}.createDelegate(this)
+			}
+		});
 		var panel = new Ext.Panel({
 			autoScroll : true,
 			layout : 'border',
-			items : [topPanel,grid]
+			items : [{
+				region : 'west',
+				width: 200,
+				title: '组织机构',
+				collapsible : true,
+				autoScroll : true,
+				items : [this.menu],
+				tbar : [{
+					xtype : 'checkbox',
+					boxLabel : '全部（包含下级数据）',
+					id : 'containLowerLevel',
+					name : 'containLowerLevel'
+				}]
+			},topPanel,grid]
 		});
 
 		return panel;

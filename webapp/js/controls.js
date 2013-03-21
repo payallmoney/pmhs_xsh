@@ -503,7 +503,7 @@ function hideHUD($t, includeError){
             	$('#' + fieldName + ' input').blur(function(){
             		var showItemInfo = setting.fileInput[1];
             		var str = $('.' + showItemInfo).children('font').children('span').html();
-            		var fileNo = $('#' + setting.fileInput[0]).html();
+            		var fileNo = $('#' + setting.fileInput[0]).val();
             		var val = $(this).val();
             		if(val != '' && fileNo != ''){
             			if(val > 1){
@@ -515,9 +515,6 @@ function hideHUD($t, includeError){
                     				if(data != null){
                     					$('#' + setting.fileInput[2] + ' input').val(data);
                     				}
-//                    				else{
-//                    					showInfoObj.Infor('请先做第一次孕产妇产前随访。');
-//                    				}
                     			});
                     		}
             			}else{

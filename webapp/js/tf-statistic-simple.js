@@ -80,7 +80,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 	readerConfig : [],
 	gridCmConfig : [],
 	queryUrl : Ext.emptyFn,
-	
+	currentNode : null,
 	initComponent: function(){
 		this.build();
 		Ext.tf.SummaryStatisticPanel.superclass.initComponent.call(this);
@@ -113,12 +113,19 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 		
 		var isQryWipeOut = Ext.getCmp('isQryWipeOut').getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
+		var containLowerLevel = Ext.getCmp('containLowerLevel').getValue();
+		containLowerLevel = containLowerLevel ? '1' : '0';
+		var orgId = '';
+		if(this.currentNode != null)
+			orgId = this.currentNode.id;
 		var condition = {
 			startDate : startDate,
 			endDate : endDate,
 			statisticType : statisticType,
 			statisticResult : statisticResult,
-			isQryWipeOut : isQryWipeOut
+			isQryWipeOut : isQryWipeOut,
+			orgId : orgId,
+			containLowerLevel : containLowerLevel
 		};
 		return condition;
 	},
@@ -332,7 +339,13 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 				handler : function(){
 					printDataExportObj.printGrid(grid,printDataExportObj.initDateRange('startDate','endDate'));
 				}.createDelegate(this)				
-			},exportButton],
+			},exportButton,{
+				text : '刷新',
+				iconCls : 'c_refresh',
+				handler : function(){
+					this.load(true);
+				}.createDelegate(this)
+			}],
 			items : [{
 				xtype : 'panel',
 				layout : 'absolute',
@@ -372,10 +385,66 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 			}]
 		});
 		
+		this.menu = new Ext.tree.TreePanel({
+			layout : 'fit',
+			animate : true,
+			enableDD : false,
+			loader : new Ext.ux.DWRTreeLoader({
+				dwrCall : UserMenuTreeService.getOrganizationNodes
+			}),
+			lines : true,
+			autoScroll : true,
+			border : false,
+			root : new Ext.tree.AsyncTreeNode({
+				text : 'root',
+				draggable : false,
+				id : 'org'
+			}),
+			rootVisible : false
+		});
+		this.menu.getRootNode().on({
+			append : {
+				stopEvent : true,
+				fn : function(t, me, n, index) {
+					// 自动展开根节点的第一个孩子
+					if (index == 0) {
+						if (!n.leaf)
+							n.expand();
+						this.currentNode = n;
+//						this.isFirst.setValue(0);
+						// this.load();
+					}
+				}.createDelegate(this)
+			}
+		});
+		this.menu.on({
+			click : {
+				stopEvent : true,
+				fn : function(n, e) {
+					e.stopEvent();
+					this.currentNode = n;
+//					console.log(n);
+					this.load(true);
+				}.createDelegate(this)
+			}
+		});
 		var panel = new Ext.Panel({
 			autoScroll : true,
 			layout : 'border',
-			items : [topPanel,grid]
+			items : [{
+				region : 'west',
+				width: 200,
+				title: '组织机构',
+				collapsible : true,
+				autoScroll : true,
+				items : [this.menu],
+				tbar : [{
+					xtype : 'checkbox',
+					boxLabel : '全部（包含下级数据）',
+					id : 'containLowerLevel',
+					name : 'containLowerLevel'
+				}]
+			},topPanel,grid]
 		});
 
 		return panel;

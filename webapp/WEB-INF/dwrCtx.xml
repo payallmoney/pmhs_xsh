@@ -150,6 +150,11 @@
 		<dwr:remote javascript="SmsService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
+	
+	<bean id="CacheService" class="cn.net.tongfang.web.service.cache.CacheService">
+		<dwr:remote javascript="CacheService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+		<aop:scoped-proxy />
+	</bean>
 
 	<bean id="ScoreService" class="cn.net.tongfang.web.service.score.ScoreService">
 		<property name="sessionFactory" ref="sessionFactory" />
@@ -510,5 +515,12 @@
 		<property name="userMenuTreeService" ref="UserMenuTreeService"></property>
 		<property name="vaccinationService" ref="VaccinationService"></property>
 		<dwr:remote javascript="repeatFileNoService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
+	
+	<bean id="CommonExamService"
+		class="cn.net.tongfang.web.service.commonexam.CommonExamService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="CommonExamService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
 </beans>

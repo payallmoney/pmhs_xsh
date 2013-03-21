@@ -170,8 +170,6 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 			autoScroll : false,
 			listeners : {
 				message : function(f, data) {
-//					console.log("receive message...");
-					console.log(data);
 					if (data.data == 'quit') {
 						win.close();
 					} else if (data.data == 'saved') {

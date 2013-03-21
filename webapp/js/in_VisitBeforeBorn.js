@@ -52,8 +52,8 @@ var cfg = [ {
 			foreignIdName : 'foreignId'
 		},
 		mCodePrefixCtrlId : 'districtNumber',
-		displayCols : [ 1, 2, 3, 7 ],
-		displayColNames : [ "编号", "疾病", "", "" ]
+		displayCols : [ 1, 2, 3, 7,9 ],
+		displayColNames : [ "编号", "疾病", "", "地址","建册时间" ]
 	},
 	required : [ true, "编号" ]
 }, {
