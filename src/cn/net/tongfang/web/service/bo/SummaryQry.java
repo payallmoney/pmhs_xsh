@@ -9,41 +9,70 @@ public class SummaryQry {
 	private String statisticResult;
 	private String fileNo;
 	private String isQryWipeOut;
+	private Integer orgId;
+	private String containLowerLevel;
+
 	public String getFileNo() {
-		return fileNo;
+		return this.fileNo;
 	}
+
 	public void setFileNo(String fileNo) {
 		this.fileNo = fileNo;
 	}
+
 	public Date getStartDate() {
-		return startDate;
+		return this.startDate;
 	}
+
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
+
 	public Date getEndDate() {
-		return endDate;
+		return this.endDate;
 	}
+
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+
 	public String getStatisticType() {
-		return statisticType;
+		return this.statisticType;
 	}
+
 	public void setStatisticType(String statisticType) {
 		this.statisticType = statisticType;
 	}
+
 	public String getStatisticResult() {
-		return statisticResult;
+		return this.statisticResult;
 	}
+
 	public void setStatisticResult(String statisticResult) {
 		this.statisticResult = statisticResult;
 	}
+
 	public String getIsQryWipeOut() {
-		return isQryWipeOut;
+		return this.isQryWipeOut;
 	}
+
 	public void setIsQryWipeOut(String isQryWipeOut) {
 		this.isQryWipeOut = isQryWipeOut;
 	}
-	
+
+	public Integer getOrgId() {
+		return this.orgId;
+	}
+
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getContainLowerLevel() {
+		return this.containLowerLevel;
+	}
+
+	public void setContainLowerLevel(String containLowerLevel) {
+		this.containLowerLevel = containLowerLevel;
+	}
 }

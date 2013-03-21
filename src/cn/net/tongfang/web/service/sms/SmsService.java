@@ -726,13 +726,14 @@ public class SmsService extends HibernateDaoSupport {
 		String truncateSQL = " truncate table Sms_PersonTel ";
 		getSession().createSQLQuery(truncateSQL).executeUpdate();
 		String insertsql = " insert into Sms_PersonTel select fileNo,fileNo,'0',name, TEL,'HealthFile.TEL',-1 from HealthFile where len(TEL)= "+tel_len+" and left(TEL,1) <>'0' ";
-		int all = getSession().createSQLQuery(insertsql).executeUpdate();
-		int count = 0;
+		int count = getSession().createSQLQuery(insertsql).executeUpdate();
 		for(CodTelUpdateCol rule : infos){
-			String sql = "update Sms_PersonTel set tel = b."+rule.getCol()+" from Sms_PersonTel a , "+rule.getTablename()+" b where a.fileNo = b.fileNo and a.tel = null and len(b."+rule.getCol()+")="+tel_len;
+			String sql = " insert into Sms_PersonTel select a.fileNo,a.fileNo,'0',a.name, b."+rule.getCol()+",'"+rule.getTablename()+"."+rule.getCol()+"',-1 " +
+					" from HealthFile a , "+rule.getTablename()+" b where a.fileNo = b.fileNo and left(b."+rule.getCol()+",1) <>'0' and  len(b."+rule.getCol()+")="+tel_len+
+					" and not exists (select 1 from Sms_PersonTel c where c.fileNo = a.fileno) ";
 			count+=getSession().createSQLQuery(sql).executeUpdate();
 		}
-		String ret = "更新联系电话成功!共成功更新"+count+"户,总数"+all+"户,"+(all-count)+"户未更新!";
+		String ret = "更新联系电话成功!共成功更新"+count+"户!";
 		return ret;
 	}
 	
@@ -754,17 +755,17 @@ public class SmsService extends HibernateDaoSupport {
 		if (pp == null)
 			pp = new PagingParam();
 		Map leftlikemap = new HashMap();
-		leftlikemap.put("vo.id.fileNo", null);
+		leftlikemap.put("vo.fileNo", null);
 		Map likemap = new HashMap();
 		likemap.put("vo.name", null);
 		likemap.put("vo.tel", null);
 		Map encMap = new HashMap();
 		encMap.put("vo.name", null);
-		encMap.put("vo.id.fileNo", null);
+		encMap.put("vo.fileNo", null);
 		Map intMap = new HashMap();
 		intMap.put("vo.status", null);
 		Map dateMap = new HashMap();
-		dateMap.put("vo.id.smsdate", null);
+		dateMap.put("vo.smsdate", null);
 		if("0".equals(qryCond.getDistrict())){
 			getSession().createSQLQuery("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ").executeUpdate();
 			StringBuilder where = new StringBuilder(" where querytype='0' ");
@@ -798,7 +799,7 @@ public class SmsService extends HibernateDaoSupport {
 			}
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
 			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
-					where +" order by vo.id.smsdate desc,vo.sendtime desc ");
+					where +" order by vo.smsdate desc,vo.sendtime desc ");
 			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo   ").append(
 					where);
 			log.debug("hql: " + hql.toString());
@@ -857,7 +858,7 @@ public class SmsService extends HibernateDaoSupport {
 			
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
 			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
-					where +" order by vo.id.smsdate desc,vo.sendtime desc ");
+					where +" order by vo.smsdate desc,vo.sendtime desc ");
 			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo  ").append(
 					where);
 			log.debug("hql: " + hql.toString());
@@ -998,14 +999,14 @@ public class SmsService extends HibernateDaoSupport {
 			today = DateUtils.truncate(today, Calendar.DAY_OF_MONTH);
 			String sql = 
 					" insert into Sms_SendLog "
-							+ "select distinct DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+							+ "select  DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
 							+ title
 							+ "', a.fileno,b.tel,'"
 							+ msg
 							+ "',0 , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
-							+ ",null,'0' from "
+							+ ",null,'0',newid() from "
 							+ rule.getTablename()
-							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+							+ " a , Sms_PersonTel b ,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0' and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ title
 							+ "'  ) and  " + rule.getWherestr();
 			getSession()
@@ -1030,12 +1031,12 @@ public class SmsService extends HibernateDaoSupport {
 			today = DateUtils.truncate(today, Calendar.DAY_OF_MONTH);
 			String sql = 
 					" insert into Sms_SendLog "
-							+ "select distinct DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+							+ "select DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
 							+ title
 							+ "', id,tel,'"
 							+ msg
 							+ "',0 , null,null,'SmsSendTargetOther',id "
-							+ ",null,'1' from Sms_SendTargetOther other  where "+where+" and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = other.id and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+							+ ",null,'1',newid() from Sms_SendTargetOther other  where "+where+" and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = other.id and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ title
 							+ "'  ) ";
 			getSession()

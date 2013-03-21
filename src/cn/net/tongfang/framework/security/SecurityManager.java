@@ -33,6 +33,13 @@ public class SecurityManager {
 		return operator;
 	}
 	
-	
+	public static boolean isValidUser(String loginuser,String owneruser ){
+		//这里可以增加其他判断,如admin
+		if(loginuser!=null &&loginuser.equals(owneruser)){
+			return true;
+		}else{
+			return false;
+		}
+	}
 	
 }

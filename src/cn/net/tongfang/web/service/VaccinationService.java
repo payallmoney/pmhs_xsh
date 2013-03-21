@@ -131,14 +131,14 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			if (vacciInfo.getId() != null) {
 				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 						.currentOperator();
-				if (user.getUsername().equals(vacciInfo.getInputPersonId())) {
+				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),vacciInfo.getInputPersonId())) {
 					VaccineImmuneInfo info = new VaccineImmuneInfo();
 					BeanUtils.copyProperties(vacciInfo, info);
 					getHibernateTemplate().update(info);
 					log.debug("VaccineImmuneInfo Updated Successed...");
 					return info;
 				} else {
-					throw new Exception("你无权限修改其他人录入的接种信息");
+					throw new Exception("你无权限修改其他人录入的接种信息,只能登录用户为"+vacciInfo.getInputPersonId()+"的操作员进行修改!");
 				}
 			}
 			String fileNo = EncryptionUtils.encry(vacciInfo.getFileNo());
@@ -188,14 +188,14 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			if (vacciInfo.getId() != null && !vacciInfo.getId().equals("")) {
 				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 						.currentOperator();
-				if (user.getUsername().equals(vacciInfo.getInputPersonId())) {
+				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),vacciInfo.getInputPersonId())) {
 					VaccineImmuneInfo info = new VaccineImmuneInfo();
 					BeanUtils.copyProperties(vacciInfo, info);
 					info.setFileNo(info.getFileNo());
 					getHibernateTemplate().update(info);
 					log.debug("VaccineImmuneInfo Updated Successed...");
 				} else {
-					throw new Exception("你无权限修改其他人录入的接种信息");
+					throw new Exception("你无权限修改其他人录入的接种信息,只能登录用户为"+vacciInfo.getInputPersonId()+"的操作员进行修改!");
 				}
 				return;
 			}
@@ -282,11 +282,11 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return result;
 	}
 	
-	public void removeVacciInfo(List<VaccineImmuneInfo> vacciInfos){
+	public void removeVacciInfo(List<VaccineImmuneInfo> vacciInfos) throws Exception{
 		String hql = " From VaccineImmuneHistoryStaticData Where fileNo = ? And colNum = ? And rowNum = ? ";
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(VaccineImmuneInfo info : vacciInfos){
-			if(info.getInputPersonId().equals(user.getUsername())){
+			if(cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),info.getInputPersonId())){
 				Query query = getSession().createQuery(hql);
 				query.setParameter(0, info.getFileNo());
 				query.setParameter(1, info.getColNum());
@@ -299,6 +299,8 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 				}
 				VaccineImmuneInfo vacci = (VaccineImmuneInfo)getHibernateTemplate().get(VaccineImmuneInfo.class, info.getId());
 				getHibernateTemplate().delete(vacci);
+			} else {
+				throw new Exception("你无权限修改其他人录入的接种信息,只能登录用户为"+info.getInputPersonId()+"的操作员进行修改!");
 			}
 		}
 	}

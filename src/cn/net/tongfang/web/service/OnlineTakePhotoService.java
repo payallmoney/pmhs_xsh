@@ -47,6 +47,9 @@ public class OnlineTakePhotoService {
 		try {
 			prop.load(new FileInputStream(file));
 			String props = prop.getProperty(key);
+			if(props == null){
+				throw new Exception("没有照片数据!");
+			}
 			String[] propsArray = props.split(",");
 			String picName = propsArray[0];
 			String isUsed = propsArray[1];

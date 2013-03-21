@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BirthCertificate;
 import cn.net.tongfang.framework.security.vo.BusinessDataGrid;
@@ -24,49 +25,74 @@ import cn.net.tongfang.web.service.bo.PatientQry;
 import cn.net.tongfang.web.service.bo.PersonalInfoFBO;
 import cn.net.tongfang.web.service.bo.SummaryQry;
 
-public class SummaryService extends HibernateDaoSupport{
+public class SummaryService extends HibernateDaoSupport {
 	private PersonalInfoService person;
+
 	public void setPerson(PersonalInfoService person) {
 		this.person = person;
 	}
 
-	public PagingResult<SummaryStatistics01> querySummaryStatistics(SummaryQry qry,PagingParam pp){
+	public PagingResult<SummaryStatistics01> querySummaryStatistics(
+			SummaryQry qry, PagingParam pp) {
 		Query query = getSession().getNamedQuery("InputPersonProc");
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-		String str_where = " And A.InputDate >= '" + CommonConvertUtils.dateToStringWithDelimiter(qry.getStartDate()) +
-				" 00:00:00' And A.InputDate <= '" + CommonConvertUtils.dateToStringWithDelimiter(qry.getEndDate()) +
-				" 23:59:59' ";
+		TaxempDetail user = SecurityManager.currentOperator();
+		String str_where = "";
+		if (qry.getContainLowerLevel().equals("0"))
+			str_where = " And A.InputDate >= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getStartDate())
+					+ " 00:00:00' And A.InputDate <= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getEndDate())
+					+ " 23:59:59' And A.InputPersonID In (Select loginname From sam_taxempcode Where org_id = "
+					+ qry.getOrgId() + " ) ";
+		else if (qry.getContainLowerLevel().equals("1")) {
+			str_where = " And A.InputDate >= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getStartDate())
+					+ " 00:00:00' And A.InputDate <= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getEndDate())
+					+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
+					+ " (Select ID From Organization Where DistrictNumber Like "
+					+ " (Select DistrictNumber + '%' From Organization Where ID = "
+					+ qry.getOrgId() + "))) ";
+		}
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, str_where);
 		query.setParameter(3, qry.getStatisticResult());
 		query.setParameter(4, qry.getIsQryWipeOut());
 		List list = query.list();
-		PagingResult<SummaryStatistics01> result = new PagingResult<SummaryStatistics01>(
-				list.size(), list);
+		PagingResult result = new PagingResult(list.size(), list);
 		return result;
 	}
-	
-	public PagingResult<SummaryStatisticsHivandSyphilis> queryHIVAndSyphilis(SummaryQry qry,PagingParam pp){
-		Query query = getSession().getNamedQuery("SummaryStatisticsHivandSyphilisProc");
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-		String str_where = " And A.InputDate >= '" + CommonConvertUtils.dateToStringWithDelimiter(qry.getStartDate()) +
-				" 00:00:00' And A.InputDate <= '" + CommonConvertUtils.dateToStringWithDelimiter(qry.getEndDate()) +
-				" 23:59:59' ";
+
+	public PagingResult<SummaryStatisticsHivandSyphilis> queryHIVAndSyphilis(
+			SummaryQry qry, PagingParam pp) {
+		Query query = getSession().getNamedQuery(
+				"SummaryStatisticsHivandSyphilisProc");
+		TaxempDetail user = SecurityManager.currentOperator();
+		String str_where = " And A.InputDate >= '"
+				+ CommonConvertUtils.dateToStringWithDelimiter(qry
+						.getStartDate())
+				+ " 00:00:00' And A.InputDate <= '"
+				+ CommonConvertUtils
+						.dateToStringWithDelimiter(qry.getEndDate())
+				+ " 23:59:59' ";
 		query.setParameter(0, str_where);
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, user.getUsername());
 		List list = query.list();
-		PagingResult<SummaryStatisticsHivandSyphilis> result = new PagingResult<SummaryStatisticsHivandSyphilis>(
-				list.size(), list);
+		PagingResult result = new PagingResult(list.size(), list);
 		return result;
 	}
-	
-	public List<BusinessDataGrid> queryBusinessData(String fileNo){
+
+	public List<BusinessDataGrid> queryBusinessData(String fileNo) {
 		Query query = getSession().getNamedQuery("BusinessDataProc");
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		TaxempDetail user = SecurityManager.currentOperator();
 		String username = EncryptionUtils.encry(fileNo);
-		if(user != null){
+		if (user != null) {
 			username = user.getUsername();
 		}
 		query.setParameter(0, EncryptionUtils.encry(fileNo));
@@ -74,14 +100,15 @@ public class SummaryService extends HibernateDaoSupport{
 		List list = query.list();
 		return list;
 	}
-	
+
 	public List queryBusinessDataDelphi(String fileNo)throws Exception{
 		List list = new ArrayList();
 		PersonalInfoFBO personinfo = new PersonalInfoFBO();
 		personinfo.setFileNo(fileNo);
 		try {
-			person.getBasicInfo(personinfo);
-			personinfo.setIdnumber(EncryptionUtils.decipher(personinfo.getIdnumber()));
+			this.person.getBasicInfo(personinfo);
+			personinfo.setIdnumber(EncryptionUtils.decipher(personinfo
+					.getIdnumber()));
 			list.add(personinfo);
 			list.add(queryBusinessData(fileNo));
 		} catch (Exception e) {
@@ -89,162 +116,173 @@ public class SummaryService extends HibernateDaoSupport{
 		}
 		return list;
 	}
-	
-	private List queryBirth(BirthCertifiQry qry,PagingParam pp,Integer type,StringBuilder totals){
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+
+	private List queryBirth(BirthCertifiQry qry, PagingParam pp, Integer type,
+			StringBuilder totals) {
+		TaxempDetail user = SecurityManager.currentOperator();
 		Integer isLookAuthority = user.getIsLookAuthority();
 		String districtNumber = user.getDistrictId();
 		Integer orgId = user.getOrgId();
 		String where = " Where 1 = 1 ";
-//		if(isLookAuthority.equals(1)){
-//			where = " Where A.inputPersonId in ( Select loginname From SamTaxempcode Where Substring(districtId,1,Len(" + districtNumber + ")) = :districtNumber)";
-//		}else{
-//			where = " Where A.inputPersonId in ( Select loginname From SamTaxempcode Where orgId = :orgId ) ";
-//		}
-		
+
 		String queryType = qry.getQryType();
 		String whereType = "";
-		if(queryType.subSequence(0, 1).equals("1")){
+		if (queryType.subSequence(0, 1).equals("1")) {
 			whereType = "2";
 		}
-		if(queryType.subSequence(1, 2).equals("1")){
-			whereType = whereType.equals("") ? "3" : whereType + ",3";
+		if (queryType.subSequence(1, 2).equals("1")) {
+			whereType = whereType + ",3";
 		}
-		if(queryType.subSequence(2, 3).equals("1")){
-			whereType = whereType.equals("") ? "4" : whereType + ",4";
+		if (queryType.subSequence(2, 3).equals("1")) {
+			whereType = whereType + ",4";
 		}
-		
+
 		whereType = whereType.equals("") ? "" : " And A.isEffectived in (" + whereType + ")";
-		
+
 		String qryOrgId = qry.getOrgId();
 		String joinHql = "";
 		String joinWhere = "";
-		if(!qryOrgId.equals("")){
+		if (!qryOrgId.equals("")) {
 			joinHql = ",BirthCertificateOrg B ";
 			joinWhere = " And A.certifiId = B.certificateId And B.orgId = :qryOrgId ";
 		}
-		
+
 		String whereStr = "";
 		String certifiId = qry.getCertifiId().trim();
-		if(!certifiId.equals("")){
-			whereStr = " And SubString(A.certifiId,1," + certifiId.length() + ") = :certifiId ";
+		if (!certifiId.equals("")) {
+			whereStr = " And SubString(A.certifiId,1," + certifiId.length()
+					+ ") = :certifiId ";
 		}
 		String childName = qry.getChildName().trim();
-		if(!childName.equals("")){
-			whereStr = whereStr + " And SubString(A.name,1," + childName.length() + ") = :name ";
+		if (!childName.equals("")) {
+			whereStr = whereStr + " And SubString(A.name,1,"
+					+ childName.length() + ") = :name ";
 		}
 		String motherName = qry.getMotherName().trim();
-		if(!motherName.equals("")){
-			whereStr = whereStr + " And SubString(A.motherName,1," + motherName.length() + ") = :motherName ";
+		if (!motherName.equals("")) {
+			whereStr = whereStr + " And SubString(A.motherName,1,"
+					+ motherName.length() + ") = :motherName ";
 		}
 		String fatherName = qry.getFatherName().trim();
-		if(!fatherName.equals("")){
-			whereStr = whereStr +  " SubString(And A.fatherName,1," + fatherName.length() + ") = :fatherName ";
+		if (!fatherName.equals("")) {
+			whereStr = whereStr + " SubString(And A.fatherName,1,"
+					+ fatherName.length() + ") = :fatherName ";
 		}
 		Date birthday = qry.getChildBirthday();
-		if(birthday != null){
-			whereStr = whereStr +  " And CONVERT(varchar(100), A.birthday , 23) = :birthday ";
+		if (birthday != null) {
+			whereStr = whereStr
+					+ " And CONVERT(varchar(100), A.birthday , 23) = :birthday ";
 		}
 		Date startDate = qry.getStartDate();
-		if(startDate != null){
-			whereStr = whereStr +  " And A.inputDate >= :startDate ";
+		if (startDate != null) {
+			whereStr = whereStr + " And A.inputDate >= :startDate ";
 		}
 		Date endDate = qry.getEndDate();
-		if(endDate != null){
-			whereStr = whereStr +  " And A.inputDate <= :endDate ";
+		if (endDate != null) {
+			whereStr = whereStr + " And A.inputDate <= :endDate ";
 		}
 		int totalSize = 0;
-		if(type.equals(0)){
-			String countHql = " Select count(*) From BirthCertificate A " + joinHql + where + whereType + joinWhere + whereStr;
+		if (type.equals(Integer.valueOf(0))) {
+			String countHql = " Select count(*) From BirthCertificate A "
+					+ joinHql + where + whereType + joinWhere + whereStr;
 			Query countQuery = getSession().createQuery(countHql);
-//			if(isLookAuthority.equals(1)){
-//				countQuery.setParameter("districtNumber", districtNumber);
-//			}else{
-//				countQuery.setParameter("orgId", orgId);
-//			}
-			if(!qryOrgId.equals("")){
+
+			if (!qryOrgId.equals("")) {
 				countQuery.setParameter("qryOrgId", Integer.valueOf(qryOrgId));
 			}
-			if(!certifiId.equals("")){
+			if (!certifiId.equals("")) {
 				countQuery.setParameter("certifiId", certifiId);
 			}
-			if(!childName.equals("")){
+			if (!childName.equals("")) {
 				countQuery.setParameter("name", childName);
 			}
-			if(!motherName.equals("")){
+			if (!motherName.equals("")) {
 				countQuery.setParameter("motherName", motherName);
 			}
-			if(!fatherName.equals("")){
+			if (!fatherName.equals("")) {
 				countQuery.setParameter("fatherName", fatherName);
 			}
-			if(birthday != null){
-				countQuery.setParameter("birthday", CommonConvertUtils.dateToStringWithDelimiter(birthday));
+			if (birthday != null) {
+				countQuery.setParameter("birthday",
+						CommonConvertUtils.dateToStringWithDelimiter(birthday));
 			}
-			if(startDate != null){
-				countQuery.setParameter("startDate",CommonConvertUtils.stringToDate(CommonConvertUtils.dateToStringWithDelimiter(startDate) + " 00:00:00"));
+			if (startDate != null) {
+				countQuery.setParameter("startDate", CommonConvertUtils
+						.stringToDate(CommonConvertUtils
+								.dateToStringWithDelimiter(startDate)
+								+ " 00:00:00"));
 			}
-			if(endDate != null){
-				countQuery.setParameter("endDate", CommonConvertUtils.stringToDate(CommonConvertUtils.dateToStringWithDelimiter(endDate) + " 23:59:59"));
+			if (endDate != null) {
+				countQuery.setParameter("endDate", CommonConvertUtils
+						.stringToDate(CommonConvertUtils
+								.dateToStringWithDelimiter(endDate)
+								+ " 23:59:59"));
 			}
-			
+
 			totalSize = ((Long) countQuery.uniqueResult()).intValue();
 			totals.append(totalSize);
 		}
-		
-		String hql = " Select A From BirthCertificate A " + joinHql + where + whereType + joinWhere + whereStr;
+
+		String hql = " Select A From BirthCertificate A " + joinHql + where
+				+ whereType + joinWhere + whereStr;
 		Query query = getSession().createQuery(hql);
-//		if(isLookAuthority.equals(1)){
-//			query.setParameter("districtNumber", districtNumber);
-//		}else{
-//			query.setParameter("orgId", orgId);
-//		}
-		if(!qryOrgId.equals("")){
+
+		if (!qryOrgId.equals("")) {
 			query.setParameter("qryOrgId", Integer.valueOf(qryOrgId));
 		}
-		if(!certifiId.equals("")){
+		if (!certifiId.equals("")) {
 			query.setParameter("certifiId", certifiId);
 		}
-		if(!childName.equals("")){
+		if (!childName.equals("")) {
 			query.setParameter("name", childName);
 		}
-		if(!motherName.equals("")){
+		if (!motherName.equals("")) {
 			query.setParameter("motherName", motherName);
 		}
-		if(!fatherName.equals("")){
+		if (!fatherName.equals("")) {
 			query.setParameter("fatherName", fatherName);
 		}
-		if(birthday != null){
-			query.setParameter("birthday", CommonConvertUtils.dateToStringWithDelimiter(birthday));
+		if (birthday != null) {
+			query.setParameter("birthday",
+					CommonConvertUtils.dateToStringWithDelimiter(birthday));
 		}
-		if(startDate != null){
-			query.setParameter("startDate",CommonConvertUtils.stringToDate(CommonConvertUtils.dateToStringWithDelimiter(startDate) + " 00:00:00"));
+		if (startDate != null) {
+			query.setParameter(
+					"startDate",
+					CommonConvertUtils.stringToDate(CommonConvertUtils
+							.dateToStringWithDelimiter(startDate) + " 00:00:00"));
 		}
-		if(endDate != null){
-			query.setParameter("endDate", CommonConvertUtils.stringToDate(CommonConvertUtils.dateToStringWithDelimiter(endDate) + " 23:59:59"));
+		if (endDate != null) {
+			query.setParameter(
+					"endDate",
+					CommonConvertUtils.stringToDate(CommonConvertUtils
+							.dateToStringWithDelimiter(endDate) + " 23:59:59"));
 		}
-		if(type.equals(0)){
+		if (type.equals(Integer.valueOf(0))) {
 			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 		}
 		List list = query.list();
 		return list;
 	}
-	
-	public PagingResult<BirthCertificate> queryBirthCertificate(BirthCertifiQry qry,PagingParam pp){
+
+	public PagingResult<BirthCertificate> queryBirthCertificate(
+			BirthCertifiQry qry, PagingParam pp) {
 		StringBuilder totals = new StringBuilder();
-		List list = queryBirth(qry, pp, 0, totals);
-		PagingResult<BirthCertificate> birthcertifis = new PagingResult<BirthCertificate>(Integer.valueOf(totals.toString()), list);
+		List list = queryBirth(qry, pp, Integer.valueOf(0), totals);
+		PagingResult birthcertifis = new PagingResult(Integer.valueOf(
+				totals.toString()).intValue(), list);
 		return birthcertifis;
 	}
-	
-	public List<BirthCertificate> printAllBirth(BirthCertifiQry qry){
-		List list = queryBirth(qry, null, 1, null);
-		if(list.size() > 0){
+
+	public List<BirthCertificate> printAllBirth(BirthCertifiQry qry) {
+		List list = queryBirth(qry, null, Integer.valueOf(1), null);
+		if (list.size() > 0) {
 			return list;
 		}
 		return null;
 	}
 
-	private String buildWhere(PatientQry qry,List params){
+	private String buildWhere(PatientQry qry, List params) {
 		Integer clickType = qry.getClickType();
 		String retval = "";
 		Timestamp date = null;
@@ -258,52 +296,58 @@ public class SummaryService extends HibernateDaoSupport{
 			date = qry.getEndDate();
 			startDate = qry.getStartDate();
 		}
-		if(startDate != null){
+		if (startDate != null) {
 			retval = retval + " Convert(Nvarchar(10),makeDate,120) >= ?";
 			params.add(startDate);
 		}
-		if(date != null){
-			retval = retval + (retval.equals("") ? "" : " And ") + "  Convert(Nvarchar(10),makeDate,120) <= ? ";
+		if (date != null) {
+			retval = retval + (retval.equals("") ? "" : " And ")
+					+ "  Convert(Nvarchar(10),makeDate,120) <= ? ";
 			params.add(date);
 		}
-		if(qry.getFileNo() != null && !qry.getFileNo().equals("")){
-			retval  = retval + (retval.equals("") ? "" : " And ") + "  fileNo = ? ";
+		if ((qry.getFileNo() != null) && (!qry.getFileNo().equals(""))) {
+			retval = retval + (retval.equals("") ? "" : " And ")
+					+ "  fileNo = ? ";
 			params.add(qry.getFileNo());
 		}
 		return retval;
 	}
-	
-	private <T> PagingResult<T> query(String hql,List params,PagingParam pp){
-		if(pp == null) pp = new PagingParam();
-		String hqlCount = "Select Count(*) " + hql; 
+
+	private <T> PagingResult<T> query(String hql, List params, PagingParam pp) {
+		if (pp == null)
+			pp = new PagingParam();
+		String hqlCount = "Select Count(*) " + hql;
 		Query query = getSession().createQuery(hqlCount);
-		for(int i=0;i<params.size();i++){
+		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}
 		int count = ((Long) query.uniqueResult()).intValue();
 		query = getSession().createQuery(hql);
-		for(int i=0;i<params.size();i++){
+		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}
-		if(pp == null) pp = new PagingParam();
+		if (pp == null)
+			pp = new PagingParam();
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List<T> list = query.list();
-		return new PagingResult<T>(count, list);
+		List list = query.list();
+		return new PagingResult(count, list);
 	}
-	
-	public PagingResult<IntOutpatient> getOutpatient(PatientQry qry,PagingParam pp){
+
+	public PagingResult<IntOutpatient> getOutpatient(PatientQry qry,
+			PagingParam pp) {
 		List params = new ArrayList();
-		String where = buildWhere(qry,params);
-		where = where.equals("") ? "" : " Where " + where;
+		String where = buildWhere(qry, params);
+		where = " Where " + where;
 		String hql = "From IntOutpatient " + where;
-		return query(hql,params,pp);
+		return query(hql, params, pp);
 	}
-	
-	public PagingResult<IntInpatient> getInpatient(PatientQry qry,PagingParam pp){
+
+	public PagingResult<IntInpatient> getInpatient(PatientQry qry,
+			PagingParam pp) {
 		List params = new ArrayList();
-		String where = buildWhere(qry,params);
-		where = where.equals("") ? "" : " Where " + where;
+		String where = buildWhere(qry, params);
+		where = " Where " + where;
 		String hql = "From IntInpatient " + where;
-		return query(hql,params,pp);
+		return query(hql, params, pp);
 	}
 }

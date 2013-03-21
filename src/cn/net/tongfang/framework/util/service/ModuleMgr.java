@@ -1278,7 +1278,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return hql;
 	}
 
-	public void removeHealthFile(String fileNo,Integer type) {//0表示需要验证登录用户与录入人是否一致,1表示不需要验证
+	public void removeHealthFile(String fileNo,Integer type) throws Exception{//0表示需要验证登录用户与录入人是否一致,1表示不需要验证
 		HealthFile file = (HealthFile) getHibernateTemplate().get(
 				HealthFile.class, fileNo);
 		if (file != null) {
@@ -1286,10 +1286,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 					"from PersonalInfo where fileNo = ?", fileNo);
 			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 			if(type.equals(0)){
-				if(user.getUsername().equals(file.getInputPersonId())){
+				if(SecurityManager.isValidUser(user.getUsername(),(file.getInputPersonId()))){
 					getHibernateTemplate().deleteAll(personList);
 					getHibernateTemplate().delete(file);
+				}else{
+					throw new Exception("该操作员无法删除,只能登录用户为"+file.getInputPersonId()+"的操作员进行删除!");
 				}
+
 			}else if(type.equals(1)){
 				getHibernateTemplate().deleteAll(personList);
 				getHibernateTemplate().delete(file);
@@ -1299,7 +1302,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return;
 	}
 
-	public void removeHealthFiles(List<String> fileNoList) {
+	public void removeHealthFiles(List<String> fileNoList) throws Exception{
 		for (String fileNo : fileNoList) {
 			fileNo = EncryptionUtils.encry(fileNo);
 			removeHealthFile(fileNo,0);
@@ -1336,7 +1339,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private void removeRecords(final List<String> recordIdList,
-			final Class clazz)throws Exception {
+			final Class clazz) throws Exception {
 		if (recordIdList == null || recordIdList.size() == 0) {
 			return;
 		}
@@ -1354,9 +1357,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 					for (String id : recordIdList) {
 						String inputPersonId = (String)session.createQuery("Select inputPersonId From " 
 								+ clazz.getName() + " where " + pkName + " = ?").setParameter(0, id).list().get(0);
-						if(user.getUsername().equals(inputPersonId)){
+						if(SecurityManager.isValidUser(user.getUsername(),(inputPersonId))){
 							session.createQuery(hql).setParameter(0, id)
 								.executeUpdate();
+						}else{
+							throw new SQLException("该操作员无法删除,只能登录用户为"+inputPersonId+"的操作员进行删除!");
 						}
 					}
 					return null;
@@ -4138,12 +4143,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public void removeHealthfilesAlreadyBuild(final List<String> recordIdList) {
+	public void removeHealthfilesAlreadyBuild(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
 			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, id);
-			if(maternal.getInputPersonId().equals(user.getUsername())){
+			if(SecurityManager.isValidUser(user.getUsername(),maternal.getInputPersonId())){
 				String fileNo = maternal.getFileNo();
 				query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ");
 				query.setParameter(0, fileNo);
@@ -4152,28 +4157,34 @@ public class ModuleMgr extends HibernateDaoSupport {
 				query.setParameter(0, maternal.getId());
 				query.executeUpdate();
 				getHibernateTemplate().delete(maternal);
+			}else{
+				throw new Exception("该操作员无法删除,只能登录用户为"+maternal.getInputPersonId()+"的操作员进行删除!");
 			}
 		}
 	}
-	public void removehealthfilePregnancyRecord(final List<String> recordIdList) {
+	public void removehealthfilePregnancyRecord(final List<String> recordIdList) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
 			PregnancyRecord pregnancy = (PregnancyRecord)getHibernateTemplate().get(PregnancyRecord.class, id);
-			if(pregnancy.getInputPersonId().equals(user.getUsername())){
+			if(SecurityManager.isValidUser(user.getUsername(),pregnancy.getInputPersonId())){
 				getHibernateTemplate().delete(pregnancy);
+			}else{
+				throw new Exception("该操作员无法删除,只能登录用户为"+pregnancy.getInputPersonId()+"的操作员进行删除!");
 			}
 		}
 	}
-	public void removehealthfilePregnancyRecordChild(final List<String> recordIdList) {
+	public void removehealthfilePregnancyRecordChild(final List<String> recordIdList) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
 			PregnancyRecordChild pregnancy = (PregnancyRecordChild)getHibernateTemplate().get(PregnancyRecordChild.class, id);
-			if(pregnancy.getInputPersonId().equals(user.getUsername())){
+			if(SecurityManager.isValidUser(user.getUsername(),pregnancy.getInputPersonId())){
 				getHibernateTemplate().delete(pregnancy);
+			}else{
+				throw new Exception("该操作员无法删除,只能登录用户为"+pregnancy.getInputPersonId()+"的操作员进行删除!");
 			}
 		}
 	}
-	public void removeHealthfilesFinishGestation(final List<String> recordIdList) {
+	public void removeHealthfilesFinishGestation(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for (String id : recordIdList) {
@@ -4185,7 +4196,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			// id);
 			if (l.size() > 0) {
 				FinishGestation gestation = (FinishGestation) l.get(0);
-				if (gestation.getInputPersonId().equals(user.getUsername())) {
+				if (SecurityManager.isValidUser(user.getUsername(),gestation.getInputPersonId())) {
 					String maternalId = gestation.getHealthFileMaternalId();
 					HealthFileMaternal maternal = (HealthFileMaternal) getHibernateTemplate().get(HealthFileMaternal.class, maternalId);
 					maternal.setIsClosed("0");
@@ -4195,6 +4206,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 					query = getSession().createSQLQuery(" update PersonalInfo set bornStatus = '是'  Where fileNo = ? ");
 					query.setParameter(0, fileNo);
 					query.executeUpdate();
+				}else{
+					throw new Exception("该操作员无法撤消,只能登录用户为"+gestation.getInputPersonId()+"的操作员进行撤消!");
 				}
 			}
 		}
@@ -4228,12 +4241,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return result;
 	}
 	
-	public void removeHealthfilesAlreadyBuildChild(final List<String> recordIdList) {
+	public void removeHealthfilesAlreadyBuildChild(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
 			HealthFileChildren child = (HealthFileChildren)getHibernateTemplate().get(HealthFileChildren.class, id);
-			if(child.getInputPersonId().equals(user.getUsername())){
+			if(SecurityManager.isValidUser(user.getUsername(),child.getInputPersonId())){
 				String fileNo = child.getFileNo();
 				query = getSession().createQuery(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ");
 				query.setParameter(0, fileNo);
@@ -4242,6 +4255,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 				query.setParameter(0, child.getId());
 				query.executeUpdate();
 				getHibernateTemplate().delete(child);
+			}else{					
+				throw new Exception("该操作员无法删除,只能登录用户为"+child.getInputPersonId()+"的操作员进行删除!");
 			}
 		}
 	}

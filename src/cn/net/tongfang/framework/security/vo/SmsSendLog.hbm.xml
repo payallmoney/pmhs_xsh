@@ -6,17 +6,19 @@
 -->
 <hibernate-mapping>
     <class name="cn.net.tongfang.framework.security.vo.SmsSendLog" table="Sms_SendLog" >
-        <composite-id name="id" class="cn.net.tongfang.framework.security.vo.SmsSendLogId">
-            <key-property name="examname" type="java.lang.String">
-                <column name="examname" length="100" />
-            </key-property>
-            <key-property name="fileno" type="java.lang.String" >
-                <column name="fileno" length="36"/>
-            </key-property>
-            <key-property name="smsdate" type="java.sql.Timestamp">
-                <column name="smsdate" length="23" />
-            </key-property>
-        </composite-id>
+    	<id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="uuid.hex"></generator>
+        </id>
+        <property name="examname" type="java.lang.String">
+            <column name="examname" length="100" not-null="true" />
+        </property>
+        <property name="fileno" type="java.lang.String">
+            <column name="fileno" length="36" not-null="true" />
+        </property>
+        <property name="smsdate" type="java.sql.Timestamp">
+            <column name="smsdate" length="23" not-null="true" />
+        </property>
         <property name="tel" type="java.lang.String">
             <column name="tel" length="50" not-null="true" />
         </property>

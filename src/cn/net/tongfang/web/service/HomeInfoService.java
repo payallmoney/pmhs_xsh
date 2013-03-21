@@ -81,7 +81,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 	 * 删除家庭成员信息
 	 * @param fileNoList
 	 */
-	public void removeModules(String modules) {
+	public void removeModules(String modules) throws Exception {
 		if (!StringUtils.hasText(modules))
 			return;
 		

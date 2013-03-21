@@ -37,8 +37,6 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	@Override
 	public String save(VisitBeforeBornBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
-		System.out.println("==================="+data.getId());
-		System.out.println("=============VisitBeforeBornBO.getForeignId()======"+data.getForeignId());
 		if(sysInfo.hasHealthFileMaternal(data.getForeignId()) == null){
 			throw new Exception("请先建立孕产妇保健手册。");
 		}
@@ -87,7 +85,6 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	}
 	
 	public Map<String,Object> getPrintInfo_new(VisitBeforeBornBO data){
-		System.out.println("==================="+data.getId());
 		Map<String,Object> map = new HashMap<String,Object>();
 		try{
 			data = (VisitBeforeBornBO)get(data);
@@ -135,7 +132,6 @@ public class VisitBeforeBornService extends HealthMainService<VisitBeforeBornBO>
 	}
 	
 	public String getItems(String fileNo){
-//		System.out.println("jack============" + fileNo);
 		List list = getHibernateTemplate().find("From VisitBeforeBorn A Where A.foreignId = ? Order By item ASC", fileNo);
 		String result = "";
 		if(list.size() > 0){

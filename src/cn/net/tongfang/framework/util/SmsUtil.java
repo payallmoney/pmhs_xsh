@@ -12,8 +12,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.vo.CodTelSendRule;
-import cn.net.tongfang.framework.security.vo.SmsSendLog;
-import cn.net.tongfang.framework.security.vo.SmsSendLogId;
 import cn.net.tongfang.framework.security.vo.SmsStatus;
 
 public class SmsUtil extends HibernateDaoSupport implements ApplicationListener {
@@ -149,16 +147,16 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 		for (CodTelSendRule rule : rules) {
 			String sql = 
 					" insert into Sms_SendLog "
-							+ "select distinct DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+							+ "select  DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
 							+ rule.getName()
 							+ "', a.fileno,b.tel,'"
 							+ rule.getMsg()
 							+ "',"
 							+ IS_SENDED_FALSE
 							+ " , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
-							+ ",null,'0' from "
+							+ ",null,'0',newid() from "
 							+ rule.getTablename()
-							+ " a , Sms_PersonTel b where a.fileno = b.fileno and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+							+ " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0' and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ rule.getName()
 							+ "'  ) and DATEADD(D, 0, DATEDIFF(D, 0, a."
 							+ rule.getCol() + ")) = dateadd(day,"

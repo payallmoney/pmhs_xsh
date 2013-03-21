@@ -12,7 +12,10 @@ public class SmsSendLog implements java.io.Serializable {
 
 	// Fields
 
-	private SmsSendLogId id;
+	private String id;
+	private String examname;
+	private String fileno;
+	private Timestamp smsdate;
 	private String tel;
 	private String msg;
 	private Integer status;
@@ -27,6 +30,30 @@ public class SmsSendLog implements java.io.Serializable {
 
 	// Constructors
 
+	public String getExamname() {
+		return examname;
+	}
+
+	public void setExamname(String examname) {
+		this.examname = examname;
+	}
+
+	public String getFileno() {
+		return fileno;
+	}
+
+	public void setFileno(String fileno) {
+		this.fileno = fileno;
+	}
+
+	public Timestamp getSmsdate() {
+		return smsdate;
+	}
+
+	public void setSmsdate(Timestamp smsdate) {
+		this.smsdate = smsdate;
+	}
+
 	public String getQuerytype() {
 		return querytype;
 	}
@@ -38,33 +65,6 @@ public class SmsSendLog implements java.io.Serializable {
 	/** default constructor */
 	public SmsSendLog() {
 	}
-
-	/** minimal constructor */
-	public SmsSendLog(SmsSendLogId id, String tel, String msg, Integer status) {
-		this.id = id;
-		this.tel = tel;
-		this.msg = msg;
-		this.status = status;
-	}
-	
-	
-
-	/** full constructor */
-	public SmsSendLog(SmsSendLogId id, String tel, String msg, Integer status,
-			Timestamp sendtime, String error, String tablename,
-			String tableidvalue,String personname,String querytype) {
-		this.id = id;
-		this.tel = tel;
-		this.msg = msg;
-		this.status = status;
-		this.sendtime = sendtime;
-		this.error = error;
-		this.tablename = tablename;
-		this.tableidvalue = tableidvalue;
-		this.personname = personname;
-		this.querytype = querytype;
-	}
-	
 	
 	public String getPersonname() {
 		return personname;
@@ -74,42 +74,14 @@ public class SmsSendLog implements java.io.Serializable {
 		this.personname = personname;
 	}
 
-	public SmsSendLog(SmsSendLog vo,String flag) {
-		//取出加解密的结果  true 为进行解密, false为进行加密
-		if("denc".equals(flag)){
-			this.id = new SmsSendLogId();
-			this.id.setExamname(vo.getId().getExamname());
-			this.id.setFileno(EncryptionUtils.decipher(vo.getId().getFileno()));
-			this.id.setSmsdate(vo.getId().getSmsdate());
-			this.tel = vo.getTel();
-			this.msg = vo.getMsg();
-			this.status = vo.getStatus();
-			this.sendtime = vo.getSendtime();
-			this.tableidvalue = vo.getTableidvalue();
-			this.tablename = vo.getTablename();
-			this.error = vo.getError();
-		}else{
-			this.id = new SmsSendLogId();
-			this.id.setExamname(vo.getId().getExamname());
-			this.id.setFileno(EncryptionUtils.encry(vo.getId().getFileno()));
-			this.id.setSmsdate(vo.getId().getSmsdate());
-			this.tel = vo.getTel();
-			this.msg = vo.getMsg();
-			this.status = vo.getStatus();
-			this.sendtime = vo.getSendtime();
-			this.error = vo.getError();
-			this.tableidvalue = vo.getTableidvalue();
-			this.tablename = vo.getTablename();
-		}
-	}
 
 	// Property accessors
 
-	public SmsSendLogId getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(SmsSendLogId id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
