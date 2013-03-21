@@ -124,6 +124,9 @@ public class BOHelper {
 		//System.out.println("entity id is " + id);
 		Object main = ht
 				.get(superClass, (java.io.Serializable) id);
+		if(main == null){
+			throw new Exception("未取到数据");
+		}
 		//todo entity no found
 //		List r = ht.find("from BabyVisit where id = ?", id);
 //		System.out.println("main is " + main);
