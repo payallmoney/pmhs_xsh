@@ -40,13 +40,13 @@ Ext.tf.HighRiskPanel = Ext.extend(Ext.Panel, {
 				filterVal : Ext.getCmp('a.paperFileNo' + this.panelId).getValue()
 			},{
 				filterKey : 'b.birthday',
-				filterVal : Ext.getCmp('b.birthday' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('b.birthday').getValue(),'-')
+				filterVal : Ext.getCmp('b.birthday' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('b.birthday'+ this.panelId).getValue(),'-')
 			},{
 				filterKey : 'startDate',
-				filterVal : Ext.getCmp('startDate' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('startDate').getValue(),'-')
+				filterVal : Ext.getCmp('startDate' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('startDate'+ this.panelId).getValue(),'-')
 			},{
 				filterKey : 'endDate',
-				filterVal : Ext.getCmp('endDate' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('endDate').getValue(),'-')
+				filterVal : Ext.getCmp('endDate' + this.panelId).getValue() == '' ? null : printDataExportObj.dateToStr(Ext.getCmp('endDate'+ this.panelId).getValue(),'-')
 			}];
 			
 			var currentManagePerson = Ext.getCmp('currentManagePerson' + this.panelId).getValue();
