@@ -48,7 +48,9 @@ app.highRiskPanel = new Ext.tf.HighRiskPanel({
                    { "header" : "性别", "dataIndex" : "personalInfo_sex"}, 
                    { "header" : "生日", "dataIndex" : "personalInfo_birthday", 
                                        "renderer": Ext.util.Format.dateRenderer('Y-m-d') }, 
-                   { "header" : "身份证号", "dataIndex" : "personalInfo_idnumber" }, 
+                   { "header" : "身份证号", "dataIndex" : "personalInfo_idnumber","renderer": function(v){
+                       return denc(v);
+                   } }, 
                    { "header" : "最近一次产检时间", "dataIndex" : "lastExamDate" ,
                 	   "renderer": Ext.util.Format.dateRenderer('Y-m-d')}, 
                    { "header" : "高危因素", "dataIndex" : "highRiskRemarks"},
