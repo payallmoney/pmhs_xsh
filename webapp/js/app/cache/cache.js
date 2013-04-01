@@ -4,8 +4,8 @@ Ext.hc.cachePanel = new Ext.Panel({
 	layout : 'fit',
 	items : [ {
 		layout : 'fit',
-		xtype : 'grid',
-		id : 'cache.grid',
+		xtype : 'panel',
+		id : 'cache.panel',
 		title : '缓存管理',
 		autoWidth : true,
 		// height : 700,

@@ -802,7 +802,6 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 				}.createDelegate(this)
 			}
 		});
-
 		this.menu.on({
 			click : {
 				stopEvent : true,
@@ -820,7 +819,26 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 						this.f_add(true);
 				}.createDelegate(this)
 			}
+			// ,
+            // render:function(){
+                // this.menu.getEl().on(
+                    // 'contextmenu' ,function(e,node){
+                        // e.stopEvent();
+                        // var contextmenu=new Ext.menu.Menu({
+                            // id:'leafcontextmeun',
+                            // items:[{text:'刷新',
+                                    // handler:function(){
+                                        // this.menu.getLoader().load(this.menu.root);
+                                    // }.createDelegate(this)
+                                // }]
+                            // }
+                        // );
+                        // contextmenu.showAt(e.getXY());
+                    // }.createDelegate(this)
+                // );
+            // }.createDelegate(this)
 		});
+		
 
 		var panel = new Ext.Panel({
 			layout : 'border',
