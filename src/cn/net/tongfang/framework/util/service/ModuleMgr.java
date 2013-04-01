@@ -792,6 +792,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 			Map map = new HashMap();
 			map.put("file", file);
 			map.put("maternal", maternal);
+			List<FirstVistBeforeBorn> fvb = getHibernateTemplate().find(" from FirstVistBeforeBorn where foreignId = '"+maternal.getId()+"' ");
+			if(fvb.size()>0){
+				map.put("duedate", fvb.get(0).getEdc());
+			}else{
+				map.put("duedate", null);
+			}
 			files.add(map);
 		}
 
@@ -901,7 +907,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			where.replace(0, 4, " where ");
 		}
 		StringBuilder hql = new StringBuilder(
-				"from HealthFile a, HealthFileMaternal b").append(where).append(
+				"from HealthFile a, HealthFileMaternal b ").append(where).append(
 				" order by a.name ASC");
 		log.debug("hql: " + hql.toString());
 		return hql;
