@@ -467,8 +467,15 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 	},
 	
 	createActions : function() {
-		var searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
+		var searchCondition = null;
+		if(this.funType == 0){
+			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], [ 'c.edc', '预产期' ],['b.inputDate','建档日期'] ];
+		}
+		if(this.funType == 1){
+			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
+		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], ['b.inputDate','建档日期'] ];
+        }
 
 		var store = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
