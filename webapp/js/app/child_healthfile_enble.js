@@ -49,6 +49,9 @@ app.childHealthFileEnblePanel = new Ext.tf.HealthBookRecordsPanel({
 	},{
         name : 'status',
         mapping : 'status'
+    },{
+        name : 'inputdate',
+        mapping : 'children.inputDate'
     }  ],
 	gridCmConfig : [ {
         "header" : "状态",
@@ -79,6 +82,10 @@ app.childHealthFileEnblePanel = new Ext.tf.HealthBookRecordsPanel({
 		"renderer" : function(value, metadata, record, rowIndex, colIndex, store) {
 			return record.data.township + record.data.village;
 		}
+	}, {
+		"header" : "建册日期",
+		"dataIndex" : "inputdate",
+		"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
 	} ],
 	readerConfig01 : [ {
 		name : 'id',

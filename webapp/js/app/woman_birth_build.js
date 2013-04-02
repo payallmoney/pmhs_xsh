@@ -49,7 +49,10 @@ app.womanBirthBuildPanel = new Ext.tf.HealthBookRecordsPanel({
 	},{
 		name : 'duedate',
 		mapping : 'duedate'
-	}  ],
+	},{
+        name : 'inputdate',
+        mapping : 'maternal.inputDate'
+    }  ],
 	gridCmConfig : [ {
 		"header" : "状态",
 		"dataIndex" : "isClosed",
@@ -99,6 +102,10 @@ app.womanBirthBuildPanel = new Ext.tf.HealthBookRecordsPanel({
 		"renderer" : function(value, metadata, record, rowIndex, colIndex, store) {
 			return record.data.township + record.data.village;
 		}
+	}, {
+		"header" : "建册日期",
+		"dataIndex" : "inputdate",
+		"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
 	} ],
 	readerConfig01 : [ {
 		name : 'id',

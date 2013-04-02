@@ -933,7 +933,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo") || filterKey.equals("b.idnumber")){
 				filterValue = EncryptionUtils.encry(filterValue);
 			}
-			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") || filterKey.equals("c.edc")){
+			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") || filterKey.equals("c.edc") || filterKey.equals("b.inputDate")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
 				try {
 					String startDate = null;
