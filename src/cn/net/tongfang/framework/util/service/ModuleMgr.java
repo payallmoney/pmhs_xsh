@@ -930,10 +930,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {
 			String filterValue = qryCond.getFilterValue();
-			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
+			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo") || filterKey.equals("b.idnumber")){
 				filterValue = EncryptionUtils.encry(filterValue);
 			}
-			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
+			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") || filterKey.equals("c.edc")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
 				try {
 					String startDate = null;
@@ -951,7 +951,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 					}
 					params.add(format.parse(startDate));
 					params.add(format.parse(endDate));
-					where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
+					if(filterKey.equals("c.edc")){
+						where.append(" and exists( select 1 from FirstVistBeforeBorn c where c.foreignId = b.id and  c.edc >= ? and c.edc <= ? )");
+					}else{
+						where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
+					}
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}				
