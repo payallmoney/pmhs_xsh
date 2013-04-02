@@ -28,7 +28,7 @@ import cn.net.tongfang.framework.security.vo.ScorePerson;
 import cn.net.tongfang.framework.util.CacheUtil;
 
 public class ScoreUtil extends HibernateDaoSupport implements
-		ApplicationContextAware , ApplicationListener,CacheUtil {
+		ApplicationContextAware, ApplicationListener, CacheUtil {
 	private static final Logger log = Logger.getLogger(ScoreUtil.class);
 	private Map<String, Map> nameMaps = new HashMap<String, Map>();
 	private static String ScoreName = "12月培训考试";
@@ -39,13 +39,12 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	public void setApplicationContext(ApplicationContext ac) {
 		this.ac = ac;
 	}
-	
+
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {
 			refresh();
 		}
 	}
-
 
 	public void refresh() {
 		nameMaps.clear();
@@ -64,8 +63,8 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	private void getScoreDetailItem() {
 		Map<String, Map<String, CodScoreProp>> map = new HashMap<String, Map<String, CodScoreProp>>();
 		nameMaps.put("CodScoreProp", map);
-		List<CodScoreProp> list = getSession().createQuery("from CodScoreProp")
-				.list();
+		List<CodScoreProp> list = getHibernateTemplate().find(
+				"from CodScoreProp");
 		for (CodScoreProp cod : list) {
 			Map<String, CodScoreProp> namemap;
 			if (map.containsKey(cod.getId().getName())) {
@@ -84,21 +83,21 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	private void getScoreRule() {
 		Map<String, CodScoreRule> map = new HashMap<String, CodScoreRule>();
 		nameMaps.put("CodScoreRule", map);
-		List<CodScoreRule> list = getSession()
-				.createQuery("from CodScoreRule ").list();
+		List<CodScoreRule> list = getHibernateTemplate().find(
+				"from CodScoreRule ");
 		for (CodScoreRule cod : list) {
 			map.put(cod.getName(), cod);
 		}
 	}
-	
+
 	/**
 	 * 得到科目的考试配置
 	 */
 	private void getExamdate() {
-		Map<String,  Timestamp> map = new HashMap<String,  Timestamp>();
+		Map<String, Timestamp> map = new HashMap<String, Timestamp>();
 		nameMaps.put("ScoreExamdate", map);
-		List<ScoreExamdate> list = getSession()
-				.createQuery("from ScoreExamdate ").list();
+		List<ScoreExamdate> list = getHibernateTemplate().find(
+				"from ScoreExamdate ");
 		for (ScoreExamdate cod : list) {
 			map.put(cod.getGroupname(), cod.getScoredate());
 		}
@@ -110,8 +109,8 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	private void getScorePerson() {
 		Map<String, Map<String, Object[]>> map = new HashMap<String, Map<String, Object[]>>();
 		nameMaps.put("ScorePerson", map);
-		List<Object[]> list = getSession().createQuery(" select a,b from ScorePerson a,SamTaxempcode b where b.loginname = a.id.personid ")
-				.list();
+		List<Object[]> list = getHibernateTemplate()
+				.find(" select a,b from ScorePerson a,SamTaxempcode b where b.loginname = a.id.personid ");
 		for (Object[] obj : list) {
 			ScorePerson cod = (ScorePerson) obj[0];
 			Map<String, Object[]> namemap;
@@ -131,8 +130,8 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	private void getScoreGroup() {
 		Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 		nameMaps.put("ScoreGroup", map);
-		List<ScoreGroup> list = getSession().createQuery(
-				"from ScoreGroup order by ord").list();
+		List<ScoreGroup> list = getHibernateTemplate().find(
+				"from ScoreGroup order by ord");
 		for (ScoreGroup cod : list) {
 			Map<String, String> namemap;
 			if (map.containsKey(cod.getId().getGroupname())) {
@@ -148,7 +147,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	public Object getScoreSetting(String group, String name) {
 		return nameMaps.get(group).get(name);
 	}
-	
+
 	public Object getScoreSetting(String group) {
 		return nameMaps.get(group);
 	}
@@ -160,7 +159,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	private void buildBasicInformationMap() {
 		final String hql = "select p from BasicInformation p where isMain = 0 order by type, number";
 		Map<Integer, List<BasicInformation>> resMap = null;
-		List<BasicInformation> res = getSession().createQuery(hql).list();
+		List<BasicInformation> res = getHibernateTemplate().find(hql);
 		resMap = new HashMap<Integer, List<BasicInformation>>();
 		for (BasicInformation i : res) {
 			int type = i.getType();
@@ -180,7 +179,8 @@ public class ScoreUtil extends HibernateDaoSupport implements
 		for (Iterator iter = all.keySet().iterator(); iter.hasNext();) {
 			String item = (String) iter.next();
 			// 根据项目名称得到项目的获取方式
-			CodScoreRule rule = (CodScoreRule) getScoreSetting("CodScoreRule", item);
+			CodScoreRule rule = (CodScoreRule) getScoreSetting("CodScoreRule",
+					item);
 			if (rule == null) {
 				log.error("ScoreGroup中的考试名称:" + item + " 与CodScoreRule表配置不相符");
 				continue;
@@ -203,6 +203,7 @@ public class ScoreUtil extends HibernateDaoSupport implements
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
+				log.debug(ex);
 			}
 		}
 		nameMaps.put("standardMap", standardMap);
@@ -211,14 +212,16 @@ public class ScoreUtil extends HibernateDaoSupport implements
 	public Map<Integer, List<BasicInformation>> getBasicInformationMap() {
 		return basicInformationMap;
 	}
-	
+
 	public static Method getExeMethod(Object obj, String methodname) {
 		Method[] methods = ClassUtils.getUserClass(obj).getMethods();
 		Method exeMethod = null;
 		for (Method me : methods) {
 			if (me.getName().equals(methodname)) {
 				if (me.getParameterTypes()[0].getName().startsWith(
-						"cn.net.tongfang.") || me.getParameterTypes()[0].getName().equals("java.lang.String")) {
+						"cn.net.tongfang.")
+						|| me.getParameterTypes()[0].getName().equals(
+								"java.lang.String")) {
 					exeMethod = me;
 					break;
 				}
@@ -226,14 +229,14 @@ public class ScoreUtil extends HibernateDaoSupport implements
 		}
 		return exeMethod;
 	}
-	
+
 	public static void setObjectValue(Object obj, String paramurl, String value) {
 		String[] parms = paramurl.split("\\.");
 		if (parms.length == 1) {
 			try {
-				if(obj instanceof String){
+				if (obj instanceof String) {
 					obj = value;
-				}else{
+				} else {
 					PropertyUtils.setProperty(obj, parms[0], value);
 				}
 			} catch (Exception ex) {

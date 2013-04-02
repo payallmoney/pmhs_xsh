@@ -54,7 +54,7 @@ public final class CommonConvertUtils {
 	public static Date stringToDate(String date){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
-		SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date d = null;
 		try {
 			d = format.parse(date);

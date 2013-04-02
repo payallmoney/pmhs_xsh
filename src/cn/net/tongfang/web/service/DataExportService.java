@@ -811,7 +811,7 @@ public class DataExportService extends HibernateDaoSupport{
 			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
 				filterVal = EncryptionUtils.encry(filterVal);
 			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") ){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 				try {
 					Date startDate = null;
 					Date endDate = null;
@@ -870,7 +870,7 @@ public class DataExportService extends HibernateDaoSupport{
 			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
 				filterVal = EncryptionUtils.encry(filterVal);
 			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") ){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 				try {
 					Date startDate = null;
 					Date endDate = null;

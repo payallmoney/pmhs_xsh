@@ -934,7 +934,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				filterValue = EncryptionUtils.encry(filterValue);
 			}
 			if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") || filterKey.equals("c.edc") || filterKey.equals("b.inputDate")){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
 					String startDate = null;
 					String endDate = null;
@@ -984,7 +984,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				params.add(filterValue);
 				where.append(" and substring(" + filterKey + ",1," + filterValue.trim().length() + ") = ?");
 			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
 					String startDate = null;
 					String endDate = null;
@@ -4000,7 +4000,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				where.append(" And " + filterKey + " = ? ");
 				params.add(filterVal);
 			}else if(filterKey.equals("birthday")){
-				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
 					String startDate = null;
 					String endDate = null;

@@ -726,7 +726,7 @@ public class ReportService extends HibernateDaoSupport {
 
 	// 日期转换
 	private Date convertToTime(String date) {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date d = null;
 		try {
 			d = format.parse(date);
