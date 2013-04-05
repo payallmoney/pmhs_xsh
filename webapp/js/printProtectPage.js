@@ -8,6 +8,8 @@
 		womanExamPrintProtect : womanExamPrintProtect,
 		childExamPrintProtect : childExamPrintProtect,
 		printBirthMonthReport : printBirthMonthReport,
+		printHTML:printHTML,
+		printHTML1:printHTML1,
 		printUrl : printUrl,
 		VacciImmunePrintProtect : VacciImmunePrintProtect
 	}
@@ -171,6 +173,33 @@
 		if(CheckActiveX()){
 			ChildPagePrint(html,title,visitDate,fileNo);
 			LODOP.PREVIEW();	
+			
+		}
+	}
+	
+	function printHTML(html,title,width,height){
+		if(CheckActiveX()){
+			LODOP.PRINT_INITA(10,10,width,height,title);
+			LODOP.SET_PRINT_PAGESIZE (1, 0, 0,"A4");
+//			LODOP.ADD_PRINT_TABLE(0,0,"20cm",height,html);
+			LODOP.SET_PRINT_STYLE("FontSize",12);
+			LODOP.SET_PRINT_STYLE("FontName",'宋体');
+			LODOP.ADD_PRINT_HTML(0,0,"20cm",height,html);
+			LODOP.PREVIEW();	
+//			LODOP.PRINT_SETUP();
+		}
+	}
+	
+	//儿童体检记录打印
+	function printHTML1(html,title,width,height,intOrient){
+		if(CheckActiveX()){
+			LODOP.PRINT_INITA(0,0,width,height,title);
+			LODOP.SET_PRINT_PAGESIZE (intOrient, width, height,"CreateCustomPage");
+			LODOP.SET_PRINT_STYLE("FontSize",12);
+			LODOP.SET_PRINT_STYLE("FontName",'宋体');
+			LODOP.ADD_PRINT_HTML(0,0,width,height,html);
+//			LODOP.PREVIEW();	
+			LODOP.PRINT_SETUP();
 		}
 	}
 	//儿童体检记录打印

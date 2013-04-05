@@ -1,6 +1,7 @@
 package cn.net.tongfang.web.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.PagedList;
 
 public class FileNumSearch extends HibernateDaoSupport{
-	static int pageSize = 10;
+	static int pagesize = 10;
 	
 	//OtherParamType 类型
 	public static String OtherParamType_Woman = "1";//妇女
@@ -27,6 +28,10 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String OtherParamType_Old = "9";//老年人
 	public static String OtherParamType_Child_NoCard = "10";//儿童未建册
 	
+	public static String OtherParamType_MarryMan = "11";//男性婚检
+	public static String OtherParamType_MarryWoman = "12";//女性婚检
+	
+	
 	//condVal 类型
 	public static String CondVal_Barcode = "0";   //条形码
 	public static String CondVal_Fileno = "1";   //档案编号
@@ -35,6 +40,18 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String CondVal_LinkMan = "4";   //联系人
 	
 	public  PagedList listCodePage(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
+		return listCodePageSize(pageNo,pagesize, mcode, startWith,condVal,otherparamtype);
+    	
+    }
+	
+	public  PagedList listCodePageSize(int pageNo,int newpagesize, String mcode, boolean startWith,String condVal,String otherparamtype){
+		System.out.println("=============pageNo======"+pageNo);
+		System.out.println("=============newpagesize======"+newpagesize);
+		System.out.println("=============mcode======"+mcode);
+		System.out.println("=============startWith======"+startWith);
+		System.out.println("=============condVal======"+condVal);
+		System.out.println("=============otherparamtype======"+otherparamtype);
+		
     	String likePrefix = startWith ? "" : "%";
     	PagedList res = new PagedList();
     	String hsqlparam = "";
@@ -50,7 +67,6 @@ public class FileNumSearch extends HibernateDaoSupport{
 		}else{
 			otherCond = mcodes[0];
 		}
-		
     	if(otherparamtype != null){
     		if(otherparamtype.equals(OtherParamType_Woman)){//孕产妇随访查询
     			otherTables = " ,HealthFileMaternal hm ";
@@ -61,7 +77,7 @@ public class FileNumSearch extends HibernateDaoSupport{
     			hsqlparam = " And p.id = d.personalInfoId And diseaseId = " + otherparamtype ;
         	}else if(otherparamtype.equals(OtherParamType_WomanBook)){//孕产妇建册查询
         		hsqlparam = " And p.sex = '女'  ";
-        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation ";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress ";
         	}else if(otherparamtype.equals(OtherParamType_Husband)){//丈夫信息
         		hsqlparam = " And p.sex = '男'";
         		extendCols = " ,hf.tel,p.workUnit,p.education,p.occupation ";
@@ -74,6 +90,12 @@ public class FileNumSearch extends HibernateDaoSupport{
         		extendCols = " ,hc.id ";
         	}else if(otherparamtype.equals(OtherParamType_Old)){
         		hsqlparam = " And (year(getDate()) - year(p.birthday)) >= 65 ";
+        	}else if(otherparamtype.equals(OtherParamType_MarryWoman)){//女性婚检
+        		hsqlparam = " And p.sex = '女'  ";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
+        	}else if(otherparamtype.equals(OtherParamType_MarryMan)){//男性婚检
+        		hsqlparam = " And p.sex = '男'";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
         	}
     	}
    	
@@ -84,18 +106,21 @@ public class FileNumSearch extends HibernateDaoSupport{
     		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 " + hsqlparam,fileNo).get(0);
-        	System.out.println("total line is : " + count);
+        	if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
         	res.totalLines = count;
-        	res.pageSize = pageSize;
-        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
-        	int from = pageNo * pageSize;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
         	String sql = "select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where  p.fileNo = hf.fileNo " +
         			"and hf.fileNo like ? and hf.status = 0 "  + hsqlparam;
         	Query qry = getSession().createQuery(sql);
         	qry.setParameter(0, fileNo);
-        	qry.setMaxResults(pageSize);
+        	qry.setMaxResults(newpagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
         	System.out.println("res line is : " + list.size());
@@ -108,18 +133,22 @@ public class FileNumSearch extends HibernateDaoSupport{
     		qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
-        	res.pageSize = pageSize;
-        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
-        	int from = pageNo * pageSize;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
         			"And hf.name like  ?  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
-        	qry.setMaxResults(pageSize);
+        	qry.setMaxResults(newpagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
         	System.out.println("res line is : " + list.size());
@@ -132,18 +161,22 @@ public class FileNumSearch extends HibernateDaoSupport{
     		qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, "%"+otherCond+"%");
     		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
-        	res.pageSize = pageSize;
-        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
-        	int from = pageNo * pageSize;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address,p.linkman " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
         			"And p.linkman like ?  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, "%"+otherCond+"%");
-        	qry.setMaxResults(pageSize);
+        	qry.setMaxResults(newpagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
         	System.out.println("res line is : " + list.size());
@@ -155,18 +188,22 @@ public class FileNumSearch extends HibernateDaoSupport{
     		qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
     		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
-        	res.pageSize = pageSize;
-        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
-        	int from = pageNo * pageSize;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where hf.districtNumber like ? " +
         			"And p.idnumber like ?  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
         	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
-        	qry.setMaxResults(pageSize);
+        	qry.setMaxResults(newpagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
         	System.out.println("res line is : " + list.size());
@@ -178,18 +215,22 @@ public class FileNumSearch extends HibernateDaoSupport{
 //    		qry.setParameter(0, districtNumber + "%");
         	qry.setParameter(0, otherCond+ "%");
     		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
         	System.out.println("total line is : " + count);
         	res.totalLines = count;
-        	res.pageSize = pageSize;
-        	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
-        	int from = pageNo * pageSize;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
         			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo  " +
         			"And hf.barCode like ?  and hf.status = 0 " + hsqlparam);
 //        	qry.setParameter(0, districtNumber + "%");
         	qry.setParameter(0, "%"+otherCond+"%");
-        	qry.setMaxResults(pageSize);
+        	qry.setMaxResults(newpagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
         	System.out.println("res line is : " + list.size());
@@ -199,6 +240,8 @@ public class FileNumSearch extends HibernateDaoSupport{
     	return res;
     	
     }
+	
+	
     public  List getItem(String code){
 		List list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
     			" p.idnumber,hf.barCode" +

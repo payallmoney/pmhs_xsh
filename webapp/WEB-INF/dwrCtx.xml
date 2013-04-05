@@ -18,6 +18,7 @@
 				class="cn.net.tongfang.framework.dwr.convert.IntegerConverter" />
 		</dwr:init>
 		<dwr:convert type="exception" class="java.lang.Exception"/>
+		<dwr:convert type="bean" class="cn.net.tongfang.web.service.commonexam.CommonVO"/>
 
 		<dwr:convert type="bean" class="java.lang.StackTraceElement" />
 
@@ -152,6 +153,13 @@
 	</bean>
 	
 	<bean id="CacheService" class="cn.net.tongfang.web.service.cache.CacheService">
+		<property name ='cacheList'>
+			<list> 
+				<ref bean="ModuleUtil" /> 
+				<ref bean="ScoreUtil" /> 
+				<ref bean="commonExamUtil" /> 
+			</list> 
+		</property>
 		<dwr:remote javascript="CacheService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
@@ -521,6 +529,8 @@
 		class="cn.net.tongfang.web.service.commonexam.CommonExamService">
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="commonExamUtil" ref="commonExamUtil" />
+		<property name="fileNoGen" ref="fileNoGen" />
 		<dwr:remote javascript="CommonExamService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
 </beans>

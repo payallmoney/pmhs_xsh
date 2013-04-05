@@ -37,7 +37,10 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 	
-	
+	<bean id="commonExamUtil"
+		class="cn.net.tongfang.web.service.commonexam.CommonExamUtil" scope="singleton"> 
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
 	
 	
 	<!--

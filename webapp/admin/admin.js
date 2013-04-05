@@ -1488,8 +1488,6 @@ function showError(msg){
 
 function toUrl(modId,modName,url){
     if (url.indexOf('.html') != -1) {
-    	
-    	console.log(url)
     	var tab = null;
         var items = tabPanel.find('id', url);
         if (items.length > 0) {
@@ -1512,21 +1510,23 @@ function toUrl(modId,modName,url){
 					border : false
 				});
 	    	}else{
-	    		var autoLoad = {
-	    				url : url,
-	    				scripts : true,
-	    				border : false,
-	    				nocache :true,
-	    				text:"加载中..."
-    			};
-    			tab = new App.TabPagePanel({
-    				id : url,
-    				autoLoad : autoLoad,
-    				title : modName,
-    				autoScroll : false,
-    				closable : true,
-    				border : false
-    			});
+	    		var iframeId = modName + '_' + url;
+			    if (!Ext.get(iframeId)) {
+			    	tab =  new Ext.ux.ManagedIframePanel({
+			         xtype : 'iframepanel',
+			         id : iframeId,
+			         loadMask : true,
+			         defaultSrc : url,
+			         listeners : {
+			           domready : function(frame) { // only raised for "same-origin"
+			             var doc = frame.getDocument();
+			             if (doc) {
+			               frame.ownerCt.setTitle(doc.title);
+			             }
+			           }
+			         }
+			       });
+			    }
 	    	}
 			var p = tabPanel.add(tab);
 			tabPanel.tabid = url;
@@ -1649,3 +1649,10 @@ function modifyPassword(){
 	});
 	win.show();
 }
+
+
+$(function(){
+	CommonExamService.getDistrictMap(function(data){
+		window.districtMap = data;
+	});
+});
