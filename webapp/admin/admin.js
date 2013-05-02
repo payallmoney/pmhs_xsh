@@ -1650,9 +1650,52 @@ function modifyPassword(){
 	win.show();
 }
 
+function getTreeData(orgid,name){
+	var treenodes = [];
+	var ret = {};
+	var nodes = [];
+	var nodemap = {};
+	CommonExamService.getDistrict(orgid,{callback:function(data){
+		for( var i=0 ; i< data.length;i++){
+			var treenode = {
+				"id": data[i].id,   
+				"text": data[i].name,   
+				'attributes':data[i],
+				'leaf':data[i].isDetail,
+				'data':data[i],
+				'cls': data[i].isDetail?'file':"folder"
+			};
+			if(!data[i].isDetail){
+				treenode.state = 'closed';
+				var subret = getTreeData(data[i].id,data[i].name);
+				for(var nod in subret.nodemap){
+					nodemap[nod] = subret.nodemap[nod];
+				}
+				nodes = nodes.concat(subret.nodes);
+				treenode.children = subret.treenodes;
+				treenode.attributes
+			}else{
+				var node = {
+					"value": data[i].id,   
+					"name": data[i].name,   
+					"parent":name
+				};
+				nodemap[data[i].id] = node;
+				nodes[nodes.length]=node;
+			}
+			treenodes[treenodes.length]=treenode;
+		}
+	},async:false});
+	ret.nodes = nodes;
+	ret.nodemap = nodemap;
+	ret.treenodes = treenodes;
+	return ret;
+}
 
 $(function(){
 	CommonExamService.getDistrictMap(function(data){
 		window.districtMap = data;
 	});
+	window.districtdata = getTreeData(null)
+	window.earyuitreedata = window.districtdata.treenodes;
 });

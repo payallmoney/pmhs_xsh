@@ -192,7 +192,7 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
     white-space: pre-wrap;
     margin-left: 3%;
     width: 96%;
-    line-height: 24px;
+    line-height: 22px;
     padding-left:10;
     padding-right:10;
     padding-top:10;
@@ -255,12 +255,12 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 }
 
 .printtable1 {
-    font: normal 14px 'ËÎÌו';
+    font: normal 13px 'ËÎÌו';
     text-indent: 0;
     white-space: pre-wrap;
     line-height: 30px;
-    padding-left:10;
-    padding-right:10;
+    padding-left:0;
+    padding-right:0;
 }
 
 .printtable1  label{

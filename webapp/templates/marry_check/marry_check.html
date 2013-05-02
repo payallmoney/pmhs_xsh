@@ -57,7 +57,7 @@
             	selectChild();
                 $("#exam_addpanel").dialog("open");
 				var node = $('#orgtree').tree('getSelected');  
-				var url = "marry_check_info.html#&opt=new&district="+node.attributes.data.id;
+				var url = "marry_check_info.html#&opt=new&district="+node.id;
 				$("#iframe").attr("src","about:blank");
 				$("#iframe").attr("src",url);
             }
@@ -65,7 +65,7 @@
             	var checked = $("#querygrid").datagrid("getChecked");
             	if(checked){
 	            	var node = $('#orgtree').tree('getSelected');  
-					var url = "marry_check_info.html#&opt=open&district="+node.attributes.data.id+"&id="+checked[0]["col0"];
+					var url = "marry_check_info.html#&opt=open&district="+node.id+"&id="+checked[0]["col0"];
 					if(url != $("#iframe").attr("src")){
 						$("#iframe").attr("src",url);
 					}
@@ -128,7 +128,7 @@
 			}
 			function dblclick(rowIndex, rowData){
 				var node = $('#orgtree').tree('getSelected');  
-				var url = "marry_check_info.html#&opt=open&district="+node.attributes.data.id+"&id="+rowData["col0"];
+				var url = "marry_check_info.html#&opt=open&district="+node.id+"&id="+rowData["col0"];
 				//if(url != $("#iframe").attr("src")){
 					$("#iframe").attr("src","about:blank");//释放iframe内存
 					$("#iframe").attr("src",url);
@@ -165,38 +165,21 @@
 					}
 				}
 				var node = $('#orgtree').tree('getSelected'); 
-				var dwrparams = ["婚检",node.attributes.data.id,params,getBasemap(),getColList()];
+				var dwrparams = ["婚检",node.id,params,getBasemap(),getColList()];
 				return dwrparams;
 			}
 			function exam_query(value,name,page){
 				var param = {"page":page,"rows":20}
 				$('#querygrid').datagrid('load', genParam(param)); 
 			}
-			function getTreeData(orgid){
-				var nodes = [];
-				UserMenuTreeService.getUserDistrictNodes(orgid,{callback:function(data){
-					for( var i=0 ; i< data.length;i++){
-						var node = {
-							"id": parseInt(data[i].data.id),   
-							"text": data[i].data.name,   
-							'attributes':data[i]
-						};
-						if(!data[i].leaf){
-							node.children = getTreeData(data[i].data.id);
-							node.state = 'closed';
-						}
-						nodes[nodes.length]=node;
-					}
-				},async:false});
-				return nodes;
-			}
+			
 			function selectChild(){
 				var node = $('#orgtree').tree('getSelected');  
 				//始终选择最后一层
-				if(!node.attributes.leaf){
+				if(!node.attributes.isDetail){
 					var childs = $('#orgtree').tree('getChildren', node.target);
 					for(var i = 0 ; i <  childs.length ; i ++){
-						if(childs[i].attributes.leaf){
+						if(childs[i].attributes.isDetail){
 							$('#orgtree').tree('expandTo',childs[i].target);
 							$('#orgtree').tree('select',childs[i].target);
 							break;
@@ -206,12 +189,12 @@
 			}
 			
 			$(function(){
-				var nodedata = getTreeData(null);
+				var nodedata = window.top.earyuitreedata;
 				$('#orgtree').tree({   
 					data:nodedata,
 					onSelect:function(node){
-						$("#selectedorg").val(node.attributes.data.id);
-						$("#orgname").text(node.attributes.data.name);
+						$("#selectedorg").val(node.id);
+						$("#orgname").text(node.text);
 					},
 					onLoadSuccess:function(){
 						//选中第一节点
@@ -297,7 +280,7 @@
 						</table> 
 					</div>
 				</div>
-				<div id="exam_addpanel" class="easyui-dialog" title="婚前医学检查" style="width:910px;height:700px;"
+				<div id="exam_addpanel" class="easyui-dialog" title="婚前医学检查" style="width:910px;height:600px;"
 				data-options="iconCls:'icon-save',resizable:false,modal:true,closed:true,onClose:dialogClose">
 					<div style='overflow:visible;height:100%;width:100%'>
 						<!--<table id="exam_addpanel_propergrid"></table>-->

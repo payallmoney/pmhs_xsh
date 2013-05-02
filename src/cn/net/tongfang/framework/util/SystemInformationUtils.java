@@ -163,13 +163,24 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 		return null;
 	}
 	
-	public boolean hasVisitAfterBorn(String foreignId,String recordType){
-		String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("foreignId", foreignId);
-		query.setParameter("recordType", recordType);
-		if(query.list().size() > 0){
-			return true;
+	public boolean hasVisitAfterBorn(String foreignId,String recordType,String item){
+		if("0".equals(recordType)){
+			String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType and item=:item";
+			Query query = getSession().createQuery(hql);	
+			query.setParameter("foreignId", foreignId);
+			query.setParameter("recordType", recordType);
+			query.setParameter("item", item);
+			if(query.list().size() > 0){
+				return true;
+			}
+		}else{
+			String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType";
+			Query query = getSession().createQuery(hql);
+			query.setParameter("foreignId", foreignId);
+			query.setParameter("recordType", recordType);
+			if(query.list().size() > 0){
+				return true;
+			}
 		}
 		return false;
 	}

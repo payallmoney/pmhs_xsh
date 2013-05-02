@@ -23,6 +23,7 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.SecurityManager;
+import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.security.vo.ExamItems;
@@ -67,6 +68,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 		hbtTypeMap.put("number", Hibernate.BIG_DECIMAL);
 	}
 	public Map newExam(String examname)  throws Exception{
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Calendar cal = Calendar.getInstance();
 	    cal.set(Calendar.HOUR_OF_DAY, 0);
 	    cal.set(Calendar.MINUTE, 0);
@@ -79,6 +81,14 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ret.put("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		ret.put("user", SecurityManager.currentOperator());
 		return ret;
+	}
+	
+	public List<District> getDistrict(String orgid) {
+		if(orgid == null){
+			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+		}
+		System.out.println("========orgid==========="+orgid);
+		return commonExamUtil.getDistrict(orgid);
 	}
 	
 	public List examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{
@@ -284,8 +294,11 @@ public class CommonExamService extends HibernateDaoSupport  {
 		return ret;
 	}
 	
-	public String delExam(String id){
+	public String delExam(String id) throws Exception{
 		ExamBaseinfo base = (ExamBaseinfo)this.getHibernateTemplate().get(ExamBaseinfo.class, id);
+		if(!base.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
+			throw new Exception("只允许"+base.getInputpersonid()+"进行删除!");
+		}
 		this.getHibernateTemplate().delete(base);
 		this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0, id).executeUpdate();
 		return "删除成功!";
@@ -644,6 +657,12 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ExamBaseinfo base = savedata.getBase();
 		if(StringUtils.isEmpty(base.getId())){
 			base.setId(fileNoGen.getNextExamId());
+		}else{
+			ExamBaseinfo old = (ExamBaseinfo)getHibernateTemplate().get(ExamBaseinfo.class, base.getId());
+			getHibernateTemplate().evict(old);
+			if(!old.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
+				throw new Exception("只允许"+old.getInputpersonid()+"进行修改!");
+			}
 		}
 		getHibernateTemplate().saveOrUpdate(savedata.getBase());
 		//处理items

@@ -69,6 +69,10 @@ angular.module('all', [ 'ui', 'ui.bootstrap' ]).filter('idcard', function() {
 			return "<span style='width:"+width+"px;'></span>";
 		}
 	}
+}).filter('equal', function() {
+	return function(input, value) {
+		return angular.equals(input,value)
+	}
 }).filter('denc', function() {
 	return function(input) {
 		if (input) {
@@ -127,10 +131,22 @@ angular.module('all', [ 'ui', 'ui.bootstrap' ]).filter('idcard', function() {
 	}
 }).filter('limit', function() {
 	return function(input, value) {
-		if(input.length > value){
+		if(input &&　input.length > value){
 			return input.substring(0,value);
 		}else{
 			return input;
 		}
 	}
-});
+}).directive('ngUnChecked', function() {
+    // return the directive link function. (compile function not needed)
+    return function(scope, element, attrs) {
+      // watch the expression, and update the UI on change.
+//      scope.$watch(attrs.ngUnChecked, function(value) {
+    	  console.log("!!!!!"+attrs.ngUnChecked)
+    	  var flag = scope.$apply(attrs.ngUnChecked)
+        if(flag){
+        	element.attr("checked", false);
+        }
+//      });
+    }
+  });

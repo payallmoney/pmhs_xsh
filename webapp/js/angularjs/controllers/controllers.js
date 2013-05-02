@@ -9,34 +9,7 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	               ];
 	$scope.womannameselect = 2;
 	$scope.mannameselect = 2;
-	function getTreeData(orgid,name){
-		var ret = {};
-		var nodes = [];
-		var nodemap = {};
-		UserMenuTreeService.getUserDistrictNodes(orgid,{callback:function(data){
-			for( var i=0 ; i< data.length;i++){
-				if(!data[i].leaf){
-					var subret = getTreeData(data[i].data.id,data[i].data.name);
-					for(var nod in subret.nodemap){
-						nodemap[nod] = subret.nodemap[nod];
-					}
-					nodes = nodes.concat(subret.nodes);
-				}else{
-					var node = {
-						"value": data[i].data.id,   
-						"name": data[i].data.name,   
-						"parent":name
-					};
-					nodemap[data[i].data.id] = node;
-					nodes[nodes.length]=node;
-				}
-			}
-		},async:false});
-		ret.nodes = nodes;
-		ret.nodemap = nodemap;
-		return ret;
-	}
-	$scope.districtdata = getTreeData('530521');
+	$scope.districtdata = $window.top.districtdata;
 	function exam_new (){
 		CommonExamService.newExam("婚检",{
 			callback:function(data){
@@ -53,13 +26,13 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 				$scope.data.items = [{
 					"女方_头像":"",
 					"女方_血缘关系":"无",
-					"女方_既往病史无":true,
+					"女方_既往病史无":'true',
 					"女方_手术史":"无",
 					"女方_现病史":'无',
 					"女方_痛经":'无',
 					"女方_月经量":'多',
 					"女方_既往婚育史":'无',
-					"女方_与遗传有关的家族史无":true,
+					"女方_与遗传有关的家族史无":'true',
 					"女方_家族近亲婚配":'无',
 					"女方_精神状态":"正常",
 					"女方_特殊体态":"无",
@@ -83,17 +56,17 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					"女方_梅毒":"陰性",
 					"女方_淋球菌":"陰性",
 					"女方_滴度":"未检测",
-					"女方_检查结果未见异常":true,
+					"女方_特殊检查未见异常":'true',
 					"女方_乙肝表面抗原检测":"陰性",
 					"女方_尿HCG":"陰性",
 					"女方_尿常规":"正常",
 					"男方_头像":"",
 					"男方_血缘关系":"无",
-					"男方_既往病史无":true,
+					"男方_既往病史无":'true',
 					"男方_手术史":"无",
 					"男方_现病史":'无',
 					"男方_既往婚育史":'无',
-					"男方_与遗传有关的家族史无":true,
+					"男方_与遗传有关的家族史无":'true',
 					"男方_家族近亲婚配":'无',
 					"男方_精神状态":"正常",
 					"男方_特殊体态":"无",
@@ -116,12 +89,12 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					"男方_梅毒":"陰性",
 					"男方_淋球菌":"陰性",
 					"男方_滴度":"未检测",
-					"男方_检查结果未见异常":true,
+					"男方_特殊检查未见异常":'true',
 					"男方_喉结":"有",
 					"男方_阴茎":"正常",
 					"男方_包皮":"正常",
 					"男方_睾丸":"双侧扪及",
-					"男方_附睾双侧正常":true,
+					"男方_附睾双侧正常":'true',
 					"男方_精索静脉曲张":"无",
 					"男方_乙肝表面抗原检测":"陰性",
 					"男方_尿常规":"正常"
@@ -147,8 +120,8 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	if("new" ==urlParam("opt")){
 		exam_new();
 		$("#exam_addpanel").dialog("open");
-		$scope.womandistrictselect = $scope.districtdata.nodemap[urlParam("district")].value;
-		$scope.mandistrictselect = $scope.districtdata.nodemap[urlParam("district")].value;
+		$scope.womandistrictselect = $window.top.districtdata.nodemap[urlParam("district")].value;
+		$scope.mandistrictselect = $window.top.districtdata.nodemap[urlParam("district")].value;
 	}else if("open" ==urlParam("opt")){
 		CommonExamService.loadExam(urlParam("id"),{
 			callback:function(data){
@@ -161,9 +134,8 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 				$scope.woman.othersidename = $scope.man.name;
 				var womandistrict = $.trim($scope.data.woman.districtNumber);
 				var mandistrict = $.trim($scope.data.man.districtNumber);
-				console.log('womandistrict=='+womandistrict)
-				$scope.womandistrictselect = $scope.districtdata.nodemap[womandistrict].value;
-				$scope.mandistrictselect = $scope.districtdata.nodemap[mandistrict].value;
+				$scope.womandistrictselect = $window.top.districtdata.nodemap[womandistrict].value;
+				$scope.mandistrictselect = $window.top.districtdata.nodemap[mandistrict].value;
 				//设置省市县乡
 				$scope.woman['省'] = $window.top.districtMap[womandistrict.substring(0,2)];
 				$scope.woman['市'] = $window.top.districtMap[womandistrict.substring(0,4)];
@@ -180,7 +152,6 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		$scope.alerts = [ ];
 		$("#exam_addpanel").dialog("open");
 	}
-	
 	$scope.initSelection = function(element, callback){
 		var id=$(element).val();
 		if(id){
@@ -202,7 +173,6 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		}
 		CommonExamService.saveExam($scope.data,{async:false,
 			callback:function(data){
-				console.log(data)
 				$scope.data.base.id = data.base.id;
 				$scope.data.items = data.items;
 				$scope.alerts.splice(0, 1);
@@ -250,7 +220,7 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		var querytype = parseInt($('#'+sexcode+'nameselect').attr("realvalue"));
 		var flag = false;
 		if(querytype == 2 || querytype == 4){ //2是姓名,4是联系人,只要输入一位就进行查询
-			if(query.term){
+			if(query.term && query.term.length >=2){
 				flag = true;
 			}
 		}else if (querytype == 3){ //3是身份证号,输入10位后开始查询
@@ -262,11 +232,14 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 				flag = true;
 			}
 		}
+		console.log(flag)
+		console.log(query.term);
+		console.log(query.term.length)
 		if(flag){
 			var listdata = null;
 			var cachestr = "";
 			if(querytype == 2 || querytype ==4){ //2是姓名,4是联系人,只要输入一位就进行查询
-				cachestr = query.term.substring(0,1);
+				cachestr = query.term.substring(0,2);
 			}else if (querytype == 3){ //3是身份证号,输入10位后开始查询
 				cachestr = query.term.substring(0,10);
 			}else if (querytype == 0 || querytype ==1){ //0是条形码,1是档案编号 输入4位进行查询
@@ -287,6 +260,7 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					}
 				}
 			}else{
+				console.log(district+"%"+query.term)
 				var querydata = {results: []}, i, j, s;
 				FileNumSearch.listCodePageSize(0,0,district+"%"+query.term,true,querytype,typecode,{async:false,
 					callback:function(data){
@@ -359,7 +333,6 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	$scope.manSearching=function(){
 		return "输入"+ $('#mannameselect').find("option:selected").text()+"进行查询...";
 	};
-	
 	$scope.dateitems = {
 		cfg:[
 			{parent:$scope.data.items[0] , item: '女方_末次月经时间'},
@@ -473,14 +446,21 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
     	var printCss = "<html ><link rel='stylesheet' type='text/css' href='marry_check_info.css'/><style> body{ white-space:pre-wrap;}</style>";
 		var html = printCss + '<body >' + $('#printpage1').html() + '</body></html>';
 		$window.printObj.printHTML(html,'婚检','210mm','297mm',1);	
+		html = printCss + '<body >' + $('#printpage1_2').html() + '</body></html>';
+		$window.printObj.printHTML(html,'婚检','210mm','297mm',1);	
+		html = printCss + '<body >' + $('#printpage1_3').html() + '</body></html>';
+		$window.printObj.printHTML(html,'婚检','210mm','297mm',1);	
+		html = printCss + '<body >' + $('#printpage1_4').html() + '</body></html>';
+		$window.printObj.printHTML(html,'婚检','210mm','297mm',1);	
     }
     $scope.print1 = function(){
     	var printCss = "<link rel='stylesheet' type='text/css' href='marry_check_info.css'/>";
 		var html = printCss + '<body>' + $('#printpage2').html() + '</body>';
-		$window.printObj.printHTML1(html,'婚检','297mm','210mm',1);	
+		$window.printObj.printHTML1(html,'婚检','210mm','292mm',2);	
+		html = printCss + '<body>' + $('#printpage2_2').html() + '</body>';
+		$window.printObj.printHTML1(html,'婚检','210mm','292mm',2);	
     }
     $scope.exit = function(){
-    	console.log($window)
     	if($window.parent){
     		$window.parent.closeDialog();
     	}

@@ -96,31 +96,31 @@
 							<td colspan=2>血缘关系：<label><input type="radio" checked value="无" ng-model="data.items[0]['女方_血缘关系']">无</label>
 							<label><input type="radio" value="表" ng-model="data.items[0]['女方_血缘关系']">表</label>
 							<label><input type="radio" value="堂" ng-model="data.items[0]['女方_血缘关系']">堂</label>
-							<label><input type="radio" value="其他" ng-model="data.items[0]['女方_血缘关系']">其他</label><input ng-model="data.items[0]['女方_血缘关系其他']" class="required"    maxlength="50" style="width:130px" />
+							<label><input type="radio" value="其他" ng-model="data.items[0]['女方_血缘关系']">其他</label><input ng-model="data.items[0]['女方_血缘关系其他']" ng-readonly="!(data.items[0]['女方_血缘关系'] | equal:'其他')" style="width:130px" />
 							</td>
 						</tr>
 						<tr>
-							<td colspan=2>既往病史：<label><input type='checkbox' ng-true-value="true" ng-model="data.items[0]['女方_既往病史无'] " >无</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史心脏病']">心脏病</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史肺结核']">肺结核</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史肝脏病']">肝脏病</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史泌尿生殖系统疾病']">泌尿生殖系疾病</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史糖尿病']">糖尿病</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史高血压']">高血压</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史精神病']">精神病</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史性病']">性病</label><br>
+							<td colspan=2>既往病史：<label><input type='checkbox' ng-true-value="true" ng-model="data.items[0]['女方_既往病史无'] " ng-un-checked="(data.items[0]['女方_既往病史心脏病']| equal:'true' )||(data.items[0]['女方_既往病史肺结核']| equal:'true' )||(data.items[0]['女方_既往病史肝脏病']| equal:'true' )||(data.items[0]['女方_既往病史泌尿生殖系统疾病']| equal:'true' )||(data.items[0]['女方_既往病史糖尿病']| equal:'true' )||(data.items[0]['女方_既往病史高血压']| equal:'true' )||(data.items[0]['女方_既往病史精神病']| equal:'true' )||(data.items[0]['女方_既往病史性病']| equal:'true' )||(data.items[0]['女方_既往病史癫痫']| equal:'true' )||(data.items[0]['女方_既往病史甲亢']| equal:'true')" >无</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史心脏病']" ng-un-checked="data.items[0]['女方_既往病史无']|equal:'true' ">心脏病</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史肺结核']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">肺结核</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史肝脏病']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">肝脏病</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史泌尿生殖系统疾病']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">泌尿生殖系疾病</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史糖尿病']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">糖尿病</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史高血压']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">高血压</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史精神病']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">精神病</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史性病']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">性病</label><br>
 								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史癫痫']">癫痫</label>
-								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史甲亢']">甲亢</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史癫痫']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">癫痫</label>
+								<label><input type='checkbox' ng-true-value="true"  ng-model="data.items[0]['女方_既往病史甲亢']" ng-un-checked="(data.items[0]['女方_既往病史无']|equal:'true') ">甲亢</label>
 								<label>先天疾患</label>
-								<input ng-model="data.items[0]['女方_既往病史先天疾患']" class="required number"  maxlength="50" style="width:230px" /><br>
+								<input ng-model="data.items[0]['女方_既往病史先天疾患']"   class="required number"  maxlength="50" style="width:230px" /><br>
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							手术史：<label><input type='radio' value="无" ng-model="data.items[0]['女方_手术史']">无</label>
-							<label><input type='radio' value="有" ng-model="data.items[0]['女方_手术史']">有</label><input ng-model="data.items[0]['女方_手术史情况']" class="required number" maxlength="50" style="width:250px" />其他：<input ng-model="data.items[0]['女方_既往病史其他']" class="required number"   maxlength="50" style="width:230px" />
+							<label><input type='radio' value="有" ng-model="data.items[0]['女方_手术史']">有</label><input ng-model="data.items[0]['女方_手术史情况']" ng-readonly="!(data.items[0]['女方_手术史'] | equal:'有')"  class="required number" maxlength="50" style="width:250px" />其他：<input ng-model="data.items[0]['女方_既往病史其他']" class="required number"   maxlength="50" style="width:230px" />
 							</td>
 						</tr>
 						<tr>
-							<td colspan=2>现&nbsp;病&nbsp;史：<label><input type='radio' value="无" ng-model="data.items[0]['女方_现病史']">无</label>&nbsp;&nbsp;<label><input type='radio' value="有" ng-model="data.items[0]['女方_现病史']">有</label><input ng-model="data.items[0]['女方_现病史情况']"  maxlength="50" style="width:330px">
+							<td colspan=2>现&nbsp;病&nbsp;史：<label><input type='radio' value="无" ng-model="data.items[0]['女方_现病史']">无</label>&nbsp;&nbsp;<label><input type='radio' value="有" ng-model="data.items[0]['女方_现病史']">有</label><input ng-model="data.items[0]['女方_现病史情况']" ng-readonly="!(data.items[0]['女方_现病史'] | equal:'有')"   maxlength="50" style="width:330px">
 							</td>
 						</tr>
 						<tr>
@@ -141,7 +141,7 @@
 						</tr>
 						<tr>
 							<td colspan=2>既往婚育史：<label><input type='radio' value="无" ng-model="data.items[0]['女方_既往婚育史']">无</label>
-							<label><input type='radio' value="有" ng-model="data.items[0]['女方_既往婚育史']">有</label>(<label><input type='checkbox' ng-true-value="true" ng-model="data.items[0]['女方_既往婚育史丧偶']">丧偶</label><label><input type='checkbox' ng-true-value="true" ng-model="data.items[0]['女方_既往婚育史离异']">离异</label>)
+							<label><input type='radio' value="有" ng-model="data.items[0]['女方_既往婚育史']">有</label>(<label><input type='checkbox' ng-disabled="!(data.items[0]['女方_既往婚育史'] | equal:'有')"  ng-true-value="true" ng-model="data.items[0]['女方_既往婚育史丧偶']">丧偶</label><label><input ng-disabled="!(data.items[0]['女方_既往婚育史'] | equal:'有')" type='checkbox' ng-true-value="true" ng-model="data.items[0]['女方_既往婚育史离异']">离异</label>)
 							足月<input ng-model="data.items[0]['女方_足月']" class="required number"  minlength="1"  maxlength="2" style="width:30px">次
 							早产<input ng-model="data.items[0]['女方_早产']" class="required number"  minlength="1"  maxlength="2" style="width:30px">次
 							流产<input ng-model="data.items[0]['女方_流产']" class="required number"  minlength="1"  maxlength="2" style="width:30px">次
@@ -183,7 +183,7 @@
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							体重：<input ng-model="data.items[0]['女方_体重']" class="required number"  minlength="4"  maxlength="4" style="width:40px" />千克
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							身高<input ng-model="data.items[0]['女方_身高']" class="required number"  minlength="1"  maxlength="2" style="width:40px" />厘米
+							身高<input ng-model="data.items[0]['女方_身高']" class="required number"  minlength="1"  maxlength="3" style="width:40px" />厘米
 							</td>
 						</tr>
 						<tr>
@@ -286,7 +286,6 @@
 							<td colspan=2 style='text-align:center;font:bold 18px 宋体'>实验室及特殊检查
 							</td>
 						</tr>
-						
 						<tr>
 							<td colspan=2  style='border:2px inset BLACK; padding:15px;line-height:24px'>
 							1.胸部透视：<label><input type='radio' value="未发现异常" ng-model="data.items[0]['女方_胸部透视']">未发现异常</label>&nbsp;&nbsp;
@@ -533,7 +532,7 @@
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							体重：<input ng-model="data.items[0]['男方_体重']" class="required number"  minlength="4"  maxlength="4" style="width:40px" />千克
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							身高<input ng-model="data.items[0]['男方_身高']" class="required number"  minlength="1"  maxlength="2" style="width:40px" />厘米
+							身高<input ng-model="data.items[0]['男方_身高']" class="required number"  minlength="1"  maxlength="3" style="width:40px" />厘米
 							</td>
 						</tr>
 						<tr>
@@ -625,9 +624,9 @@
 							<label><input type='checkbox' ng-true-value="true" value="右" ng-model="data.items[0]['男方_睾丸未扪及右']">右</label><br>
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							附睾：<label><input type='radio'  ng-model="data.items[0]['男方_附睾']">双侧正常</label>
-							<label><input type='radio'  ng-model="data.items[0]['男方_附睾']">节点</label>：左<input ng-model="data.items[0]['男方_附睾节点左']" class="required number"   maxlength="50" style="width:100px" />
+							<label><input type='radio'  ng-model="data.items[0]['男方_附睾']">结节</label>：左<input ng-model="data.items[0]['男方_附睾结节左']" class="required number"   maxlength="50" style="width:100px" />
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							右：<input ng-model="data.items[0]['男方_附睾节点右']" class="required number"   maxlength="50" style="width:100px" /><br>
+							右：<input ng-model="data.items[0]['男方_附睾结节右']" class="required number"   maxlength="50" style="width:100px" /><br>
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							精索静脉曲张：<label><input type='radio' value="无" ng-model="data.items[0]['男方_精索静脉曲张']">无</label>
 							<label><input type='radio' value="有" ng-model="data.items[0]['男方_精索静脉曲张']">有：</label>
@@ -990,11 +989,15 @@
 				<tr>
 					<td colspan=2 style="text-align:right">
 						检查医师签名：<label style="width:100px" ></label>
-						<br><br><br>
 					</td>
 				</tr>
+			</table>
+		</div>
+		<div id='printpage1_2' style='overflow:visible;display:none'>
+			<table class='printtable'>
 				<tr>
-					<td colspan=2>第二性征：阴毛：<font ng-bind-html-unsafe="data.items[0]['女方_阴毛']| checked:'正常'"></font>正常
+					<td colspan=2>
+					第二性征：阴毛：<font ng-bind-html-unsafe="data.items[0]['女方_阴毛']| checked:'正常'"></font>正常
 					<font ng-bind-html-unsafe="data.items[0]['女方_阴毛']| checked:'稀少'"></font>稀少
 					<font ng-bind-html-unsafe="data.items[0]['女方_阴毛']| checked:'无'"></font>无<br>
 					<span style='width:70px'></span>
@@ -1033,7 +1036,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2  style='border:2px inset BLACK; padding:15px;line-height:24px'>
+					<td colspan=2  style='border:2px inset BLACK; padding:5px 15px 5px 15px;line-height:24px'>
 					1.胸部透视：<font ng-bind-html-unsafe="data.items[0]['女方_胸部透视']| checked:'未发现异常'"></font>未发现异常
 					<font ng-bind-html-unsafe="data.items[0]['女方_胸部透视']| checked:'其他'"></font>其他<label style='width:142px' ng-bind-html-unsafe="data.items[0]['女方_胸部透视其他']"></label>
 					<span style='width:0px'></span>
@@ -1163,7 +1166,9 @@
 					</td>
 				</tr>
 			</table>
-			<table class='printtable' >
+		</div>
+		<div id='printpage1_3' style='overflow:visible;display:none'>
+			<table class='printtable'>
 				<tr>
 					<td colspan=2 style='text-align:center;font:bold 22px 宋体'>
 					<br>
@@ -1381,9 +1386,12 @@
 				<tr>
 					<td colspan=2 style="text-align:right">
 						检查医师签名：<label style="width:100px" ></label>
-						<br><br>
 					</td>
 				</tr>
+			</table>
+		</div>
+		<div id='printpage1_4' style='overflow:visible;display:none'>
+			<table class='printtable'>
 				<tr>
 					<td colspan=2>第二性征：喉结：<font ng-bind-html-unsafe="data.items[0]['男方_喉结']| checked:'有'"></font>有
 					<font ng-bind-html-unsafe="data.items[0]['男方_喉结']| checked:'无'"></font>无
@@ -1410,10 +1418,10 @@
 					<font ng-bind-html-unsafe="data.items[0]['男方_睾丸未扪及右']| checked:'true'"></font>右<br>
 					<span style='width:70px'></span>
 					附睾：<font ng-bind-html-unsafe="data.items[0]['男方_附睾']| checked:'双侧正常'"></font>双侧正常
-					<font ng-bind-html-unsafe="data.items[0]['男方_附睾']| checked:'节点'"></font>节点：左
-					<label style='width:180px' ng-bind-html-unsafe="data.items[0]['男方_附睾节点左']"></label>
+					<font ng-bind-html-unsafe="data.items[0]['男方_附睾']| checked:'结节'"></font>结节：左
+					<label style='width:180px' ng-bind-html-unsafe="data.items[0]['男方_附睾结节左']"></label>
 					<span style='width:0px'></span>
-					右：<label style='width:150px' ng-bind-html-unsafe="data.items[0]['男方_附睾节点右']"></label><br>
+					右：<label style='width:150px' ng-bind-html-unsafe="data.items[0]['男方_附睾结节右']"></label><br>
 					<span style='width:70px'></span>
 					精索静脉曲张：<font ng-bind-html-unsafe="data.items[0]['男方_精索静脉曲张']| checked:'无'"></font>无
 					<font ng-bind-html-unsafe="data.items[0]['男方_精索静脉曲张']| checked:'有'"></font>
@@ -1569,9 +1577,9 @@
 			<table class='printtable1'  width='100%'  >
 				<tr width='100%'>
 				<th width="48%">
-					<div width="10%">
-						<table >
-							<tr><td style='text-align:center;font:bold 22px 宋体'><br>婚前医学检查证明存根<br><br>
+					<div width="100%">
+						<table width='100%'>
+							<tr><td style='text-align:center;font:bold 22px 宋体'>婚前医学检查证明存根<br>
 							</td></tr>
 							<tr><td align='center'><label ng-bind-html-unsafe="woman['省']"  style='width:5%'></label>省
 							<label ng-bind-html-unsafe="woman['市']" style='width:5%'></label>地(州、市) 
@@ -1601,7 +1609,7 @@
 								</tr>
 								<tr>
 									<td colspan=3 width='18%'>单位或职业</td>
-									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="woman.workUnit"></span>&nbsp;&nbsp;&nbsp;<span width='70%' ng-bind-html-unsafe="woman.occupation"></span>
+									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="woman.workUnit"></span>
 									</td>
 								</tr>
 								<tr>
@@ -1649,16 +1657,15 @@
 							</td></tr>
 							<tr><td>(此联留婚前医学检查单位)</td></tr>
 							<tr><td style='text-align:right'><span ng-bind-html-unsafe="dateitems.inputdate |date3:'span'"></span><span style='width:5%'></span>
-							<br><br><br><br>
 							</td></tr>
 						</table>
 					</div>
 				</th>
-				<th width="3%"></th>
+				<th width="2%"></th>
 				<th width="48%">
 					<div width="100%">
-						<table >
-							<tr><td style='text-align:center;font:bold 22px 宋体'><br>婚前医学检查证明<br><br>
+						<table width='100%'>
+							<tr><td style='text-align:center;font:bold 22px 宋体'>婚前医学检查证明<br>
 							</td></tr>
 							<tr><td align='center'><label ng-bind-html-unsafe="woman['省']"  style='width:5%'></label>省
 							<label ng-bind-html-unsafe="woman['市']" style='width:5%'></label>地(州、市) 
@@ -1688,7 +1695,7 @@
 								</tr>
 								<tr>
 									<td colspan=3 width='18%'>单位或职业</td>
-									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="woman.workUnit"></span>&nbsp;&nbsp;&nbsp;<span width='70%' ng-bind-html-unsafe="woman.occupation"></span>
+									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="woman.workUnit"></span>
 									</td>
 								</tr>
 								<tr>
@@ -1736,17 +1743,22 @@
 							</td></tr>
 							<tr><td>注：1.本证明有效期为三个月；2.对上述结果如有异议，可申请医学技术鉴定。<br>(此联交婚姻登记部门)</td></tr>
 							<tr><td style='text-align:right'><span ng-bind-html-unsafe="dateitems.inputdate |date3:'span'"></span><span style='width:5%'></span>
-							<br><br><br><br>
 							</td></tr>
 						</table>
 					</div>
 				</th>
+				<th width="2%"></th>
 				</tr>
-				<tr>
+			</table>
+		</div>
+		<!-- 证明打印 -->
+		<div id='printpage2_2' style='overflow:visible;display: none ' borderthin='true'>
+			<table class='printtable1'  width='100%'  >
+				<tr width='100%'>
 				<th width="48%">
 					<div width="100%">
-						<table >
-							<tr><td style='text-align:center;font:bold 22px 宋体'><br><br>婚前医学检查证明存根<br><br>
+						<table width='100%'>
+							<tr><td style='text-align:center;font:bold 22px 宋体'>婚前医学检查证明存根<br>
 							</td></tr>
 							<tr><td align='center'><label ng-bind-html-unsafe="man['省']"  style='width:5%'></label>省
 							<label ng-bind-html-unsafe="man['市']" style='width:5%'></label>地(州、市) 
@@ -1776,7 +1788,7 @@
 								</tr>
 								<tr>
 									<td colspan=3 width='18%'>单位或职业</td>
-									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="man.workUnit"></span>&nbsp;&nbsp;&nbsp;<span width='70%' ng-bind-html-unsafe="man.occupation"></span>
+									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="man.workUnit"></span>
 									</td>
 								</tr>
 								<tr>
@@ -1827,11 +1839,11 @@
 						</table>
 					</div>
 				</th>
-				<th width="3%"></th>
+				<th width="2%"></th>
 				<th width="48%">
 					<div width="100%">
-						<table >
-							<tr><td style='text-align:center;font:bold 22px 宋体'><br><br>婚前医学检查证明<br><br>
+						<table width='100%'>
+							<tr><td style='text-align:center;font:bold 22px 宋体'>婚前医学检查证明<br>
 							</td></tr>
 							<tr><td align='center'><label ng-bind-html-unsafe="man['省']"  style='width:5%'></label>省
 							<label ng-bind-html-unsafe="man['市']" style='width:5%'></label>地(州、市) 
@@ -1861,7 +1873,7 @@
 								</tr>
 								<tr>
 									<td colspan=3 width='18%'>单位或职业</td>
-									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="man.workUnit"></span>&nbsp;&nbsp;&nbsp;<span width='70%' ng-bind-html-unsafe="man.occupation"></span>
+									<td colspan=7 ><span width='76%' ng-bind-html-unsafe="man.workUnit"></span>
 									</td>
 								</tr>
 								<tr>
@@ -1912,6 +1924,7 @@
 						</table>
 					</div>
 				</th>
+				<th width="2%"></th>
 				</tr>
 			</table>
 		</div>
@@ -1934,6 +1947,7 @@
                     </embed>
                 </object>
 			</div>
+			<script src="/js/angularjs/moment.min.js"></script>
 			<script src="/js/util/util.js"></script>
 			<script type='text/javascript' src='/dwr/engine.js'></script>
 			<script type='text/javascript' src='/dwr/util.js'></script>
@@ -1947,7 +1961,6 @@
 			<script type="text/javascript" src="/js/angularjs/jqueryui/jquery-ui-zh-CN.js"></script>
 			<script src="/js/angularjs/select2/select2.js"></script>
 			<script src="/js/angularjs/angular.min.js"></script>
-			<script src="/js/angularjs/moment.min.js"></script>
 			<script src="/js/angularjs/ui/build/angular-ui.min.js"></script>
 			
 			<script src="/js/angularjs/bootstrap/ui-bootstrap-tpls-0.2.0.js"></script>

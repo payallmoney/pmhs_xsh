@@ -1,5 +1,6 @@
 package cn.net.tongfang.web.service.commonexam;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.vo.CodModuleMap;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamExamcfg;
@@ -22,6 +24,8 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 	private Map<String , ExamItemcfg> itemcfg = new HashMap<String , ExamItemcfg>();
 	private Map<String , Map<String,ExamExamcfg>>  examcfg = new HashMap<String , Map<String,ExamExamcfg>>();
 	private Map<String , String> districtMap = new HashMap();
+	private Map<String , List> districtDetailMap = new HashMap();
+	
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {
@@ -52,6 +56,7 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 		}
 		
 		districtMap.clear();
+		districtDetailMap.clear();
 		List<District> districtlist = getHibernateTemplate().find("from District where id = '530000' or id ='530500' or id like '530521%'");
 		for(District cfg : districtlist){
 			String id = cfg.getId();
@@ -63,8 +68,53 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 			if(!districtMap.containsKey(id)){
 				districtMap.put(id, getDistrictName(id,cfg.getName()));
 			}
+			if(!"530000".equals(cfg.getId()) && !"530500".equals(cfg.getId())){
+				if(cfg.getLevel() == 3){
+					if(!districtDetailMap.containsKey("root"+cfg.getId())){
+						List rootlist = new ArrayList();
+						rootlist.add(cfg);
+						districtDetailMap.put("root"+cfg.getId(), rootlist);
+					}else{
+						List rootlist = districtDetailMap.get("root"+cfg.getId());
+						rootlist.add(cfg);
+					}
+				}else if(cfg.getLevel() == 4 ){
+					if(!districtDetailMap.containsKey("root"+cfg.getId())){
+						List rootlist = new ArrayList();
+						rootlist.add(cfg);
+						districtDetailMap.put("root"+cfg.getId(), rootlist);
+					}
+					if(!districtDetailMap.containsKey(cfg.getParentId())){
+						List parentlist = new ArrayList();
+						parentlist.add(cfg);
+						districtDetailMap.put(cfg.getParentId(), parentlist);
+					}else{
+						List parentlist = (List)districtDetailMap.get(cfg.getParentId());
+						parentlist.add(cfg);
+					}
+				}else if(cfg.getLevel() == 5 ){
+					if(!districtDetailMap.containsKey("root"+cfg.getId())){
+						List rootlist = new ArrayList();
+						rootlist.add(cfg);
+						districtDetailMap.put("root"+cfg.getId(), rootlist);
+					}
+					if(!districtDetailMap.containsKey(cfg.getParentId())){
+						List parentlist = new ArrayList();
+						parentlist.add(cfg);
+						districtDetailMap.put(cfg.getParentId(), parentlist);
+					}else{
+						List parentlist = (List)districtDetailMap.get(cfg.getParentId());
+						parentlist.add(cfg);
+					}
+				}
+			}
 		}
 	}
+	public List<District> getDistrict(String orgid) {
+//		Integer orgId = SecurityManager.currentOperator().getOrgId();
+		return districtDetailMap.get(orgid) ;
+	}
+	
 	public static String getDistrictName(String id , String name){
 		String ret = name;
 		if(id.length()==2){
