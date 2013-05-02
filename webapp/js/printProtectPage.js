@@ -110,7 +110,8 @@
 		LODOP.ADD_PRINT_TEXT("3.7cm","13.55cm","0.66cm","0.53cm",jsonPrint.day);
 		LODOP.ADD_PRINT_TEXT("3.7cm","14.37cm","0.66cm","0.53cm",jsonPrint.hours);
 		LODOP.ADD_PRINT_TEXT("3.7cm","15.13cm","0.79cm","0.53cm",jsonPrint.minutes);
-		LODOP.ADD_PRINT_TEXT("3.7cm","17.7cm","1.59cm","0.53cm",jsonPrint.weight);
+		var weight = (parseInt(jsonPrint.weight) / 1000 ).toFixed(2);
+		LODOP.ADD_PRINT_TEXT("3.7cm","17.7cm","1.59cm","0.53cm",""+weight);
 		LODOP.ADD_PRINT_TEXT("4.55cm","11.67cm","2.78cm","0.53cm",jsonPrint.county);
 		LODOP.ADD_PRINT_TEXT("4.52cm","16.46cm","2.35cm","0.53cm",jsonPrint.township);
 		LODOP.ADD_PRINT_TEXT("5.4cm","11.64cm","2.75cm","0.53cm",jsonPrint.village);
@@ -180,11 +181,12 @@
 	function printHTML(html,title,width,height){
 		if(CheckActiveX()){
 			LODOP.PRINT_INITA(10,10,width,height,title);
-			LODOP.SET_PRINT_PAGESIZE (1, 0, 0,"A4");
+			//LODOP.SET_PRINT_PAGESIZE (1, 0, 0,"A4");
+			LODOP.SET_PRINT_MODE("AUTO_CLOSE_PREWINDOW",true);
 //			LODOP.ADD_PRINT_TABLE(0,0,"20cm",height,html);
 			LODOP.SET_PRINT_STYLE("FontSize",12);
 			LODOP.SET_PRINT_STYLE("FontName",'宋体');
-			LODOP.ADD_PRINT_HTML(0,0,"20cm",height,html);
+			LODOP.ADD_PRINT_HTML(0,0,'20cm',height,html);
 			LODOP.PREVIEW();	
 //			LODOP.PRINT_SETUP();
 		}
@@ -193,13 +195,18 @@
 	//儿童体检记录打印
 	function printHTML1(html,title,width,height,intOrient){
 		if(CheckActiveX()){
-			LODOP.PRINT_INITA(0,0,width,height,title);
-			LODOP.SET_PRINT_PAGESIZE (intOrient, width, height,"CreateCustomPage");
+			LODOP.PRINT_INITA(0,0,height,width,title);
+			LODOP.SET_PRINT_MODE("AUTO_CLOSE_PREWINDOW",true);
+			//LODOP.SET_PRINT_PAGESIZE (0, width, height,"LodopCustomPage");
 			LODOP.SET_PRINT_STYLE("FontSize",12);
 			LODOP.SET_PRINT_STYLE("FontName",'宋体');
-			LODOP.ADD_PRINT_HTML(0,0,width,height,html);
-//			LODOP.PREVIEW();	
-			LODOP.PRINT_SETUP();
+			LODOP.ADD_PRINT_HTML(0,0,height,width,html);
+			LODOP.SET_PRINT_MODE('RESELECT_PAGESIZE',1);
+			LODOP.SET_PRINT_MODE('RESELECT_ORIENT',1);
+			LODOP.SET_PRINT_MODE('RESELECT_PRINTER',1);
+			LODOP.SET_PRINT_MODE('RESELECT_COPIES',1);
+			LODOP.PREVIEW();	
+			//LODOP.PRINT_SETUP();
 		}
 	}
 	//儿童体检记录打印
@@ -335,7 +342,12 @@
 		LODOP.ADD_PRINT_TEXT("4.26cm","10.85cm","1.32cm","0.53cm",jsonPrint.weight);
 		LODOP.ADD_PRINT_TEXT("4.26cm","13.18cm","1.32cm","0.53cm",jsonPrint.height);
 		LODOP.ADD_PRINT_TEXT("5.11cm","5.37cm","2.65cm","0.53cm",jsonPrint.motherName);
-		LODOP.ADD_PRINT_TEXT("5.21cm","8.55cm","1.22cm","0.53cm",jsonPrint.motherAge);
+//		LODOP.ADD_PRINT_TEXT("5.21cm","8.55cm","1.22cm","0.53cm",jsonPrint.motherAge);
+		if(jsonPrint.motherAge == 0 ){
+            LODOP.ADD_PRINT_TEXT("5.21cm","8.55cm","1.22cm","0.53cm","不详");
+		}else{
+    		LODOP.ADD_PRINT_TEXT("5.21cm","8.55cm","1.22cm","0.53cm",jsonPrint.motherAge);
+		}
 		LODOP.ADD_PRINT_TEXT("5.21cm","10.58cm","0.95cm","0.53cm",jsonPrint.motherNationality);
 		LODOP.ADD_PRINT_TEXT("5.21cm","13.18cm","0.98cm","0.53cm",jsonPrint.motherNation);
 		LODOP.ADD_PRINT_TEXT("5.95cm","6.16cm","8.73cm","0.53cm",jsonPrint.motherIdCard);
