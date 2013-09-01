@@ -242,7 +242,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 				xtype : 'iframepanel',
 				defaultSrc : targetUrl,
 				// width: win.getInnerWidth() - 380,
-				// height: win.getInnerHeight() - 10,
+				height: win.getInnerHeight(),
 				title : '',
 				loadMask : true,
 				autoScroll : false,

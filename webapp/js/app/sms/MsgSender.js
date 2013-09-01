@@ -263,6 +263,36 @@ Ext.sms.MsgSender = new Ext.Panel({
                                         allowBlank : false,
                                         name : 'wherestr',
                                         value :'1=1'
+                                    },{
+                                        fieldLabel : '是否档案规则(0表示是,1表示否)',
+                                        allowBlank : false,
+                                        name : 'type',
+                                        value :'0'
+                                    },{
+                                        fieldLabel : '电话号码表',
+                                        allowBlank : true,
+                                        name : 'teltable',
+                                        value :""
+                                    },{
+                                        fieldLabel : '电话号码连接',
+                                        allowBlank : true,
+                                        name : 'teljoinstr',
+                                        value :""
+                                    },{
+                                        fieldLabel : '电话号码字段',
+                                        allowBlank : true,
+                                        name : 'telcol',
+                                        value :""
+                                    },{
+                                        fieldLabel : '表ID类型(number表示long)',
+                                        allowBlank : true,
+                                        name : 'idtype',
+                                        value :"string"
+                                    },{
+                                        fieldLabel : '时间规则',
+                                        allowBlank : true,
+                                        name : 'rulestr',
+                                        value :" 1=1 "
                                     }, {
                                         xtype:'textarea',
                                         height:200,

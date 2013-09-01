@@ -246,9 +246,9 @@ public class EncryptionUtils {
 	 */
 	/**/
 	public static void main(String[] args) {
-		String str1 = encry("段汝花");
+		String str1 = testEncry("张延姍");
 		System.out.println(str1);
-		String str2 = decipher(str1);
+		String str2 = testDecipher(str1);
 		System.out.println(str2);
 
 		// String str3 = encry("2001901991");

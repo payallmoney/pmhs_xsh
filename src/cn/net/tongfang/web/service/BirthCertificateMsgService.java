@@ -963,22 +963,27 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	}
 	
 	public String save(BirthCertificateBO birthCertificate)throws Exception{	
+		Integer tmpType = birthCertificate.getType();
 		birthCertificate.setInputDate(new Timestamp(System.currentTimeMillis()));
 		BirthCertificate birthCertifi01 = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class,birthCertificate.getCertifiId());		
 		if(birthCertifi01.getIsSupply().equals(1)){
 			BeanUtils.copyProperties(birthCertificate,birthCertifi01);
 			birthCertifi01.setIsSupply(1);
+			//处理补发作废的情况
+			if(tmpType.equals(3)){
+				birthCertifi01.setIsEffectived(EFFECTIVED_DESTROIED);
+				birthCertifi01.setFileNo("");
+			}
 			getHibernateTemplate().update(birthCertifi01);
 			return birthCertifi01.getCertifiId();
 		}
 		if(CommonConvertUtils.birthCertifiIsSupply(birthCertificate.getBirthday(),birthCertificate.getIssuingDate()))
 			throw new Exception("您没有权限补发出生医学证明！");
-		
 		BirthCertificate birthCertifi = new BirthCertificate();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		boolean flag = false;
 		Integer type = null;
-		Integer tmpType = birthCertificate.getType();
+		
 		BeanUtils.copyProperties(birthCertificate,birthCertifi);
 		if(tmpType == null){
 			Timestamp currentDate = new Timestamp(System.currentTimeMillis());

@@ -1,5 +1,6 @@
 package cn.net.tongfang.framework.dwr.convert;
 
+import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,9 +27,13 @@ public class TimestampConverter extends AbstractConverter {
 		if (data.isNull()) {
 			return null;
 		}
-
-		String value = data.getValue();
-
+		String value = null;
+		try{
+			value = URLDecoder.decode(data.getValue(),"UTF-8");
+		}catch(Exception ex){
+			value = data.getValue();
+		}
+		
 		Timestamp date = null;
 		if ( value.length() > 0 ) {
 			DateFormat df = new SimpleDateFormat(PATTERN); 
@@ -36,10 +41,13 @@ public class TimestampConverter extends AbstractConverter {
 			DateFormat dfHourFallback = new SimpleDateFormat(PATTERN_HOUR_FALLBACK); 
 			try {
 				date = new Timestamp( dfHourFallback.parse(value).getTime() );
+				System.out.println("value==="+value+"=======1111111111111111111111111============"+date);
 			} catch (ParseException e1) {
+				System.out.println("==========222222222222222222222=========");
 				logger.warn("invalid date format: " + value);
 				try {
-					date = new Timestamp(df.parse(value).getTime());				
+					date = new Timestamp(df.parse(value).getTime());		
+					System.out.println("============333333333333333333=======");
 				} catch (ParseException e2) {
 					logger.warn("invalid date format: " + value);
 					try{

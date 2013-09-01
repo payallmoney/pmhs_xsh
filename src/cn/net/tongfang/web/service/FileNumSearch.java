@@ -67,6 +67,7 @@ public class FileNumSearch extends HibernateDaoSupport{
 		}else{
 			otherCond = mcodes[0];
 		}
+		System.out.println("========otherCond==========="+otherCond);
     	if(otherparamtype != null){
     		if(otherparamtype.equals(OtherParamType_Woman)){//孕产妇随访查询
     			otherTables = " ,HealthFileMaternal hm ";

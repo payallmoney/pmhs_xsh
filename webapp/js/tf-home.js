@@ -465,7 +465,7 @@ Ext.tf.SimplePanel = Ext.extend(Ext.Panel, {
 	      xtype: 'iframepanel',
 	      defaultSrc : targetUrl,
 	      width: win.getInnerWidth(),
-	      height: win.getInnerHeight() + 10,
+	      height: win.getInnerHeight(),
 	      title : '',
 	      loadMask : true,
 	      autoScroll: true,

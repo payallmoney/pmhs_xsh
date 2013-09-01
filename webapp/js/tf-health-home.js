@@ -85,17 +85,21 @@ Ext.tf.HealthPanelHome = Ext.extend(Ext.Panel, {
     var win = new Ext.Window({
       modal: true,
       title: '录入记录',
-      border: false
+      border: false,
+      bodyStyle :'top:0px;bottom:0px;'
     });
     
     win.show();
     win.maximize();
     
+    console.log(win.getInnerHeight())
+    console.log(win)
     win.add( {
       xtype: 'iframepanel',
       defaultSrc : targetUrl,
       width: win.getInnerWidth(),
       height: win.getInnerHeight() - 10,
+      style:'top:0px;bottom:10px',
       title : '',
       loadMask : true,
       autoScroll: true,

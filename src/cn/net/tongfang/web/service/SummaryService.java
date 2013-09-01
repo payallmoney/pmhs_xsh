@@ -83,6 +83,8 @@ public class SummaryService extends HibernateDaoSupport {
 		query.setParameter(0, str_where);
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, user.getUsername());
+		
+		System.out.println("=================== exec HIVAndSyphilisStatistic_SP '"+str_where.replaceAll("aa", "'")+"','"+qry.getStatisticType()+"','"+user.getUsername()+"'");
 		List list = query.list();
 		PagingResult result = new PagingResult(list.size(), list);
 		return result;

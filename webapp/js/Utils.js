@@ -16,6 +16,7 @@ Utils.prototype.openwindow = function(targetUrl,param,gridId,titles) {
 	win.add({
 		xtype : 'iframepanel',
 		defaultSrc : targetUrl,
+		height: win.getInnerHeight() ,
 		title : '',
 		loadMask : true,
 		autoScroll : false,

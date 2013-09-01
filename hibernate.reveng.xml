@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+<type-mapping>
+	<sql-type jdbc-type="DOUBLE"
+		hibernate-type="java.math.BigDecimal">
+	</sql-type>
+	<sql-type jdbc-type="float" hibernate-type="java.math.BigDecimal"></sql-type>
+</type-mapping>
+<table-filter match-name="*"/>
+</hibernate-reverse-engineering>

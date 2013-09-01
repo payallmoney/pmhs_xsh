@@ -145,26 +145,56 @@ public class SmsUtil extends HibernateDaoSupport implements ApplicationListener 
 		Date today = new Date();
 		today = DateUtils.truncate(today, Calendar.DAY_OF_MONTH);
 		for (CodTelSendRule rule : rules) {
-			String sql = 
-					" insert into Sms_SendLog "
-							+ "select  DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
-							+ rule.getName()
-							+ "', a.fileno,b.tel,'"
-							+ rule.getMsg()
-							+ "',"
-							+ IS_SENDED_FALSE
-							+ " , null,null,'"+rule.getTablename()+"',a."+rule.getTableidname()
-							+ ",null,'0',newid() from "
-							+ rule.getTablename()
-							+ " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0' and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
-							+ rule.getName()
-							+ "'  ) and DATEADD(D, 0, DATEDIFF(D, 0, a."
-							+ rule.getCol() + ")) = dateadd(day,"
-							+ rule.getDays()
-							+ ", DATEADD(D, 0, DATEDIFF(D, 0, GETDATE()))) ";
-			getSession()
-					.createSQLQuery(sql)
-					.executeUpdate();
+			String tableidnamestr = "";
+			if("number".equals(rule.getIdtype())){
+				tableidnamestr = " convert(varchar,a."+rule.getTableidname()+")";
+			}else{
+				tableidnamestr = "a."+rule.getTableidname();
+			}
+			String msg = rule.getMsg();
+			msg = msg.replaceAll("\r\n", "");
+			msg = msg.replaceAll("\n", "");
+			if("0".equals(rule.getType())){
+				String sql = 
+						" insert into Sms_SendLog "
+								+ "select  DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+								+ rule.getName()
+								+ "', a.fileno,b.tel,'"
+								+ msg
+								+ "',"
+								+ IS_SENDED_FALSE
+								+ " , null,null,'"+rule.getTablename()+"',"+tableidnamestr
+								+ ",null,'0',newid() from "
+								+ rule.getTablename()
+								+ " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0' and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+								+ rule.getName()
+								+ "'  ) and DATEADD(D, 0, DATEDIFF(D, 0, a."
+								+ rule.getCol() + ")) = dateadd(day,"
+								+ rule.getDays()
+								+ ", DATEADD(D, 0, DATEDIFF(D, 0, GETDATE()))) ";
+				getSession()
+						.createSQLQuery(sql)
+						.executeUpdate();
+			}else{
+				String sql = 
+						" insert into Sms_SendLog "
+								+ "select  DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) ,'"
+								+ rule.getName()
+								+ "', '"+rule.getTablename()+"',b."+rule.getTelcol()+",'"
+								+ msg
+								+ "',"
+								+ IS_SENDED_FALSE
+								+ " , null,null,'"+rule.getTablename()+"',"+tableidnamestr
+								+ ",null,'0',newid() from "
+								+ rule.getTablename()
+								+ " a , "+rule.getTeltable()+" b where "+rule.getTeljoinstr()
+								+ " and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = '"+rule.getTablename()+"' and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
+								+ rule.getName()
+								+ "'  ) and "+rule.getRulestr();
+				getSession()
+						.createSQLQuery(sql)
+						.executeUpdate();
+			}
 		}
 		if(rules.size()>0)
 			getSession().flush();

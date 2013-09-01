@@ -99,6 +99,8 @@ public class CommonExamService extends HibernateDaoSupport  {
 		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf ";
 		String select = "";
 		String where = " where info.fileno =hf.fileno and info.fileno = pf.fileno  and hf.DistrictNumber like '"+ userdistrict+"'%";
+		String orderby = " order by info.inputdate desc ";
+		System.out.println(orderby);
 		//params.getBase();
 		Field[] fields= ExamBaseinfo.class.getDeclaredFields();
 		List sqlparams = new ArrayList();
@@ -177,9 +179,9 @@ public class CommonExamService extends HibernateDaoSupport  {
 				}
 			}
 			select = "select "+select.substring(1);
-			sql = select +froms+ where;
+			sql = select +froms+ where +orderby;
 		}else{
-			sql += froms+where;
+			sql += froms+where +orderby;
 		}
 		//计算总数,页数
 		countsql += froms+where;
@@ -320,6 +322,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf  , exam_items it, healthfile hf1 , PersonalInfo pf1 ";
 		String where = " where info.fileno =hf.fileno and info.fileno = pf.fileno and info.id = it.id and it.item='男方_编号' and it.value = hf1.fileno  and it.value = pf1.fileno " +
 				" and (hf.DistrictNumber like '"+userdistrict+"%' or hf1.DistrictNumber like '"+userdistrict+"%')";
+		String orderby = " order by info.inputdate desc ";
 		String select = "";
 		//params.getBase();
 		Field[] fields= ExamBaseinfo.class.getDeclaredFields();
@@ -416,9 +419,9 @@ public class CommonExamService extends HibernateDaoSupport  {
 				colnum++;
 			}
 			select = "select "+select.substring(1);
-			sql = select +froms+ where;
+			sql = select +froms+ where +orderby;
 		}else{
-			sql += froms+where;
+			sql += froms+where +orderby;
 		}
 		//计算总数,页数
 		countsql += froms+where;

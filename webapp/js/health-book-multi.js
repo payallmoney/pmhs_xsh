@@ -17,6 +17,7 @@
 		var targetUrl = window.location.pathname + '?id=' + id + '&extend_children_woman_param=0';
 		this.panel.add({
 			xtype : 'iframepanel',
+			height : document.documentElement.clientHeight,
 			defaultSrc : targetUrl,
 			title : '',
 			loadMask : true,

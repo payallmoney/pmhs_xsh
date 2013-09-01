@@ -298,6 +298,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				"from District where id=?", disId);
 		return list;
 	}
+	
 	private List<District> getUserDistrictIgnore() {
 //		Integer orgId = SecurityManager.currentOperator().getOrgId();
 		String disId = SecurityManager.currentOperator().getDistrictId();

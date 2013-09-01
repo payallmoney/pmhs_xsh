@@ -19,6 +19,12 @@ public class CodTelSendRule implements java.io.Serializable {
 	private String msg;
 	private String wherestr;
 	private String tableidname;
+	private String type;
+	private String rulestr;
+	private String teltable;
+	private String teljoinstr;
+	private String telcol;
+	private String idtype;
 
 	// Constructors
 
@@ -41,7 +47,8 @@ public class CodTelSendRule implements java.io.Serializable {
 	/** full constructor */
 	public CodTelSendRule(String id, String name, String tablename, String col,
 			Integer days, Timestamp optdate, String msg, String wherestr,
-			String tableidname) {
+			String tableidname, String type, String rulestr, String teltable,
+			String teljoinstr, String telcol, String idtype) {
 		this.id = id;
 		this.name = name;
 		this.tablename = tablename;
@@ -51,6 +58,12 @@ public class CodTelSendRule implements java.io.Serializable {
 		this.msg = msg;
 		this.wherestr = wherestr;
 		this.tableidname = tableidname;
+		this.type = type;
+		this.rulestr = rulestr;
+		this.teltable = teltable;
+		this.teljoinstr = teljoinstr;
+		this.telcol = telcol;
+		this.idtype = idtype;
 	}
 
 	// Property accessors
@@ -125,6 +138,54 @@ public class CodTelSendRule implements java.io.Serializable {
 
 	public void setTableidname(String tableidname) {
 		this.tableidname = tableidname;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getRulestr() {
+		return this.rulestr;
+	}
+
+	public void setRulestr(String rulestr) {
+		this.rulestr = rulestr;
+	}
+
+	public String getTeltable() {
+		return this.teltable;
+	}
+
+	public void setTeltable(String teltable) {
+		this.teltable = teltable;
+	}
+
+	public String getTeljoinstr() {
+		return this.teljoinstr;
+	}
+
+	public void setTeljoinstr(String teljoinstr) {
+		this.teljoinstr = teljoinstr;
+	}
+
+	public String getTelcol() {
+		return this.telcol;
+	}
+
+	public void setTelcol(String telcol) {
+		this.telcol = telcol;
+	}
+
+	public String getIdtype() {
+		return this.idtype;
+	}
+
+	public void setIdtype(String idtype) {
+		this.idtype = idtype;
 	}
 
 }

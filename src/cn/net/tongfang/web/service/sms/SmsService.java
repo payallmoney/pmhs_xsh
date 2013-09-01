@@ -1,6 +1,7 @@
 package cn.net.tongfang.web.service.sms;
 
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.DatabaseMetaData;
@@ -25,6 +26,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.mapping.Column;
+import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.StringUtils;
 
@@ -102,6 +105,31 @@ public class SmsService extends HibernateDaoSupport {
 		return new PagingResult<CodTelUpdateCol>(totalSize, list);
 	}
 	
+	public static String camelcasify(String in) {
+		StringBuilder sb = new StringBuilder();
+		boolean capitalizeNext = false;
+		int count = 0 ;
+		for (char c : in.toCharArray()) {
+			if(count==0){
+				sb.append(Character.toUpperCase(c));
+//				sb.append(c);
+				capitalizeNext = false;
+			}else{
+				if (c == '_') {
+					capitalizeNext = true;
+				} else {
+					if (capitalizeNext) {
+						sb.append(Character.toUpperCase(c));
+						capitalizeNext = false;
+					} else {
+						sb.append(c);
+					}
+				}
+			}
+			count++;
+		}
+		return sb.toString();
+	}
 	//增加保存提取规则
 	public String editRule(CodTelUpdateCol bo) throws Exception {
 		CodTelUpdateCol module = bo;
@@ -122,7 +150,6 @@ public class SmsService extends HibernateDaoSupport {
 					throw new Exception("表" + module.getTablename() + "中字段"
 							+ module.getCol() + "不存在!");
 				}
-				
 			}
 			//取保存前的列表
 			Map<String,List> old_tableMap = new HashMap();
@@ -304,15 +331,58 @@ public class SmsService extends HibernateDaoSupport {
 		DatabaseMetaData metaData = getHibernateTemplate()
 				.getSessionFactory().getCurrentSession().connection()
 				.getMetaData();
-		ResultSet rs = metaData.getTables(null, "dbo",
+		System.out.println("==========camelcasify(module.getTablename())========="+camelcasify(module.getTablename()));
+		String tablename = camelcasify(module.getTablename());
+	    ResultSet rs = metaData.getTables(null, "dbo",
 				module.getTablename(), new String[] { "TABLE" });
+		 
 		if (!rs.next()) {
 			throw new Exception("表名为" + module.getTablename() + "的表不存在!");
 		} else {
-			rs = metaData.getColumns(null, "dbo", module.getTablename(),
-					"fileNo");
-			if (!rs.next()) {
-				throw new Exception("表" + module.getTablename() + "中没有fileNo字段,该表不能生成发送规则!");
+			if("0".equals(module.getType())){
+				rs = metaData.getColumns(null, "dbo", module.getTablename(),
+						"fileNo");
+				if (!rs.next()) {
+					throw new Exception("表" + module.getTablename() + "中没有fileNo字段,该表不能生成发送规则!");
+				}else{
+					rs = metaData.getColumns(null, "dbo", module.getTablename(),
+							module.getCol());
+					if (!rs.next()) {
+						throw new Exception("表" + module.getTablename() + "中字段"
+								+ module.getCol() + "不存在!");
+					}else{
+						if(!"date".equals(rs.getString(6)) && !"datetime".equals(rs.getString(6))){
+							throw new Exception("表" + module.getTablename() + "中字段"
+									+ module.getCol() + "不是时间类型!");
+						}
+					}
+					rs = metaData.getColumns(null, "dbo", module.getTablename(),
+							module.getTableidname());
+					if (!rs.next()) {
+						throw new Exception("表" + module.getTablename() + "中字段"
+								+ module.getTableidname() + "不存在!");
+					}
+					//检查模板内容
+					Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+tablename);
+					Map<String,Boolean> propertys = getPropertysFromTemplate(module.getMsg());
+					for(String property : propertys.keySet()){
+						Field field = null;
+						try{
+							field = objClass.getDeclaredField(property);
+						}catch(Exception ex){
+							ex.printStackTrace();
+							throw new Exception("表" + module.getTablename() + "中属性"
+									+ property + "不存在!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+						}
+						if(field!=null){
+							boolean isDate = propertys.get(property);
+							if(isDate && !java.util.Date.class.isAssignableFrom(field.getType())){
+									throw new Exception("表" + module.getTablename() + "中属性"
+											+ property + "不是时间类型,不能使用$(date+10d)的模板格式!<br>(注:属性名和表中的列名有所不同,第一位应小写,下划线\"_\"应去掉,下划线\"_\"后面的字母应大写)");
+							}
+						}
+					}
+				}
 			}else{
 				rs = metaData.getColumns(null, "dbo", module.getTablename(),
 						module.getCol());
@@ -332,7 +402,7 @@ public class SmsService extends HibernateDaoSupport {
 							+ module.getTableidname() + "不存在!");
 				}
 				//检查模板内容
-				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+module.getTablename());
+				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+tablename);
 				Map<String,Boolean> propertys = getPropertysFromTemplate(module.getMsg());
 				for(String property : propertys.keySet()){
 					Field field = null;
@@ -423,6 +493,7 @@ public class SmsService extends HibernateDaoSupport {
 	//增加保存发送人群规则
 	public String editSendTarget(SmsSendTarget bo) throws Exception {
 		SmsSendTarget module = bo;
+		String tablename = this.camelcasify(module.getTablename());
 		if (module.getId() != null && module.getId().isEmpty())
 			module.setId(null);
 		DatabaseMetaData metaData = getHibernateTemplate()
@@ -445,7 +516,7 @@ public class SmsService extends HibernateDaoSupport {
 							+ module.getTableidname() + "不存在!");
 				}
 				//检查模板内容
-				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+module.getTablename());
+				Class objClass = Class.forName("cn.net.tongfang.framework.security.vo."+tablename);
 				Map<String,Boolean> propertys = getPropertysFromTemplate(module.getMsg());
 				for(String property : propertys.keySet()){
 					Field field = null;
@@ -917,7 +988,18 @@ public class SmsService extends HibernateDaoSupport {
 					for(SmsSendLog log : sendinglist){
 						if(smsUtil.isStarted()){
 							int result = 0;
-							Object obj = this.getHibernateTemplate().get(Class.forName("cn.net.tongfang.framework.security.vo."+log.getTablename()), log.getTableidvalue());
+							Serializable id = null;
+							String tablename = camelcasify(log.getTablename());
+							Type idtype =  this.getSessionFactory().getClassMetadata(Class.forName("cn.net.tongfang.framework.security.vo."+tablename))
+									.getIdentifierType();
+							System.out.println("==============idtype.getClass().getName()====="+idtype.getClass().getName());
+							//判断如果是数字型，则转换
+							if("org.hibernate.type.LongType".equals(idtype.getClass().getName()) ){
+								id = Long.parseLong(log.getTableidvalue());
+							}else{
+								id = log.getTableidvalue();
+							}
+							Object obj = this.getHibernateTemplate().get(Class.forName("cn.net.tongfang.framework.security.vo."+tablename), id);
 							if(obj==null){
 								exceptStr =exceptStr+"表"+log.getTablename()+"中主键为"+log.getTableidvalue()+"的数据不存在!\r\n";
 							}
