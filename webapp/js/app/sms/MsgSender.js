@@ -327,6 +327,24 @@ Ext.sms.MsgSender = new Ext.Panel({
                                     }, {
                                         name : 'msg',
                                         mapping : 'msg'
+                                    },{
+                                        name : 'type',
+                                        mapping : 'type'
+                                    },{
+                                        name : 'teltable',
+                                        mapping : 'teltable'
+                                    },{
+                                        name : 'teljoinstr',
+                                        mapping : 'teljoinstr'
+                                    },{
+                                        name : 'telcol',
+                                        mapping : 'telcol'
+                                    },{
+                                        name : 'idtype',
+                                        mapping : 'idtype'
+                                    },{
+                                        name : 'rulestr',
+                                        mapping : 'rulestr'
                                     } ],
                                 
                                     // Grid的列
