@@ -29,6 +29,7 @@ public class Test {
 		// System.out.println("==================="+Integer.toHexString(s_enc('1',0x61)));
 		// testB_2();
 		// test2();
+		
 		// test3();
 		// String ttt = "''aa''bb''cc".replaceAll("mmm", "");
 		// System.out.println(ttt);
