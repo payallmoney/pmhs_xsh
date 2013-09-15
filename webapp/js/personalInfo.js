@@ -301,6 +301,14 @@
       },
       required: [true, "出生日期"]
     }, {
+      id: "nation",
+      xtype: "input",
+      setting: {
+        maxlen: 8,
+        size: 2
+      },
+      required: [true, "国籍"]
+    }, {
       id: "workUnit",
       xtype: "input",
       setting: {

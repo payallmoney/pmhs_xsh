@@ -85,6 +85,10 @@
 		<property generated="never" lazy="false" name="status" type="int">
 			<column name="Status" />
 		</property>
+		<property generated="never" lazy="false" name="nation"
+			type="string">
+			<column name="Nation" />
+		</property>
 		<one-to-one name="personalInfo" property-ref="fileNo"
 			fetch="join"></one-to-one>
 		<one-to-one name="vaccineImmune" property-ref="fileNo"

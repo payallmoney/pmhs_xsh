@@ -33,6 +33,7 @@ public class HealthFile implements java.io.Serializable {
 	private VaccineImmune vaccineImmune;
 	private String paperFileNo;
 	private Integer status;
+	private String nation;
 	public HealthFile() {
 	}
 
@@ -266,6 +267,14 @@ public class HealthFile implements java.io.Serializable {
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	
+	public String getNation() {
+		return nation;
+	}
+
+	public void setNation(String nation) {
+		this.nation = nation;
 	}
 
 }

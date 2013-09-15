@@ -44,6 +44,7 @@ public class PersonalInfoFBO extends PersonalInfo{
 	private Timestamp inputDate;	
 	private String barCode;
 	private String paperFileNo;
+	private String nation;
 	private Integer status;
 	public PersonalInfoFBO(){
 		inputDate = new java.sql.Timestamp(System.currentTimeMillis());
@@ -246,4 +247,11 @@ public class PersonalInfoFBO extends PersonalInfo{
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
+	public String getNation() {
+		return nation;
+	}
+	public void setNation(String nation) {
+		this.nation = nation;
+	}
+	
 }

@@ -325,10 +325,10 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		     					[ 'a.inputDate', '录入日期' ], [ 'a.lastModifyDate', '修改日期' ],
 		    					[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'b.linkman', '联系人' ],
-		    					[ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] ];
+		    					[ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] , [ 'a.nation', '国籍' ]];
 		if(this.isAlreadyMaternal){
 			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
-		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] ];
+		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], [ 'a.nation', '国籍' ] ];
 		}
 		var store = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
