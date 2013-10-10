@@ -414,7 +414,7 @@
 	<bean id="systemInformationUtils" class="cn.net.tongfang.framework.util.SystemInformationUtils">
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
-		<dwr:remote javascript="systemInformationUtils" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+		<dwr:remote javascript="systemInformationUtils" >
 	</bean>
 
 	<bean id="BirthCertificateMsgService" class=" cn.net.tongfang.web.service.BirthCertificateMsgService">

@@ -57,7 +57,7 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 		
 		districtMap.clear();
 		districtDetailMap.clear();
-		List<District> districtlist = getHibernateTemplate().find("from District where id = '530000' or id ='530500' or id like '530521%'");
+		List<District> districtlist = getHibernateTemplate().find("from District where id = '530000' or id like '5301%'");
 		for(District cfg : districtlist){
 			String id = cfg.getId();
 			if(id.length()==6){
@@ -68,8 +68,8 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 			if(!districtMap.containsKey(id)){
 				districtMap.put(id, getDistrictName(id,cfg.getName()));
 			}
-			if(!"530000".equals(cfg.getId()) && !"530500".equals(cfg.getId())){
-				if(cfg.getLevel() == 3){
+			if(!"530000".equals(cfg.getId())){
+				if(cfg.getLevel() == 2){
 					if(!districtDetailMap.containsKey("root"+cfg.getId())){
 						List rootlist = new ArrayList();
 						rootlist.add(cfg);
@@ -78,34 +78,34 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 						List rootlist = districtDetailMap.get("root"+cfg.getId());
 						rootlist.add(cfg);
 					}
+				}else if(cfg.getLevel() == 3){
+					if(!districtDetailMap.containsKey("root"+cfg.getId())){
+						List rootlist = new ArrayList();
+						rootlist.add(cfg);
+						districtDetailMap.put("root"+cfg.getId(), rootlist);
+					}
 				}else if(cfg.getLevel() == 4 ){
 					if(!districtDetailMap.containsKey("root"+cfg.getId())){
 						List rootlist = new ArrayList();
 						rootlist.add(cfg);
 						districtDetailMap.put("root"+cfg.getId(), rootlist);
 					}
-					if(!districtDetailMap.containsKey(cfg.getParentId())){
-						List parentlist = new ArrayList();
-						parentlist.add(cfg);
-						districtDetailMap.put(cfg.getParentId(), parentlist);
-					}else{
-						List parentlist = (List)districtDetailMap.get(cfg.getParentId());
-						parentlist.add(cfg);
-					}
+
 				}else if(cfg.getLevel() == 5 ){
 					if(!districtDetailMap.containsKey("root"+cfg.getId())){
 						List rootlist = new ArrayList();
 						rootlist.add(cfg);
 						districtDetailMap.put("root"+cfg.getId(), rootlist);
 					}
-					if(!districtDetailMap.containsKey(cfg.getParentId())){
-						List parentlist = new ArrayList();
-						parentlist.add(cfg);
-						districtDetailMap.put(cfg.getParentId(), parentlist);
-					}else{
-						List parentlist = (List)districtDetailMap.get(cfg.getParentId());
-						parentlist.add(cfg);
-					}
+				}
+				
+				if(!districtDetailMap.containsKey(cfg.getParentId())){
+					List parentlist = new ArrayList();
+					parentlist.add(cfg);
+					districtDetailMap.put(cfg.getParentId(), parentlist);
+				}else{
+					List parentlist = (List)districtDetailMap.get(cfg.getParentId());
+					parentlist.add(cfg);
 				}
 			}
 		}

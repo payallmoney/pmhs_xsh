@@ -27,7 +27,7 @@
                  	if(d[prop] == null)
                  		d[prop] = '';
                  	else if(prop == 'idnumber' && d[prop] == '')
-                 		d[prop] = '530521'
+                 		d[prop] = '5301'
                      c.val(d[prop]);
                  }
              }//if

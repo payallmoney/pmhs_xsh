@@ -63,7 +63,7 @@ public class FileNoGen extends HibernateDaoSupport{
 		getHibernateTemplate().saveOrUpdate(id);
 		getHibernateTemplate().flush();
 		String strKey = key + "";
-		int spaces = 6 - strKey.length();
+		int spaces = 8 - strKey.length();
 		
 		if (spaces < 0) {
 			String msg = "流水号超长！！！！！";
@@ -73,6 +73,6 @@ public class FileNoGen extends HibernateDaoSupport{
 		for(int i = 0; i < spaces; i++) {
 			strKey = "0" + strKey;
 		}
-		return "530521"+year + strKey;
+		return "5301"+year + strKey;
 	}
 }

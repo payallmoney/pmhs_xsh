@@ -733,7 +733,7 @@ App.mainframe.MainPanel = function() {
   plugins : new Ext.ux.TabCloseMenu(),
   items : [ {
     contentEl : 'center2',
-    title : '施甸县国家公共卫生服务管理系统',
+    title : '昆明市公共卫生服务管理系统',
     closable : false,
     autoScroll : true,
     items : [navigation]
@@ -1146,7 +1146,7 @@ Ext.onReady(function() {
 		    	region : 'south',
 		    	height : 30,
 		    	frame : true,
-		    	html : '<div style="width:100%;text-align: center;"><span>昆明恒辰科技有限公司</span><span style="margin-left:10px;">版权所有©2010-2012</span></div>'
+		    	html : '<div style="width:100%;text-align: center;"><span>昆明市卫生信息中心</span><span style="margin-left:10px;">版权所有©2013-2015</span></div>'
 		    } ]
 		  });
 	  navigateContent($lastHtmlContent,$lastTemplateId,$lastRootCatName,$lastCatName);
@@ -1655,35 +1655,38 @@ function getTreeData(orgid,name){
 	var ret = {};
 	var nodes = [];
 	var nodemap = {};
+//	console.log('orgid',orgid);
 	CommonExamService.getDistrict(orgid,{callback:function(data){
-		for( var i=0 ; i< data.length;i++){
-			var treenode = {
-				"id": data[i].id,   
-				"text": data[i].name,   
-				'attributes':data[i],
-				'leaf':data[i].isDetail,
-				'data':data[i],
-				'cls': data[i].isDetail?'file':"folder"
-			};
-			if(!data[i].isDetail){
-				treenode.state = 'closed';
-				var subret = getTreeData(data[i].id,data[i].name);
-				for(var nod in subret.nodemap){
-					nodemap[nod] = subret.nodemap[nod];
-				}
-				nodes = nodes.concat(subret.nodes);
-				treenode.children = subret.treenodes;
-				treenode.attributes
-			}else{
-				var node = {
-					"value": data[i].id,   
-					"name": data[i].name,   
-					"parent":name
+		if(data){
+			for( var i=0 ; i< data.length;i++){
+				var treenode = {
+					"id": data[i].id,   
+					"text": data[i].name,   
+					'attributes':data[i],
+					'leaf':data[i].isDetail,
+					'data':data[i],
+					'cls': data[i].isDetail?'file':"folder"
 				};
-				nodemap[data[i].id] = node;
-				nodes[nodes.length]=node;
+				if(!data[i].isDetail){
+					treenode.state = 'closed';
+					var subret = getTreeData(data[i].id,data[i].name);
+					for(var nod in subret.nodemap){
+						nodemap[nod] = subret.nodemap[nod];
+					}
+					nodes = nodes.concat(subret.nodes);
+					treenode.children = subret.treenodes;
+					treenode.attributes
+				}else{
+					var node = {
+						"value": data[i].id,   
+						"name": data[i].name,   
+						"parent":name
+					};
+					nodemap[data[i].id] = node;
+					nodes[nodes.length]=node;
+				}
+				treenodes[treenodes.length]=treenode;
 			}
-			treenodes[treenodes.length]=treenode;
 		}
 	},async:false});
 	ret.nodes = nodes;

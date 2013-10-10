@@ -619,7 +619,7 @@ public class SmsService extends HibernateDaoSupport {
 	
 	//返回下拉列表数据
 	public List getOtherSendTargetOption() throws Exception {
-		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '530521%'");
+		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
 		Query query = getSession().createQuery(hql.toString());
 		List<List<String>> list =  query.list();
 		for(List<String> item : list){
@@ -637,7 +637,7 @@ public class SmsService extends HibernateDaoSupport {
 	}
 	
 	public List getDistrictOption() throws Exception {
-		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '530521%'");
+		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
 		Query query = getSession().createQuery(hql.toString());
 		List<List<String>> list =  query.list();
 		for(List<String> item : list){
