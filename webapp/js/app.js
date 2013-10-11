@@ -912,7 +912,6 @@ var fieldsArray = {};
                     });
                 }
             }
-
             showHelp();
             focusFirst();
         } //function go
