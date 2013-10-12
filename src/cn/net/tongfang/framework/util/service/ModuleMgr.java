@@ -624,9 +624,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 			PagingParam pp) {
 		StringBuilder where = new StringBuilder();
 		List params = new ArrayList();
-
+		System.out.println("==========qryCond========="+qryCond);
+		System.out.println("=============qryCond.getName()======"+qryCond.getName());
 		String name = qryCond.getName();
 		if (StringUtils.hasText(name)) {
+			System.out.println("==========name========="+name);
 			params.add(name);
 			where.append(" and substring(name,1," + name.trim().length() + ") = ?");
 		}
@@ -636,6 +638,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		StringBuilder hql = new StringBuilder("from SamTaxorgcode").append(
 				where).append(" order by id");
+		System.out.println("==================="+hql);
 		log.debug("hql: " + hql.toString());
 
 		return query(hql, params, pp);
@@ -917,6 +920,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 	private void buildGeneralWhereHealthFile(HealthFileQry qryCond, List params,
 			StringBuilder where,Integer status) throws Exception{
 		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId);
 			where.append(" and substring(a.districtNumber,1," + districtId.trim().length() + ") = ? ");
@@ -3367,12 +3373,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp)throws Exception{
 		StringBuilder where = new StringBuilder();
 		genVaccineImmuneWhere(qryCond,where);
+		String district = qryCond.getDistrict();
+		while(district.endsWith("00")){
+			district = district.substring(0,district.length()-2);
+		}
 		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
-				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
+				district.length() + ") = '" + district + "' " + where.toString();
 		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where Substring(a.districtNumber,1," + 
-				qryCond.getDistrict().length() + ") = '" + qryCond.getDistrict() + "' " + where.toString();
+				district.length() + ") = '" + district + "' " + where.toString();
 		SQLQuery q = getSession().createSQLQuery(countsql);
 		int totalSize = ((Integer) q.uniqueResult()).intValue();
 //		int totalSize = 100;

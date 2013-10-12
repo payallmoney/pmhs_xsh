@@ -216,8 +216,35 @@
 
   window.services = {
     get: PersonalInfoService.get,
-    save: PersonalInfoService.save
+    save: PersonalInfoService.save,
+    afterinit : function(flag){
+    	if(flag){
+    		//加载页面时
+    	}else{
+    		//新增页面时
+    	}
+    }
   };
+  function checkidnumber( id ){
+//	  FileNumSearch.getFileByIdNumber($("#"+id+" input").val(),function(data){
+//		  console.log(data);
+//	  });
+	  var ret = null;
+//	  console.log('$("#"+id+" input").val()====='+$("#"+id+" input").val());
+	  FileNumSearch.getFileByIdNumber($("#fileNo span").html(),$("#"+id+" input").val(),		{ 
+	        async: false,
+	        callback: function(data){
+	        	console.log(data);
+	        	if(data.length>0){
+	        		ret = "不允许录入重复的身份证号!身份证与以下档案重复:"
+	        		for(var i = 0 ; i <data.length;i++){
+	        			ret += "<br>"+denc(data[i][0])+denc(data[i][1]);
+	        		}
+	        	}
+	        }
+	  });
+	  return ret;
+  }
 
   window.cfg = [
     {
@@ -228,7 +255,79 @@
         size: 18,
         asLabel: true
       }
-    }, {
+    },{
+        id: "historyselect",
+        xtype: "historycombo",
+        setting : {
+    		ds : {
+    			search : FileNumSearch.getHistoryList,
+    			get : FileNumSearch.getHistoryItem
+    		},
+    		local : false,
+    		cssstyle :"height:100%;width:200px;",
+    		model : {
+    			id : 0,
+    			code : 0,
+    			display : 1
+    		},
+    		maxlen:{
+    			"0":2,
+    			"1":14
+    		},
+    		showDisplay : true,
+    		roWhenSet : true,
+    		writeback : [ {
+    			id : "name",
+    			col : 1,
+    			force:true
+    		} , {
+    			id : "sex",
+    			col : 2,
+    			force:true
+    		}  , {
+    			id : "idnumber",
+    			col : 3,
+    			force:true
+    		} , {
+    			id : "birthday",
+    			col : 4,
+    			force:true
+    		},{
+    			id : "address",
+    			col : 6,
+    			force:true
+    		},{
+    			id : "residenceAddress",
+    			col : 7,
+    			force:true
+    		},{
+    			id : "tel0",
+    			col : 8,
+    			force:true
+    		},{
+    			id : "buildUnit",
+    			col : 11,
+    			force:true
+    		},{
+    			id : "buildPerson",
+    			col : 12,
+    			force:true
+    		},{
+    			id : "doctor",
+    			col : 13,
+    			force:true
+    		},{
+    			id : "buildDate",
+    			col : 14,
+    			force:true
+    		}
+    		],
+    		mCodePrefixCtrlId : 'districtNumber',
+    		//select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age,"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq"
+    		displayCols : [ 1, 2, 3, 4,11,12 ],
+    		displayColNames : [ "姓名", "性别", "身份证号", "生日",'年龄','地址','户籍地址','电话','乡镇','村委会','建档单位','建档人','责任医师','建档日期' ]
+    	}
+     }, {
       id: "paperFileNo",
       xtype: "input",
       setting: {
@@ -284,11 +383,12 @@
       id: "idnumber",
       xtype: "input",
       setting: {
-        defaultVal: "533022",
+        defaultVal: "",
         maxlen: 18,
         size: 18,
         calculateBirthday: true,
-        calculateBirthdayByIDNumber: ["birthday"]
+        calculateBirthdayByIDNumber: ["birthday"],
+        checkfunc:checkidnumber
       },
       required: [true, "身份证号"]
     }, {
@@ -305,7 +405,8 @@
       xtype: "input",
       setting: {
         maxlen: 8,
-        size: 2
+        size: 2,
+        defaultVal: "中国"
       },
       required: [true, "国籍"]
     }, {

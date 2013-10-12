@@ -257,6 +257,7 @@ var fieldsArray = {};
         var form_fields = {};
         var fields_array = [];
         var required = [];
+        var checkfuncs = [];
 
         function showMsg(msg){
             $msgBox.html(msg);
@@ -572,6 +573,8 @@ var fieldsArray = {};
             showMsg("构造页面组件中..");
             var shouldLoad = false;
             qo = qryStrParser(window.location.search);
+            console.log(window.location.search)
+            console.log(qo)
             if (!isEmpty(qo)){
                 shouldLoad = false;
                 //detect if we should load data from server -- update mode
@@ -601,6 +604,9 @@ var fieldsArray = {};
                     fields_array.push({id:id, ctrl:ctrl});
                     if (v.required && v.required[0]) {
                         required.push({id:id,msg:v.required[1]});
+                    }
+                    if(dSetting.checkfunc){
+                    	checkfuncs.push({id:id,checkfunc:dSetting.checkfunc});
                     }
 					if (v.valFormula) {
 						v.valFormula.hook(dSetting.ctx, ctrl);
@@ -721,7 +727,9 @@ var fieldsArray = {};
                         setFormVal(dataLoaded);
                         
                         initButtons();
-                        
+                        if(window.services.afterinit){
+                        	window.services.afterinit(shouldLoad);
+                        }
                     }
                     /**改用admin.js里面设置的统一异常处理, errorHandler : top.errorProcess **/}); 
                 } else {
@@ -733,6 +741,9 @@ var fieldsArray = {};
 //                    if(typeof(saveBeforeObj) != 'undefined' && qo.fileNo != undefined && qo.fileNo != 'undefined'){
 //    					saveBeforeObj.IsAbortionFn(qo.fileNo,'');
 //                    }
+                    if(window.services.afterinit){
+                    	window.services.afterinit(shouldLoad);
+                    }
                 }
 //            }
             
@@ -835,6 +846,25 @@ var fieldsArray = {};
                     showDialog(msg, true);
                     return;
                 }
+                var checks = $.map(checkfuncs, function(v){
+                    var id = v.id;
+                    var msg = v.checkfunc(id);
+                    if (!isEmpty(msg)){
+                    //if ( typeof model[id] == 'undefined' || model[id] == null || model[id] == ''){
+                        return {id:id, msg:msg}; 
+                    }
+                });
+                
+                if (checks.length > 0){
+                    var msg = "";
+                    msg += $.map(checks, function(v){
+                        return "<li>" + v.msg + "</li>";
+                    }).join("");
+                    hideDialog();
+                    showDialog(msg, true);
+                    return;
+                }
+                
 
                 var send = model;
                

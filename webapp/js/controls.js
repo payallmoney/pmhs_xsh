@@ -1154,6 +1154,124 @@ function hideHUD($t, includeError){
                 displayCols : ['id', 'name'],
                 displayColNames : ["编号", "名称"]
         };
+        
+        function HistoryCombo(c,cfg){
+            var attr = "";
+            var changeListener;
+            var setting = $.extend({}, HistoryCombo.defaultCfg, cfg);
+            if (setting.maxlength) {
+                attr += " maxlength=" + setting.maxlength;
+            }
+            if (setting.size) {
+                attr += " size=" + setting.size;
+            }
+            if (setting.width) {
+                attr += 'style="width:' + setting.width + 'px" ';
+            }
+            if (setting.disabled) {
+                attr += " disabled=" + setting.disabled;
+            }
+            if (setting.size) {
+                attr += " size=" + setting.size;
+            }
+            if (setting.cssstyle) {
+                attr += " style=\"" + setting.cssstyle+"\"";
+            }
+            var ele = $('<input class="combo" type="text" '  + attr + '/>');
+            c.empty().append(ele);
+            
+            var url = window.location.href;
+        	$('#historyselect').parent('td').append('<span style="display:none;" id="historyval">1</span>' +
+        			'<span style="margin-left:10px;">' + 
+        			'<font size=2 color="red">人员检索条件：<select id="selecthistory">'+
+        			'<option value="1">身份证号</option>'+
+        			'<option value="0">姓名</option>'+
+    			'</select></font></span>');
+        	$('#selecthistory').change(function(){
+        		var $thisVal = $(this).val();
+        	});
+        	
+            $('#selecthistory').change(function(){
+            	$('#historyval').html($(this).val());
+            });
+            if (setting.local){
+                setting.ds = getData(setting.ds);
+            }
+            var  combo = med.historycombo(ele, setting);
+            function wrap(data){
+                var res =  {};
+                res[setting.mapping.value] = data;
+                return res;
+            }
+
+            function unwrap(data) {
+                return data[setting.mapping.value];
+            }
+
+            return {
+                enable : function(effect){
+                    ele.attr("disabled", false);
+                    if (effect)
+                        ele.addClass("required");
+                },
+                
+                disable : function(effect){
+                    ele.attr("disabled", true);
+                    if (effect)
+                        ele.removeClass("required");
+                },
+
+                valChanged : function(l){
+                             changeListener = l;
+                             combo.changeListener(l);
+                         },
+
+                val : function(v) {
+                    if (arguments.length == 0){
+                        var res = combo.val();
+                        if (setting.mapping){
+                            if (setting.multi) {
+                                return $.map(res, wrap);
+                            } else {
+                                return wrap(res);
+                            }
+                        } else return res;
+                    } else {
+                        var _v;
+                        if (setting.mapping) {
+                            if (setting.multi){
+                                _v= $.map(v, unwrap);
+                            } else {
+                                _v = unwrap(v);
+                            }
+                        }else {
+                            _v = v;
+                        }
+                        combo.val(_v);
+                        ele.val(_v);
+                        ele.hide();
+                    }
+                },
+                reset : function(){
+//                    combo.val([]);
+                    combo.reset();
+                }
+
+            }
+        }
+
+        HistoryCombo.defaultCfg = {
+                multi : false,
+                local : true,
+                model: {
+                  id : 'number',
+                  code : 'number',
+                  display : 'name' 
+                },
+                showDisplay: true,
+                displayCols : ['id', 'name'],
+                displayColNames : ["编号", "名称"]
+        };
 
         function NewList(c, cfg, fieldName){
             var setting = $.extend({},NewList.defaultCfg, cfg);
@@ -1810,6 +1928,7 @@ function hideHUD($t, includeError){
         med.registerCtrl("list", NewList);
         med.registerCtrl("input", Input);
         med.registerCtrl("combo", NewCombo);
+        med.registerCtrl("historycombo", HistoryCombo);
         med.registerCtrl("grid", Grid);
 
         

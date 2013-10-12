@@ -700,7 +700,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 				this.load(true);
 			}.createDelegate(this)
 		}));
-		funcAction.push(advancedF);
+//		funcAction.push(advancedF);
 		return funcAction;
 	},
 

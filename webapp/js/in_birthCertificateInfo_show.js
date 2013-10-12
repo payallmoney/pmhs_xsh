@@ -62,8 +62,8 @@
             id : "linkmanTel",
             xtype : "input",
             setting : {
-            	maxlen : 11,
-                size : 10
+            	maxlen : 12,
+                size : 11
             },
             required : [true, "联系电话"] 
         },

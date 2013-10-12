@@ -3,6 +3,7 @@ package cn.net.tongfang.web.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,8 @@ import jxl.write.biff.RowsExceededException;
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.support.HttpRequestHandlerServlet;
+import org.springframework.web.util.WebUtils;
 
 import com.csvreader.CsvWriter;
 
@@ -161,7 +164,8 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @return
 	 */
 	private String writeExecl(String disNo,List list,String type,String title){
-		return writeCsvFile(disNo,list,type,title);
+		return writeExeclFile(disNo,list,type,title);
+//		return writeCsvFile(disNo,list,type,title);
 	}
 	
 	private String writeExeclFile(String disNo,List list,String type,String title){
@@ -175,15 +179,29 @@ public class DataExportService extends HibernateDaoSupport{
 			WritableSheet sheet = wwb.createSheet("sheet1",1000000);
 			Label labTitle = new Label(0, 0, title);
 			sheet.addCell(labTitle);
-			sheet.mergeCells(0, 0, ((List)list.get(0)).size() - 1, 0);
-			int i = 1;
-			for (Object object : list) {
-				List l = (List)object;
-				for(int j=0;j<l.size();j++){
-					Label lab = new Label(j, i, isNull(String.valueOf(l.get(j))));
-					sheet.addCell(lab);
-				}				
-				i++;
+			if(list.size()>0){
+				if(list.get(0) instanceof Object[]){
+					sheet.mergeCells(0, 0, ((Object[])list.get(0)).length - 1, 0);
+				}else{
+					sheet.mergeCells(0, 0, ((List)list.get(0)).size() - 1, 0);
+				}
+				int i = 1;
+				for (Object object : list) {
+					if(object instanceof Object[]){
+						Object[] l = (Object[])object;
+						for(int j=0;j<l.length;j++){
+							Label lab = new Label(j, i, isNull(String.valueOf(l[j])));
+							sheet.addCell(lab);
+						}	
+					}else{
+						List l = (List)object;
+						for(int j=0;j<l.size();j++){
+							Label lab = new Label(j, i, isNull(String.valueOf(l.get(j))));
+							sheet.addCell(lab);
+						}	
+					}
+					i++;
+				}
 			}
 			wwb.write();
 		} catch (IOException e) {
@@ -209,20 +227,34 @@ public class DataExportService extends HibernateDaoSupport{
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".csv";
 //		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
+		System.out.println("==================="+fileName);
+		System.out.println("========list.size()=========="+list.size());
 		CsvWriter fw = null;
 		try {
-			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName);
+			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName,',',Charset.forName("GBK"));
 			for (Object object : list) {
-				List l = (List)object;
-				for(int j=0;j<l.size();j++){
-					String text = String.valueOf(l.get(j));
-					if(!StringUtils.hasText(text)){
-						text = "";
-					}
-					fw.write(text);
-				}		
+				if(object instanceof Object[]){
+					Object[] l = (Object[])object;
+					for(int j=0;j<l.length;j++){
+						String text = String.valueOf(l[j]);
+						if(!StringUtils.hasText(text)){
+							text = "";
+						}
+						fw.write(text);
+					}	
+				}else{
+					List l = (List)object;
+					for(int j=0;j<l.size();j++){
+						String text = String.valueOf(l.get(j));
+						if(!StringUtils.hasText(text)){
+							text = "";
+						}
+						fw.write(text);
+					}		
+				}
 				fw.endRecord();
 			}
+			
 			fw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -514,7 +546,7 @@ public class DataExportService extends HibernateDaoSupport{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
 		buildExportHealthfileWhere(disNo,filterKey,filterVal,params,where,null);
-		where.append(" and d.org_id = e.taxorgcode ");
+		where.append(" and d.org_id = e.id ");
 		where.append(" and a.inputPersonId = d.loginname ");
 		if (params.size() != 0) {
 			where.replace(0, 4, " where ");
@@ -523,12 +555,12 @@ public class DataExportService extends HibernateDaoSupport{
 		StringBuilder hql = new StringBuilder(
 				"select dbo.denc(a.fileNo) as  fileNo ," +
 				"dbo.denc(a.name) as name," +
-//				"b.sex, " +
-//				"REPLACE( CONVERT( CHAR(10), b.birthday, 102), '.', '-')," +
-//				"b.idnumber," +
-//				"a.address," +
-//				"b.linkman," +
-//				"a.tel " +
+				"b.sex, " +
+				"REPLACE( CONVERT( CHAR(10), b.birthday, 102), '.', '-')," +
+				"dbo.denc(b.idnumber)," +
+				"a.address," +
+				"b.linkman," +
+				"a.tel " +
 				"from HealthFile a, PersonalInfo b,  Sam_Taxempcode d , Organization e")
 				.append(where).append(" order by a.fileNo");
 		System.out.println("=========hql=========="+hql);
@@ -545,6 +577,7 @@ public class DataExportService extends HibernateDaoSupport{
 			query.setParameter(i, params.get(i));
 		}
 		List list =  query.list();
+		list.add(0,headerHealthFile);
 //		for (Object object : list) {
 //			Object[] objs = (Object[]) object;
 ////			HealthFile file = (HealthFile) objs[0];
@@ -798,6 +831,10 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	private void buildExportDataGeneralWhere(String disNo,String filterKey,String filterVal, List params,
 			StringBuilder where,String appendVal) throws Exception{
+		while(disNo.endsWith("00")){
+			disNo = disNo.substring(0,disNo.length()-2);
+		}
+		System.out.println("===========disNo========"+disNo);
 		if(appendVal == null){
 			params.add(disNo + '%');
 			appendVal = " and (a.districtNumber like ? or c.execDistrictNum like ?) ";
@@ -858,6 +895,9 @@ public class DataExportService extends HibernateDaoSupport{
 	
 	private void buildExportHealthfileWhere(String disNo,String filterKey,String filterVal, List params,
 			StringBuilder where,String appendVal)throws Exception {
+		while(disNo.endsWith("00")){
+			disNo = disNo.substring(0,disNo.length()-2);
+		}
 		if(appendVal == null){
 			params.add(disNo + '%');
 			appendVal = " and (a.districtNumber like ?) ";

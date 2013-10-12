@@ -186,17 +186,17 @@ function isOldMan(date) {
 																// alert(l+"==="+v[l]);
 																// alert(typeof(v[l]));
 																if (typeof (v[l]) == "object") {
-																	if (v[l].format
+																	if (v[l] && v[l].format
 																			&& v[l]
 																					.format("Y-m-d")) {
-																		return "<td>"
+																		return "<td nowrap style='padding-right:5px;'>"
 																				+ v[l]
 																						.format("Y-m-d")
 																				+ "</td>";
-																	} else if (v[l].toISOString
+																	} else if (v[l] && v[l].toISOString
 																			&& v[l]
 																					.toISOString()) {
-																		return "<td>"
+																		return "<td nowrap style='padding-right:5px;'>"
 																				+ v[l]
 																						.toISOString()
 																						.substring(
@@ -204,12 +204,16 @@ function isOldMan(date) {
 																								10)
 																				+ "</td>";
 																	} else {
-																		return "<td>"
-																				+ v[l]
-																				+ "</td>";
+																		if(v[l]){
+																			return "<td nowrap style='padding-right:5px;'>"
+																					+ v[l]
+																					+ "</td>";
+																		}else{
+																			return "<td nowrap style='padding-right:5px;'>&nbsp;</td>";
+																		}
 																	}
 																} else {
-																	return "<td>"
+																	return "<td nowrap style='padding-right:5px;'>"
 																			+ v[l]
 																			+ "</td>";
 																}
@@ -457,8 +461,12 @@ function isOldMan(date) {
 					$.each(setting.writeback, function(i, v) {
 						var ctrl = setting.ctx.getCtrl(v.id)
 						if (ctrl && ctrl['reset']) {
-						    if(Ext.isEmpty(ctrl.val()))
-							     ctrl.reset();
+							if(v.force){
+								ctrl.reset();
+							}else{
+							    if(Ext.isEmpty(ctrl.val()))
+								     ctrl.reset();
+							}
 						}
 					});
 				}
@@ -616,8 +624,13 @@ function isOldMan(date) {
 				$.each(setting.writeback, function(i, v) {
 					var ctrl = setting.ctx.getCtrl(v.id);
 					if (ctrl && ctrl['val']) {
-					    if(Ext.isEmpty(ctrl.val()))
-						  ctrl.val(_s[v.col]);
+						if(v.force){
+							ctrl.val(_s[v.col]);
+						}else{
+							if(Ext.isEmpty(ctrl.val()))
+								  ctrl.val(_s[v.col]);
+						}
+					    
 					}
 				});
 			}
@@ -741,8 +754,12 @@ function isOldMan(date) {
     								$.each(setting.writeback, function(i, v) {
     									var ctrl = setting.ctx.getCtrl(v.id);
     									if (ctrl && ctrl['val']) {
-    									    if(Ext.isEmpty(ctrl.val()))
-    										  ctrl.val(_s[v.col]);
+    										if(v.force){
+    											ctrl.val(_s[v.col]);
+    										}else{
+	    									    if(Ext.isEmpty(ctrl.val()))
+	    										  ctrl.val(_s[v.col]);
+    										}
     									}
     								});
 								}
@@ -755,8 +772,486 @@ function isOldMan(date) {
 						$.each(setting.writeback, function(i, _v) {
 							var ctrl = setting.ctx.getCtrl(_v.id);
 							if (ctrl && ctrl['val']) {
+								if(_v.force){
+									ctrl.val(_s[_v.col]);
+								}else{
+									if(Ext.isEmpty(ctrl.val()))
+									    ctrl.val(_s[_v.col]);
+								}
+							    
+							}
+						});
+					}
+				}
+				showValues();
+				if (cl) {
+					cl(null, buildValue());
+				}
+			}
+
+		}
+
+		return {
+			changeListener : function(c) {
+				cl = c;
+			},
+			val : function(v) {
+				if (arguments.length > 0) {
+					// seting val
+					
+					if (setting.roWhenSet && !readonly) {
+						readonly = true;
+						valFunc(v, true);
+					} else if (setting.roWhenSet && readonly) { // todo wired,
+																// what am i
+																// doing here?
+						valFunc(v);
+					} else {
+						valFunc(v);
+					}
+				} else {
+//					readonly = false;
+					return valFunc();
+				}
+			},
+			reset : function() {
+				// if (!setting.roWhenSet){
+//				readonly = false;
+				if (!readonly) {
+					valFunc([]);
+				}
+			},
+			span : local_span
+		}
+	}
+	
+	med.hissearch = function(dsFunc,setting) {
+		return function(cond) {
+			var subject = new Rx.AsyncSubject();
+			var isWomanRecord = '';
+			if ($('.isWomanRecord') != undefined) {
+				isWomanRecord = $('.isWomanRecord').html();
+			}
+			var condVal = $('#historyval').html();
+			if(setting.relatedInfoSearch){
+				isWomanRecord = setting.relatedInfoSearchValType;
+				condVal = $('#' + setting.relatedInfoSearchIds).val();
+			}
+			if(setting.maxlen && setting.maxlen[condVal]){
+				var ttt = cond.mcode.split("%");
+				if(ttt[1].length>=setting.maxlen[condVal]){
+					dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
+						subject.OnNext(result);
+						subject.OnCompleted();
+					});
+				}
+			}else{
+				dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
+					subject.OnNext(result);
+					subject.OnCompleted();
+				});
+			}
+			return subject.AsObservable();// .Select(function(d) { return
+											// d.data;});
+		}
+	}
+	med.historycombo = function(obj, setting) {
+		var cl;
+		var from = 0, totalPages = -1;
+		var selector = med.selector(setting);
+		var readonly = false;
+		var local_span = {};
+		var values = [];
+		var editing = false;
+		var label = $("<div class='combo-items' style='display:inline'></div>");
+		var clearFrom = true;
+		label.appendTo($(obj.parent()));
+		var searchCode = setting.multi ? undefined : setting.model.code; // 如果是多选，不过滤数据
+		var dsObservable = setting.local ? med.searchLocal(setting.ds,
+				searchCode) : med.hissearch(setting.ds.search,setting);
+
+		var observer = Rx.Observer.Create(function(results) {
+			// if (!obj.is(":hidden")){
+			totalPages = results.totalPages;
+			selector.show(obj);
+			selector.reload(results, values);
+			// }
+		}, function(exn) {
+			console.error(exn);
+		});
+
+		function showValues() {
+			var html = ""
+					+ $
+							.map(
+									values,
+									function(v) {
+										// obj.val(values[0][setting.model.code]);
+										return '<span>'
+												+ v[setting.model.code]
+												+ (setting.showDisplay ? ("." + v[setting.model.display])
+														: '') + '</span>';
+									}).join("");
+			label.empty().html(html);
+			if (setting.mCodePrefixCtrlId) {
+				var ctrl = setting.ctx.getCtrl(setting.mCodePrefixCtrlId);
+				if (ctrl['show']) {
+					ctrl.show();
+				}
+			} // todo代码重复
+			if (!readonly) {
+				obj.show();
+				var spans = $('span', label).hover(function() {
+					$(this).css("text-decoration", "line-through");
+				}, function() {
+					$(this).css("text-decoration", "none");
+				}).click(combo_click);
+				spans.text_disableclick = local_span.text_disableclick;
+				local_span = spans;
+			}
+		}
+
+		function combo_click(element) {
+			if (!setting.multi) {
+				values = [];
+			} else {
+				var idx = spans.index(this);
+				values.splice(idx, 1);
+			}
+			showValues();
+			obj.show();
+			if (setting.mCodePrefixCtrlId) {
+				var ctrl = setting.ctx.getCtrl(setting.mCodePrefixCtrlId);
+				if (ctrl['show']) {
+					ctrl.show();
+				}
+				if(setting.showHistoryRecord){
+					var foreignId = $('#' + setting.showHistoryRecord.foreignIdName + ' input ').val();
+					immidiatelyLoadObj.reset(foreignId);
+				}
+				if(setting.showHistoryRecordSingle && healthBookSingleObj != undefined && healthBookSingleObj.getIsSetForm()){
+					healthBookSingleObj.setIsSetForm(false);
+					document.location.reload();
+				}
+				if (setting.writeback) {
+					$.each(setting.writeback, function(i, v) {
+						var ctrl = setting.ctx.getCtrl(v.id)
+						if (ctrl && ctrl['reset']) {
+//							if(v.force){
+//								ctrl.reset();
+//							}else{
 							    if(Ext.isEmpty(ctrl.val()))
-								    ctrl.val(_s[_v.col]);
+								     ctrl.reset();
+//							}
+						}
+					});
+				}
+			}
+		}
+
+		function pageNav(step) {
+			return function(e) {
+				if (clearFrom) {
+					from = 0;
+					clearFrom = false;
+				}
+				from += step;
+//				console.log(from);
+				from %= totalPages;
+//				console.log(from);
+				if (from < 0)
+					from = totalPages - 1;
+//				console.log(from);
+				return {
+					mcode : $('#districtNumber span').html() + '%'
+							+ $("#historyval").html(),
+					pageNo : from,
+					startWith : true
+				}
+			}
+		}
+
+		function simpleDoLog(msg) {
+			return function(e) {
+				console.log(msg);
+			}
+		}
+
+		function buildValue() {
+			var res = $.map(values, function(v) {
+				return v[setting.model.id];
+			});
+			if (setting.multi) {
+				return res;
+			} else {
+				return res[0];
+			}
+		}
+
+		var terms = obj.toObservable("keyup").Where(function(e) {
+			return e.which != 13
+		}) // 忽略回车,与选择键冲突
+		.Where(function(e) {
+			if (e.which == 40) {
+				return false;
+			} else {
+				return true;
+			}
+		}).Where(function(e) {
+//			console.log(e.which);
+			if (e.which == 39) {
+				return false;
+			} else {
+				return true;
+			}
+		}).Where(function(e) {
+//			console.log(e.which);
+			if (e.which == 37) {
+				return false;
+			} else {
+				return true;
+			}
+		}).Select(function(e) {
+			var prefix = "";
+			if (setting.mCodePrefixCtrlId) {
+				var ctrl = setting.ctx.getCtrl(setting.mCodePrefixCtrlId);
+				prefix = ctrl.val();
+				if (prefix != null && prefix != "") {
+					prefix = prefix + "%";
+				}
+			}
+			clearFrom = true;
+			return prefix + $(e.target).val();
+		}).Throttle(350).Do(function(e) {
+		});
+		// .DistinctUntilChanged();
+
+		var keyNext = obj.toObservable("keyup").Where(function(e) {
+			return e.which == 39
+		}) // ctrl ->
+		.Select(pageNav(1)).Select(dsObservable).Switch();
+
+		keyNext.Subscribe(observer);
+
+		var keyPrev = obj.toObservable("keyup").Where(function(e) {
+//			console.log(e.which);
+			return e.which == 37
+		}) // ctrl <-
+		.Select(pageNav(-1)).Select(dsObservable).Switch();
+
+		keyPrev.Subscribe(observer);
+
+		var keyDown = obj.toObservable("keydown").Where(function(e) {
+			if (e.which == 40 && !selector.isClosed()) {
+				e.stopPropagation(); // grid 热键冲突
+				return true;
+			} else {
+				return false;
+			}
+		}); // Down , with repeats
+
+		var ctrlDel = obj.toObservable("keydown").Where(function(e) {
+			return e.which == 46 && e.ctrlKey;
+		});
+
+		var keyUp = obj.toObservable("keydown").Where(function(e) {
+			return e.which == 38 && !selector.isClosed()
+		}); // Up , with repeats
+
+		var keyEsc = obj.toObservable("keyup").Where(function(e) {
+			return e.which == 27
+		}); // Esc
+
+		var keyRet = obj.toObservable("keyup").Where(function(e) {
+			return e.which == 13
+		}).Do(function(e) {
+			e.preventDefault()
+		}); // Return
+
+		var keySpace = obj.toObservable("keydown").Where(function(e) {
+			return e.which == 32
+		}).Do(function(e) {
+			e.preventDefault()
+		}); // Space
+
+		ctrlDel.Subscribe(selector.close); // conflictions with grid
+		keyDown.Subscribe(selector.next);
+		keyUp.Subscribe(selector.prev);
+		keyEsc.Subscribe(selector.close);
+		setting.clickCb = doSelect; // todo bad hacking
+		function doSelect() {
+			var pickCurrent = !setting.multi;
+			var selection = selector.select(pickCurrent);
+			selector.close();
+			values = [].concat(selection);
+			editing = true;
+//			console.log(values);
+			if(setting.extendwriteback && selection.length > 0){
+				var _s = selection[0];
+				if(extendWriteBackObj.set != undefined){
+					extendWriteBackObj.set(setting,_s[0]);
+				}
+			}
+			
+			if (setting.writeback && selection.length > 0) {
+				var _s = selection[0];
+//				console.log(_s);
+				$.each(setting.writeback, function(i, v) {
+					var ctrl = setting.ctx.getCtrl(v.id);
+					if (ctrl && ctrl['val']) {
+						if(v.force){
+							ctrl.val(_s[v.col]);
+						}else{
+						    if(Ext.isEmpty(ctrl.val()))
+							  ctrl.val(_s[v.col]);
+						}
+					}
+				});
+			}
+			if(setting.showHistoryRecord && selection.length > 0){
+				var _s = selection[0];
+				var foreignId = _s[setting.showHistoryRecord.foreignIdCol];
+				immidiatelyLoadObj.loadHistoryRecord(foreignId,services.tableName);
+			}
+			if(setting.showHistoryRecordSingle && selection.length > 0){
+				var _s = selection[0];
+				var foreignId = _s[setting.showHistoryRecordSingle.foreignIdCol];
+				healthBookSingleObj.loadRecord(foreignId,services.tableName);
+			}
+			if (values.length > 0) {
+				obj.val("");
+				showValues();
+			} else {
+				obj.val("");
+				// label.text("");
+				showValues();
+			}
+			if (cl) {
+//				console.log("listener");
+//				console.log(buildValue());
+				cl(null, buildValue());
+			}
+			if (selection.length > 0) {
+				obj.hide();
+				// obj.blur();
+				selector.close();
+				if (setting.mCodePrefixCtrlId) {
+					var ctrl = setting.ctx.getCtrl(setting.mCodePrefixCtrlId);
+					if (ctrl['hide']) {
+						ctrl.hide();
+					}
+				}
+			}
+			// scrollTo(obj);
+		}
+		;
+
+		keyRet.Subscribe(doSelect);
+		keySpace.Subscribe(selector.toggleSelect);
+
+		var keyNum = obj.toObservable("keyup").Where(function(e) {
+			return e.which == 37 && e.ctrlkey
+		}).Throttle(50); // number
+
+		var searchObservable = terms.Select(function(term) {
+			return {
+				mcode : term,
+				pageNo : 0,
+				startWith : true
+			};
+		}).Do(simpleDoLog("terms")).Select(dsObservable).Switch();
+
+		var searchSub = searchObservable.Subscribe(observer);
+
+		obj.focus(function(e) {
+			// obj.val("");
+			// obj.keyup();
+//			selector.show(obj,"under");
+		});
+
+		obj.blur(function(e) {
+			// if e.source element not inside selector todo
+			selector.close();
+			// obj.val("");
+			// showValues(); //影响选择值删除
+		});
+		function valFunc(v, forceSetVal) {
+			var flag = false;
+			if(typeof(healthBookSingleObj) != 'undefined'){				
+				flag = healthBookSingleObj.getIsSetForm();
+//				healthBookSingleObj.setIsSetForm(false);
+			}
+			if (arguments.length == 0 || flag) {
+				return buildValue();
+			} else {
+				// todo local only
+				// setting.ds
+				var seles = [];
+				if (!$.isArray(v)) {
+					seles.push(v);
+				} else {
+					seles = v
+				}
+				;
+
+				if (setting.local) {
+					values = $.map(seles, function(key) { // todo ds混淆！改个名字！
+						return $.map(setting.ds, function(m) {
+							return m[setting.model.id] == key ? m : null;
+						});
+					});
+				} else {
+//					console.log(setting);
+//					console.log(obj);
+//					console.log('***************' + readonly);
+					if (readonly) {
+						obj.hide();
+					} else {
+						// remote, not readonly, that means....
+						values = v;
+					}
+
+					if (forceSetVal) { // force setval only
+						obj.attr("disabled", true);
+						// if (seles.length > 0 do we need this?
+						setting.ds.get(seles[0], function(d) {
+							values = d;
+							obj.attr("disabled", false);
+							showValues();
+							obj.hide();
+							if (setting.writeback) { // todo 代码重复
+								var _s = d[0];
+//								console.log("=s====="+_s)
+								if(_s && _s.length>4){
+    								setDisabledBySex(_s[2]);
+    								isOldMan(_s[3]);
+    								$.each(setting.writeback, function(i, v) {
+    									var ctrl = setting.ctx.getCtrl(v.id);
+    									if (ctrl && ctrl['val']) {
+    										if(v.force){
+    											ctrl.val(_s[v.col]);
+    										}else{
+	    									    if(Ext.isEmpty(ctrl.val()))
+	    										  ctrl.val(_s[v.col]);
+	    									}
+    									}
+    								});
+								}
+							}
+						});
+					} else if (values.length > 0 && setting.writeback) { // 使用原来的值
+						var _s = values[0]; // todo duplicated code
+						setDisabledBySex(_s[2]);
+						isOldMan(_s[3]);
+						$.each(setting.writeback, function(i, _v) {
+							var ctrl = setting.ctx.getCtrl(_v.id);
+							if (ctrl && ctrl['val']) {
+								if(v.force){
+									ctrl.val(_s[v.col]);
+								}else{
+								    if(Ext.isEmpty(ctrl.val()))
+									  ctrl.val(_s[v.col]);
+								}
 							}
 						});
 					}

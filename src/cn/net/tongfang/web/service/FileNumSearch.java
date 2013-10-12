@@ -39,6 +39,9 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String CondVal_CardId = "3";   //身份证号
 	public static String CondVal_LinkMan = "4";   //联系人
 	
+	public static String CondVal_History_Name = "0";//姓名
+	public static String CondVal_History_CardId = "1";//身份证号
+	
 	public  PagedList listCodePage(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
 		return listCodePageSize(pageNo,pagesize, mcode, startWith,condVal,otherparamtype);
     	
@@ -249,9 +252,103 @@ public class FileNumSearch extends HibernateDaoSupport{
     			" from HealthFile as hf, PersonalInfo as p " +
     			"where p.fileNo = hf.fileNo " +
     			"and p.fileNo = ? and hf.status = 0 ", EncryptionUtils.encry(code));
-    	
     	return parseResult(list);
-
+    }
+    
+    public  List getFileByIdNumber(String fileno ,String idnumber){
+    	if(fileno !=null && fileno.trim().length()>0){
+    		List list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
+        			" from HealthFile as hf, PersonalInfo as p " +
+        			"where p.fileNo = hf.fileNo " +
+        			"and p.idnumber = ? and p.fileNo <> ? ", new Object[]{EncryptionUtils.encry(idnumber),EncryptionUtils.encry(fileno.trim())});
+    		return list;
+    	}else{
+    		List list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
+        			" from HealthFile as hf, PersonalInfo as p " +
+        			"where p.fileNo = hf.fileNo " +
+        			"and p.idnumber = ? ", EncryptionUtils.encry(idnumber));
+    		return list;
+    	}    	
+    }
+    
+    public  PagedList getHistoryList(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
+//    	System.out.println("=============pageNo======"+pageNo);
+//		System.out.println("=============newpagesize======"+pagesize);
+//		System.out.println("=============mcode======"+mcode);
+//		System.out.println("=============startWith======"+startWith);
+//		System.out.println("=============condVal======"+condVal);
+//		System.out.println("=============otherparamtype======"+otherparamtype);
+    	PagedList res = new PagedList();
+    	
+    	String[] mcodes = mcode.split("%");
+		String otherCond = "";
+		if(mcodes.length > 1){
+			otherCond = mcodes[1];
+		}else{
+			otherCond = mcodes[0];
+		}
+    	
+    	//改为like ,like 可以用索引 substring 不能用
+    	if(condVal.equals(CondVal_History_Name)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFileHistory " +
+        			"where name like ? ");
+    		qry.setParameter(0, otherCond+"%");
+    		long count = (Long)qry.list().get(0);
+    		if(pagesize == 0 ){
+        		pagesize = (int)count;
+        		pagesize = (pagesize == 0 ? pagesize : pagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = pagesize;
+        	res.totalPages = (int) (count / pagesize) + ((count % pagesize > 0) ? 1 : 0);
+        	int from = pageNo * pagesize;
+        	qry = getSession().createQuery("select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age," +
+				"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq" +
+				" from HealthFileHistory " +
+        			"where name like  ? ");
+        	qry.setParameter(0, otherCond+"%");
+        	qry.setMaxResults(pagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = list;
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_History_CardId)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFileHistory " +
+        			"where idcard like ? ");
+    		qry.setParameter(0, otherCond+"%");
+    		long count = (Long)qry.list().get(0);
+    		if(pagesize == 0 ){
+        		pagesize = (int)count;
+        		pagesize = (pagesize == 0 ? pagesize : pagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = pagesize;
+        	res.totalPages = (int) (count / pagesize) + ((count % pagesize > 0) ? 1 : 0);
+        	int from = pageNo * pagesize;
+        	qry = getSession().createQuery("select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age," +
+				"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq" +
+				" from HealthFileHistory " +
+        			"where idcard like  ? ");
+        	qry.setParameter(0, otherCond+"%");
+        	qry.setMaxResults(pagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = list;
+        	res.currentPage = pageNo + 1;
+    	}
+    	return res;
+    }
+    
+    public  List getHistoryItem(String code){
+		List list = getHibernateTemplate().find("select id, name, sex, idcard, birthday,0," +
+				"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq" +
+    			" from HealthFileHistory " +
+    			 "where  id = ? ", EncryptionUtils.encry(code));
+    	return parseResult(list);
     }
     /**
      * 解释List

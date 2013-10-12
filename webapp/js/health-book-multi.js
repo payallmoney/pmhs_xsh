@@ -35,7 +35,6 @@
 			}
 		});
 		this.panel.doLayout(true);
-		
 	}
 	function buildTabs(foreignId,ids){
 		$(".panes").append("<div class='span-22 last' id='" + foreignId + "div_id'></div>");
