@@ -1,9 +1,13 @@
 package cn.net.tongfang.web.service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Query;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -83,6 +87,21 @@ public class HealthFileChildrenService extends HealthMainService<HealthFileChild
 		}
 		return null;
 	}
+	
+	 public Map<String, Object> getPrintInfo_new(HealthFileChildrenBO data) throws Exception
+	  {
+	    data = (HealthFileChildrenBO)get_(data);
+	    Map map = new HashMap();
+	    HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
+	    getHibernateTemplate().evict(file);
+	    getHibernateTemplate().evict(file.getPersonalInfo());
+	    map.put("file", file);
+	    data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
+	    data.setName(EncryptionUtils.decipher(data.getName()));
+	    map.put("children", data);
+	    map.put("status", DateUtils.toCalendar(new java.util.Date()).get(1) - DateUtils.toCalendar(data.getBirthday()).get(1) > 7 ? "结案" : "未结案");
+	    return map;
+	  }
 	
 	public void PregnancyRecordChildService(PregnancyRecordChild pregnancy){
 		if(pregnancy.getId() != null && !pregnancy.getId().equals("")){
