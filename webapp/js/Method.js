@@ -143,7 +143,7 @@
 			width : 250,
 			frame : true,
 			items : [Component.createLabel('logoffReasonTxt','logoffReasonTxt',3,3,'注销原因：'),
-			         Component.createDwrCombo(60,0,'BasicInformation','loginOffReason',100,170,0,'LoginOffReason','LoginOffReason',2000),
+			         Component.createDwrCombo(60,0,'BasicInformation','loginOffReason',100,170,0,'LoginOffReason','LoginOffReason',4000),
 			         Component.createLabel('logoffDateTxt','logoffDateTxt',3,33,'注销时间：'),
 			         Component.createDatefield('loginOffDate','loginOffDate',60,30,'Y-m-d',170,new Date()),
 			         Component.createLabel('optPersonTxt','optPersonTxt',3,63,'操作人：'),

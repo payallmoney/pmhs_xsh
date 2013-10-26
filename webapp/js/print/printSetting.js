@@ -131,7 +131,7 @@ function getPrintCfg02(data){
     pos[count++] =  new Array("17.25cm","2.2cm","0.5cm","0.6cm"); //国籍
     pos[count++] =  new Array("17.25cm","3.2cm","0.5cm","0.6cm"); //其他
     pos[count++] =  new Array("17.25cm","5.3cm","3cm","0.6cm"); //其他名字
-    pos[count++] =  new Array("17.25cm","12.4cm","3cm","0.6cm");//身份证,护照号
+    pos[count++] =  new Array("17.25cm","12.4cm","3.5cm","0.6cm");//身份证,护照号
     pos[count++] =  new Array("18.02cm","2.9cm","3cm","0.6cm");//工作单位
     pos[count++] =  new Array("18.15cm","7.5cm","0.5cm","0.6cm");//户籍类别
     pos[count++] =  new Array("18.15cm","9.1cm","0.5cm","0.6cm");//户籍类别
