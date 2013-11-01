@@ -1,9 +1,9 @@
-﻿
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="cn" ng-app="myApp" class="ng-scope">
 <head>
     <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>昆明市公共卫生服务管理系统</title>
+    <title>测试环境</title>
     <script type="text/javascript" src="/js/ext/adapter/ext/ext-base.js"></script>
 
     <script type='text/javascript' src='/dwr/engine.js'></script> 	
@@ -43,8 +43,9 @@
 	<div style="width:1000px;height:80px;margin:0px auto 0 auto;background:url(image/title.png) no-repeat">
 		<img src="image/title.png" style="with:1000px;height:80px">
 	</div>
-	<div close="close()" class="login" style="width:300px;margin:20px auto 0px auto;">
+	<div id='div_login' close="close()" class="login" style="width:300px;margin:20px auto 0px auto;">
 		<div class="title">系统登录</div>
+		
 		<div class="content">
 			<form style="padding:10px 20px 10px 40px;" class="ng-pristine ng-valid"  id="loginForm">
 				<p>用户名: <input type="text" id="j_username" name="j_username" style='height:30px;'/></p>
@@ -55,20 +56,22 @@
 					<button class="btn" style="margin:0 10px" id="login_cancel">取消</button>
 				</div>
 			</form>
-			
-			
-			
-			
-			
-			
-			
-			
 		</div>
+		
+		<div><a href='/download/chrome_installer_552.210.exe'>谷歌浏览器下载</a>
+			<a href='/download/install_lodop.exe'>打印控件下载</a><br>
+			</div>
 	</div>
+	<script>
+		var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+		if(is_chrome){
+			
+		}else{
+			$("#div_login").hide();
+			document.write("<div style='text-align:center;width:100%;margin:20px 0;color:#fff;'>系统不支持您目前使用的浏览器，请下载谷歌浏览器：<br><a style='color:red' href='/download/chrome_installer_552.210.exe'>下载浏览器</a> </div>")
+		}
+	</script>
 </div>
 </div>
-
-
-
 
 </body></html>
