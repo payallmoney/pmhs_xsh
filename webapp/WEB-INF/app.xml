@@ -57,8 +57,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<bean id="SmsUtil"
 		class="cn.net.tongfang.framework.util.SmsUtil" scope="singleton"> 
 		<property name="sessionFactory" ref="sessionFactory"/>
-		
-		<!-- <property name="host" ><value>222.219.119.20</value></property>  -->
 		<property name="host" ><value>127.0.0.1</value></property>
 		<property name="name" ><value>test</value></property>
 		<property name="pwd" ><value>test</value></property>
