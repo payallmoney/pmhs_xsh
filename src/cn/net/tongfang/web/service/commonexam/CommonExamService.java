@@ -98,7 +98,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 				"from exam_baseinfo info , healthfile hf , PersonalInfo pf" ;
 		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf ";
 		String select = "";
-		String where = " where info.fileno =hf.fileno and info.fileno = pf.fileno  and hf.DistrictNumber like '"+ userdistrict+"'%";
+		String where = " where info.fileno =hf.fileno and info.fileno = pf.fileno and info.status=1 and hf.DistrictNumber like '"+ userdistrict+"'%";
 		String orderby = " order by info.inputdate desc ";
 		System.out.println(orderby);
 		//params.getBase();
@@ -301,8 +301,9 @@ public class CommonExamService extends HibernateDaoSupport  {
 		if(!base.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
 			throw new Exception("只允许"+base.getInputpersonid()+"进行删除!");
 		}
-		this.getHibernateTemplate().delete(base);
-		this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0, id).executeUpdate();
+		base.setStatus(-1);
+//		this.getHibernateTemplate().delete(base);
+//		this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0, id).executeUpdate();
 		return "删除成功!";
 	}
 	/**
@@ -477,6 +478,11 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ret.put("total", allcount);
 		ret.put("pages", pages);
 		return ret;
+	}
+	
+	public Map get_query_info(String examname) throws Exception{
+		
+		return null;
 	}
 	
 	private Map getBaseSql(String name, Map<String,String> value, Class type)throws Exception{
@@ -713,6 +719,8 @@ public class CommonExamService extends HibernateDaoSupport  {
 			return (String)value;
 //		}
 	}
+	
+	
 	
 	public Map getDistrictMap(){
 		return commonExamUtil.getDistrictMap();

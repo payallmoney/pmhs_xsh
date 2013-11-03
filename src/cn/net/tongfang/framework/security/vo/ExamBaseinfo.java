@@ -20,6 +20,7 @@ public class ExamBaseinfo implements java.io.Serializable {
 	private String fkid;
 	private Timestamp checkdate;
 	private String examname;
+	private int status;
 
 	// Constructors
 
@@ -30,7 +31,7 @@ public class ExamBaseinfo implements java.io.Serializable {
 	/** minimal constructor */
 	public ExamBaseinfo(String id, String fileno, Timestamp visitdate,
 			String visitdoctor, String inputpersonid, Timestamp inputdate,
-			Timestamp checkdate, String examname) {
+			Timestamp checkdate, String examname,int flag) {
 		this.id = id;
 		this.fileno = fileno;
 		this.visitdate = visitdate;
@@ -45,7 +46,7 @@ public class ExamBaseinfo implements java.io.Serializable {
 	public ExamBaseinfo(String id, String fileno, Timestamp visitdate,
 			Timestamp nextvisitdate, String visitdoctor, String inputpersonid,
 			Timestamp inputdate, String fkid, Timestamp checkdate,
-			String examname) {
+			String examname,int flag) {
 		this.id = id;
 		this.fileno = fileno;
 		this.visitdate = visitdate;
@@ -139,5 +140,15 @@ public class ExamBaseinfo implements java.io.Serializable {
 	public void setExamname(String examname) {
 		this.examname = examname;
 	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	
 
 }

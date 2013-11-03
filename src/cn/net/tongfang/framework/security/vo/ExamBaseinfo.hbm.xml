@@ -37,5 +37,8 @@
         <property name="examname" type="java.lang.String">
             <column name="examname" not-null="true" />
         </property>
+        <property name="status" type="java.util.Integer">
+            <column name="status" not-null="true" />
+        </property>
     </class>
 </hibernate-mapping>

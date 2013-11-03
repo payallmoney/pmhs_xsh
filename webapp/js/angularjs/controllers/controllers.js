@@ -19,7 +19,8 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					examname:'婚检',
 					checkdate:data.today,
 					visitdate:data.today,
-					inputpersonid:data.user.username
+					inputpersonid:data.user.username,
+					status:1
 				};
 				setPhoto("男方",null);
 				setPhoto("女方",null);
