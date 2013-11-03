@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-11-3 23:13:22 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="cn.net.tongfang.framework.security.vo.ExamQueryCfg" table="exam_query_cfg" schema="dbo">
+        <id name="id" type="int">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <property name="col" type="string">
+            <column name="col" length="100" not-null="true" />
+        </property>
+        <property name="coltype" type="string">
+            <column name="coltype" length="20" not-null="true" />
+        </property>
+        <property name="display" type="boolean">
+            <column name="display" not-null="true" />
+        </property>
+        <property name="examname" type="string">
+            <column name="examname" not-null="true" />
+        </property>
+        <property name="encflag" type="boolean">
+            <column name="encflag" not-null="true" />
+        </property>
+        <property name="isitem" type="java.lang.Boolean">
+            <column name="isitem" />
+        </property>
+        <property name="isquery" type="java.lang.Boolean">
+            <column name="isquery" />
+        </property>
+        <property name="ord" type="java.lang.Integer">
+            <column name="ord" />
+        </property>
+    </class>
+</hibernate-mapping>

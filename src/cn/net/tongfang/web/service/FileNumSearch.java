@@ -30,7 +30,7 @@ public class FileNumSearch extends HibernateDaoSupport{
 	
 	public static String OtherParamType_MarryMan = "11";//男性婚检
 	public static String OtherParamType_MarryWoman = "12";//女性婚检
-	
+	public static String OtherParamType_Foreign_Disease_Check = "13";//外籍人员检查
 	
 	//condVal 类型
 	public static String CondVal_Barcode = "0";   //条形码
@@ -45,12 +45,12 @@ public class FileNumSearch extends HibernateDaoSupport{
     }
 	
 	public  PagedList listCodePageSize(int pageNo,int newpagesize, String mcode, boolean startWith,String condVal,String otherparamtype){
-		System.out.println("=============pageNo======"+pageNo);
-		System.out.println("=============newpagesize======"+newpagesize);
-		System.out.println("=============mcode======"+mcode);
-		System.out.println("=============startWith======"+startWith);
-		System.out.println("=============condVal======"+condVal);
-		System.out.println("=============otherparamtype======"+otherparamtype);
+//		System.out.println("=============pageNo======"+pageNo);
+//		System.out.println("=============newpagesize======"+newpagesize);
+//		System.out.println("=============mcode======"+mcode);
+//		System.out.println("=============startWith======"+startWith);
+//		System.out.println("=============condVal======"+condVal);
+//		System.out.println("=============otherparamtype======"+otherparamtype);
 		
     	String likePrefix = startWith ? "" : "%";
     	PagedList res = new PagedList();
@@ -67,7 +67,7 @@ public class FileNumSearch extends HibernateDaoSupport{
 		}else{
 			otherCond = mcodes[0];
 		}
-		System.out.println("========otherCond==========="+otherCond);
+//		System.out.println("========otherCond==========="+otherCond);
     	if(otherparamtype != null){
     		if(otherparamtype.equals(OtherParamType_Woman)){//孕产妇随访查询
     			otherTables = " ,HealthFileMaternal hm ";
@@ -97,14 +97,17 @@ public class FileNumSearch extends HibernateDaoSupport{
         	}else if(otherparamtype.equals(OtherParamType_MarryMan)){//男性婚检
         		hsqlparam = " And p.sex = '男'";
         		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
+        	}else if(otherparamtype.equals(OtherParamType_Foreign_Disease_Check)){//外籍人员检查
+        		hsqlparam = " And hf.nation <> '中国'";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation ";
         	}
     	}
-   	
+    	System.out.println("===condVal==="+condVal);
     	//改为like ,like 可以用索引 substring 不能用
     	if(condVal.equals(CondVal_Fileno)){
     		likePrefix = likePrefix.replace("%", "");
 //    		mcode = mcode.replace("%", "");
-    		String fileNo = EncryptionUtils.encry(likePrefix + mcode)+"%";
+    		String fileNo = EncryptionUtils.encry(otherCond)+"%";
     		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
         			"where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 " + hsqlparam,fileNo).get(0);
         	if(newpagesize == 0 ){
