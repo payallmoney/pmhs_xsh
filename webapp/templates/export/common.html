@@ -59,7 +59,20 @@
 				}
 			}
 			$.fn.datagrid.defaults.loader = examDwrLoader('datagrid');
-
+			var g_params = {};
+			function saveparams(){
+				var inputs = $("#params_panel").find("input");
+            	var params = {};
+            	$.each(inputs,function(i,v){
+            		console.log(i,v);
+            		var obj = $(v);
+            		console.log(obj);
+            		if(obj.val()){
+            			params[obj.attr('id')] = obj.val();
+            		}
+            	})
+            	g_params[$("#select_type").val()] = params; 
+			}
             function export_data(){
             	var node = $('#orgtree').tree('getSelected');  
             	var inputs = $("#params_panel").find("input");
@@ -81,6 +94,7 @@
             }
 
 			function dialogClose(){
+				saveparams();
 				$("#iframe").attr("src","about:blank");
 			}
 			function getparams(pagenum){
@@ -197,10 +211,15 @@
 					var id = $("#select_type").val();
 					$("#params_panel").html('');
 					if(g_subs[id]){
+						var values = g_params[id]; 
 						var html = "<table>";
 						for(var key in g_subs[id]){
 							html+=("<tr><td>"+g_subs[id][key].name+"：</td>");
-							html+=("<td><input id='"+key+"'></td></tr>");
+							if(values && values[key]){
+								html+=("<td><input id='"+key+"' value='"+values[key]+"'></td></tr>");
+							}else{
+								html+=("<td><input id='"+key+"'></td></tr>");
+							}
 						}
 						html+=("<tr><td colspan=2 ><a id='export_button' href='#' onclick='javascript:export_data()'>导出</a></td></tr>");
 						html+=("</table>");
