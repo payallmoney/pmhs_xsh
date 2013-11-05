@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="height:100%;width:100%;" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="/js/easyui/themes/hc/easyui.css">
+		<link rel="stylesheet" type="text/css" href="/js/easyui/themes/icon.css">
+		<script type="text/javascript" src="/js/easyui/jquery-1.8.0.min.js"></script>
+		<script src='/js/angularjs/jquery/jquery.dateFormat-1.0.js'></script>
+		<script type='text/javascript' src='/dwr/engine.js'></script>
+		<script type='text/javascript' src='/dwr/util.js'></script>
+		<script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
+		<script type='text/javascript' src='/dwr/interface/DataExportService.js'></script>
+		<script type='text/javascript' src='/dwr/interface/UserMenuTreeService.js'></script>
+		<script src="/js/easyui/jquery.easyui.min.js"></script>
+		<script src="/js/easyui/locale/easyui-lang-zh_CN.js"></script>
+		<style>
+			.tree-file {
+				background: url(../../resources/images/default/tree/leaf.gif) no-repeat;
+			}
+			
+			.tree-node-selected {
+				background: #d9e8fb;
+				color: #000000;
+			}
+			
+			.datagrid-row-selected {
+				background: #eaf2ff !important;
+				color: #000000;
+				font-weight:bold;
+			}
+			.datagrid-row-over, .datagrid-header td.datagrid-header-over {
+				background: #eaf2ff !important;
+				color: #000000;
+				cursor: default;
+			}
+		</style>
+		<script>
+			function getParameterByName(name) {
+			    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+			    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			        results = regex.exec(location.search);
+			    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+			var examname = getParameterByName("examname");
+			function examDwrLoader(pluginName){
+				return function(param, success, error){
+					var opts = $(this)[pluginName]('options');
+					if (!opts.url) return false;
+					var dwrFunc = eval(opts.url);
+					param = genParam(param)
+					dwrFunc(param[0],param[1],param[2],param[3],param[4], {
+						callback: function(data){
+							success(data);
+						},
+						exceptionHandler: function(){
+							error.apply(this, arguments);
+						}
+					});
+				}
+			}
+			$.fn.datagrid.defaults.loader = examDwrLoader('datagrid');
+
+            function export_data(){
+            	var node = $('#orgtree').tree('getSelected');  
+            	var inputs = $("#params_panel").find("input");
+            	var params = {};
+            	$.each(inputs,function(i,v){
+            		console.log(i,v);
+            		var obj = $(v);
+            		console.log(obj);
+            		if(obj.val()){
+            			params[obj.attr('id')] = obj.val();
+            		}
+            	})
+            	console.log(params);
+            	DataExportService.sqlExport(node.id,$("#select_type").val(),$("#select_type").text(),params,function(data){
+            		console.log(data);
+            		window.location.href = data;
+            		//window.open(data,null,"height=10,width=10,status=yes,toolbar=no,menubar=no,location=no");
+            	});
+            }
+
+			function dialogClose(){
+				$("#iframe").attr("src","about:blank");
+			}
+			function getparams(pagenum){
+				return{"page":{pagesize:20,currentpage:pagenum}};
+			}
+			function gridStyle(index,row){
+				if (index % 2 == 0 ){
+					return 'background-color:#fbfbfb;';
+				}else{
+					return ':hover {background-color:#eaf2ff}';
+				}
+			}
+			function datefomattor(value,row,index){
+		 		return $.format.date(value, "yyyy-MM-dd")
+			}
+			
+			function genParam(param){
+				var value = $("#exam_searcher").searchbox("getValue")
+				var name = $("#exam_searcher").searchbox("getName")
+				var pagenumber = 1;
+				if(param.page && param.page>1){
+					pagenumber = param.page;
+				}
+				var params = getparams(pagenumber);
+				var basemap = getBasemap();
+				if(value){
+					params[name]={"value":value,"opt":"="};
+				}
+				var node = $('#orgtree').tree('getSelected'); 
+				var dwrparams = [examname,node.id,params,getBasemap(),getColList()];
+				console.log(dwrparams);
+				return dwrparams;
+			}
+			
+			function selectChild(){
+				var node = $('#orgtree').tree('getSelected');  
+				//始终选择最后一层
+				if(!node.attributes.isDetail){
+					var childs = $('#orgtree').tree('getChildren', node.target);
+					for(var i = 0 ; i <  childs.length ; i ++){
+						if(childs[i].attributes.isDetail){
+							$('#orgtree').tree('expandTo',childs[i].target);
+							$('#orgtree').tree('select',childs[i].target);
+							break;
+						}
+					}
+				}
+			}
+			
+			$(function(){
+				var nodedata = window.top.earyuitreedata;
+				$('#orgtree').tree({   
+					data:nodedata,
+					onSelect:function(node){
+						$("#selectedorg").val(node.id);
+						$("#orgname").text(node.text);
+					},
+					onLoadSuccess:function(){
+						//选中第一节点
+						var node = $('#orgtree').tree('find', parseInt(nodedata[0].id));
+						$('#orgtree').tree('select', node.target);
+					}
+				});
+				
+				var columns=[[  ]]  ;
+				$("#querygrid").datagrid({
+					columns:columns,
+					rowStyler:gridStyle,
+					singleSelect:true,
+					pageList :[20]
+				});
+			});
+		</script>
+		
+		<body >
+			<div class="easyui-panel easyui-layout" data-options='fit:true'>
+				<input id='selectedorg' type='hidden'>
+				<div data-options="region:'west'" title='行政区划' style='width:200px'>
+					<ul id="orgtree"></ul>  
+				</div>
+				<div id="query-tools"  data-options="region:'north'" style='height:40px;padding-top:5px;padding-left:5px;border:true;background-color: #E0ECFF;'>
+					<select id='select_type' class="easyui-combobox" name="state" style="width:200px;">
+					</select>
+					<a id="btn_remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="javascript:showExport()">导出</a>
+				</div>
+				<div id="params_panel" class="easyui-dialog" title='参数'  style="width:280px;"
+				data-options="iconCls:'icon-save',resizable:false,modal:true,closed:true,onClose:dialogClose">
+				</div>
+			</div>
+			
+			<script>
+				var g_options = null;
+				DataExportService.get_Export_Param({
+					callback:function(data){
+						g_options = data;
+						
+					},
+					async:false
+				});
+				var colstart = 0;
+				for(var i=0 ;i <g_options.main.length;i++){
+					$("#select_type").append(" <option value=\""+g_options.main[i][0]+"\">"+g_options.main[i][1]+"</option>")
+				}
+				var g_subs = {};
+				for(var i=0 ;i <g_options.sub.length;i++){
+					console.log(g_options.sub[i]);
+					if(!g_subs[g_options.sub[i].mainid]){
+						g_subs[g_options.sub[i].mainid] = {};
+					}
+					g_subs[g_options.sub[i].mainid][g_options.sub[i].id] = g_options.sub[i];
+				}
+				console.log(g_subs);
+				function showExport(){
+					var id = $("#select_type").val();
+					$("#params_panel").html('');
+					if(g_subs[id]){
+						var html = "<table>";
+						for(var key in g_subs[id]){
+							html+=("<tr><td>"+g_subs[id][key].name+"：</td>");
+							html+=("<td><input id='"+key+"'></td></tr>");
+						}
+						html+=("<tr><td colspan=2 ><a id='export_button' href='#' onclick='javascript:export_data()'>导出</a></td></tr>");
+						html+=("</table>");
+						$("#params_panel").append(html);
+						$('#export_button').linkbutton({
+						    iconCls: 'icon-redo'
+						});
+						$('#params_panel').dialog('open');
+					}
+				}
+				/*
+				for(var i=0 ;i <g_colist.length;i++){
+					g_basemap[g_colist[i].name]=g_colist[i];
+					g_col_nameonly[i]=g_colist[i].name;
+					if(g_colist[i].isquery){
+						$("#query_drop").append("<div data-options=\"name:'"+g_colist[i].name+"'\">"+g_colist[i].name+"</div>")
+					}
+					if(g_colist[i].display){
+						$("#title_tr").append("<th data-options=\"field:'col"+i+"'\">"+g_colist[i].name+"</th>  ")
+						colstart ++;
+					}
+					console.log('$("#title_tr")==')
+					console.log($("#title_tr").html());
+				}*/
+				
+			</script>
+		</body>
+</html>
