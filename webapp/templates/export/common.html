@@ -71,7 +71,7 @@
             			params[obj.attr('id')] = obj.val();
             		}
             	})
-            	g_params[$("#select_type").val()] = params; 
+            	g_params[$("#select_type").combobox('getValue')] = params; 
 			}
             function export_data(){
             	var node = $('#orgtree').tree('getSelected');  
@@ -86,7 +86,7 @@
             		}
             	})
             	console.log(params);
-            	DataExportService.sqlExport(node.id,$("#select_type").val(),$("#select_type").text(),params,function(data){
+            	DataExportService.sqlExport(node.id,$("#select_type").combobox('getValue'),$("#select_type").combobox('getText'),params,function(data){
             		console.log(data);
             		window.location.href = data;
             		//window.open(data,null,"height=10,width=10,status=yes,toolbar=no,menubar=no,location=no");
@@ -176,7 +176,7 @@
 					<ul id="orgtree"></ul>  
 				</div>
 				<div id="query-tools"  data-options="region:'north'" style='height:40px;padding-top:5px;padding-left:5px;border:true;background-color: #E0ECFF;'>
-					<select id='select_type' class="easyui-combobox" name="state" style="width:200px;">
+					<select id='select_type' class="easyui-combobox" name="state" style="width:400px;">
 					</select>
 					<a id="btn_remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="javascript:showExport()">导出</a>
 				</div>
@@ -208,7 +208,7 @@
 				}
 				console.log(g_subs);
 				function showExport(){
-					var id = $("#select_type").val();
+					var id = $("#select_type").combobox('getValue');
 					$("#params_panel").html('');
 					if(g_subs[id]){
 						var values = g_params[id]; 
