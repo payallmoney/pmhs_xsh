@@ -693,6 +693,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 		log.debug("totalSize: " + totalSize);
 
 		Query query = getSession().createQuery(hql.toString());
+		System.out.println("====hql.toString()==");
+		System.out.println(hql.toString());
 		for (int i = 0; i < params.size(); i++) {
 			System.out.println("=param="+ params.get(i));
 			query.setParameter(i, params.get(i));

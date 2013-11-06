@@ -32,27 +32,30 @@ import cn.net.tongfang.framework.security.vo.ExamItemsId;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.util.FileNoGen;
 
-public class CommonExamService extends HibernateDaoSupport  {
+public class CommonExamService extends HibernateDaoSupport {
 	private static final Logger log = Logger.getLogger(CommonExamService.class);
 	private static String OPT_NEW = "new";
 	private static String OPT_LIST = "list";
 	private static String VALUE_TYPE_STRING = "string";
 	private static String VALUE_TYPE_DATE = "date";
 	private static String VALUE_TYPE_NUMBER = "number";
-	private static SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
-	private static SimpleDateFormat shortdateformat = new SimpleDateFormat("yyyyMMdd");
-	private static SimpleDateFormat longdateformat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+	private static SimpleDateFormat dateformat = new SimpleDateFormat(
+			"yyyyMMdd HH:mm:ss.SSS");
+	private static SimpleDateFormat shortdateformat = new SimpleDateFormat(
+			"yyyyMMdd");
+	private static SimpleDateFormat longdateformat = new SimpleDateFormat(
+			"yyyyMMdd HH:mm:ss.SSS");
 	private CommonExamUtil commonExamUtil;
 	private FileNoGen fileNoGen;
 	private static String SQL_OPT_LIKE = "like";
 	private static String SQL_OPT_LEFTLIKE = "leftlike";
 	private static String SQL_OPT_RIGHTLIKE = "rightlike";
 	private static String DATE_DAYMAX = " 23:59:59";
-	private static String DATE_DAYMIN= " 00:00:00";
+	private static String DATE_DAYMIN = " 00:00:00";
 	private static String PARAMS = "params";
 	private static String WHERES = "wheres";
 	private static String TYPES = "types";
-	private static String VALUE="value";
+	private static String VALUE = "value";
 	private static String PARAMSPLIT = "##";
 	private static String CONDITIONSPLIT = " ";
 	private static String COMMONQUERY = "__query__";
@@ -63,362 +66,448 @@ public class CommonExamService extends HibernateDaoSupport  {
 	private static String CURRENTPAGE = "currentpage";
 	private static String COLTYPE = "coltype";
 	private static int DEFAULTPAGESIZE = 20;
-	private static Map<String ,NullableType> hbtTypeMap = new HashMap();
+	private static Map<String, NullableType> hbtTypeMap = new HashMap();
 	{
 		hbtTypeMap.put("string", Hibernate.STRING);
 		hbtTypeMap.put("date", Hibernate.TIMESTAMP);
 		hbtTypeMap.put("number", Hibernate.BIG_DECIMAL);
 	}
-	public Map newExam(String examname)  throws Exception{
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+	public Map newExam(String examname) throws Exception {
+		SimpleDateFormat format = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss.SSS");
 		Calendar cal = Calendar.getInstance();
-	    cal.set(Calendar.HOUR_OF_DAY, 0);
-	    cal.set(Calendar.MINUTE, 0);
-	    cal.set(Calendar.SECOND, 0);
-	    cal.set(Calendar.MILLISECOND, 0);
-	    Date today = cal.getTime();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date today = cal.getTime();
 		Map ret = new HashMap();
-		//将当前日期、当期操作员相关信息传入前台;让前台进行相关初始化工作
+		// 将当前日期、当期操作员相关信息传入前台;让前台进行相关初始化工作
 		ret.put("now", new Date());
 		ret.put("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		ret.put("user", SecurityManager.currentOperator());
 		return ret;
 	}
-	
+
 	public List<District> getDistrict(String orgid) {
-		if(orgid == null){
-			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+		if (orgid == null) {
+			orgid = "root" + SecurityManager.currentOperator().getDistrictId();
 		}
-		System.out.println("========orgid==========="+orgid);
+		System.out.println("========orgid===========" + orgid);
 		return commonExamUtil.getDistrict(orgid);
 	}
-	
-	public Map examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{
-		//这是默认的查询条件
+
+	public Map examList(String examname, String userdistrict,
+			Map<String, Map> params, Map<String, Map<String, String>> basemap,
+			List<String> collist) throws Exception {
+		// 这是默认的查询条件
 		String countsql = " select count(*)";
-		String sql = "" ;
-		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf ";
+		String sql = "";
+		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf , exam_items it, healthfile hf1 , PersonalInfo pf1  ";
 		String select = "";
-		String where = " where info.examname='"+examname+"' and  info.fileno =hf.fileno and info.fileno = pf.fileno and info.status=1 and hf.DistrictNumber like '"+ userdistrict+"%'";
-		String orderby = " order by info.inputdate desc ";
 		
-		//params.getBase();
-		Field[] fields= ExamBaseinfo.class.getDeclaredFields();
+		String where = " where info.examname='"
+				+ examname
+				+ "' and  info.fileno =hf.fileno and info.fileno = pf.fileno and info.status=1 " +
+				" and info.id = it.id and it.item='配偶_编号' and it.value = hf1.fileno  and it.value = pf1.fileno  and hf.DistrictNumber like '"
+				+ userdistrict + "%'";
+		String orderby = " order by info.inputdate desc ";
+
+		// params.getBase();
+		Field[] fields = ExamBaseinfo.class.getDeclaredFields();
 		List sqlparams = new ArrayList();
 		List<Type> sqlparamtypes = new ArrayList();
-		Map<String , Field> fieldmap = new HashMap();
-		for(int i= 0 ;i <fields.length;i++){
+		Map<String, Field> fieldmap = new HashMap();
+		for (int i = 0; i < fields.length; i++) {
 			fieldmap.put(fields[i].getName(), fields[i]);
 		}
-		int count = 0 ;
+		int count = 0;
 		Map preMap = new HashMap();
-		System.out.println("======"+params.size());
+		System.out.println("======" + params.size());
 		Map itemsMap = new HashMap();
-		for(Iterator it = params.keySet().iterator(); it.hasNext();){
-			String key = (String)it.next();
-			System.out.println("===key==="+key);
-			Map<String, String> value = (Map)params.get(key);
-			System.out.println("==value===="+value);
-			if(value !=null){
-				if(basemap.containsKey(key)){
-					if(!basemap.get(key).get("isitem").equals("true")){
-						Map sqls = getBaseSql(basemap.get(key),value,basemap.get(key).getClass());
-						where += (String)sqls.get(WHERES);
-						sqlparams.addAll((List)sqls.get(PARAMS));
-						sqlparamtypes.addAll((List)sqls.get(TYPES));
-					}else{
+		for (Iterator it = params.keySet().iterator(); it.hasNext();) {
+			String key = (String) it.next();
+			System.out.println("===key===" + key);
+			Map<String, String> value = (Map) params.get(key);
+			System.out.println("==value====" + value);
+			if (value != null) {
+				if (basemap.containsKey(key)) {
+					if (!basemap.get(key).get("isitem").equals("true")) {
+						Map sqls = getBaseSql(basemap.get(key), value, basemap
+								.get(key).getClass());
+						where += (String) sqls.get(WHERES);
+						sqlparams.addAll((List) sqls.get(PARAMS));
+						sqlparamtypes.addAll((List) sqls.get(TYPES));
+					} else {
 						itemsMap.put(key, value);
 					}
-				}else if(COMMONQUERY.equals(key)){
-					//这里是通用查询
-					String[] commonparams = value.get("value").split(PARAMSPLIT);
-					for(int i = 0 ; i < commonparams.length;i++){
+				} else if (COMMONQUERY.equals(key)) {
+					// 这里是通用查询
+					String[] commonparams = value.get("value")
+							.split(PARAMSPLIT);
+					for (int i = 0; i < commonparams.length; i++) {
 						String tmp = commonparams[i];
-						while(tmp.indexOf(CONDITIONSPLIT+CONDITIONSPLIT)>=0){
-							tmp = tmp.replaceAll(CONDITIONSPLIT+CONDITIONSPLIT, CONDITIONSPLIT);
+						while (tmp.indexOf(CONDITIONSPLIT + CONDITIONSPLIT) >= 0) {
+							tmp = tmp.replaceAll(CONDITIONSPLIT
+									+ CONDITIONSPLIT, CONDITIONSPLIT);
 						}
 						String[] cols = commonparams[i].split(CONDITIONSPLIT);
-						if(cols.length<3){
-							throw new Exception("通用查询参数"+commonparams[i]+"格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
-						}else{
-							if(basemap.containsKey(cols[0]) && fieldmap.containsKey(basemap.get(cols[0]).get(COLUMN))){
+						if (cols.length < 3) {
+							throw new Exception(
+									"通用查询参数"
+											+ commonparams[i]
+											+ "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
+						} else {
+							if (basemap.containsKey(cols[0])
+									&& fieldmap.containsKey(basemap
+											.get(cols[0]).get(COLUMN))) {
 								Map valuemap = new HashMap();
 								valuemap.put(VALUE, cols[2]);
-								Map sqls = getBaseSql(basemap.get(cols[0]).get(COLUMN),valuemap,fieldmap.get(basemap.get(cols[0]).get(COLUMN)).getType());
-								where += (String)sqls.get(WHERES);
-								sqlparams.addAll((List)sqls.get(PARAMS));
-								sqlparamtypes.addAll((List)sqls.get(TYPES));
-								
-							}else{
-								if(commonExamUtil.hasExamItem(examname, cols[0])){
+								Map sqls = getBaseSql(
+										basemap.get(cols[0]).get(COLUMN),
+										valuemap,
+										fieldmap.get(
+												basemap.get(cols[0])
+														.get(COLUMN)).getType());
+								where += (String) sqls.get(WHERES);
+								sqlparams.addAll((List) sqls.get(PARAMS));
+								sqlparamtypes.addAll((List) sqls.get(TYPES));
+
+							} else {
+								if (commonExamUtil.hasExamItem(examname,
+										cols[0])) {
 									Map valuemap = new HashMap();
 									valuemap.put(VALUE, cols[2]);
-									String itempre = "t"+count;
+									String itempre = "t" + count;
 									preMap.put(cols[0], count);
 									count++;
-									froms +=", exam_items "+itempre;
-									Map sqls = getSql(examname,itempre,cols[0],valuemap);
-									where += (String)sqls.get(WHERES);
-									sqlparams.addAll((List)sqls.get(PARAMS));
-									sqlparamtypes.addAll((List)sqls.get(TYPES));
+									froms += ", exam_items " + itempre;
+									Map sqls = getSql(examname, itempre,
+											cols[0], valuemap);
+									where += (String) sqls.get(WHERES);
+									sqlparams.addAll((List) sqls.get(PARAMS));
+									sqlparamtypes
+											.addAll((List) sqls.get(TYPES));
 								}
 							}
 						}
 					}
-				}else if(commonExamUtil.hasExamItem(examname, key)){
-					String itempre = "t"+count;
+				} else if (commonExamUtil.hasExamItem(examname, key)) {
+					String itempre = "t" + count;
 					preMap.put(key, count);
 					count++;
-					froms +=", exam_items "+itempre;
-					Map sqls = getSql(examname,itempre,key,value);
-					where += (String)sqls.get(WHERES);
-					sqlparams.addAll((List)sqls.get(PARAMS));
-					sqlparamtypes.addAll((List)sqls.get(TYPES));
+					froms += ", exam_items " + itempre;
+					Map sqls = getSql(examname, itempre, key, value);
+					where += (String) sqls.get(WHERES);
+					sqlparams.addAll((List) sqls.get(PARAMS));
+					sqlparamtypes.addAll((List) sqls.get(TYPES));
 				}
 			}
 		}
-		Map<String,NullableType> scalarmap = new HashMap();
-		if(collist != null && !collist.isEmpty()){
-			int colnum =0;
-			for(String key : collist){
-		
-				if(basemap.containsKey(key)){
-					if( basemap.get(key).get("encflag").equals("true")){
-						select += ",dbo.denc("+basemap.get(key).get(COLUMN) +") 'col"+colnum+"'";
-					}else{
-						if(basemap.get(key).get("isitem").equals("true")){
-							String itempre = "t"+count;
-							froms +=", exam_items "+itempre;
+		Map<String, NullableType> scalarmap = new HashMap();
+		if (collist != null && !collist.isEmpty()) {
+			int colnum = 0;
+			for (String key : collist) {
+
+				if (basemap.containsKey(key)) {
+					if (basemap.get(key).get("encflag").equals("true")) {
+						select += ",dbo.denc(" + basemap.get(key).get(COLUMN)
+								+ ") 'col" + colnum + "'";
+					} else {
+						if (basemap.get(key).get("isitem").equals("true")) {
+							String itempre = "t" + count;
+							froms += ", exam_items " + itempre;
 							count++;
-							select += ","+itempre+".value 'col"+colnum+"'";
-							if(itemsMap.containsKey(key)){
-								System.out.println("===basemap.get(key)==="+basemap.get(key));
-								System.out.println("===itemsMap==="+itemsMap);
-								System.out.println("===,fieldmap.get(key)==="+fieldmap.get(key));
-								Map sqls = getItemWhere(basemap.get(key).get(COLUMN),(Map)itemsMap.get(key),itempre);
-								System.out.println("======"+(String)sqls.get(WHERES));
-								where += (String)sqls.get(WHERES);
-								sqlparams.addAll((List)sqls.get(PARAMS));
-								sqlparamtypes.addAll((List)sqls.get(TYPES));
-								where += " and info.id= "+itempre+".id and "+itempre+".idx=0 and "+itempre+".item = '"+basemap.get(key).get(COLUMN)+"'  and "+itempre+".item = '"+basemap.get(key).get(COLUMN)+"'";
-							}else{
-								where += " and info.id= "+itempre+".id and "+itempre+".idx=0 and "+itempre+".item = '"+basemap.get(key).get(COLUMN)+"'";
+							select += "," + itempre + ".value 'col" + colnum
+									+ "'";
+							if (itemsMap.containsKey(key)) {
+								System.out.println("===basemap.get(key)==="
+										+ basemap.get(key));
+								System.out.println("===itemsMap===" + itemsMap);
+								System.out.println("===,fieldmap.get(key)==="
+										+ fieldmap.get(key));
+								Map sqls = getItemWhere(
+										basemap.get(key).get(COLUMN),
+										(Map) itemsMap.get(key), itempre);
+								System.out.println("======"
+										+ (String) sqls.get(WHERES));
+								where += (String) sqls.get(WHERES);
+								sqlparams.addAll((List) sqls.get(PARAMS));
+								sqlparamtypes.addAll((List) sqls.get(TYPES));
+								where += " and info.id= " + itempre
+										+ ".id and " + itempre + ".idx=0 and "
+										+ itempre + ".item = '"
+										+ basemap.get(key).get(COLUMN)
+										+ "'  and " + itempre + ".item = '"
+										+ basemap.get(key).get(COLUMN) + "'";
+							} else {
+								where += " and info.id= " + itempre
+										+ ".id and " + itempre + ".idx=0 and "
+										+ itempre + ".item = '"
+										+ basemap.get(key).get(COLUMN) + "'";
 							}
-						}else{
-							select += ","+basemap.get(key).get(COLUMN) +" 'col"+colnum+"'";
+						} else {
+							select += "," + basemap.get(key).get(COLUMN)
+									+ " 'col" + colnum + "'";
 						}
 					}
-				}else if(commonExamUtil.hasExamItem(examname, key)){
-					String itempre = "t"+count;
-					froms +=", exam_items "+itempre;
+				} else if (commonExamUtil.hasExamItem(examname, key)) {
+					String itempre = "t" + count;
+					froms += ", exam_items " + itempre;
 					count++;
-					select += ","+itempre+".value 'col"+colnum+"'";
+					select += "," + itempre + ".value 'col" + colnum + "'";
 				}
-				scalarmap.put("col"+colnum,hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
+				scalarmap.put("col" + colnum,
+						hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
 				colnum++;
 			}
-			select = "select "+select.substring(1);
-			sql = select +froms+ where +orderby;
-		}else{
-			sql += froms+where +orderby;
+			select = "select " + select.substring(1);
+			sql = select + froms + where + orderby;
+		} else {
+			sql += froms + where + orderby;
 		}
-		//计算总数,页数
-		countsql += froms+where;
+		// 计算总数,页数
+		countsql += froms + where;
 		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
-		if(sqlparamtypes.size()>0){
+		if (sqlparamtypes.size() > 0) {
 			NullableType[] types = new NullableType[sqlparamtypes.size()];
 			types = sqlparamtypes.toArray(types);
 			countquery.setParameters(sqlparams.toArray(), types);
 		}
 		List countlist = countquery.list();
 		int allcount = 0;
-		System.out.println("==countlist.size()===="+countlist.size());
-		if(countlist.size()>0){
-			allcount = (Integer)countlist.get(0);
+		System.out.println("==countlist.size()====" + countlist.size());
+		if (countlist.size() > 0) {
+			allcount = (Integer) countlist.get(0);
 		}
 		Map pageparams = params.get(PAGE);
-		int pagesize = Integer.parseInt((String)pageparams.get(PAGESIZE));
-		int currentpage = Integer.parseInt((String)pageparams.get(CURRENTPAGE));
-		if(pagesize <=0){
+		int pagesize = Integer.parseInt((String) pageparams.get(PAGESIZE));
+		int currentpage = Integer
+				.parseInt((String) pageparams.get(CURRENTPAGE));
+		if (pagesize <= 0) {
 			pagesize = DEFAULTPAGESIZE;
 		}
-		
-		int pages = allcount/pagesize + (allcount%pagesize >0?1:0);
-		if(currentpage>pages){
-			currentpage = pages; 
+
+		int pages = allcount / pagesize + (allcount % pagesize > 0 ? 1 : 0);
+		if (currentpage > pages) {
+			currentpage = pages;
 		}
-		if(currentpage <=0){
+		if (currentpage <= 0) {
 			currentpage = 1;
 		}
-		int min = pagesize*(currentpage-1);
-		int max = pagesize*currentpage;
-		//查询分页结果
+		int min = pagesize * (currentpage - 1);
+		int max = pagesize * currentpage;
+		// 查询分页结果
 		SQLQuery query = this.getSession().createSQLQuery(sql);
-		System.out.println("==sql===="+sql);
-		if(sqlparamtypes.size()>0){
+		System.out.println("==sql====" + sql);
+		if (sqlparamtypes.size() > 0) {
 			NullableType[] types = new NullableType[sqlparamtypes.size()];
 			types = sqlparamtypes.toArray(types);
 			query.setParameters(sqlparams.toArray(), types);
 		}
-		if(scalarmap.size()>0){
-			for(Iterator it = scalarmap.keySet().iterator();it.hasNext();){
-				String key = (String)it.next();
-				NullableType type= (NullableType)scalarmap.get(key);
-				query.addScalar(key,type);
+		if (scalarmap.size() > 0) {
+			for (Iterator it = scalarmap.keySet().iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				NullableType type = (NullableType) scalarmap.get(key);
+				query.addScalar(key, type);
 			}
 		}
-//		query.setParameters(sqlparams.toArray(), (Type[])sqlparamtypes.toArray());
+		// query.setParameters(sqlparams.toArray(),
+		// (Type[])sqlparamtypes.toArray());
 		query.setFirstResult(min);
 		query.setMaxResults(max);
 		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		Map ret= new HashMap();
+		Map ret = new HashMap();
 		List retlist = query.list();
-		System.out.println("======"+retlist.size());
+		System.out.println("======" + retlist.size());
 		ret.put("rows", retlist);
 		ret.put("currentpage", currentpage);
 		ret.put("allcount", allcount);
 		ret.put("pages", pages);
 		return ret;
 	}
-	
-	public CommonVO loadExam(String id)  throws Exception{
-		ExamBaseinfo base = (ExamBaseinfo)this.getHibernateTemplate().get(ExamBaseinfo.class, id);
-		List<ExamItems> queryitems = this.getHibernateTemplate().find(" from ExamItems where id.id =?  ",id);
+
+	public CommonVO loadExam(String id) throws Exception {
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
+				ExamBaseinfo.class, id);
+		List<ExamItems> queryitems = this.getHibernateTemplate().find(
+				" from ExamItems where id.id =?  ", id);
 		List<Map> items = new ArrayList();
-		for(ExamItems obj:queryitems){
-			while((obj.getId().getIdx()+1) > items.size()){
+		for (ExamItems obj : queryitems) {
+			while ((obj.getId().getIdx() + 1) > items.size()) {
 				Map item = new HashMap();
 				items.add(item);
 			}
-			items.get(obj.getId().getIdx()).put(obj.getId().getItem(), obj.getValue());
+			items.get(obj.getId().getIdx()).put(obj.getId().getItem(),
+					obj.getValue());
 		}
 		CommonVO ret = new CommonVO();
 		ret.setBase(base);
 		ret.setItems(items);
-		//取出男女方的基础数据
-		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther," +
-        			" p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber" +
-        			" from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo " +
-        			" and hf.fileNo = ? and hf.status = 0 " ; 
+		// 取出男女方的基础数据
+		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
+				+ " dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,"
+				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber"
+				+ " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
+				+ " and hf.fileNo = ? and hf.status = 0 ";
 		SQLQuery womanquery = this.getSession().createSQLQuery(sql);
-		womanquery.setParameters(new Object[]{base.getFileno()}, new Type[]{Hibernate.STRING});
+		womanquery.setParameters(new Object[] { base.getFileno() },
+				new Type[] { Hibernate.STRING });
 		womanquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		womanquery.addScalar("fileno",Hibernate.STRING);
-		womanquery.addScalar("name",Hibernate.STRING);
-		womanquery.addScalar("sex",Hibernate.STRING);
-		womanquery.addScalar("birthday",Hibernate.TIMESTAMP);
-		womanquery.addScalar("age",Hibernate.INTEGER);
-		womanquery.addScalar("idcard",Hibernate.STRING);
-		womanquery.addScalar("barCode",Hibernate.STRING);
-		womanquery.addScalar("address",Hibernate.STRING);
-		womanquery.addScalar("linkmanTel",Hibernate.STRING);
-		womanquery.addScalar("township",Hibernate.STRING);
-		womanquery.addScalar("village",Hibernate.STRING);
-		womanquery.addScalar("workUnit",Hibernate.STRING);
-		womanquery.addScalar("folk",Hibernate.STRING);
-		womanquery.addScalar("folkOther",Hibernate.STRING);
-		womanquery.addScalar("education",Hibernate.STRING);
-		womanquery.addScalar("occupation",Hibernate.STRING);
-		womanquery.addScalar("idnumber",Hibernate.STRING);
-		womanquery.addScalar("residenceAddress",Hibernate.STRING);
-		womanquery.addScalar("districtNumber",Hibernate.STRING);
-		List<Map> womanlist= womanquery.list();
-		if(womanlist.size()>0){
+		womanquery.addScalar("fileno", Hibernate.STRING);
+		womanquery.addScalar("name", Hibernate.STRING);
+		womanquery.addScalar("sex", Hibernate.STRING);
+		womanquery.addScalar("birthday", Hibernate.TIMESTAMP);
+		womanquery.addScalar("age", Hibernate.INTEGER);
+		womanquery.addScalar("idcard", Hibernate.STRING);
+		womanquery.addScalar("barCode", Hibernate.STRING);
+		womanquery.addScalar("address", Hibernate.STRING);
+		womanquery.addScalar("linkmanTel", Hibernate.STRING);
+		womanquery.addScalar("township", Hibernate.STRING);
+		womanquery.addScalar("village", Hibernate.STRING);
+		womanquery.addScalar("workUnit", Hibernate.STRING);
+		womanquery.addScalar("folk", Hibernate.STRING);
+		womanquery.addScalar("folkOther", Hibernate.STRING);
+		womanquery.addScalar("education", Hibernate.STRING);
+		womanquery.addScalar("occupation", Hibernate.STRING);
+		womanquery.addScalar("idnumber", Hibernate.STRING);
+		womanquery.addScalar("residenceAddress", Hibernate.STRING);
+		womanquery.addScalar("districtNumber", Hibernate.STRING);
+		List<Map> womanlist = womanquery.list();
+		if (womanlist.size() > 0) {
 			ret.setWoman(womanlist.get(0));
 		}
 		SQLQuery manquery = this.getSession().createSQLQuery(sql);
-		manquery.setParameters(new Object[]{items.get(0).get("男方_编号")}, new Type[]{Hibernate.STRING});
+		manquery.setParameters(new Object[] { items.get(0).get("男方_编号") },
+				new Type[] { Hibernate.STRING });
 		manquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		manquery.addScalar("fileno",Hibernate.STRING);
-		manquery.addScalar("name",Hibernate.STRING);
-		manquery.addScalar("sex",Hibernate.STRING);
-		manquery.addScalar("birthday",Hibernate.TIMESTAMP);
-		manquery.addScalar("age",Hibernate.INTEGER);
-		manquery.addScalar("idcard",Hibernate.STRING);
-		manquery.addScalar("barCode",Hibernate.STRING);
-		manquery.addScalar("address",Hibernate.STRING);
-		manquery.addScalar("linkmanTel",Hibernate.STRING);
-		manquery.addScalar("township",Hibernate.STRING);
-		manquery.addScalar("village",Hibernate.STRING);
-		manquery.addScalar("workUnit",Hibernate.STRING);
-		manquery.addScalar("folk",Hibernate.STRING);
-		manquery.addScalar("folkOther",Hibernate.STRING);
-		manquery.addScalar("education",Hibernate.STRING);
-		manquery.addScalar("occupation",Hibernate.STRING);
-		manquery.addScalar("idnumber",Hibernate.STRING);
-		manquery.addScalar("residenceAddress",Hibernate.STRING);
-		manquery.addScalar("districtNumber",Hibernate.STRING);
-		List<Map> manlist= manquery.list();
-		if(manlist.size()>0){
+		manquery.addScalar("fileno", Hibernate.STRING);
+		manquery.addScalar("name", Hibernate.STRING);
+		manquery.addScalar("sex", Hibernate.STRING);
+		manquery.addScalar("birthday", Hibernate.TIMESTAMP);
+		manquery.addScalar("age", Hibernate.INTEGER);
+		manquery.addScalar("idcard", Hibernate.STRING);
+		manquery.addScalar("barCode", Hibernate.STRING);
+		manquery.addScalar("address", Hibernate.STRING);
+		manquery.addScalar("linkmanTel", Hibernate.STRING);
+		manquery.addScalar("township", Hibernate.STRING);
+		manquery.addScalar("village", Hibernate.STRING);
+		manquery.addScalar("workUnit", Hibernate.STRING);
+		manquery.addScalar("folk", Hibernate.STRING);
+		manquery.addScalar("folkOther", Hibernate.STRING);
+		manquery.addScalar("education", Hibernate.STRING);
+		manquery.addScalar("occupation", Hibernate.STRING);
+		manquery.addScalar("idnumber", Hibernate.STRING);
+		manquery.addScalar("residenceAddress", Hibernate.STRING);
+		manquery.addScalar("districtNumber", Hibernate.STRING);
+		List<Map> manlist = manquery.list();
+		if (manlist.size() > 0) {
 			ret.setMan(manlist.get(0));
 		}
 		return ret;
 	}
-	
-	public CommonVO common_loadExam(String id)  throws Exception{
-		System.out.println("===id==="+id);
-		ExamBaseinfo base = (ExamBaseinfo)this.getHibernateTemplate().get(ExamBaseinfo.class, id);
-		List<ExamItems> queryitems = this.getHibernateTemplate().find(" from ExamItems where id.id =?  ",id);
+
+	public CommonVO common_loadExam(String id) throws Exception {
+		System.out.println("===id===" + id);
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
+				ExamBaseinfo.class, id);
+		List<ExamItems> queryitems = this.getHibernateTemplate().find(
+				" from ExamItems where id.id =?  ", id);
 		List<Map> items = new ArrayList();
-		for(ExamItems obj:queryitems){
-			while((obj.getId().getIdx()+1) > items.size()){
+		for (ExamItems obj : queryitems) {
+			while ((obj.getId().getIdx() + 1) > items.size()) {
 				Map item = new HashMap();
 				items.add(item);
 			}
-			items.get(obj.getId().getIdx()).put(obj.getId().getItem(), obj.getValue());
+			items.get(obj.getId().getIdx()).put(obj.getId().getItem(),
+					obj.getValue());
 		}
 		CommonVO ret = new CommonVO();
 		ret.setBase(base);
 		ret.setItems(items);
-		//取出基础数据
-		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther," +
-        			" p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation" +
-        			" from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo " +
-        			" and hf.fileNo = ? and hf.status = 0 " ; 
+		// 取出基础数据
+		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
+				+ " dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,"
+				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation"
+				+ " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
+				+ " and hf.fileNo = ? and hf.status = 0 ";
 		SQLQuery query = this.getSession().createSQLQuery(sql);
-		query.setParameters(new Object[]{base.getFileno()}, new Type[]{Hibernate.STRING});
+		query.setParameters(new Object[] { base.getFileno() },
+				new Type[] { Hibernate.STRING });
 		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		query.addScalar("fileno",Hibernate.STRING);
-		query.addScalar("name",Hibernate.STRING);
-		query.addScalar("sex",Hibernate.STRING);
-		query.addScalar("birthday",Hibernate.TIMESTAMP);
-		query.addScalar("age",Hibernate.INTEGER);
-		query.addScalar("idcard",Hibernate.STRING);
-		query.addScalar("barCode",Hibernate.STRING);
-		query.addScalar("address",Hibernate.STRING);
-		query.addScalar("linkmanTel",Hibernate.STRING);
-		query.addScalar("township",Hibernate.STRING);
-		query.addScalar("village",Hibernate.STRING);
-		query.addScalar("workUnit",Hibernate.STRING);
-		query.addScalar("folk",Hibernate.STRING);
-		query.addScalar("folkOther",Hibernate.STRING);
-		query.addScalar("education",Hibernate.STRING);
-		query.addScalar("occupation",Hibernate.STRING);
-		query.addScalar("idnumber",Hibernate.STRING);
-		query.addScalar("residenceAddress",Hibernate.STRING);
-		query.addScalar("districtNumber",Hibernate.STRING);
-		query.addScalar("nation",Hibernate.STRING);
-		List<Map> list= query.list();
-		if(list.size()>0){
+		query.addScalar("fileno", Hibernate.STRING);
+		query.addScalar("name", Hibernate.STRING);
+		query.addScalar("sex", Hibernate.STRING);
+		query.addScalar("birthday", Hibernate.TIMESTAMP);
+		query.addScalar("age", Hibernate.INTEGER);
+		query.addScalar("idcard", Hibernate.STRING);
+		query.addScalar("barCode", Hibernate.STRING);
+		query.addScalar("address", Hibernate.STRING);
+		query.addScalar("linkmanTel", Hibernate.STRING);
+		query.addScalar("township", Hibernate.STRING);
+		query.addScalar("village", Hibernate.STRING);
+		query.addScalar("workUnit", Hibernate.STRING);
+		query.addScalar("folk", Hibernate.STRING);
+		query.addScalar("folkOther", Hibernate.STRING);
+		query.addScalar("education", Hibernate.STRING);
+		query.addScalar("occupation", Hibernate.STRING);
+		query.addScalar("idnumber", Hibernate.STRING);
+		query.addScalar("residenceAddress", Hibernate.STRING);
+		query.addScalar("districtNumber", Hibernate.STRING);
+		query.addScalar("nation", Hibernate.STRING);
+		List<Map> list = query.list();
+		if (list.size() > 0) {
 			ret.setMan(list.get(0));
+		}
+		query = this.getSession().createSQLQuery(sql);
+		query.setParameters(new Object[] { items.get(0).get("配偶_编号") },
+				new Type[] { Hibernate.STRING });
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		query.addScalar("fileno", Hibernate.STRING);
+		query.addScalar("name", Hibernate.STRING);
+		query.addScalar("sex", Hibernate.STRING);
+		query.addScalar("birthday", Hibernate.TIMESTAMP);
+		query.addScalar("age", Hibernate.INTEGER);
+		query.addScalar("idcard", Hibernate.STRING);
+		query.addScalar("barCode", Hibernate.STRING);
+		query.addScalar("address", Hibernate.STRING);
+		query.addScalar("linkmanTel", Hibernate.STRING);
+		query.addScalar("township", Hibernate.STRING);
+		query.addScalar("village", Hibernate.STRING);
+		query.addScalar("workUnit", Hibernate.STRING);
+		query.addScalar("folk", Hibernate.STRING);
+		query.addScalar("folkOther", Hibernate.STRING);
+		query.addScalar("education", Hibernate.STRING);
+		query.addScalar("occupation", Hibernate.STRING);
+		query.addScalar("idnumber", Hibernate.STRING);
+		query.addScalar("residenceAddress", Hibernate.STRING);
+		query.addScalar("districtNumber", Hibernate.STRING);
+		query.addScalar("nation", Hibernate.STRING);
+		List<Map> matelist = query.list();
+		if (matelist.size() > 0) {
+			ret.setWoman(matelist.get(0));
 		}
 		return ret;
 	}
-	
-	public String delExam(String id) throws Exception{
-		ExamBaseinfo base = (ExamBaseinfo)this.getHibernateTemplate().get(ExamBaseinfo.class, id);
-		if(!base.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
-			throw new Exception("只允许"+base.getInputpersonid()+"进行删除!");
+
+	public String delExam(String id) throws Exception {
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
+				ExamBaseinfo.class, id);
+		if (!base.getInputpersonid().equals(
+				SecurityManager.currentOperator().getUsername())) {
+			throw new Exception("只允许" + base.getInputpersonid() + "进行删除!");
 		}
 		base.setStatus(-1);
-//		this.getHibernateTemplate().delete(base);
-//		this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0, id).executeUpdate();
+		// this.getHibernateTemplate().delete(base);
+		// this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0,
+		// id).executeUpdate();
 		return "删除成功!";
 	}
+
 	/**
-	 * 由于婚检有两个人的fileno,所以另写了个查询  只有froms 和where的初始内容不同,其他一致
+	 * 由于婚检有两个人的fileno,所以另写了个查询 只有froms 和where的初始内容不同,其他一致
+	 * 
 	 * @param examname
 	 * @param params
 	 * @param basemap
@@ -426,150 +515,175 @@ public class CommonExamService extends HibernateDaoSupport  {
 	 * @return
 	 * @throws Exception
 	 */
-	
-	public Map marry_examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{
+
+	public Map marry_examList(String examname, String userdistrict,
+			Map<String, Map> params, Map<String, Map<String, String>> basemap,
+			List<String> collist) throws Exception {
 		String countsql = " select count(*)";
-		//这里是默认的查询内容
-		String sql = " select dbo.denc(info.fileno) 'col1',dbo.denc(hf.name) 'col2' , pf.Birthday 'col3' ,info.inputdate 'col4' " ;
+		// 这里是默认的查询内容
+		String sql = " select dbo.denc(info.fileno) 'col1',dbo.denc(hf.name) 'col2' , pf.Birthday 'col3' ,info.inputdate 'col4' ";
 		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf  , exam_items it, healthfile hf1 , PersonalInfo pf1 ";
-		String where = " where info.examname='"+examname+"' and  info.fileno =hf.fileno and info.status=1  and info.fileno = pf.fileno and info.id = it.id and it.item='男方_编号' and it.value = hf1.fileno  and it.value = pf1.fileno " +
-				" and (hf.DistrictNumber like '"+userdistrict+"%' or hf1.DistrictNumber like '"+userdistrict+"%')";
+		String where = " where info.examname='"
+				+ examname
+				+ "' and  info.fileno =hf.fileno and info.status=1  and info.fileno = pf.fileno and info.id = it.id and it.item='男方_编号' and it.value = hf1.fileno  and it.value = pf1.fileno "
+				+ " and (hf.DistrictNumber like '" + userdistrict
+				+ "%' or hf1.DistrictNumber like '" + userdistrict + "%')";
 		String orderby = " order by info.inputdate desc ";
 		String select = "";
-		//params.getBase();
-		Field[] fields= ExamBaseinfo.class.getDeclaredFields();
+		// params.getBase();
+		Field[] fields = ExamBaseinfo.class.getDeclaredFields();
 		List sqlparams = new ArrayList();
 		List<Type> sqlparamtypes = new ArrayList();
-		Map<String , Field> fieldmap = new HashMap();
-		for(int i= 0 ;i <fields.length;i++){
+		Map<String, Field> fieldmap = new HashMap();
+		for (int i = 0; i < fields.length; i++) {
 			fieldmap.put(fields[i].getName(), fields[i]);
 		}
-		int count = 0 ;
-		System.out.println("=======params============"+params);
-		for(Iterator it = params.keySet().iterator(); it.hasNext();){
-			String key = (String)it.next();
-			Map<String, String> value = (Map)params.get(key);
-			if(value !=null){
-				if(basemap.containsKey(key)){
-					Map sqls = getBaseSql(basemap.get(key).get(COLUMN),value,basemap.get(key).getClass());
-					where += (String)sqls.get(WHERES);
-					sqlparams.addAll((List)sqls.get(PARAMS));
-					sqlparamtypes.addAll((List<Type>)sqls.get(TYPES));
-				}else if(COMMONQUERY.equals(key)){
-					//这里是通用查询
-					String[] commonparams = value.get("value").split(PARAMSPLIT);
-					for(int i = 0 ; i < commonparams.length;i++){
+		int count = 0;
+		System.out.println("=======params============" + params);
+		for (Iterator it = params.keySet().iterator(); it.hasNext();) {
+			String key = (String) it.next();
+			Map<String, String> value = (Map) params.get(key);
+			if (value != null) {
+				if (basemap.containsKey(key)) {
+					Map sqls = getBaseSql(basemap.get(key).get(COLUMN), value,
+							basemap.get(key).getClass());
+					where += (String) sqls.get(WHERES);
+					sqlparams.addAll((List) sqls.get(PARAMS));
+					sqlparamtypes.addAll((List<Type>) sqls.get(TYPES));
+				} else if (COMMONQUERY.equals(key)) {
+					// 这里是通用查询
+					String[] commonparams = value.get("value")
+							.split(PARAMSPLIT);
+					for (int i = 0; i < commonparams.length; i++) {
 						String tmp = commonparams[i];
-						while(tmp.indexOf(CONDITIONSPLIT+CONDITIONSPLIT)>=0){
-							tmp = tmp.replaceAll(CONDITIONSPLIT+CONDITIONSPLIT, CONDITIONSPLIT);
+						while (tmp.indexOf(CONDITIONSPLIT + CONDITIONSPLIT) >= 0) {
+							tmp = tmp.replaceAll(CONDITIONSPLIT
+									+ CONDITIONSPLIT, CONDITIONSPLIT);
 						}
 						String[] cols = commonparams[i].split(CONDITIONSPLIT);
-						if(cols.length<3){
-							throw new Exception("通用查询参数"+commonparams[i]+"格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
-						}else{
-							if(basemap.containsKey(cols[0]) && fieldmap.containsKey(basemap.get(cols[0]).get(COLUMN))){
+						if (cols.length < 3) {
+							throw new Exception(
+									"通用查询参数"
+											+ commonparams[i]
+											+ "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
+						} else {
+							if (basemap.containsKey(cols[0])
+									&& fieldmap.containsKey(basemap
+											.get(cols[0]).get(COLUMN))) {
 								Map valuemap = new HashMap();
 								valuemap.put(VALUE, cols[2]);
-								Map sqls = getBaseSql(basemap.get(cols[0]).get(COLUMN),valuemap,fieldmap.get(basemap.get(cols[0]).get(COLUMN)).getType());
-								where += (String)sqls.get(WHERES);
-								sqlparams.addAll((List)sqls.get(PARAMS));
-								sqlparamtypes.addAll((List<Type>)sqls.get(TYPES));
-							}else{
-								if(commonExamUtil.hasExamItem(examname, cols[0])){
+								Map sqls = getBaseSql(
+										basemap.get(cols[0]).get(COLUMN),
+										valuemap,
+										fieldmap.get(
+												basemap.get(cols[0])
+														.get(COLUMN)).getType());
+								where += (String) sqls.get(WHERES);
+								sqlparams.addAll((List) sqls.get(PARAMS));
+								sqlparamtypes.addAll((List<Type>) sqls
+										.get(TYPES));
+							} else {
+								if (commonExamUtil.hasExamItem(examname,
+										cols[0])) {
 									Map valuemap = new HashMap();
 									valuemap.put(VALUE, cols[2]);
-									String itempre = "t"+count;
+									String itempre = "t" + count;
 									count++;
-									froms +=", exam_items "+itempre;
-									Map sqls = getSql(examname,itempre,cols[0],valuemap);
-									where += (String)sqls.get(WHERES);
-									sqlparams.addAll((List)sqls.get(PARAMS));
-									sqlparamtypes.addAll((List<Type>)sqls.get(TYPES));
+									froms += ", exam_items " + itempre;
+									Map sqls = getSql(examname, itempre,
+											cols[0], valuemap);
+									where += (String) sqls.get(WHERES);
+									sqlparams.addAll((List) sqls.get(PARAMS));
+									sqlparamtypes.addAll((List<Type>) sqls
+											.get(TYPES));
 								}
 							}
 						}
 					}
-				}else if(commonExamUtil.hasExamItem(examname, key)){
-					String itempre = "t"+count;
+				} else if (commonExamUtil.hasExamItem(examname, key)) {
+					String itempre = "t" + count;
 					count++;
-					froms +=", exam_items "+itempre;
-					Map sqls = getSql(examname,itempre,key,value);
-					where += (String)sqls.get(WHERES);
-					sqlparams.addAll((List)sqls.get(PARAMS));
-					sqlparamtypes.addAll((List<Type>)sqls.get(TYPES));
+					froms += ", exam_items " + itempre;
+					Map sqls = getSql(examname, itempre, key, value);
+					where += (String) sqls.get(WHERES);
+					sqlparams.addAll((List) sqls.get(PARAMS));
+					sqlparamtypes.addAll((List<Type>) sqls.get(TYPES));
 				}
 			}
 		}
-		//添加scalar
-		Map<String,NullableType> scalarmap = new HashMap();
-		if(collist != null && !collist.isEmpty()){
-			int colnum =0;
-			for(String key : collist){
-		
-				if(basemap.containsKey(key)){
-					select += ","+basemap.get(key).get(COLUMN) +" 'col"+colnum+"'";
-				}else if(commonExamUtil.hasExamItem(examname, key)){
-					String itempre = "t"+count;
-					froms +=", exam_items "+itempre;
+		// 添加scalar
+		Map<String, NullableType> scalarmap = new HashMap();
+		if (collist != null && !collist.isEmpty()) {
+			int colnum = 0;
+			for (String key : collist) {
+
+				if (basemap.containsKey(key)) {
+					select += "," + basemap.get(key).get(COLUMN) + " 'col"
+							+ colnum + "'";
+				} else if (commonExamUtil.hasExamItem(examname, key)) {
+					String itempre = "t" + count;
+					froms += ", exam_items " + itempre;
 					count++;
-					select += ","+itempre+".value 'col"+colnum+"'";
+					select += "," + itempre + ".value 'col" + colnum + "'";
 				}
-				scalarmap.put("col"+colnum,hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
+				scalarmap.put("col" + colnum,
+						hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
 				colnum++;
 			}
-			select = "select "+select.substring(1);
-			sql = select +froms+ where +orderby;
-		}else{
-			sql += froms+where +orderby;
+			select = "select " + select.substring(1);
+			sql = select + froms + where + orderby;
+		} else {
+			sql += froms + where + orderby;
 		}
-		//计算总数,页数
-		countsql += froms+where;
+		// 计算总数,页数
+		countsql += froms + where;
 		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
-		
-		if(sqlparamtypes.size()>0){
+
+		if (sqlparamtypes.size() > 0) {
 			NullableType[] types = new NullableType[sqlparamtypes.size()];
 			types = sqlparamtypes.toArray(types);
 			countquery.setParameters(sqlparams.toArray(), types);
 		}
 		List countlist = countquery.list();
 		int allcount = 0;
-		if(countlist.size()>0){
-			allcount = (Integer)countlist.get(0);
+		if (countlist.size() > 0) {
+			allcount = (Integer) countlist.get(0);
 		}
 		Map pageparams = params.get(PAGE);
-		int pagesize = Integer.parseInt((String)pageparams.get(PAGESIZE));
-		int currentpage = Integer.parseInt((String)pageparams.get(CURRENTPAGE));
-		if(pagesize <=0){
+		int pagesize = Integer.parseInt((String) pageparams.get(PAGESIZE));
+		int currentpage = Integer
+				.parseInt((String) pageparams.get(CURRENTPAGE));
+		if (pagesize <= 0) {
 			pagesize = DEFAULTPAGESIZE;
 		}
-		
-		int pages = allcount/pagesize + (allcount%pagesize >0?1:0);
-		if(currentpage>pages){
-			currentpage = pages; 
+
+		int pages = allcount / pagesize + (allcount % pagesize > 0 ? 1 : 0);
+		if (currentpage > pages) {
+			currentpage = pages;
 		}
-		if(currentpage <=0){
+		if (currentpage <= 0) {
 			currentpage = 1;
 		}
-		int min = pagesize*(currentpage-1);
-		int max = pagesize*currentpage;
-		//查询分页结果
+		int min = pagesize * (currentpage - 1);
+		int max = pagesize * currentpage;
+		// 查询分页结果
 		SQLQuery query = this.getSession().createSQLQuery(sql);
-		if(sqlparamtypes.size()>0){
+		if (sqlparamtypes.size() > 0) {
 			NullableType[] types = new NullableType[sqlparamtypes.size()];
 			types = sqlparamtypes.toArray(types);
 			query.setParameters(sqlparams.toArray(), types);
 		}
-		if(scalarmap.size()>0){
-			for(Iterator it = scalarmap.keySet().iterator();it.hasNext();){
-				String key = (String)it.next();
-				NullableType type= (NullableType)scalarmap.get(key);
-				query.addScalar(key,type);
+		if (scalarmap.size() > 0) {
+			for (Iterator it = scalarmap.keySet().iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				NullableType type = (NullableType) scalarmap.get(key);
+				query.addScalar(key, type);
 			}
 		}
 		query.setFirstResult(min);
 		query.setMaxResults(max);
 		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		Map ret= new HashMap();
+		Map ret = new HashMap();
 		List retlist = query.list();
 		ret.put("rows", retlist);
 		ret.put("currentpage", currentpage);
@@ -577,36 +691,37 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ret.put("pages", pages);
 		return ret;
 	}
-	
-	public Map get_query_info(String examname) throws Exception{
-		
+
+	public Map get_query_info(String examname) throws Exception {
+
 		return null;
 	}
-	
-	private Map getBaseSql(String name, Map<String,String> value, Class type)throws Exception{
-		Map<String ,Object> ret = new HashMap();
+
+	private Map getBaseSql(String name, Map<String, String> value, Class type)
+			throws Exception {
+		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
 		Object typeobj = type.newInstance();
-		if(idx >0){
+		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
-			ret.put(WHERES, " and "+name+" >=? and "+name+" <=? ");
-			if(typeobj instanceof java.util.Date){
+			ret.put(WHERES, " and " + name + " >=? and " + name + " <=? ");
+			if (typeobj instanceof java.util.Date) {
 				List<Date> dates = new ArrayList();
 				dates.add(shortdateformat.parse(values[0].trim()));
-				dates.add(longdateformat.parse(values[1].trim()+DATE_DAYMAX));
+				dates.add(longdateformat.parse(values[1].trim() + DATE_DAYMAX));
 				types.add(Hibernate.TIMESTAMP);
 				types.add(Hibernate.TIMESTAMP);
 				ret.put(PARAMS, dates);
-			}else if(typeobj instanceof java.lang.Number ){
+			} else if (typeobj instanceof java.lang.Number) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(values[0].trim()));
 				numbers.add(new BigDecimal(values[1].trim()));
 				types.add(Hibernate.BIG_DECIMAL);
 				types.add(Hibernate.BIG_DECIMAL);
 				ret.put(PARAMS, numbers);
-			}else{
+			} else {
 				List<String> strs = new ArrayList();
 				strs.add(values[0].trim().trim());
 				strs.add(values[1].trim().trim());
@@ -614,89 +729,91 @@ public class CommonExamService extends HibernateDaoSupport  {
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, strs);
 			}
-		}else if(idx1 >0){
+		} else if (idx1 > 0) {
 			String[] values = value.get(VALUE).split(",");
-			String tmp =  " and "+name+" in (";
+			String tmp = " and " + name + " in (";
 			List hbtparams = new ArrayList();
-			for(int i = 0 ; i <values.length; i++){
-				tmp +="?,";
-				if(typeobj instanceof java.util.Date){
+			for (int i = 0; i < values.length; i++) {
+				tmp += "?,";
+				if (typeobj instanceof java.util.Date) {
 					hbtparams.add(shortdateformat.parse(values[i]));
 					types.add(Hibernate.TIMESTAMP);
-				}else if(typeobj instanceof java.lang.Number ){
+				} else if (typeobj instanceof java.lang.Number) {
 					hbtparams.add(new BigDecimal(values[i]));
 					types.add(Hibernate.BIG_DECIMAL);
-				}else{
+				} else {
 					hbtparams.add(values[i].trim());
 					types.add(Hibernate.STRING);
 				}
 			}
 			ret.put(PARAMS, hbtparams);
-			tmp = tmp.substring(0,tmp.length()-1)+")";
+			tmp = tmp.substring(0, tmp.length() - 1) + ")";
 			ret.put(WHERES, tmp);
-		}else{
+		} else {
 			String opt = value.get("opt");
-			if(typeobj instanceof java.lang.Number ){
+			if (typeobj instanceof java.lang.Number) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(value.get(VALUE).trim()));
 				ret.put(PARAMS, numbers);
-				ret.put(WHERES, " and "+ name+" "+ opt +"?  ");
+				ret.put(WHERES, " and " + name + " " + opt + "?  ");
 				types.add(Hibernate.BIG_DECIMAL);
-			}else{
+			} else {
 				List<String> params = new ArrayList();
-				if(SQL_OPT_LIKE.equals(opt)){
+				if (SQL_OPT_LIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+value.get(VALUE).trim()+"%");
-				}else if( SQL_OPT_LEFTLIKE.equals(opt)){
+					params.add("%" + value.get(VALUE).trim() + "%");
+				} else if (SQL_OPT_LEFTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add(value.get(VALUE).trim()+"%");
-				}else if( SQL_OPT_RIGHTLIKE.equals(opt)){
+					params.add(value.get(VALUE).trim() + "%");
+				} else if (SQL_OPT_RIGHTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+value.get(VALUE).trim());
-				}else{
+					params.add("%" + value.get(VALUE).trim());
+				} else {
 					params.add(value.get(VALUE).trim());
 				}
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, params);
-				ret.put(WHERES, " and "+ name+" "+ opt +"?  ");
+				ret.put(WHERES, " and " + name + " " + opt + "?  ");
 			}
 		}
 		ret.put(TYPES, types);
 		return ret;
 	}
-	
-	
-	private Map getBaseSql(Map cfg, Map<String,String> value, Class type)throws Exception{
-		Map<String ,Object> ret = new HashMap();
+
+	private Map getBaseSql(Map cfg, Map<String, String> value, Class type)
+			throws Exception {
+		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
-		String name = (String)cfg.get(COLUMN);
-		
+		String name = (String) cfg.get(COLUMN);
+
 		Object typeobj = type.newInstance();
-		if(idx >0){
+		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
-			ret.put(WHERES, " and "+cfg.get(COLUMN)+" >=? and "+cfg.get(COLUMN)+" <=? ");
-			if(typeobj instanceof java.util.Date){
+			ret.put(WHERES,
+					" and " + cfg.get(COLUMN) + " >=? and " + cfg.get(COLUMN)
+							+ " <=? ");
+			if (typeobj instanceof java.util.Date) {
 				List<Date> dates = new ArrayList();
 				dates.add(shortdateformat.parse(values[0].trim()));
-				dates.add(longdateformat.parse(values[1].trim()+DATE_DAYMAX));
+				dates.add(longdateformat.parse(values[1].trim() + DATE_DAYMAX));
 				types.add(Hibernate.TIMESTAMP);
 				types.add(Hibernate.TIMESTAMP);
 				ret.put(PARAMS, dates);
-			}else if(typeobj instanceof java.lang.Number ){
+			} else if (typeobj instanceof java.lang.Number) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(values[0].trim()));
 				numbers.add(new BigDecimal(values[1].trim()));
 				types.add(Hibernate.BIG_DECIMAL);
 				types.add(Hibernate.BIG_DECIMAL);
 				ret.put(PARAMS, numbers);
-			}else{
+			} else {
 				List<String> strs = new ArrayList();
-				if(cfg.get("encflag").equals("true")){
+				if (cfg.get("encflag").equals("true")) {
 					strs.add(EncryptionUtils.encry(values[0].trim().trim()));
 					strs.add(EncryptionUtils.encry(values[1].trim().trim()));
-				}else{
+				} else {
 					strs.add(values[0].trim().trim());
 					strs.add(values[1].trim().trim());
 				}
@@ -704,198 +821,205 @@ public class CommonExamService extends HibernateDaoSupport  {
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, strs);
 			}
-		}else if(idx1 >0){
+		} else if (idx1 > 0) {
 			String[] values = value.get(VALUE).split(",");
-			String tmp =  " and "+cfg.get(COLUMN)+" in (";
+			String tmp = " and " + cfg.get(COLUMN) + " in (";
 			List hbtparams = new ArrayList();
-			for(int i = 0 ; i <values.length; i++){
-				tmp +="?,";
-				if(typeobj instanceof java.util.Date){
+			for (int i = 0; i < values.length; i++) {
+				tmp += "?,";
+				if (typeobj instanceof java.util.Date) {
 					hbtparams.add(shortdateformat.parse(values[i]));
 					types.add(Hibernate.TIMESTAMP);
-				}else if(typeobj instanceof java.lang.Number ){
+				} else if (typeobj instanceof java.lang.Number) {
 					hbtparams.add(new BigDecimal(values[i]));
 					types.add(Hibernate.BIG_DECIMAL);
-				}else{
-					if(cfg.get("encflag").equals("true")){
+				} else {
+					if (cfg.get("encflag").equals("true")) {
 						hbtparams.add(EncryptionUtils.encry(values[i].trim()));
-					}else{
+					} else {
 						hbtparams.add(values[i].trim());
 					}
 					types.add(Hibernate.STRING);
 				}
 			}
 			ret.put(PARAMS, hbtparams);
-			tmp = tmp.substring(0,tmp.length()-1)+")";
+			tmp = tmp.substring(0, tmp.length() - 1) + ")";
 			ret.put(WHERES, tmp);
-		}else{
+		} else {
 			String opt = value.get("opt");
-			if(typeobj instanceof java.lang.Number ){
+			if (typeobj instanceof java.lang.Number) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(value.get(VALUE).trim()));
 				ret.put(PARAMS, numbers);
-				ret.put(WHERES, " and "+ cfg.get(COLUMN)+" "+ opt +"?  ");
+				ret.put(WHERES, " and " + cfg.get(COLUMN) + " " + opt + "?  ");
 				types.add(Hibernate.BIG_DECIMAL);
-			}else{
+			} else {
 				List<String> params = new ArrayList();
-				String valuestr = (String)value.get(VALUE).trim();
-				if(cfg.get("encflag").equals("true")){
+				String valuestr = (String) value.get(VALUE).trim();
+				if (cfg.get("encflag").equals("true")) {
 					valuestr = EncryptionUtils.encry(valuestr);
 				}
-				if(SQL_OPT_LIKE.equals(opt)){
+				if (SQL_OPT_LIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+valuestr+"%");
-				}else if( SQL_OPT_LEFTLIKE.equals(opt)){
+					params.add("%" + valuestr + "%");
+				} else if (SQL_OPT_LEFTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add(valuestr+"%");
-				}else if( SQL_OPT_RIGHTLIKE.equals(opt)){
+					params.add(valuestr + "%");
+				} else if (SQL_OPT_RIGHTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+valuestr);
-				}else{
+					params.add("%" + valuestr);
+				} else {
 					params.add(valuestr);
 				}
-				System.out.println("====valuestr=="+valuestr);
+				System.out.println("====valuestr==" + valuestr);
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, params);
-				ret.put(WHERES, " and "+ cfg.get(COLUMN)+" "+ opt +"?  ");
+				ret.put(WHERES, " and " + cfg.get(COLUMN) + " " + opt + "?  ");
 			}
 		}
 		ret.put(TYPES, types);
 		return ret;
 	}
-	
-	private Map getItemWhere(String name, Map<String,String> value, String pre)throws Exception{
-		Map<String ,Object> ret = new HashMap();
+
+	private Map getItemWhere(String name, Map<String, String> value, String pre)
+			throws Exception {
+		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
-		if(idx >0){
+		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
-			ret.put(WHERES, " and "+pre+".value >=? and value <=? ");
+			ret.put(WHERES, " and " + pre + ".value >=? and value <=? ");
 			List<String> strs = new ArrayList();
 			strs.add(values[0].trim().trim());
 			strs.add(values[1].trim().trim());
 			types.add(Hibernate.STRING);
 			types.add(Hibernate.STRING);
 			ret.put(PARAMS, strs);
-		}else if(idx1 >0){
+		} else if (idx1 > 0) {
 			String[] values = value.get(VALUE).split(",");
-			String tmp =  " and "+pre+".value in (";
+			String tmp = " and " + pre + ".value in (";
 			List hbtparams = new ArrayList();
-			for(int i = 0 ; i <values.length; i++){
-				tmp +="?,";
+			for (int i = 0; i < values.length; i++) {
+				tmp += "?,";
 				hbtparams.add(values[i].trim());
 				types.add(Hibernate.STRING);
 			}
 			ret.put(PARAMS, hbtparams);
-			tmp = tmp.substring(0,tmp.length()-1)+")";
+			tmp = tmp.substring(0, tmp.length() - 1) + ")";
 			ret.put(WHERES, tmp);
-		}else{
+		} else {
 			String opt = value.get("opt");
 			List<String> params = new ArrayList();
-			if(SQL_OPT_LIKE.equals(opt)){
+			if (SQL_OPT_LIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add("%"+value.get(VALUE).trim()+"%");
-			}else if( SQL_OPT_LEFTLIKE.equals(opt)){
+				params.add("%" + value.get(VALUE).trim() + "%");
+			} else if (SQL_OPT_LEFTLIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add(value.get(VALUE).trim()+"%");
-			}else if( SQL_OPT_RIGHTLIKE.equals(opt)){
+				params.add(value.get(VALUE).trim() + "%");
+			} else if (SQL_OPT_RIGHTLIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add("%"+value.get(VALUE).trim());
-			}else{
+				params.add("%" + value.get(VALUE).trim());
+			} else {
 				params.add(value.get(VALUE).trim());
 			}
 			types.add(Hibernate.STRING);
 			ret.put(PARAMS, params);
-			ret.put(WHERES, " and "+pre+".value "+ opt +"?  ");
+			ret.put(WHERES, " and " + pre + ".value " + opt + "?  ");
 		}
 		ret.put(TYPES, types);
 		return ret;
 	}
-	
-	private Map getSql(String examname,String pre , String name, Map<String,String> value)throws Exception{
-		Map<String ,Object> ret = new HashMap();
+
+	private Map getSql(String examname, String pre, String name,
+			Map<String, String> value) throws Exception {
+		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
 		String opt = value.get("opt");
-		String where = " and info.id= "+pre+".id and "+pre+".item='"+ name+"' and ";
-		String type= commonExamUtil.getExamItemCfg(examname, name).getValuetype();
-		if(idx >0){
+		String where = " and info.id= " + pre + ".id and " + pre + ".item='"
+				+ name + "' and ";
+		String type = commonExamUtil.getExamItemCfg(examname, name)
+				.getValuetype();
+		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
-			if("number".equals(type) ){
+			if ("number".equals(type)) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(values[0].trim()));
 				numbers.add(new BigDecimal(values[1].trim()));
 				types.add(Hibernate.BIG_DECIMAL);
 				types.add(Hibernate.BIG_DECIMAL);
 				ret.put(PARAMS, numbers);
-				ret.put(WHERES, where+pre+".numbervalue >=? and "+pre+".numbervalue <=? ");
-			}else if("date".equals(type) ){
+				ret.put(WHERES, where + pre + ".numbervalue >=? and " + pre
+						+ ".numbervalue <=? ");
+			} else if ("date".equals(type)) {
 				List<String> strs = new ArrayList();
-				strs.add(values[0].trim()+DATE_DAYMIN);
-				strs.add(values[1].trim()+DATE_DAYMAX);
+				strs.add(values[0].trim() + DATE_DAYMIN);
+				strs.add(values[1].trim() + DATE_DAYMAX);
 				types.add(Hibernate.TIMESTAMP);
 				types.add(Hibernate.TIMESTAMP);
 				ret.put(PARAMS, strs);
-				ret.put(WHERES, where+pre+".value >=? and "+pre+".value <=? ");
-			}else{
+				ret.put(WHERES, where + pre + ".value >=? and " + pre
+						+ ".value <=? ");
+			} else {
 				List<String> strs = new ArrayList();
 				strs.add(values[0].trim());
 				strs.add(values[1].trim());
 				types.add(Hibernate.STRING);
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, strs);
-				ret.put(WHERES, where+pre+".value >=? and "+pre+".value <=? ");
+				ret.put(WHERES, where + pre + ".value >=? and " + pre
+						+ ".value <=? ");
 			}
-		}else if(idx1 >0){
+		} else if (idx1 > 0) {
 			String[] values = value.get(VALUE).split(",");
-			String tmp =  " and "+pre+".value in (";
+			String tmp = " and " + pre + ".value in (";
 			List hbtparams = new ArrayList();
-			for(int i = 0 ; i <values.length; i++){
-				tmp +="?,";
-				if("number".equals(type) ){
+			for (int i = 0; i < values.length; i++) {
+				tmp += "?,";
+				if ("number".equals(type)) {
 					hbtparams.add(new BigDecimal(values[i]));
 					types.add(Hibernate.BIG_DECIMAL);
-				}else if("date".equals(type) ){
-					hbtparams.add(values[i].trim()+DATE_DAYMIN);
+				} else if ("date".equals(type)) {
+					hbtparams.add(values[i].trim() + DATE_DAYMIN);
 					types.add(Hibernate.TIMESTAMP);
-				}else{
+				} else {
 					hbtparams.add(values[i].trim());
 					types.add(Hibernate.STRING);
 				}
 			}
 			ret.put(PARAMS, hbtparams);
-			tmp = tmp.substring(0,tmp.length()-1)+")";
+			tmp = tmp.substring(0, tmp.length() - 1) + ")";
 			ret.put(WHERES, tmp);
-		}else{
-			if("number".equals(type) ){
+		} else {
+			if ("number".equals(type)) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(value.get(VALUE).trim()));
 				ret.put(PARAMS, numbers);
 				types.add(Hibernate.BIG_DECIMAL);
-				ret.put(WHERES, where+pre+".numbervalue "+ opt +" ? ");
-			}else{
+				ret.put(WHERES, where + pre + ".numbervalue " + opt + " ? ");
+			} else {
 				List<String> params = new ArrayList();
-				if(SQL_OPT_LIKE.equals(opt)){
+				if (SQL_OPT_LIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+value.get(VALUE).trim()+"%");
-					ret.put(WHERES, where+pre+".value "+opt+"? ");
-				}else if( SQL_OPT_LEFTLIKE.equals(opt)){
+					params.add("%" + value.get(VALUE).trim() + "%");
+					ret.put(WHERES, where + pre + ".value " + opt + "? ");
+				} else if (SQL_OPT_LEFTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add(value.get(VALUE).trim()+"%");
-					ret.put(WHERES, where+pre+".value "+opt+"? ");
-				}else if( SQL_OPT_RIGHTLIKE.equals(opt)){
+					params.add(value.get(VALUE).trim() + "%");
+					ret.put(WHERES, where + pre + ".value " + opt + "? ");
+				} else if (SQL_OPT_RIGHTLIKE.equals(opt)) {
 					opt = SQL_OPT_LIKE;
-					params.add("%"+value.get(VALUE).trim());
-					ret.put(WHERES, where+pre+".value "+opt+"? ");
-				}else{
-					if("date".equals(type)){
-						//这里处理日期类型的等于 ,日期不接受时分秒参数
-						ret.put(WHERES, where+pre+".value "+opt+"? ");
-						params.add(value.get(VALUE).trim()+DATE_DAYMIN);
-					}else{
-						ret.put(WHERES, where+pre+".value "+opt+"? ");
+					params.add("%" + value.get(VALUE).trim());
+					ret.put(WHERES, where + pre + ".value " + opt + "? ");
+				} else {
+					if ("date".equals(type)) {
+						// 这里处理日期类型的等于 ,日期不接受时分秒参数
+						ret.put(WHERES, where + pre + ".value " + opt + "? ");
+						params.add(value.get(VALUE).trim() + DATE_DAYMIN);
+					} else {
+						ret.put(WHERES, where + pre + ".value " + opt + "? ");
 						params.add(value.get(VALUE).trim());
 					}
 				}
@@ -906,26 +1030,28 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ret.put(TYPES, types);
 		return ret;
 	}
-	
-	public CommonVO saveExam(CommonVO savedata) throws Exception{
-		//完成baseinfo属性拷贝
+
+	public CommonVO saveExam(CommonVO savedata) throws Exception {
+		// 完成baseinfo属性拷贝
 		ExamBaseinfo base = savedata.getBase();
-		if(StringUtils.isEmpty(base.getId())){
+		if (StringUtils.isEmpty(base.getId())) {
 			base.setId(fileNoGen.getNextExamId());
-		}else{
-			ExamBaseinfo old = (ExamBaseinfo)getHibernateTemplate().get(ExamBaseinfo.class, base.getId());
+		} else {
+			ExamBaseinfo old = (ExamBaseinfo) getHibernateTemplate().get(
+					ExamBaseinfo.class, base.getId());
 			getHibernateTemplate().evict(old);
-			if(!old.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
-				throw new Exception("只允许"+old.getInputpersonid()+"进行修改!");
+			if (!old.getInputpersonid().equals(
+					SecurityManager.currentOperator().getUsername())) {
+				throw new Exception("只允许" + old.getInputpersonid() + "进行修改!");
 			}
 		}
 		getHibernateTemplate().saveOrUpdate(savedata.getBase());
-		//处理items
-		List<Map> items = (List<Map>)savedata.getItems();
-		for(int i = 0 ; i <items.size();i++){
-			Map vo = items.get(i); 
-			for(Iterator it = vo.keySet().iterator() ; it.hasNext(); ){
-				String key = (String)it.next();
+		// 处理items
+		List<Map> items = (List<Map>) savedata.getItems();
+		for (int i = 0; i < items.size(); i++) {
+			Map vo = items.get(i);
+			for (Iterator it = vo.keySet().iterator(); it.hasNext();) {
+				String key = (String) it.next();
 				Object value = vo.get(key);
 				ExamItems item = new ExamItems();
 				ExamItemsId id = new ExamItemsId();
@@ -933,58 +1059,57 @@ public class CommonExamService extends HibernateDaoSupport  {
 				id.setIdx(i);
 				id.setItem(key);
 				item.setId(id);
-				//配置表有的字段才保存
-				if(commonExamUtil.hasExamItem(base.getExamname(), key) ){
-					if(value !=null){
-						item.setValue(makstr(base.getExamname(),key,value));
-					}else{
+				// 配置表有的字段才保存
+				if (commonExamUtil.hasExamItem(base.getExamname(), key)) {
+					if (value != null) {
+						item.setValue(makstr(base.getExamname(), key, value));
+					} else {
 						item.setValue(null);
 					}
 					getHibernateTemplate().saveOrUpdate(item);
-				}else{
-					System.out.println(key+"=="+value);
+				} else {
+					System.out.println(key + "==" + value);
 				}
 			}
 		}
-		System.out.println("==================="+savedata);
+		System.out.println("===================" + savedata);
 		return savedata;
 	}
-	
-	public String makstr(String examname,String itemname,Object value){
+
+	public String makstr(String examname, String itemname, Object value) {
 		ExamItemcfg cfg = commonExamUtil.getExamItemCfg(examname, itemname);
-		String type= VALUE_TYPE_STRING;
-		if(cfg !=null){
+		String type = VALUE_TYPE_STRING;
+		if (cfg != null) {
 			type = cfg.getValuetype();
 		}
-		//时间类型进行处理后保存
-//		if(VALUE_TYPE_DATE.equals(type)){
-//			System.out.println("===========value========"+value);
-//			Long date = Long.parseLong((String)value);
-//			return dateformat.format(date);
-//		}else{
-			return (String)value;
-//		}
+		// 时间类型进行处理后保存
+		// if(VALUE_TYPE_DATE.equals(type)){
+		// System.out.println("===========value========"+value);
+		// Long date = Long.parseLong((String)value);
+		// return dateformat.format(date);
+		// }else{
+		return (String) value;
+		// }
 	}
-	
-	//TODO 返回查询的设置
-	public List get_query_list(String examname){
-		Query query = this.getSession().createQuery("from ExamQueryCfg where examname = ? order by ord");
+
+	// TODO 返回查询的设置
+	public List get_query_list(String examname) {
+		Query query = this.getSession().createQuery(
+				"from ExamQueryCfg where examname = ? order by ord");
 		query.setParameter(0, examname);
 		List ret = query.list();
-		System.out.println("======"+ret.size());
+		System.out.println("======" + ret.size());
 		return ret;
 	}
-	
-	
-	
-	public Map getDistrictMap(){
+
+	public Map getDistrictMap() {
 		return commonExamUtil.getDistrictMap();
 	}
 
 	public CommonExamUtil getCommonExamUtil() {
 		return commonExamUtil;
 	}
-	
+
 	public void setCommonExamUtil(CommonExamUtil commonExamUtil) {
 		this.commonExamUtil = commonExamUtil;
 	}
@@ -996,6 +1121,5 @@ public class CommonExamService extends HibernateDaoSupport  {
 	public void setFileNoGen(FileNoGen fileNoGen) {
 		this.fileNoGen = fileNoGen;
 	}
-	
 
 }

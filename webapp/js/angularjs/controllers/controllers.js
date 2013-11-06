@@ -285,6 +285,7 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		queryName(query,"男");
 	};
 	$scope.formatSelection=function(item){
+		console.log(event);
 		if(!item.data){
 			return item.text;
 		}else{

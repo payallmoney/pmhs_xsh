@@ -102,7 +102,83 @@
 							<label><input type='radio' value="陽性" ng-model="data.items[0]['淋球菌']">陽性</label><br>
 					</td>
 				</tr>
-				
+				<tr>
+					<td colspan=2><br>---------------------------------------配偶------------------------------------------</td>
+				</tr>
+				<tr>
+					<td>姓&nbsp;&nbsp;&nbsp;&nbsp;名：<input id="woman_name" ng-model="woman.name" searchWidth=500 ui-select2="{query:manchangeName,formatSelection:formatSelection,formatSearching:manSearching,formatNoMatches:formatNoMatches,change:nameChange,openOnEnter:false,initSelection:initSelection}"  style="width:120px" />
+					<select id="womannameselect" ng-model="womannameselect" realvalue='{{womannameselect}}' title='姓名、联系人只要输入1位就进行查询；身份证号输入10位后开始查询；条形码、档案编号输入4位后才进行查询' ng-options='option.value as option.name for option in namequeryoptions'  style="width:100px"></select>
+					<select id="womandistrictselect" ng-model="womandistrictselect" realvalue='{{womandistrictselect}}' title='跨区域选择' ng-options='option.value as option.name group by option.parent for option in districtdata.nodes'  style="width:120px"></select>
+					出生日期：<input ng-model="man.birthday" readonly ui-date style="width:120px" >
+					</td>
+				</tr>
+				<tr>
+					<td>身份证号：<input ng-model="woman.idcard" readonly class="required number idcard"  minlength="18"  maxlength="18" />
+					</td>
+				</tr>
+				<tr>
+					<td>职&nbsp;&nbsp;&nbsp;&nbsp;业：<input ng-model="woman.occupation" readonly class="required number"  minlength="18"  maxlength="18" style="width:300px" />
+					&nbsp;&nbsp;&nbsp;文化程度：<input  ng-model="woman.education" readonly class="required"  minlength="4"  maxlength="4" style="width:150px" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>户口所在地属：<input  ng-model="woman.residenceAddress" readonly  class="required number"  minlength="18"  maxlength="18" style="width:410px" />
+					&nbsp;&nbsp;&nbsp;民族：<input  ng-model="woman.folk" readonly  class="required"  minlength="4"  maxlength="4" style="width:60px" />
+					&nbsp;&nbsp;国籍：<input  ng-model="data.items[0]['配偶_国籍']" readonly  class="required"  minlength="4"  maxlength="4" style="width:40px" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>现&nbsp;住&nbsp;址：<input readonly  ng-model="woman.address"  class="required"  minlength="18"  maxlength="18" style="width:470px" />
+					邮&nbsp;&nbsp;&nbsp;&nbsp;编：<input readonly ng-model="data.items[0]['配偶_邮编']"  class="required number idcard"  minlength="6"  maxlength="6" style="width:130px" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>工作单位：<input ng-model="woman.workUnit" readonly class="required number"  minlength="18"  maxlength="18" style="width:470px" />
+					联系电话：<input ng-model="woman.linkmanTel" readonly class="required"  minlength="4"  maxlength="4" style="width:130px" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2><br>---------------------------------------以—下—由—医—生—填—写------------------------------------------</td>
+				</tr>
+				<tr>
+					<td colspan=2>编&nbsp;&nbsp;&nbsp;&nbsp;号：<input value="{{data.items[0]['配偶_编号']  | denc}}" class="required number" readOnly  minlength="18"  maxlength="18" style="width:230px" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						HIV抗体：<label><input type='radio' value="陰性" ng-model="data.items[0]['配偶_HIV抗体']">陰性</label>
+								<label><input type='radio' value="待复查" ng-model="data.items[0]['配偶_HIV抗体']">待复查</label><br>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						梅&nbsp;&nbsp;&nbsp;毒：<label><input type='radio' value="陰性" ng-model="data.items[0]['配偶_梅毒']">陰性</label>
+							<label><input type='radio' value="陽性" ng-model="data.items[0]['配偶_梅毒']">陽性</label>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						滴&nbsp;&nbsp;&nbsp;度：<label><input type='radio' value="未检测" ng-model="data.items[0]['配偶_梅毒滴度']">未检测</label>
+<label><input type='radio' value="1:8以下" ng-model="data.items[0]['配偶_梅毒滴度']">1:8以下</label>
+<label><input type='radio' value="1:8～1:64" ng-model="data.items[0]['配偶_梅毒滴度']">1:8～1:64</label>
+<label><input type='radio' value="1:64～1:128" ng-model="data.items[0]['配偶_梅毒滴度']">1:64～1:128</label><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<label><input type='radio' value="1:128～1:256" ng-model="data.items[0]['配偶_梅毒滴度']">1:128～1:256</label>
+<label><input type='radio' value="1:256以上" ng-model="data.items[0]['配偶_梅毒滴度']">1:256以上</label>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						&nbsp;淋球菌：<label><input type='radio' value="陰性" ng-model="data.items[0]['配偶_淋球菌']">陰性</label>
+							<label><input type='radio' value="陽性" ng-model="data.items[0]['配偶_淋球菌']">陽性</label><br>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+					检查医师签名：<input ng-model="data.items[0]['检查医师签名']" class="required"  minlength="2"  maxlength="10" style="width:115px" />
+					检测日期：<input ng-model="dateitems['检测日期']" ui-date class="required number"  minlength="4"  maxlength="4" style="width:170px" />
+				</td>
+				</tr>
 			</table>
 		</div>
 		<script src="/js/angularjs/moment.min.js"></script>

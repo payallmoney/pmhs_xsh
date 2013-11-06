@@ -25,9 +25,6 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.dbutils.handlers.ArrayHandler;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -1543,7 +1540,6 @@ public class DataExportService extends HibernateDaoSupport {
 		
 		Sheet sheet1 = wb.createSheet(name);
 		// No DataSource so we must handle Connections manually
-		QueryRunner run = new QueryRunner();
 		try{
 		Connection conn = getSession().connection();
 		Statement st = conn.createStatement();

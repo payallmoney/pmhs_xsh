@@ -86,8 +86,10 @@
             		}
             	})
             	console.log(params);
+            	$('#export_button').linkbutton('disable');
             	DataExportService.sqlExport(node.id,$("#select_type").combobox('getValue'),$("#select_type").combobox('getText'),params,function(data){
             		console.log(data);
+            		$('#export_button').linkbutton('enable');
             		window.location.href = data;
             		//window.open(data,null,"height=10,width=10,status=yes,toolbar=no,menubar=no,location=no");
             	});

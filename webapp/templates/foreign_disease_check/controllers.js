@@ -100,8 +100,8 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 
 	$scope.namemap = {"男":{},"女":{}};
 	function queryName (query , type ){
-		var typecode = '13';
-		var sexcode =  'man';
+		var typecode = type=="男" ? 13:14;
+		var sexcode = type=="男" ? 'man':'woman';
 		
 		var district = $('#'+sexcode+'districtselect').attr("realvalue");
 		var querytype = parseInt($('#'+sexcode+'nameselect').attr("realvalue"));
@@ -179,25 +179,39 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 			//这里对数据进行填充
 			var obj = null;
 			var otherobj = null;
-			$scope.data.items[0]["编号"] = enc(item.data[0])
-			$scope.data.base.fileno = enc(item.data[0]);
-			obj = $scope.man;
+			if(item.data[2]=="女"){
+				obj = $scope.woman;
+				otherobj = $scope.man;
+				//女方编号
+				$scope.data.base.fileno = enc(item.data[0]);
+				$scope.data.base.womanfileno = item.data[0];
+			}else{
+				//男方编号
+				$scope.data.items[0]["男方_编号"] = enc(item.data[0])
+				$scope.data.base.manfileno = item.data[0];
+				obj = $scope.man;
+				otherobj = $scope.woman;
+			}
+			otherobj.othersidename = item.data[1];
 			obj.birthday = item.data[3];
 			obj.idcard = denc(item.data[16]);
 			obj.occupation = item.data[15];
 			obj.education = item.data[14];
 			obj.folk = item.data[12];
-			$scope.data.items[0]['国籍'] = item.data[19];
+			$scope.data.items[0][item.data[2]+'方_国籍'] = "中国";
 			obj.residenceAddress = item.data[17];
 			obj.address = item.data[7];
-			$scope.data.items[0]['邮编'] = 678200;
+			$scope.data.items[0][item.data[2]+'方_邮编'] = 678200;
 			obj.workUnit = item.data[11];
 			obj.linkmanTel = item.data[8];
 			obj.address = item.data[7];
 			item.text = item.data[1];
-			var district = $('#mandistrictselect').attr("realvalue");
 			return item.data[1];
 		}
+	};
+	$scope.womanSearching=function(scope){
+		//注:select2的事件似乎无法正常获取$scope更新后的内容,只能得到初始化的内容
+		return "输入"+$('#womannameselect').find("option:selected").text()+"进行查询...";
 	};
 	$scope.manSearching=function(){
 		return "输入"+ $('#mannameselect').find("option:selected").text()+"进行查询...";

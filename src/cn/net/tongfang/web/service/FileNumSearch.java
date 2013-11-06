@@ -31,6 +31,7 @@ public class FileNumSearch extends HibernateDaoSupport{
 	public static String OtherParamType_MarryMan = "11";//男性婚检
 	public static String OtherParamType_MarryWoman = "12";//女性婚检
 	public static String OtherParamType_Foreign_Disease_Check = "13";//外籍人员检查
+	public static String OtherParamType_Foreign_Disease_Check_Mate = "14";//外籍人员配偶
 	
 	//condVal 类型
 	public static String CondVal_Barcode = "0";   //条形码
@@ -99,6 +100,9 @@ public class FileNumSearch extends HibernateDaoSupport{
         		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
         	}else if(otherparamtype.equals(OtherParamType_Foreign_Disease_Check)){//外籍人员检查
         		hsqlparam = " And hf.nation <> '中国'";
+        		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation ";
+        	}else if(otherparamtype.equals(OtherParamType_Foreign_Disease_Check_Mate)){//外籍人员检查
+        		hsqlparam = " ";
         		extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation ";
         	}
     	}
