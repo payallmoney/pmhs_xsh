@@ -45,16 +45,19 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public synchronized String save(PersonalInfoFBO data) throws Exception{
 		
 		// update switch
-		
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileno = data.getFileNo();
 		System.out.println("=====old======oldfileno========"+fileno);
 		//if (fileno.length() == 18){
+		
 		if(fileno != null && !fileno.equals("")){
-			System.out.println("updating...");
+			if(!user.getUsername().equals(data.getInputPersonId()) ){
+				throw new Exception("不是本人建立的档案,不允许修改!");
+			}
 			return update(data);
 		}
 		// save routine
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		
 
 		String disNo = data.getDistrictNumber();
 //		String disNo = data.getId();

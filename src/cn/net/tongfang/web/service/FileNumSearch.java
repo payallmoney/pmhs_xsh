@@ -395,26 +395,30 @@ public class FileNumSearch extends HibernateDaoSupport{
     
     public boolean saveHistoryLink(String fileno , String newid){
     	try{
-    		Session session = getSession();
-    		System.out.println("=====fileno="+fileno);
-    		System.out.println("=====newid="+newid);
-	    	Query oldquery = session.createQuery(" from HealthFileHistory2 where linkFileno = ?");
-	    	oldquery.setParameter(0, fileno);
-	    	List oldret = oldquery.list();
-	    	if(oldret.size()>0){
-	    		for(int i= 0 ; i <oldret.size();i++){
-	    			HealthFileHistory2 vo = ((HealthFileHistory2)(oldret.get(i)));
-	    			vo.setLinkFileno(null);
-	    			session.update(vo);
-	    		}
-	    	}
-	    	HealthFileHistory2 newvo = (HealthFileHistory2)session.get(HealthFileHistory2.class,Long.parseLong(newid));
-	    	System.out.println("======"+newvo.getName());
-	    	System.out.println("======"+newvo.getIdcard());
-	    	newvo.setLinkFileno(fileno);
-	    	session.update(newvo);
-	    	session.flush();
-	    	return true;
+    		if(newid!=null && fileno !=null){
+	    		Session session = getSession();
+	    		System.out.println("=====fileno="+fileno);
+	    		System.out.println("=====newid="+newid);
+		    	Query oldquery = session.createQuery(" from HealthFileHistory2 where linkFileno = ?");
+		    	oldquery.setParameter(0, fileno);
+		    	List oldret = oldquery.list();
+		    	if(oldret.size()>0){
+		    		for(int i= 0 ; i <oldret.size();i++){
+		    			HealthFileHistory2 vo = ((HealthFileHistory2)(oldret.get(i)));
+		    			vo.setLinkFileno(null);
+		    			session.update(vo);
+		    		}
+		    	}
+		    	HealthFileHistory2 newvo = (HealthFileHistory2)session.get(HealthFileHistory2.class,Long.parseLong(newid));
+		    	System.out.println("======"+newvo.getName());
+		    	System.out.println("======"+newvo.getIdcard());
+		    	newvo.setLinkFileno(fileno);
+		    	session.update(newvo);
+		    	session.flush();
+		    	return true;
+    		}else{
+    			return false;
+    		}
     	}catch(Exception e){
     		e.printStackTrace();
     		return false;

@@ -62,8 +62,5 @@
         <property name="linkFileno" type="string">
             <column name="link_fileno" length="36" />
         </property>
-        <property name="selectemp" type="string">
-            <column name="selectemp" length="36" />
-        </property>
     </class>
 </hibernate-mapping>

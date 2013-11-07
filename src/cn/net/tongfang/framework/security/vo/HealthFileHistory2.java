@@ -28,7 +28,6 @@ public class HealthFileHistory2 implements java.io.Serializable {
 	private Date jdrq;
 	private String districtId;
 	private String linkFileno;
-	private String selectemp;
 
 	public HealthFileHistory2() {
 	}
@@ -41,7 +40,7 @@ public class HealthFileHistory2 implements java.io.Serializable {
 			String sex, String idcard, Date birthday, String fileno,
 			String pastname, String address, String raddress, String tel,
 			String xz, String cwh, String jddw, String jdr, String zrys,
-			Date jdrq, String districtId, String linkFileno, String selectemp) {
+			Date jdrq, String districtId, String linkFileno) {
 		this.id = id;
 		this.filename = filename;
 		this.name = name;
@@ -61,7 +60,6 @@ public class HealthFileHistory2 implements java.io.Serializable {
 		this.jdrq = jdrq;
 		this.districtId = districtId;
 		this.linkFileno = linkFileno;
-		this.selectemp = selectemp;
 	}
 
 	public long getId() {
@@ -214,14 +212,6 @@ public class HealthFileHistory2 implements java.io.Serializable {
 
 	public void setLinkFileno(String linkFileno) {
 		this.linkFileno = linkFileno;
-	}
-
-	public String getSelectemp() {
-		return this.selectemp;
-	}
-
-	public void setSelectemp(String selectemp) {
-		this.selectemp = selectemp;
 	}
 
 }
