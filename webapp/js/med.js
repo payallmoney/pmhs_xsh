@@ -827,6 +827,7 @@ function isOldMan(date) {
 	
 	med.hissearch = function(dsFunc,setting) {
 		return function(cond) {
+			console.log("cond=====",cond);
 			var subject = new Rx.AsyncSubject();
 			var isWomanRecord = '';
 			if ($('.isWomanRecord') != undefined) {
@@ -869,7 +870,7 @@ function isOldMan(date) {
 		var searchCode = setting.multi ? undefined : setting.model.code; // 如果是多选，不过滤数据
 		var dsObservable = setting.local ? med.searchLocal(setting.ds,
 				searchCode) : med.hissearch(setting.ds.search,setting);
-
+		console.log("dsObservable====",dsObservable);
 		var observer = Rx.Observer.Create(function(results) {
 			// if (!obj.is(":hidden")){
 			totalPages = results.totalPages;
@@ -1214,31 +1215,33 @@ function isOldMan(date) {
 					if (forceSetVal) { // force setval only
 						obj.attr("disabled", true);
 						// if (seles.length > 0 do we need this?
-						setting.ds.get(seles[0], function(d) {
-							values = d;
-							obj.attr("disabled", false);
-							showValues();
-							obj.hide();
-							if (setting.writeback) { // todo 代码重复
-								var _s = d[0];
-//								console.log("=s====="+_s)
-								if(_s && _s.length>4){
-    								setDisabledBySex(_s[2]);
-    								isOldMan(_s[3]);
-    								$.each(setting.writeback, function(i, v) {
-    									var ctrl = setting.ctx.getCtrl(v.id);
-    									if (ctrl && ctrl['val']) {
-    										if(v.force){
-    											ctrl.val(_s[v.col]);
-    										}else{
-	    									    if(Ext.isEmpty(ctrl.val()))
-	    										  ctrl.val(_s[v.col]);
+						if (seles.length > 0){
+							setting.ds.get(seles[0], function(d) {
+								values = d;
+								obj.attr("disabled", false);
+								showValues();
+								obj.hide();
+								if (setting.writeback) { // todo 代码重复
+									var _s = d[0];
+	//								console.log("=s====="+_s)
+									if(_s && _s.length>4){
+	    								setDisabledBySex(_s[2]);
+	    								isOldMan(_s[3]);
+	    								$.each(setting.writeback, function(i, v) {
+	    									var ctrl = setting.ctx.getCtrl(v.id);
+	    									if (ctrl && ctrl['val']) {
+	    										if(v.force){
+	    											ctrl.val(_s[v.col]);
+	    										}else{
+		    									    if(Ext.isEmpty(ctrl.val()))
+		    										  ctrl.val(_s[v.col]);
+		    									}
 	    									}
-    									}
-    								});
+	    								});
+									}
 								}
-							}
-						});
+							});
+						}
 					} else if (values.length > 0 && setting.writeback) { // 使用原来的值
 						var _s = values[0]; // todo duplicated code
 						setDisabledBySex(_s[2]);
@@ -1291,6 +1294,7 @@ function isOldMan(date) {
 				// if (!setting.roWhenSet){
 //				readonly = false;
 				if (!readonly) {
+					console.log("do med reset....................")
 					valFunc([]);
 				}
 			},

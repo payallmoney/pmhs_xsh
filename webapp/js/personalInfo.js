@@ -2,6 +2,7 @@
 (function() {
   var queryjson;
 
+  
   window.printdata = function(data, type, start) {
     var item, msg;
     msg = "";
@@ -217,6 +218,7 @@
   window.services = {
     get: PersonalInfoService.get,
     save: PersonalInfoService.save,
+    aftersave:FileNumSearch.saveHistoryLink,
     afterinit : function(flag){
     	if(flag){
     		//加载页面时
@@ -225,20 +227,44 @@
     	}
     }
   };
-  function checkidnumber( id ){
+  function showDialog(msg, clickToClose){
+      $.blockUI({ css: { 
+          border: 'none', 
+          padding: '15px', 
+          backgroundColor: '#000', 
+          '-webkit-border-radius': '10px', 
+          '-moz-border-radius': '10px', 
+          opacity: .5, 
+          color: '#fff'
+      },  message: msg });
+      if (clickToClose) {
+          $('.blockOverlay').one('click', $.unblockUI);
+      }
+
+  }
+  window.alertinfo = function(id){
+	  var msg = window.checkidnumber(id);
+	  console.log("msg=="+msg);
+	  if (!isEmpty(msg)){
+		  showDialog(msg, true);
+	  }else{
+		  showDialog("身份证号可以使用,没有重复!", true);
+	  }
+  }
+  window.checkidnumber =  function ( id ){
 //	  FileNumSearch.getFileByIdNumber($("#"+id+" input").val(),function(data){
 //		  console.log(data);
 //	  });
 	  var ret = null;
 //	  console.log('$("#"+id+" input").val()====='+$("#"+id+" input").val());
-	  FileNumSearch.getFileByIdNumber($("#fileNo span").html(),$("#"+id+" input").val(),		{ 
+	  FileNumSearch.checkFileByIdNumber($("#fileNo span").html(),$("#"+id+" input").val(),		{ 
 	        async: false,
 	        callback: function(data){
 	        	console.log(data);
 	        	if(data.length>0){
 	        		ret = "不允许录入重复的身份证号!身份证与以下档案重复:"
 	        		for(var i = 0 ; i <data.length;i++){
-	        			ret += "<br>"+denc(data[i][0])+denc(data[i][1]);
+	        			ret += "<br>姓名:"+denc(data[i][1])+"&nbsp;&nbsp;档案编号:"+denc(data[i][0]);
 	        		}
 	        	}
 	        }
@@ -386,9 +412,10 @@
         defaultVal: "",
         maxlen: 18,
         size: 18,
+        format:'idnumber',
         calculateBirthday: true,
         calculateBirthdayByIDNumber: ["birthday"],
-        checkfunc:checkidnumber
+        checkfunc:window.checkidnumber
       },
       required: [true, "身份证号"]
     }, {

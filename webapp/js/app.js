@@ -415,7 +415,8 @@ var fieldsArray = {};
                 if(storeId != null){
                 	send.id = storeId;
                 }
-                services.save(send,{ callback :function(d){  
+                services.save(send,{ callback :function(d){
+                	
                     if ( typeof sendMessage == 'function' ) {
                           sendMessage('saved');
                     }
@@ -447,6 +448,13 @@ var fieldsArray = {};
                 				$(".personName").html(personName);
                 				$(".personSex").html(personSex);
                 				$(".personBirthday").html(personBirthday);
+                				if($.isFunction(services.aftersave)){
+                            		console.log(send);
+                            		console.log('personId',personId)
+                            		services.aftersave(personId,send.historyselect,{ callback :function(data){
+                            			console.log("保存历史数据",data);
+                            		}});
+                            	}
         					}
             			}
             		});

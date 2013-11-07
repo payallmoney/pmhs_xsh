@@ -1256,8 +1256,9 @@ function hideHUD($t, includeError){
                     }
                 },
                 reset : function(){
-//                    combo.val([]);
+                    //combo.val([]);
                     combo.reset();
+                    console.log("do combo reset....................")
                 }
 
             }
