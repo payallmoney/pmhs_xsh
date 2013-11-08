@@ -1181,9 +1181,7 @@ function hideHUD($t, includeError){
             c.empty().append(ele);
             
             var url = window.location.href;
-            if($('#historyval').length>0){
-            	return;
-            }
+            $('#historyselect').parent('td').find("span").remove();
         	$('#historyselect').parent('td').append('<span style="display:none;" id="historyval">1</span>' +
         			'<span style="margin-left:10px;">' + 
         			'<font size=2 color="red">人员检索条件：<select id="selecthistory">'+

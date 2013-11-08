@@ -143,7 +143,7 @@ jQuery.cookie = function(name, value, options) {
                     valid = false;
                     msg = eMsg.join("\n");
                 }
-                console.error("date validation " + valid);
+                //console.error("date validation " + valid);
             } 
             return { valid : valid, msg : msg};
         }
@@ -277,7 +277,7 @@ jQuery.cookie = function(name, value, options) {
             var tip = "";
             var pass= true;
             
-            if(!code || !/^\d{6}(18|19|20)?\d{2}(0[1-9]|1[12])(0[1-9]|[12]\d|3[01])\d{3}(\d|X)$/i.test(code)){
+            if(!code || !/^\d{6}(18|19|20)?\d{2}(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])\d{3}(\d|[x|X])?$/i.test(code)){
                 tip = "身份证号格式错误";
                 pass = false;
             }
@@ -305,10 +305,12 @@ jQuery.cookie = function(name, value, options) {
                         sum += ai * wi;
                     }
                     var last = parity[sum % 11];
-//                    if(parity[sum % 11] != toUpperCase(code[17])){
-//                        tip = "校验位错误";
-//                        pass =false;
-//                    }
+                    if(parity[sum % 11] != code[17].toUpperCase()){
+                        tip = "校验位错误";
+                        pass =false;
+                    }
+                }else if(code.length == 15){
+                	
                 }else{
                 	tip = "格式或长度错误";
                     pass = false;

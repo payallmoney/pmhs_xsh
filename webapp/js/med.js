@@ -32,6 +32,57 @@ function isOldMan(date) {
 		}
 	}
 }
+function trim(str){  
+    // 用正则表达式将前后空格  
+    // 用空字符串替代。  
+    return str.replace(/(^\s*)|(\s*$)/g, "");  
+}
+
+function data_writeback(ctrl,_s,setting){
+	$.each(setting.writeback, function(i, v) {
+		var ctrl = setting.ctx.getCtrl(v.id);
+		if (ctrl && ctrl['val']) {
+			if(v.force || Ext.isEmpty(ctrl.val())){
+				if((v.forcenullvalue && v.nullvalue) || Ext.isEmpty(_s[v.col])){
+					if(v.nullvalue){
+						var reg = /\$\{([^\}]*)\}/m;
+						if(reg.test(v.nullvalue)){
+							//var matchs = obj.value.search(reg);
+							var teststr = trim(v.nullvalue);
+							match = reg.exec(teststr)
+							while( match) {
+								var strs = match[1].split("|");
+								var data = trim(strs[0]);
+								var func = trim(strs[1]);
+								if(strs.length>1){
+									if(data.substr(0,1)=="$"){
+										try{
+											data = trim(_s[parseInt(data.substr(1))]);
+											if(!data){
+												data = "";
+											}
+										}catch(err){
+											
+										}
+									}
+									var replacestr  = "data="+func+"('"+data.replace(/\'/g,"\\'")+"')";
+									eval (replacestr);
+								}
+								teststr = teststr.replace(match[0],data);
+								match = reg.exec(teststr);
+							}
+							ctrl.val(teststr);
+						}else{
+							ctrl.val(v.nullvalue);
+						}
+					}
+				}else{
+					ctrl.val(_s[v.col]);
+				}
+			}
+		}
+	});
+}
 
 (function() {
 
@@ -621,18 +672,19 @@ function isOldMan(date) {
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
 //				console.log(_s);
-				$.each(setting.writeback, function(i, v) {
-					var ctrl = setting.ctx.getCtrl(v.id);
-					if (ctrl && ctrl['val']) {
-						if(v.force){
-							ctrl.val(_s[v.col]);
-						}else{
-							if(Ext.isEmpty(ctrl.val()))
-								  ctrl.val(_s[v.col]);
-						}
-					    
-					}
-				});
+				data_writeback(ctrl,_s,setting)
+//				$.each(setting.writeback, function(i, v) {
+//					var ctrl = setting.ctx.getCtrl(v.id);
+//					if (ctrl && ctrl['val']) {
+//						if(v.force){
+//							ctrl.val(_s[v.col]);
+//						}else{
+//							if(Ext.isEmpty(ctrl.val()))
+//								  ctrl.val(_s[v.col]);
+//						}
+//					    
+//					}
+//				});
 			}
 			if(setting.showHistoryRecord && selection.length > 0){
 				var _s = selection[0];
@@ -751,17 +803,29 @@ function isOldMan(date) {
 								if(_s && _s.length>4){
     								setDisabledBySex(_s[2]);
     								isOldMan(_s[3]);
-    								$.each(setting.writeback, function(i, v) {
-    									var ctrl = setting.ctx.getCtrl(v.id);
-    									if (ctrl && ctrl['val']) {
-    										if(v.force){
-    											ctrl.val(_s[v.col]);
-    										}else{
-	    									    if(Ext.isEmpty(ctrl.val()))
-	    										  ctrl.val(_s[v.col]);
-    										}
-    									}
-    								});
+    								data_writeback(ctrl,_s,setting);
+//    								$.each(setting.writeback, function(i, v) {
+//    									var ctrl = setting.ctx.getCtrl(v.id);
+//    									if (ctrl && ctrl['val']) {
+//    										if(v.force){
+//    											if(!Ext.isEmpty(_s[v.col])){
+//    												ctrl.val(_s[v.col]);
+//    											}else{
+//    												if(v.defaultvalue){
+//    													ctrl.val(v.defaultvalue);
+//        											}
+//    											}
+//    										}else if(Ext.isEmpty(ctrl.val())){
+//    									    	if(!Ext.isEmpty(_s[v.col])){
+//    												ctrl.val(_s[v.col]);
+//    											}else{
+//    												if(v.defaultvalue){
+//    													ctrl.val(v.defaultvalue);
+//        											}
+//    											}
+//    									    }
+//    									}
+//    								});
 								}
 							}
 						});
@@ -769,18 +833,33 @@ function isOldMan(date) {
 						var _s = values[0]; // todo duplicated code
 						setDisabledBySex(_s[2]);
 						isOldMan(_s[3]);
-						$.each(setting.writeback, function(i, _v) {
-							var ctrl = setting.ctx.getCtrl(_v.id);
-							if (ctrl && ctrl['val']) {
-								if(_v.force){
-									ctrl.val(_s[_v.col]);
-								}else{
-									if(Ext.isEmpty(ctrl.val()))
-									    ctrl.val(_s[_v.col]);
-								}
-							    
-							}
-						});
+						data_writeback(ctrl,_s,setting);
+//						$.each(setting.writeback, function(i, _v) {
+//							var ctrl = setting.ctx.getCtrl(_v.id);
+//							if (ctrl && ctrl['val']) {
+//								if(_v.force){
+//									if(!Ext.isEmpty(_s[v.col])){
+//										ctrl.val(_s[v.col]);
+//									}else{
+//										if(v.defaultvalue){
+//											ctrl.val(v.defaultvalue);
+//										}
+//									}
+//									//ctrl.val(_s[_v.col]);
+//								}else{
+//									if(Ext.isEmpty(ctrl.val())){
+//										if(!Ext.isEmpty(_s[v.col])){
+//											ctrl.val(_s[v.col]);
+//										}else{
+//											if(v.defaultvalue){
+//												ctrl.val(v.defaultvalue);
+//											}
+//										}
+//									}
+//								}
+//							    
+//							}
+//						});
 					}
 				}
 				showValues();
@@ -857,6 +936,7 @@ function isOldMan(date) {
 		}
 	}
 	med.historycombo = function(obj, setting) {
+		console.log("============new?=========================")
 		var cl;
 		var from = 0, totalPages = -1;
 		var selector = med.selector(setting);
@@ -1097,17 +1177,18 @@ function isOldMan(date) {
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
 //				console.log(_s);
-				$.each(setting.writeback, function(i, v) {
-					var ctrl = setting.ctx.getCtrl(v.id);
-					if (ctrl && ctrl['val']) {
-						if(v.force){
-							ctrl.val(_s[v.col]);
-						}else{
-						    if(Ext.isEmpty(ctrl.val()))
-							  ctrl.val(_s[v.col]);
-						}
-					}
-				});
+				data_writeback(ctrl,_s,setting);
+//				$.each(setting.writeback, function(i, v) {
+//					var ctrl = setting.ctx.getCtrl(v.id);
+//					if (ctrl && ctrl['val']) {
+//						if(v.force){
+//							ctrl.val(_s[v.col]);
+//						}else{
+//						    if(Ext.isEmpty(ctrl.val()))
+//							  ctrl.val(_s[v.col]);
+//						}
+//					}
+//				});
 			}
 			if(setting.showHistoryRecord && selection.length > 0){
 				var _s = selection[0];
@@ -1221,23 +1302,26 @@ function isOldMan(date) {
 								obj.attr("disabled", false);
 								showValues();
 								obj.hide();
+								
 								if (setting.writeback) { // todo 代码重复
 									var _s = d[0];
 	//								console.log("=s====="+_s)
+									
 									if(_s && _s.length>4){
 	    								setDisabledBySex(_s[2]);
 	    								isOldMan(_s[3]);
-	    								$.each(setting.writeback, function(i, v) {
-	    									var ctrl = setting.ctx.getCtrl(v.id);
-	    									if (ctrl && ctrl['val']) {
-	    										if(v.force){
-	    											ctrl.val(_s[v.col]);
-	    										}else{
-		    									    if(Ext.isEmpty(ctrl.val()))
-		    										  ctrl.val(_s[v.col]);
-		    									}
-	    									}
-	    								});
+	    								data_writeback(ctrl,_s,setting);
+//	    								$.each(setting.writeback, function(i, v) {
+//	    									var ctrl = setting.ctx.getCtrl(v.id);
+//	    									if (ctrl && ctrl['val']) {
+//	    										if(v.force){
+//	    											ctrl.val(_s[v.col]);
+//	    										}else{
+//		    									    if(Ext.isEmpty(ctrl.val()))
+//		    										  ctrl.val(_s[v.col]);
+//		    									}
+//	    									}
+//	    								});
 									}
 								}
 							});
@@ -1246,17 +1330,18 @@ function isOldMan(date) {
 						var _s = values[0]; // todo duplicated code
 						setDisabledBySex(_s[2]);
 						isOldMan(_s[3]);
-						$.each(setting.writeback, function(i, _v) {
-							var ctrl = setting.ctx.getCtrl(_v.id);
-							if (ctrl && ctrl['val']) {
-								if(v.force){
-									ctrl.val(_s[v.col]);
-								}else{
-								    if(Ext.isEmpty(ctrl.val()))
-									  ctrl.val(_s[v.col]);
-								}
-							}
-						});
+						data_writeback(ctrl,_s,setting);
+//						$.each(setting.writeback, function(i, _v) {
+//							var ctrl = setting.ctx.getCtrl(_v.id);
+//							if (ctrl && ctrl['val']) {
+//								if(v.force){
+//									ctrl.val(_s[v.col]);
+//								}else{
+//								    if(Ext.isEmpty(ctrl.val()))
+//									  ctrl.val(_s[v.col]);
+//								}
+//							}
+//						});
 					}
 				}
 				showValues();
