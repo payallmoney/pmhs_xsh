@@ -78,5 +78,6 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ImApi-2.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/mm.mysql-2.0.4-bin.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/poi-3.9-20121203.jar"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
