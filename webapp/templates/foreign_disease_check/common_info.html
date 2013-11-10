@@ -35,39 +35,36 @@
 					</td>
 				</tr>
 				<tr>
-					<td>姓&nbsp;&nbsp;&nbsp;&nbsp;名：<input id="man_name" ng-model="man.name" searchWidth=500 ui-select2="{query:manchangeName,formatSelection:formatSelection,formatSearching:manSearching,formatNoMatches:formatNoMatches,change:nameChange,openOnEnter:false,initSelection:initSelection}"  style="width:120px" />
-					<select id="mannameselect" ng-model="mannameselect" realvalue='{{mannameselect}}' title='姓名、联系人只要输入1位就进行查询；身份证号输入10位后开始查询；条形码、档案编号输入4位后才进行查询' ng-options='option.value as option.name for option in namequeryoptions'  style="width:100px"></select>
-					<select id="mandistrictselect" ng-model="mandistrictselect" realvalue='{{mandistrictselect}}' title='跨区域选择' ng-options='option.value as option.name group by option.parent for option in districtdata.nodes'  style="width:120px"></select>
-					出生日期：<input ng-model="man.birthday" readonly ui-date style="width:120px" >
+					<td>姓&nbsp;&nbsp;&nbsp;&nbsp;名：<input ng-model="data.fileinfo['mainfile'].name" searchWidth=500 ui-select2="{query:queryName,formatSelection:formatSelection,formatSearching:manSearching,formatNoMatches:formatNoMatches,change:nameChange,openOnEnter:false,initSelection:initSelection}"  style="width:120px" />
+					<select ng-model="selects['mainfile']" realvalue="{{selects['mainfile']}}" title='姓名、联系人只要输入1位就进行查询；身份证号输入10位后开始查询；条形码、档案编号输入4位后才进行查询' ng-options='option.value as option.name for option in namequeryoptions'  style="width:100px"></select>
+					<select ng-model="districtselects['mainfile']" realvalue="{{districtselects['mainfile']}}" title='跨区域选择' ng-options='option.value as option.name group by option.parent for option in districtdata.nodes'  style="width:120px"></select>
+					出生日期：<input ng-model="data.fileinfo['mainfile'].birthday" readonly ui-date style="width:120px" >
 					</td>
 				</tr>
 				<tr>
-					<td>身份证号：<input ng-model="man.idcard" readonly class="required number idcard"  minlength="18"  maxlength="18" />
+					<td>身份证号：<input ng-model="data.fileinfo['mainfile'].idcard" readonly class="required number idcard"  minlength="18"  maxlength="18" />
 					</td>
 				</tr>
 				<tr>
-					<td>职&nbsp;&nbsp;&nbsp;&nbsp;业：<input ng-model="man.occupation" readonly class="required number"  minlength="18"  maxlength="18" style="width:300px" />
-					&nbsp;&nbsp;&nbsp;文化程度：<input  ng-model="man.education" readonly class="required"  minlength="4"  maxlength="4" style="width:150px" />
+					<td>职&nbsp;&nbsp;&nbsp;&nbsp;业：<input ng-model="data.fileinfo['mainfile'].occupation" readonly class="required number"  minlength="18"  maxlength="18" style="width:300px" />
+					&nbsp;&nbsp;&nbsp;文化程度：<input  ng-model="data.fileinfo['mainfile'].education" readonly class="required"  minlength="4"  maxlength="4" style="width:150px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>户口所在地属：<input  ng-model="man.residenceAddress" readonly  class="required number"  minlength="18"  maxlength="18" style="width:410px" />
-					&nbsp;&nbsp;&nbsp;民族：<input  ng-model="man.folk" readonly  class="required"  minlength="4"  maxlength="4" style="width:60px" />
-					&nbsp;&nbsp;国籍：<input  ng-model="data.items[0]['国籍']" readonly  class="required"  minlength="4"  maxlength="4" style="width:40px" />
+					<td colspan=2>户口所在地属：<input  ng-model="data.fileinfo['mainfile'].residenceAddress" readonly  class="required number"  minlength="18"  maxlength="18" style="width:410px" />
+					&nbsp;&nbsp;&nbsp;民族：<input  ng-model="data.fileinfo['mainfile'].folk" readonly  class="required"  minlength="4"  maxlength="4" style="width:60px" />
+					&nbsp;&nbsp;国籍：<input  ng-model="data.items[0]['mainfile_国籍']" readonly  class="required"  minlength="4"  maxlength="4" style="width:40px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>现&nbsp;住&nbsp;址：<input readonly  ng-model="man.address"  class="required"  minlength="18"  maxlength="18" style="width:470px" />
+					<td colspan=2>现&nbsp;住&nbsp;址：<input readonly  ng-model="data.fileinfo['mainfile'].address"  class="required"  minlength="18"  maxlength="18" style="width:470px" />
 					邮&nbsp;&nbsp;&nbsp;&nbsp;编：<input readonly ng-model="data.items[0]['邮编']"  class="required number idcard"  minlength="6"  maxlength="6" style="width:130px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>工作单位：<input ng-model="man.workUnit" readonly class="required number"  minlength="18"  maxlength="18" style="width:470px" />
-					联系电话：<input ng-model="man.linkmanTel" readonly class="required"  minlength="4"  maxlength="4" style="width:130px" />
+					<td colspan=2>工作单位：<input ng-model="data.fileinfo['mainfile'].workUnit" readonly class="required number"  minlength="18"  maxlength="18" style="width:470px" />
+					联系电话：<input ng-model="data.fileinfo['mainfile'].linkmanTel" readonly class="required"  minlength="4"  maxlength="4" style="width:130px" />
 					</td>
-				</tr>
-				<tr>
-					<td colspan=2><br>---------------------------------------以—下—由—医—生—填—写------------------------------------------</td>
 				</tr>
 				<tr>
 					<td colspan=2>编&nbsp;&nbsp;&nbsp;&nbsp;号：<input value="{{data.base.fileno | denc}}" class="required number" readOnly  minlength="18"  maxlength="18" style="width:230px" />
@@ -103,42 +100,39 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2><br>---------------------------------------配偶------------------------------------------</td>
+					<td colspan=2><br>---------------------------------------------------------配偶---------------------------------------------------------------------</td>
 				</tr>
 				<tr>
-					<td>姓&nbsp;&nbsp;&nbsp;&nbsp;名：<input id="woman_name" ng-model="woman.name" searchWidth=500 ui-select2="{query:manchangeName,formatSelection:formatSelection,formatSearching:manSearching,formatNoMatches:formatNoMatches,change:nameChange,openOnEnter:false,initSelection:initSelection}"  style="width:120px" />
-					<select id="womannameselect" ng-model="womannameselect" realvalue='{{womannameselect}}' title='姓名、联系人只要输入1位就进行查询；身份证号输入10位后开始查询；条形码、档案编号输入4位后才进行查询' ng-options='option.value as option.name for option in namequeryoptions'  style="width:100px"></select>
-					<select id="womandistrictselect" ng-model="womandistrictselect" realvalue='{{womandistrictselect}}' title='跨区域选择' ng-options='option.value as option.name group by option.parent for option in districtdata.nodes'  style="width:120px"></select>
-					出生日期：<input ng-model="man.birthday" readonly ui-date style="width:120px" >
+					<td>姓&nbsp;&nbsp;&nbsp;&nbsp;名：<input ng-model="data.fileinfo['配偶_编号'].name" searchWidth=500 ui-select2="{query:queryName,formatSelection:formatSelection,formatSearching:manSearching,formatNoMatches:formatNoMatches,change:nameChange,openOnEnter:false,initSelection:initSelection}"  style="width:120px" />
+					<select  ng-model="selects['配偶_编号']" realvalue="{{selects['配偶_编号']}}" title='姓名、联系人只要输入1位就进行查询；身份证号输入10位后开始查询；条形码、档案编号输入4位后才进行查询' ng-options='option.value as option.name for option in namequeryoptions'  style="width:100px"></select>
+					<select  ng-model="districtselects['配偶_编号']" realvalue="{{districtselects['配偶_编号']}}" title='跨区域选择' ng-options='option.value as option.name group by option.parent for option in districtdata.nodes'  style="width:120px"></select>
+					出生日期：<input ng-model="data.fileinfo['配偶_编号'].birthday" readonly ui-date style="width:120px" >
 					</td>
 				</tr>
 				<tr>
-					<td>身份证号：<input ng-model="woman.idcard" readonly class="required number idcard"  minlength="18"  maxlength="18" />
+					<td>身份证号：<input ng-model="data.fileinfo['配偶_编号'].idcard" readonly class="required number idcard"  minlength="18"  maxlength="18" />
 					</td>
 				</tr>
 				<tr>
-					<td>职&nbsp;&nbsp;&nbsp;&nbsp;业：<input ng-model="woman.occupation" readonly class="required number"  minlength="18"  maxlength="18" style="width:300px" />
-					&nbsp;&nbsp;&nbsp;文化程度：<input  ng-model="woman.education" readonly class="required"  minlength="4"  maxlength="4" style="width:150px" />
+					<td>职&nbsp;&nbsp;&nbsp;&nbsp;业：<input ng-model="data.fileinfo['配偶_编号'].occupation" readonly class="required number"  minlength="18"  maxlength="18" style="width:300px" />
+					&nbsp;&nbsp;&nbsp;文化程度：<input  ng-model="data.fileinfo['配偶_编号'].education" readonly class="required"  minlength="4"  maxlength="4" style="width:150px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>户口所在地属：<input  ng-model="woman.residenceAddress" readonly  class="required number"  minlength="18"  maxlength="18" style="width:410px" />
-					&nbsp;&nbsp;&nbsp;民族：<input  ng-model="woman.folk" readonly  class="required"  minlength="4"  maxlength="4" style="width:60px" />
+					<td colspan=2>户口所在地属：<input  ng-model="data.fileinfo['配偶_编号'].residenceAddress" readonly  class="required number"  minlength="18"  maxlength="18" style="width:410px" />
+					&nbsp;&nbsp;&nbsp;民族：<input  ng-model="data.fileinfo['配偶_编号'].folk" readonly  class="required"  minlength="4"  maxlength="4" style="width:60px" />
 					&nbsp;&nbsp;国籍：<input  ng-model="data.items[0]['配偶_国籍']" readonly  class="required"  minlength="4"  maxlength="4" style="width:40px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>现&nbsp;住&nbsp;址：<input readonly  ng-model="woman.address"  class="required"  minlength="18"  maxlength="18" style="width:470px" />
+					<td colspan=2>现&nbsp;住&nbsp;址：<input readonly  ng-model="data.fileinfo['配偶_编号'].address"  class="required"  minlength="18"  maxlength="18" style="width:470px" />
 					邮&nbsp;&nbsp;&nbsp;&nbsp;编：<input readonly ng-model="data.items[0]['配偶_邮编']"  class="required number idcard"  minlength="6"  maxlength="6" style="width:130px" />
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2>工作单位：<input ng-model="woman.workUnit" readonly class="required number"  minlength="18"  maxlength="18" style="width:470px" />
-					联系电话：<input ng-model="woman.linkmanTel" readonly class="required"  minlength="4"  maxlength="4" style="width:130px" />
+					<td colspan=2>工作单位：<input ng-model="data.fileinfo['配偶_编号'].workUnit" readonly class="required number"  minlength="18"  maxlength="18" style="width:470px" />
+					联系电话：<input ng-model="data.fileinfo['配偶_编号'].linkmanTel" readonly class="required"  minlength="4"  maxlength="4" style="width:130px" />
 					</td>
-				</tr>
-				<tr>
-					<td colspan=2><br>---------------------------------------以—下—由—医—生—填—写------------------------------------------</td>
 				</tr>
 				<tr>
 					<td colspan=2>编&nbsp;&nbsp;&nbsp;&nbsp;号：<input value="{{data.items[0]['配偶_编号']  | denc}}" class="required number" readOnly  minlength="18"  maxlength="18" style="width:230px" />
@@ -176,7 +170,7 @@
 				<tr>
 					<td colspan=2>
 					检查医师签名：<input ng-model="data.items[0]['检查医师签名']" class="required"  minlength="2"  maxlength="10" style="width:115px" />
-					检测日期：<input ng-model="dateitems['检测日期']" ui-date class="required number"  minlength="4"  maxlength="4" style="width:170px" />
+					检测日期：<input ng-model="dateitems['checkdate']" ui-date class="required number"  minlength="4"  maxlength="4" style="width:170px" />
 				</td>
 				</tr>
 			</table>

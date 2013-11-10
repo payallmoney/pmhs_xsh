@@ -26,6 +26,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
+import cn.net.tongfang.framework.security.vo.ExamExamcfg;
+import cn.net.tongfang.framework.security.vo.ExamExamcfgFileno;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.security.vo.ExamItems;
 import cn.net.tongfang.framework.security.vo.ExamItemsId;
@@ -39,12 +41,9 @@ public class CommonExamService extends HibernateDaoSupport {
 	private static String VALUE_TYPE_STRING = "string";
 	private static String VALUE_TYPE_DATE = "date";
 	private static String VALUE_TYPE_NUMBER = "number";
-	private static SimpleDateFormat dateformat = new SimpleDateFormat(
-			"yyyyMMdd HH:mm:ss.SSS");
-	private static SimpleDateFormat shortdateformat = new SimpleDateFormat(
-			"yyyyMMdd");
-	private static SimpleDateFormat longdateformat = new SimpleDateFormat(
-			"yyyyMMdd HH:mm:ss.SSS");
+	private static SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+	private static SimpleDateFormat shortdateformat = new SimpleDateFormat("yyyyMMdd");
+	private static SimpleDateFormat longdateformat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 	private CommonExamUtil commonExamUtil;
 	private FileNoGen fileNoGen;
 	private static String SQL_OPT_LIKE = "like";
@@ -74,8 +73,7 @@ public class CommonExamService extends HibernateDaoSupport {
 	}
 
 	public Map newExam(String examname) throws Exception {
-		SimpleDateFormat format = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss.SSS");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
@@ -87,6 +85,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		ret.put("now", new Date());
 		ret.put("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		ret.put("user", SecurityManager.currentOperator());
+		ret.put("items", get_cfg_list(examname));
 		return ret;
 	}
 
@@ -98,22 +97,28 @@ public class CommonExamService extends HibernateDaoSupport {
 		return commonExamUtil.getDistrict(orgid);
 	}
 
-	public Map examList(String examname, String userdistrict,
-			Map<String, Map> params, Map<String, Map<String, String>> basemap,
-			List<String> collist) throws Exception {
+	public Map examList(String examname, String userdistrict, Map<String, Map> params, Map<String, Map<String, String>> basemap, List<String> collist) throws Exception {
+		
 		// 这是默认的查询条件
 		String countsql = " select count(*)";
 		String sql = "";
-		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf , exam_items it, healthfile hf1 , PersonalInfo pf1  ";
+		String froms = " from exam_baseinfo info , healthfile hf , PersonalInfo pf ";
 		String select = "";
-		
-		String where = " where info.examname='"
-				+ examname
-				+ "' and  info.fileno =hf.fileno and info.fileno = pf.fileno and info.status=1 " +
-				" and info.id = it.id and it.item='配偶_编号' and it.value = hf1.fileno  and it.value = pf1.fileno  and hf.DistrictNumber like '"
-				+ userdistrict + "%'";
-		String orderby = " order by info.inputdate desc ";
 
+		String where = " where info.examname='" + examname + "' and  info.fileno =hf.fileno and info.fileno = pf.fileno and info.status=1 "
+				+ "  and hf.DistrictNumber like '" + userdistrict + "%' ";
+		String orderby = " order by info.inputdate desc ";
+		
+		
+		Query filenoquery = getSession().createQuery("from ExamExamcfgFileno where examname = ? and itemname <>'mainfile' ");
+		filenoquery.setParameter(0, examname);
+		List<ExamExamcfgFileno> filenolist = filenoquery.list();
+		for(int i = 0 ; i<filenolist.size();i++){
+			ExamExamcfgFileno filenovo = (ExamExamcfgFileno)filenolist.get(i);
+			froms += ", exam_items it"+filenovo.getOrd()+", healthfile hf"+filenovo.getOrd()+" , PersonalInfo pf"+filenovo.getOrd();
+			where += " and info.id = it"+filenovo.getOrd()+".id and it"+filenovo.getOrd()+".item='配偶_编号' and it"+filenovo.getOrd()+".value = hf"+filenovo.getOrd()+".fileno  and hf"+filenovo.getOrd()+".fileno = pf"+filenovo.getOrd()+".fileno  ";
+		}
+		
 		// params.getBase();
 		Field[] fields = ExamBaseinfo.class.getDeclaredFields();
 		List sqlparams = new ArrayList();
@@ -134,8 +139,7 @@ public class CommonExamService extends HibernateDaoSupport {
 			if (value != null) {
 				if (basemap.containsKey(key)) {
 					if (!basemap.get(key).get("isitem").equals("true")) {
-						Map sqls = getBaseSql(basemap.get(key), value, basemap
-								.get(key).getClass());
+						Map sqls = getBaseSql(basemap.get(key), value, basemap.get(key).getClass());
 						where += (String) sqls.get(WHERES);
 						sqlparams.addAll((List) sqls.get(PARAMS));
 						sqlparamtypes.addAll((List) sqls.get(TYPES));
@@ -144,51 +148,36 @@ public class CommonExamService extends HibernateDaoSupport {
 					}
 				} else if (COMMONQUERY.equals(key)) {
 					// 这里是通用查询
-					String[] commonparams = value.get("value")
-							.split(PARAMSPLIT);
+					String[] commonparams = value.get("value").split(PARAMSPLIT);
 					for (int i = 0; i < commonparams.length; i++) {
 						String tmp = commonparams[i];
 						while (tmp.indexOf(CONDITIONSPLIT + CONDITIONSPLIT) >= 0) {
-							tmp = tmp.replaceAll(CONDITIONSPLIT
-									+ CONDITIONSPLIT, CONDITIONSPLIT);
+							tmp = tmp.replaceAll(CONDITIONSPLIT + CONDITIONSPLIT, CONDITIONSPLIT);
 						}
 						String[] cols = commonparams[i].split(CONDITIONSPLIT);
 						if (cols.length < 3) {
-							throw new Exception(
-									"通用查询参数"
-											+ commonparams[i]
-											+ "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
+							throw new Exception("通用查询参数" + commonparams[i] + "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
 						} else {
-							if (basemap.containsKey(cols[0])
-									&& fieldmap.containsKey(basemap
-											.get(cols[0]).get(COLUMN))) {
+							if (basemap.containsKey(cols[0]) && fieldmap.containsKey(basemap.get(cols[0]).get(COLUMN))) {
 								Map valuemap = new HashMap();
 								valuemap.put(VALUE, cols[2]);
-								Map sqls = getBaseSql(
-										basemap.get(cols[0]).get(COLUMN),
-										valuemap,
-										fieldmap.get(
-												basemap.get(cols[0])
-														.get(COLUMN)).getType());
+								Map sqls = getBaseSql(basemap.get(cols[0]).get(COLUMN), valuemap, fieldmap.get(basemap.get(cols[0]).get(COLUMN)).getType());
 								where += (String) sqls.get(WHERES);
 								sqlparams.addAll((List) sqls.get(PARAMS));
 								sqlparamtypes.addAll((List) sqls.get(TYPES));
 
 							} else {
-								if (commonExamUtil.hasExamItem(examname,
-										cols[0])) {
+								if (commonExamUtil.hasExamItem(examname, cols[0])) {
 									Map valuemap = new HashMap();
 									valuemap.put(VALUE, cols[2]);
 									String itempre = "t" + count;
 									preMap.put(cols[0], count);
 									count++;
 									froms += ", exam_items " + itempre;
-									Map sqls = getSql(examname, itempre,
-											cols[0], valuemap);
+									Map sqls = getSql(examname, itempre, cols[0], valuemap);
 									where += (String) sqls.get(WHERES);
 									sqlparams.addAll((List) sqls.get(PARAMS));
-									sqlparamtypes
-											.addAll((List) sqls.get(TYPES));
+									sqlparamtypes.addAll((List) sqls.get(TYPES));
 								}
 							}
 						}
@@ -211,45 +200,30 @@ public class CommonExamService extends HibernateDaoSupport {
 			for (String key : collist) {
 
 				if (basemap.containsKey(key)) {
-					if (basemap.get(key).get("encflag").equals("true")) {
-						select += ",dbo.denc(" + basemap.get(key).get(COLUMN)
-								+ ") 'col" + colnum + "'";
-					} else {
-						if (basemap.get(key).get("isitem").equals("true")) {
-							String itempre = "t" + count;
-							froms += ", exam_items " + itempre;
-							count++;
-							select += "," + itempre + ".value 'col" + colnum
-									+ "'";
-							if (itemsMap.containsKey(key)) {
-								System.out.println("===basemap.get(key)==="
-										+ basemap.get(key));
-								System.out.println("===itemsMap===" + itemsMap);
-								System.out.println("===,fieldmap.get(key)==="
-										+ fieldmap.get(key));
-								Map sqls = getItemWhere(
-										basemap.get(key).get(COLUMN),
-										(Map) itemsMap.get(key), itempre);
-								System.out.println("======"
-										+ (String) sqls.get(WHERES));
-								where += (String) sqls.get(WHERES);
-								sqlparams.addAll((List) sqls.get(PARAMS));
-								sqlparamtypes.addAll((List) sqls.get(TYPES));
-								where += " and info.id= " + itempre
-										+ ".id and " + itempre + ".idx=0 and "
-										+ itempre + ".item = '"
-										+ basemap.get(key).get(COLUMN)
-										+ "'  and " + itempre + ".item = '"
-										+ basemap.get(key).get(COLUMN) + "'";
-							} else {
-								where += " and info.id= " + itempre
-										+ ".id and " + itempre + ".idx=0 and "
-										+ itempre + ".item = '"
-										+ basemap.get(key).get(COLUMN) + "'";
-							}
+					if (basemap.get(key).get("isitem").equals("true")) {
+						String itempre = "t" + count;
+						froms += ", exam_items " + itempre;
+						count++;
+						if (basemap.get(key).get("encflag").equals("true")) {
+							select += ",dbo.denc(" + itempre + ".value) 'col" + colnum + "'";
+						}else{
+							select += "," + itempre + ".value 'col" + colnum + "'";
+						}
+						
+						if (itemsMap.containsKey(key)) {
+							Map sqls = getItemWhere(basemap.get(key).get(COLUMN), (Map) itemsMap.get(key), itempre,basemap.get(key).get("encflag"));
+							where += (String) sqls.get(WHERES);
+							sqlparams.addAll((List) sqls.get(PARAMS));
+							sqlparamtypes.addAll((List) sqls.get(TYPES));
+							where += " and info.id= " + itempre + ".id and " + itempre + ".idx=0 and " + itempre + ".item = '" + basemap.get(key).get(COLUMN) + "'";
 						} else {
-							select += "," + basemap.get(key).get(COLUMN)
-									+ " 'col" + colnum + "'";
+							where += " and info.id= " + itempre + ".id and " + itempre + ".idx=0 and " + itempre + ".item = '" + basemap.get(key).get(COLUMN) + "'";
+						}
+					} else {
+						if (basemap.get(key).get("encflag").equals("true")) {
+							select += ",dbo.denc(" + basemap.get(key).get(COLUMN) + ") 'col" + colnum + "'";
+						}else{
+							select += "," + basemap.get(key).get(COLUMN) + " 'col" + colnum + "'";
 						}
 					}
 				} else if (commonExamUtil.hasExamItem(examname, key)) {
@@ -258,8 +232,7 @@ public class CommonExamService extends HibernateDaoSupport {
 					count++;
 					select += "," + itempre + ".value 'col" + colnum + "'";
 				}
-				scalarmap.put("col" + colnum,
-						hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
+				scalarmap.put("col" + colnum, hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
 				colnum++;
 			}
 			select = "select " + select.substring(1);
@@ -283,8 +256,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		}
 		Map pageparams = params.get(PAGE);
 		int pagesize = Integer.parseInt((String) pageparams.get(PAGESIZE));
-		int currentpage = Integer
-				.parseInt((String) pageparams.get(CURRENTPAGE));
+		int currentpage = Integer.parseInt((String) pageparams.get(CURRENTPAGE));
 		if (pagesize <= 0) {
 			pagesize = DEFAULTPAGESIZE;
 		}
@@ -329,18 +301,15 @@ public class CommonExamService extends HibernateDaoSupport {
 	}
 
 	public CommonVO loadExam(String id) throws Exception {
-		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
-				ExamBaseinfo.class, id);
-		List<ExamItems> queryitems = this.getHibernateTemplate().find(
-				" from ExamItems where id.id =?  ", id);
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(ExamBaseinfo.class, id);
+		List<ExamItems> queryitems = this.getHibernateTemplate().find(" from ExamItems where id.id =?  ", id);
 		List<Map> items = new ArrayList();
 		for (ExamItems obj : queryitems) {
 			while ((obj.getId().getIdx() + 1) > items.size()) {
 				Map item = new HashMap();
 				items.add(item);
 			}
-			items.get(obj.getId().getIdx()).put(obj.getId().getItem(),
-					obj.getValue());
+			items.get(obj.getId().getIdx()).put(obj.getId().getItem(), obj.getValue());
 		}
 		CommonVO ret = new CommonVO();
 		ret.setBase(base);
@@ -348,12 +317,10 @@ public class CommonExamService extends HibernateDaoSupport {
 		// 取出男女方的基础数据
 		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
 				+ " dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,"
-				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber"
-				+ " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
+				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber" + " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
 				+ " and hf.fileNo = ? and hf.status = 0 ";
 		SQLQuery womanquery = this.getSession().createSQLQuery(sql);
-		womanquery.setParameters(new Object[] { base.getFileno() },
-				new Type[] { Hibernate.STRING });
+		womanquery.setParameters(new Object[] { base.getFileno() }, new Type[] { Hibernate.STRING });
 		womanquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 		womanquery.addScalar("fileno", Hibernate.STRING);
 		womanquery.addScalar("name", Hibernate.STRING);
@@ -379,8 +346,7 @@ public class CommonExamService extends HibernateDaoSupport {
 			ret.setWoman(womanlist.get(0));
 		}
 		SQLQuery manquery = this.getSession().createSQLQuery(sql);
-		manquery.setParameters(new Object[] { items.get(0).get("男方_编号") },
-				new Type[] { Hibernate.STRING });
+		manquery.setParameters(new Object[] { items.get(0).get("男方_编号") }, new Type[] { Hibernate.STRING });
 		manquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 		manquery.addScalar("fileno", Hibernate.STRING);
 		manquery.addScalar("name", Hibernate.STRING);
@@ -408,94 +374,81 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 
+	private List<Map> getQueryList(SQLQuery query,ExamBaseinfo base,String param){
+		query.setParameters(new Object[] {param}, new Type[] { Hibernate.STRING });
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		query.addScalar("fileno", Hibernate.STRING);
+		query.addScalar("name", Hibernate.STRING);
+		query.addScalar("sex", Hibernate.STRING);
+		query.addScalar("birthday", Hibernate.TIMESTAMP);
+		query.addScalar("age", Hibernate.INTEGER);
+		query.addScalar("idcard", Hibernate.STRING);
+		query.addScalar("barCode", Hibernate.STRING);
+		query.addScalar("address", Hibernate.STRING);
+		query.addScalar("linkmanTel", Hibernate.STRING);
+		query.addScalar("township", Hibernate.STRING);
+		query.addScalar("village", Hibernate.STRING);
+		query.addScalar("workUnit", Hibernate.STRING);
+		query.addScalar("folk", Hibernate.STRING);
+		query.addScalar("folkOther", Hibernate.STRING);
+		query.addScalar("education", Hibernate.STRING);
+		query.addScalar("occupation", Hibernate.STRING);
+		query.addScalar("idnumber", Hibernate.STRING);
+		query.addScalar("residenceAddress", Hibernate.STRING);
+		query.addScalar("districtNumber", Hibernate.STRING);
+		query.addScalar("nation", Hibernate.STRING);
+		return query.list();
+	}
+	
+	
 	public CommonVO common_loadExam(String id) throws Exception {
 		System.out.println("===id===" + id);
-		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
-				ExamBaseinfo.class, id);
-		List<ExamItems> queryitems = this.getHibernateTemplate().find(
-				" from ExamItems where id.id =?  ", id);
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(ExamBaseinfo.class, id);
+		List<ExamItems> queryitems = this.getHibernateTemplate().find(" from ExamItems where id.id =?  ", id);
 		List<Map> items = new ArrayList();
 		for (ExamItems obj : queryitems) {
 			while ((obj.getId().getIdx() + 1) > items.size()) {
 				Map item = new HashMap();
 				items.add(item);
 			}
-			items.get(obj.getId().getIdx()).put(obj.getId().getItem(),
-					obj.getValue());
+			items.get(obj.getId().getIdx()).put(obj.getId().getItem(), obj.getValue());
 		}
 		CommonVO ret = new CommonVO();
 		ret.setBase(base);
 		ret.setItems(items);
+		HashMap<String,Map> fileinfos = new HashMap<String,Map>();
+		
 		// 取出基础数据
 		String sql = "select dbo.denc(hf.fileNo) as fileno, dbo.denc(hf.name) as name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
 				+ " dbo.denc(p.idnumber) as idcard,hf.barCode,hf.address ,hf.tel as linkmanTel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,"
-				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation"
-				+ " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
+				+ " p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber,hf.nation" + " from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo "
 				+ " and hf.fileNo = ? and hf.status = 0 ";
-		SQLQuery query = this.getSession().createSQLQuery(sql);
-		query.setParameters(new Object[] { base.getFileno() },
-				new Type[] { Hibernate.STRING });
-		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		query.addScalar("fileno", Hibernate.STRING);
-		query.addScalar("name", Hibernate.STRING);
-		query.addScalar("sex", Hibernate.STRING);
-		query.addScalar("birthday", Hibernate.TIMESTAMP);
-		query.addScalar("age", Hibernate.INTEGER);
-		query.addScalar("idcard", Hibernate.STRING);
-		query.addScalar("barCode", Hibernate.STRING);
-		query.addScalar("address", Hibernate.STRING);
-		query.addScalar("linkmanTel", Hibernate.STRING);
-		query.addScalar("township", Hibernate.STRING);
-		query.addScalar("village", Hibernate.STRING);
-		query.addScalar("workUnit", Hibernate.STRING);
-		query.addScalar("folk", Hibernate.STRING);
-		query.addScalar("folkOther", Hibernate.STRING);
-		query.addScalar("education", Hibernate.STRING);
-		query.addScalar("occupation", Hibernate.STRING);
-		query.addScalar("idnumber", Hibernate.STRING);
-		query.addScalar("residenceAddress", Hibernate.STRING);
-		query.addScalar("districtNumber", Hibernate.STRING);
-		query.addScalar("nation", Hibernate.STRING);
-		List<Map> list = query.list();
-		if (list.size() > 0) {
-			ret.setMan(list.get(0));
+		Query filenoquery = getSession().createQuery("from ExamExamcfgFileno  where examname = ? ");
+		filenoquery.setParameter(0, base.getExamname());
+		List<ExamExamcfgFileno> filenolist = filenoquery.list();
+		for(int i = 0 ; i<filenolist.size();i++){
+			ExamExamcfgFileno filenovo = filenolist.get(i);
+			SQLQuery query = this.getSession().createSQLQuery(sql);
+			String param = base.getFileno();
+			if(!"mainfile".equals(filenovo.getItemname())){
+				param = (String)items.get(0).get(filenovo.getItemname());
+				if(param == null){
+					throw new Exception("请与系统管理员联系!检查配置表的 \""+filenovo.getItemname()+"\"配置错误!");
+				}
+			}
+			List<Map> fileinfolist = getQueryList(query,base,param);
+			if (fileinfolist.size() > 0) {
+				Map fileinfo = fileinfolist.get(0);
+				fileinfos.put(filenovo.getItemname(), fileinfo);
+			}
 		}
-		query = this.getSession().createSQLQuery(sql);
-		query.setParameters(new Object[] { items.get(0).get("配偶_编号") },
-				new Type[] { Hibernate.STRING });
-		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		query.addScalar("fileno", Hibernate.STRING);
-		query.addScalar("name", Hibernate.STRING);
-		query.addScalar("sex", Hibernate.STRING);
-		query.addScalar("birthday", Hibernate.TIMESTAMP);
-		query.addScalar("age", Hibernate.INTEGER);
-		query.addScalar("idcard", Hibernate.STRING);
-		query.addScalar("barCode", Hibernate.STRING);
-		query.addScalar("address", Hibernate.STRING);
-		query.addScalar("linkmanTel", Hibernate.STRING);
-		query.addScalar("township", Hibernate.STRING);
-		query.addScalar("village", Hibernate.STRING);
-		query.addScalar("workUnit", Hibernate.STRING);
-		query.addScalar("folk", Hibernate.STRING);
-		query.addScalar("folkOther", Hibernate.STRING);
-		query.addScalar("education", Hibernate.STRING);
-		query.addScalar("occupation", Hibernate.STRING);
-		query.addScalar("idnumber", Hibernate.STRING);
-		query.addScalar("residenceAddress", Hibernate.STRING);
-		query.addScalar("districtNumber", Hibernate.STRING);
-		query.addScalar("nation", Hibernate.STRING);
-		List<Map> matelist = query.list();
-		if (matelist.size() > 0) {
-			ret.setWoman(matelist.get(0));
-		}
+		ret.setFileinfo(fileinfos);
 		return ret;
 	}
 
 	public String delExam(String id) throws Exception {
-		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(
-				ExamBaseinfo.class, id);
-		if (!base.getInputpersonid().equals(
-				SecurityManager.currentOperator().getUsername())) {
+		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(ExamBaseinfo.class, id);
+		if (!base.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())) {
 			throw new Exception("只允许" + base.getInputpersonid() + "进行删除!");
 		}
 		base.setStatus(-1);
@@ -516,9 +469,7 @@ public class CommonExamService extends HibernateDaoSupport {
 	 * @throws Exception
 	 */
 
-	public Map marry_examList(String examname, String userdistrict,
-			Map<String, Map> params, Map<String, Map<String, String>> basemap,
-			List<String> collist) throws Exception {
+	public Map marry_examList(String examname, String userdistrict, Map<String, Map> params, Map<String, Map<String, String>> basemap, List<String> collist) throws Exception {
 		String countsql = " select count(*)";
 		// 这里是默认的查询内容
 		String sql = " select dbo.denc(info.fileno) 'col1',dbo.denc(hf.name) 'col2' , pf.Birthday 'col3' ,info.inputdate 'col4' ";
@@ -526,8 +477,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		String where = " where info.examname='"
 				+ examname
 				+ "' and  info.fileno =hf.fileno and info.status=1  and info.fileno = pf.fileno and info.id = it.id and it.item='男方_编号' and it.value = hf1.fileno  and it.value = pf1.fileno "
-				+ " and (hf.DistrictNumber like '" + userdistrict
-				+ "%' or hf1.DistrictNumber like '" + userdistrict + "%')";
+				+ " and (hf.DistrictNumber like '" + userdistrict + "%' or hf1.DistrictNumber like '" + userdistrict + "%')";
 		String orderby = " order by info.inputdate desc ";
 		String select = "";
 		// params.getBase();
@@ -545,57 +495,40 @@ public class CommonExamService extends HibernateDaoSupport {
 			Map<String, String> value = (Map) params.get(key);
 			if (value != null) {
 				if (basemap.containsKey(key)) {
-					Map sqls = getBaseSql(basemap.get(key).get(COLUMN), value,
-							basemap.get(key).getClass());
+					Map sqls = getBaseSql(basemap.get(key).get(COLUMN), value, basemap.get(key).getClass());
 					where += (String) sqls.get(WHERES);
 					sqlparams.addAll((List) sqls.get(PARAMS));
 					sqlparamtypes.addAll((List<Type>) sqls.get(TYPES));
 				} else if (COMMONQUERY.equals(key)) {
 					// 这里是通用查询
-					String[] commonparams = value.get("value")
-							.split(PARAMSPLIT);
+					String[] commonparams = value.get("value").split(PARAMSPLIT);
 					for (int i = 0; i < commonparams.length; i++) {
 						String tmp = commonparams[i];
 						while (tmp.indexOf(CONDITIONSPLIT + CONDITIONSPLIT) >= 0) {
-							tmp = tmp.replaceAll(CONDITIONSPLIT
-									+ CONDITIONSPLIT, CONDITIONSPLIT);
+							tmp = tmp.replaceAll(CONDITIONSPLIT + CONDITIONSPLIT, CONDITIONSPLIT);
 						}
 						String[] cols = commonparams[i].split(CONDITIONSPLIT);
 						if (cols.length < 3) {
-							throw new Exception(
-									"通用查询参数"
-											+ commonparams[i]
-											+ "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
+							throw new Exception("通用查询参数" + commonparams[i] + "格式不正确,正确格式为\"姓名 = 张三\"或\"出生日期 = 20120101-20120113\" 或 \"身份证号 = 身份证号1,身份证号2,身份证号3\"");
 						} else {
-							if (basemap.containsKey(cols[0])
-									&& fieldmap.containsKey(basemap
-											.get(cols[0]).get(COLUMN))) {
+							if (basemap.containsKey(cols[0]) && fieldmap.containsKey(basemap.get(cols[0]).get(COLUMN))) {
 								Map valuemap = new HashMap();
 								valuemap.put(VALUE, cols[2]);
-								Map sqls = getBaseSql(
-										basemap.get(cols[0]).get(COLUMN),
-										valuemap,
-										fieldmap.get(
-												basemap.get(cols[0])
-														.get(COLUMN)).getType());
+								Map sqls = getBaseSql(basemap.get(cols[0]).get(COLUMN), valuemap, fieldmap.get(basemap.get(cols[0]).get(COLUMN)).getType());
 								where += (String) sqls.get(WHERES);
 								sqlparams.addAll((List) sqls.get(PARAMS));
-								sqlparamtypes.addAll((List<Type>) sqls
-										.get(TYPES));
+								sqlparamtypes.addAll((List<Type>) sqls.get(TYPES));
 							} else {
-								if (commonExamUtil.hasExamItem(examname,
-										cols[0])) {
+								if (commonExamUtil.hasExamItem(examname, cols[0])) {
 									Map valuemap = new HashMap();
 									valuemap.put(VALUE, cols[2]);
 									String itempre = "t" + count;
 									count++;
 									froms += ", exam_items " + itempre;
-									Map sqls = getSql(examname, itempre,
-											cols[0], valuemap);
+									Map sqls = getSql(examname, itempre, cols[0], valuemap);
 									where += (String) sqls.get(WHERES);
 									sqlparams.addAll((List) sqls.get(PARAMS));
-									sqlparamtypes.addAll((List<Type>) sqls
-											.get(TYPES));
+									sqlparamtypes.addAll((List<Type>) sqls.get(TYPES));
 								}
 							}
 						}
@@ -618,16 +551,14 @@ public class CommonExamService extends HibernateDaoSupport {
 			for (String key : collist) {
 
 				if (basemap.containsKey(key)) {
-					select += "," + basemap.get(key).get(COLUMN) + " 'col"
-							+ colnum + "'";
+					select += "," + basemap.get(key).get(COLUMN) + " 'col" + colnum + "'";
 				} else if (commonExamUtil.hasExamItem(examname, key)) {
 					String itempre = "t" + count;
 					froms += ", exam_items " + itempre;
 					count++;
 					select += "," + itempre + ".value 'col" + colnum + "'";
 				}
-				scalarmap.put("col" + colnum,
-						hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
+				scalarmap.put("col" + colnum, hbtTypeMap.get(basemap.get(key).get(COLTYPE)));
 				colnum++;
 			}
 			select = "select " + select.substring(1);
@@ -651,8 +582,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		}
 		Map pageparams = params.get(PAGE);
 		int pagesize = Integer.parseInt((String) pageparams.get(PAGESIZE));
-		int currentpage = Integer
-				.parseInt((String) pageparams.get(CURRENTPAGE));
+		int currentpage = Integer.parseInt((String) pageparams.get(CURRENTPAGE));
 		if (pagesize <= 0) {
 			pagesize = DEFAULTPAGESIZE;
 		}
@@ -697,8 +627,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		return null;
 	}
 
-	private Map getBaseSql(String name, Map<String, String> value, Class type)
-			throws Exception {
+	private Map getBaseSql(String name, Map<String, String> value, Class type) throws Exception {
 		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
@@ -780,8 +709,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 
-	private Map getBaseSql(Map cfg, Map<String, String> value, Class type)
-			throws Exception {
+	private Map getBaseSql(Map cfg, Map<String, String> value, Class type) throws Exception {
 		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
@@ -791,9 +719,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		Object typeobj = type.newInstance();
 		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
-			ret.put(WHERES,
-					" and " + cfg.get(COLUMN) + " >=? and " + cfg.get(COLUMN)
-							+ " <=? ");
+			ret.put(WHERES, " and " + cfg.get(COLUMN) + " >=? and " + cfg.get(COLUMN) + " <=? ");
 			if (typeobj instanceof java.util.Date) {
 				List<Date> dates = new ArrayList();
 				dates.add(shortdateformat.parse(values[0].trim()));
@@ -881,8 +807,7 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 
-	private Map getItemWhere(String name, Map<String, String> value, String pre)
-			throws Exception {
+	private Map getItemWhere(String name, Map<String, String> value, String pre,String encflag) throws Exception {
 		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
@@ -891,8 +816,13 @@ public class CommonExamService extends HibernateDaoSupport {
 			String[] values = value.get(VALUE).split("-");
 			ret.put(WHERES, " and " + pre + ".value >=? and value <=? ");
 			List<String> strs = new ArrayList();
-			strs.add(values[0].trim().trim());
-			strs.add(values[1].trim().trim());
+			if("true".equals(encflag)){
+				strs.add(EncryptionUtils.encry(values[0].trim()));
+				strs.add(EncryptionUtils.encry(values[1].trim()));
+			}else{
+				strs.add(values[0].trim());
+				strs.add(values[1].trim());
+			}
 			types.add(Hibernate.STRING);
 			types.add(Hibernate.STRING);
 			ret.put(PARAMS, strs);
@@ -902,7 +832,11 @@ public class CommonExamService extends HibernateDaoSupport {
 			List hbtparams = new ArrayList();
 			for (int i = 0; i < values.length; i++) {
 				tmp += "?,";
-				hbtparams.add(values[i].trim());
+				if("true".equals(encflag)){
+					hbtparams.add(EncryptionUtils.encry(values[i].trim()));
+				}else{
+					hbtparams.add(values[i].trim());
+				}
 				types.add(Hibernate.STRING);
 			}
 			ret.put(PARAMS, hbtparams);
@@ -913,15 +847,31 @@ public class CommonExamService extends HibernateDaoSupport {
 			List<String> params = new ArrayList();
 			if (SQL_OPT_LIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add("%" + value.get(VALUE).trim() + "%");
+				if("true".equals(encflag)){
+					params.add("%" + EncryptionUtils.encry(value.get(VALUE).trim()) + "%");
+				}else{
+					params.add("%" + value.get(VALUE).trim() + "%");
+				}
 			} else if (SQL_OPT_LEFTLIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add(value.get(VALUE).trim() + "%");
+				if("true".equals(encflag)){
+					params.add(EncryptionUtils.encry(value.get(VALUE).trim()) + "%");
+				}else{
+					params.add(value.get(VALUE).trim() + "%");
+				}
 			} else if (SQL_OPT_RIGHTLIKE.equals(opt)) {
 				opt = SQL_OPT_LIKE;
-				params.add("%" + value.get(VALUE).trim());
+				if("true".equals(encflag)){
+					params.add("%" + EncryptionUtils.encry(value.get(VALUE).trim()) );
+				}else{
+					params.add("%" + value.get(VALUE).trim());
+				}
 			} else {
-				params.add(value.get(VALUE).trim());
+				if("true".equals(encflag)){
+					params.add( EncryptionUtils.encry(value.get(VALUE).trim() ));
+				}else{
+					params.add(value.get(VALUE).trim());
+				}
 			}
 			types.add(Hibernate.STRING);
 			ret.put(PARAMS, params);
@@ -931,17 +881,14 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 
-	private Map getSql(String examname, String pre, String name,
-			Map<String, String> value) throws Exception {
+	private Map getSql(String examname, String pre, String name, Map<String, String> value) throws Exception {
 		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
 		String opt = value.get("opt");
-		String where = " and info.id= " + pre + ".id and " + pre + ".item='"
-				+ name + "' and ";
-		String type = commonExamUtil.getExamItemCfg(examname, name)
-				.getValuetype();
+		String where = " and info.id= " + pre + ".id and " + pre + ".item='" + name + "' and ";
+		String type = commonExamUtil.getExamItemCfg(examname, name).getValuetype();
 		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
 			if ("number".equals(type)) {
@@ -951,8 +898,7 @@ public class CommonExamService extends HibernateDaoSupport {
 				types.add(Hibernate.BIG_DECIMAL);
 				types.add(Hibernate.BIG_DECIMAL);
 				ret.put(PARAMS, numbers);
-				ret.put(WHERES, where + pre + ".numbervalue >=? and " + pre
-						+ ".numbervalue <=? ");
+				ret.put(WHERES, where + pre + ".numbervalue >=? and " + pre + ".numbervalue <=? ");
 			} else if ("date".equals(type)) {
 				List<String> strs = new ArrayList();
 				strs.add(values[0].trim() + DATE_DAYMIN);
@@ -960,8 +906,7 @@ public class CommonExamService extends HibernateDaoSupport {
 				types.add(Hibernate.TIMESTAMP);
 				types.add(Hibernate.TIMESTAMP);
 				ret.put(PARAMS, strs);
-				ret.put(WHERES, where + pre + ".value >=? and " + pre
-						+ ".value <=? ");
+				ret.put(WHERES, where + pre + ".value >=? and " + pre + ".value <=? ");
 			} else {
 				List<String> strs = new ArrayList();
 				strs.add(values[0].trim());
@@ -969,8 +914,7 @@ public class CommonExamService extends HibernateDaoSupport {
 				types.add(Hibernate.STRING);
 				types.add(Hibernate.STRING);
 				ret.put(PARAMS, strs);
-				ret.put(WHERES, where + pre + ".value >=? and " + pre
-						+ ".value <=? ");
+				ret.put(WHERES, where + pre + ".value >=? and " + pre + ".value <=? ");
 			}
 		} else if (idx1 > 0) {
 			String[] values = value.get(VALUE).split(",");
@@ -1037,11 +981,9 @@ public class CommonExamService extends HibernateDaoSupport {
 		if (StringUtils.isEmpty(base.getId())) {
 			base.setId(fileNoGen.getNextExamId());
 		} else {
-			ExamBaseinfo old = (ExamBaseinfo) getHibernateTemplate().get(
-					ExamBaseinfo.class, base.getId());
+			ExamBaseinfo old = (ExamBaseinfo) getHibernateTemplate().get(ExamBaseinfo.class, base.getId());
 			getHibernateTemplate().evict(old);
-			if (!old.getInputpersonid().equals(
-					SecurityManager.currentOperator().getUsername())) {
+			if (!old.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())) {
 				throw new Exception("只允许" + old.getInputpersonid() + "进行修改!");
 			}
 		}
@@ -1094,13 +1036,40 @@ public class CommonExamService extends HibernateDaoSupport {
 
 	// TODO 返回查询的设置
 	public List get_query_list(String examname) {
-		Query query = this.getSession().createQuery(
-				"from ExamQueryCfg where examname = ? order by ord");
+		Query query = this.getSession().createQuery("from ExamQueryCfg where examname = ? order by ord");
 		query.setParameter(0, examname);
 		List ret = query.list();
 		System.out.println("======" + ret.size());
 		return ret;
 	}
+	
+	// TODO 返回配置
+	public Map<String,String> get_cfg_list(String examname) {
+		Query query = this.getSession().createQuery("from ExamExamcfg where examname = ? ");
+		query.setParameter(0, examname);
+		List<ExamExamcfg> result = query.list();
+		System.out.println("======" + result.size());
+		Map<String,String> ret = new HashMap<String,String>();
+		for(int i = 0 ; i <result.size();i++){
+			ExamExamcfg cfg = result.get(i);
+			ret.put(cfg.getItemname(), cfg.getDefaultvalue());
+		}
+		return ret;
+	}
+	
+	public Map<String,String> get_filequerytype(String examname) {
+		Query query = this.getSession().createQuery("from ExamExamcfgFileno where examname = ? ");
+		query.setParameter(0, examname);
+		List<ExamExamcfgFileno> result = query.list();
+		System.out.println("======" + result.size());
+		Map<String,String> ret = new HashMap<String,String>();
+		for(int i = 0 ; i <result.size();i++){
+			ExamExamcfgFileno cfg = result.get(i);
+			ret.put(cfg.getItemname(), cfg.getQuerytype());
+		}
+		return ret;
+	}
+	
 
 	public Map getDistrictMap() {
 		return commonExamUtil.getDistrictMap();

@@ -6,7 +6,22 @@
 		<sql-type jdbc-type="NVARCHAR" hibernate-type='string'
 			not-null="true">
 		</sql-type>
+		<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
+		<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
+		<sql-type jdbc-type="BIT" hibernate-type="boolean"
+			not-null="true">
+		</sql-type>
+		<sql-type jdbc-type="VARCHAR" hibernate-type="string"
+			length="50" not-null="true">
+		</sql-type>
+		<sql-type jdbc-type="NVARCHAR" hibernate-type='string'
+			not-null="true">
+		</sql-type>
+		<sql-type jdbc-type="NVARCHAR" hibernate-type='string'
+			not-null="false">
+		</sql-type>
 	</type-mapping>
-	<table-filter match-name="export_main" match-schema="dbo"></table-filter>
-	<table-filter match-name="export_sub" match-schema="dbo"></table-filter>
+	<table-filter match-name="exam_examcfg" match-schema="dbo"></table-filter>
+	<table-filter match-name="exam_examcfg_fileno" match-schema="dbo"></table-filter>
+	<table-filter match-name="cfg_filesearch" match-schema="dbo"></table-filter>
 </hibernate-reverse-engineering>

@@ -3,22 +3,25 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated 2013-11-10 1:20:52 by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-    <class name="cn.net.tongfang.framework.security.vo.ExamExamcfg" table="exam_examcfg" schema="dbo">
-        <id name="id" type="string">
-            <column name="id" length="50" />
+    <class name="cn.net.tongfang.framework.security.vo.ExamExamcfgFileno" table="exam_examcfg_fileno" schema="dbo">
+        <id name="id" type="int">
+            <column name="id" />
             <generator class="assigned" />
         </id>
         <property name="examname" type="string">
             <column name="examname" not-null="true" />
         </property>
         <property name="itemname" type="string">
-            <column name="itemname" not-null="true" />
+            <column name="itemname" length="50" not-null="true" />
         </property>
-        <property name="item" type="string">
-            <column name="item" />
+        <property name="isfileno" type="boolean">
+            <column name="isfileno" not-null="true" />
         </property>
-        <property name="defaultvalue" type="string">
-            <column name="defaultvalue" />
+        <property name="ord" type="int">
+            <column name="ord" not-null="true" />
+        </property>
+        <property name="querytype" type="string">
+            <column name="querytype" length="10" />
         </property>
     </class>
 </hibernate-mapping>

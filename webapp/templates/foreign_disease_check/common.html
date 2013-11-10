@@ -146,12 +146,10 @@
 				}
 				var node = $('#orgtree').tree('getSelected'); 
 				var dwrparams = [examname,node.id,params,getBasemap(),getColList()];
-				console.log(dwrparams);
 				return dwrparams;
 			}
 			function exam_query(value,name,page){
 				var param = {"page":page,"rows":20}
-				console.log("genParam(param)===",genParam(param))
 				$('#querygrid').datagrid('load', genParam(param)); 
 			}
 			
@@ -196,7 +194,6 @@
 						columns[0].push({field:"col"+i,title: g_colist[i].name});
 					}
 				}
-				console.log(columns);
 				$("#querygrid").datagrid({
 					columns:columns,
 					rowStyler:gridStyle,
@@ -264,8 +261,6 @@
 						$("#title_tr").append("<th data-options=\"field:'col"+i+"'\">"+g_colist[i].name+"</th>  ")
 						colstart ++;
 					}
-					console.log('$("#title_tr")==')
-					console.log($("#title_tr").html());
 				}
 				
 				$("#exam_searcher").searchbox({

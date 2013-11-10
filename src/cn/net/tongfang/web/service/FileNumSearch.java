@@ -3,11 +3,14 @@ package cn.net.tongfang.web.service;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import cn.net.tongfang.framework.security.vo.CfgFilesearch;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.PagedList;
 
@@ -246,7 +249,177 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.currentPage = pageNo + 1;
     	}
     	return res;
+    }
+	
+	public  PagedList listCodePageSize_new(int pageNo,int newpagesize, String mcode, boolean startWith,String condVal,String otherparamtype){
+    	String likePrefix = startWith ? "" : "%";
+    	PagedList res = new PagedList();
+    	String hsqlparam = "";
+    	String otherTables = "";
+    	String extendCols = "";
     	
+    	String[] mcodes = mcode.split("%");
+    	String districtNumber = "";
+		String otherCond = "";
+		if(mcodes.length > 1){
+			districtNumber = mcodes[0];
+			otherCond = mcodes[1];
+		}else{
+			otherCond = mcodes[0];
+		}
+		List<CfgFilesearch> searchlist = getSession().createQuery(" from CfgFilesearch ").list();
+		Map<String,CfgFilesearch> searchMap = new HashMap<String,CfgFilesearch>();
+		for(int i = 0 ; i<searchlist.size();i++){
+			CfgFilesearch cfg = searchlist.get(i);
+			searchMap.put(cfg.getId()+"", cfg);
+		}
+    	if(otherparamtype != null){
+    		CfgFilesearch cfg = searchMap.get(otherparamtype);
+    		otherTables = cfg.getOthertable();
+    		hsqlparam = cfg.getParams();
+    		if(hsqlparam.indexOf("?")>=0){
+    			hsqlparam.replaceAll("\\?", otherparamtype);
+    		}
+    		extendCols = cfg.getCols();
+    	}
+    	System.out.println("===condVal==="+condVal);
+    	//改为like ,like 可以用索引 substring 不能用
+    	if(condVal.equals(CondVal_Fileno)){
+    		likePrefix = likePrefix.replace("%", "");
+//    		mcode = mcode.replace("%", "");
+    		String fileNo = EncryptionUtils.encry(otherCond)+"%";
+    		long count = (Long)getHibernateTemplate().find("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
+        			"where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 " + hsqlparam,fileNo).get(0);
+        	if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
+        	res.totalLines = count;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
+        	String sql = "select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where  p.fileNo = hf.fileNo " +
+        			"and hf.fileNo like ? and hf.status = 0 "  + hsqlparam;
+        	Query qry = getSession().createQuery(sql);
+        	qry.setParameter(0, fileNo);
+        	qry.setMaxResults(newpagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_Name)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
+        			"where hf.fileNo = p.fileNo And hf.districtNumber like ? " +
+        			"And hf.name like ?  and hf.status = 0" +  hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
+    		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
+        	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
+        			"And hf.name like  ?  and hf.status = 0 " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
+        	qry.setMaxResults(newpagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_LinkMan)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf,PersonalInfo p " + otherTables +
+        			"where hf.fileNo = p.fileNo And hf.districtNumber like ? " +
+        			"And p.linkman like ? and hf.status = 0 " +  hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, "%"+otherCond+"%");
+    		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
+        	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address,p.linkman " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
+        			"And p.linkman like ?  and hf.status = 0 " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, "%"+otherCond+"%");
+        	qry.setMaxResults(newpagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_CardId)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo And hf.districtNumber like ? And p.idnumber like ?  and hf.status = 0" + hsqlparam);
+    		qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
+    		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
+        	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where hf.districtNumber like ? " +
+        			"And p.idnumber like ?  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
+        	qry.setParameter(0, districtNumber+"%");
+        	qry.setParameter(1, EncryptionUtils.encry(otherCond)+"%");
+        	qry.setMaxResults(newpagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}else if(condVal.equals(CondVal_Barcode)){
+    		Query qry = getSession().createQuery("select count(*) from HealthFile hf , PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo  And hf.barCode like ?  and hf.status = 0" + hsqlparam);
+        	qry.setParameter(0, otherCond+ "%");
+    		long count = (Long)qry.list().get(0);
+    		if(newpagesize == 0 ){
+        		newpagesize = (int)count;
+        		newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
+        	}
+        	System.out.println("total line is : " + count);
+        	res.totalLines = count;
+        	res.pageSize = newpagesize;
+        	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
+        	int from = pageNo * newpagesize;
+        	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			"where p.fileNo = hf.fileNo  " +
+        			"And hf.barCode like ?  and hf.status = 0 " + hsqlparam);
+        	qry.setParameter(0, "%"+otherCond+"%");
+        	qry.setMaxResults(newpagesize);
+        	qry.setFirstResult(from);
+        	List list = qry.list();
+        	System.out.println("res line is : " + list.size());
+        	res.res = parseResult(list);
+        	res.currentPage = pageNo + 1;
+    	}
+    	return res;
     }
 	
 	

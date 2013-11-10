@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-11-10 1:20:52 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="cn.net.tongfang.framework.security.vo.CfgFilesearch" table="cfg_filesearch" schema="dbo">
+        <id name="id" type="int">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <property name="othertable" type="string">
+            <column name="othertable" length="200" not-null="true" />
+        </property>
+        <property name="params" type="string">
+            <column name="params" length="300" not-null="true" />
+        </property>
+        <property name="cols" type="string">
+            <column name="cols" length="300" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -7,7 +7,6 @@ function getParameterByName(name) {
 	
 function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	$scope.examname = urlParam("examname");
-	console.log("$scope.examname",$scope.examname)
 	// dwr.engine._async =false;
 	$scope.namequeryoptions = [
 	                 {name:'条形码', value:0},
@@ -16,13 +15,24 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	                 {name:'身份证号', value:3},
 	                 {name:'联系人', value:4}
 	               ];
-	$scope.womannameselect = 2;
-	$scope.mannameselect = 2;
+	//$scope.mainfile_select = 2;
+	$scope.selects = {};
+	$scope.districtselects = {};
+	
 	$scope.districtdata = $window.top.districtdata;
+	CommonExamService.get_filequerytype($scope.examname,{
+		callback:function(data){
+			$scope.querytype_map = data;
+		},
+		async:false
+	});
+	for(var item in $scope.querytype_map){
+		$scope.selects[item]=2;
+	}
 	function exam_new (){
 		CommonExamService.newExam($scope.examname,{
 			callback:function(data){
-				$scope.data = {},$scope.woman = {},$scope.man = {};
+				$scope.data = {};
 				$scope.data.base = {
 					inputdate:data.today,
 					examname:$scope.examname,
@@ -31,13 +41,7 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					inputpersonid:data.user.username,
 					status:1
 				};
-				$scope.data.items = [{
-					"HIV抗体":"陰性",
-					"梅毒":"陰性",
-					"淋球菌":"陰性",
-					"梅毒滴度":"未检测"
-					}];
-				
+				$scope.data.items = [data.items];
 			},
 			async:false
 		});
@@ -58,14 +62,17 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 	if("new" ==urlParam("opt")){
 		exam_new();
 		$("#exam_addpanel").dialog("open");
-		$scope.mandistrictselect = $window.top.districtdata.nodemap[urlParam("district")].value;
+		for(var item in $scope.querytype_map){
+			$scope.districtselects[item]=$window.top.districtdata.nodemap[urlParam("district")].value;
+		}
 	}else if("open" ==urlParam("opt")){
 		CommonExamService.common_loadExam(urlParam("id"),{
 			callback:function(data){
 				$scope.data = data;
-				$scope.man = $scope.data.man;
-				var mandistrict = $.trim($scope.data.man.districtNumber);
-				$scope.mandistrictselect = $window.top.districtdata.nodemap[mandistrict].value;
+				for(var item in $scope.querytype_map){
+					var mandistrict = $.trim($scope.data.fileinfo[item].districtNumber);
+					$scope.districtselects[item]=$window.top.districtdata.nodemap[mandistrict].value;
+				}
 			},
 			async:false
 		});
@@ -98,14 +105,19 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		$scope.alerts.splice(index, 1);
 	};
 
-	$scope.namemap = {"男":{},"女":{}};
-	function queryName (query , type ){
-		var typecode = type=="男" ? 13:14;
-		var sexcode = type=="男" ? 'man':'woman';
-		
-		var district = $('#'+sexcode+'districtselect').attr("realvalue");
-		var querytype = parseInt($('#'+sexcode+'nameselect').attr("realvalue"));
+	$scope.namemap = {};
+	$scope. queryName = function (query){
+		var model = $(this.element[0]).attr("ng-model");
+		var ngmodel = angular.element((this.element[0]));
+		var regx = /data\.fileinfo\['([^']*)'\]/g;
+		var match = regx.exec(model);
+		var modelname = match[1];
+		var scope = ngmodel.scope();
+		var typecode = parseInt(scope.querytype_map[modelname]);
+		var district = scope.districtselects[modelname];
+		var querytype = parseInt( scope.selects[modelname]);
 		var flag = false;
+		query.term = angular.element(".select2-drop-active .select2-search input").val();
 		if(querytype == 2 || querytype == 4){ //2是姓名,4是联系人,只要输入一位就进行查询
 			if(query.term && query.term.length >=2){
 				flag = true;
@@ -119,9 +131,6 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 				flag = true;
 			}
 		}
-		console.log(flag)
-		console.log(query.term);
-		console.log(query.term.length)
 		if(flag){
 			var listdata = null;
 			var cachestr = "";
@@ -132,46 +141,21 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 			}else if (querytype == 0 || querytype ==1){ //0是条形码,1是档案编号 输入4位进行查询
 				cachestr = query.term.substring(0,4);
 			}
-			if(!$scope.namemap[type][querytype]){
-				$scope.namemap[type][querytype] = {};
-			}
-			if(!$scope.namemap[type][querytype][district]){
-				$scope.namemap[type][querytype][district]={}
-			}
-			console.log($scope.namemap[type][querytype][district][cachestr])
-			if($scope.namemap[type][querytype][district][cachestr]){
-				var querydata = $scope.namemap[type][querytype][district][cachestr];
-				listdata = {results: []};
-				for(var i = 0 ;i <querydata.results.length;i++){
-					if(querydata.results[i].text.indexOf(query.term)==0){
-						listdata.results.push(querydata.results[i])
+			var querydata = {results: []}, i, j, s;
+			FileNumSearch.listCodePageSize_new(0,0,district+"%"+query.term,true,querytype,typecode,{async:false,
+				callback:function(data){
+					s = "";
+					for (var i = 0; i < data.res.length; i++) {
+						s = s + query.term;
+						querydata.results.push({id:  data.res[i][0], text: data.res[i][1] +" " + data.res[i][2] + " " + $filter("date")(data.res[i][3],'yyyyMMdd') +" " + data.res[i][7],data:data.res[i]});
 					}
 				}
-			}else{
-				console.log(district+"%"+query.term)
-				var querydata = {results: []}, i, j, s;
-				FileNumSearch.listCodePageSize(0,0,district+"%"+query.term,true,querytype,typecode,{async:false,
-					callback:function(data){
-						console.log("data===",data);
-						s = "";
-						for (var i = 0; i < data.res.length; i++) {
-							s = s + query.term;
-							querydata.results.push({id:  data.res[i][0], text: data.res[i][1] +" " + data.res[i][2] + " " + $filter("date")(data.res[i][3],'yyyyMMdd') +" " + data.res[i][7],data:data.res[i]});
-						}
-					}
-				});
-				listdata=querydata;
-				$scope.namemap[type][querytype][district][cachestr] = querydata;
-			}
+			});
+			listdata=querydata;
 			query.callback(listdata);
 		}
 	}
-    $scope.womanchangeName = function(query){
-		queryName(query,"女");
-	};
-    $scope.manchangeName = function(query){
-		queryName(query,"男");
-	};
+
 	$scope.formatSelection=function(item){
 		if(!item.data){
 			return item.text;
@@ -179,42 +163,46 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 			//这里对数据进行填充
 			var obj = null;
 			var otherobj = null;
-			if(item.data[2]=="女"){
-				obj = $scope.woman;
-				otherobj = $scope.man;
+			var model = $(this.element[0]).attr("ng-model");
+			var regx = /data\.fileinfo\['([^']*)'\]/g;
+			var match = regx.exec(model);
+			var modelname = match[1];
+			var modelpre = modelname;
+			var ngmodel = angular.element((this.element[0]));
+			var scope = ngmodel.scope();
+			
+			if(modelname=="mainfile"){
 				//女方编号
-				$scope.data.base.fileno = enc(item.data[0]);
-				$scope.data.base.womanfileno = item.data[0];
+				scope.data.base.fileno = enc(item.data[0]);
 			}else{
+				var splits = modelpre.split("_");
+				modelpre = splits[0];
 				//男方编号
-				$scope.data.items[0]["男方_编号"] = enc(item.data[0])
-				$scope.data.base.manfileno = item.data[0];
-				obj = $scope.man;
-				otherobj = $scope.woman;
+				scope.data.items[0][match[1]] = enc(item.data[0])
 			}
-			otherobj.othersidename = item.data[1];
+			scope.data.items[0][modelpre+'_国籍'] = item.data[19];
+			scope.data.items[0][modelpre+'_邮编'] = 678200;
+			if(!scope.data.fileinfo){
+				scope.data.fileinfo = {};
+			}
+			if(!scope.data.fileinfo[modelname]){
+				scope.data.fileinfo[modelname] = {};
+			}
+			var obj = scope.data.fileinfo[modelname];
 			obj.birthday = item.data[3];
 			obj.idcard = denc(item.data[16]);
 			obj.occupation = item.data[15];
 			obj.education = item.data[14];
 			obj.folk = item.data[12];
-			$scope.data.items[0][item.data[2]+'方_国籍'] = "中国";
 			obj.residenceAddress = item.data[17];
 			obj.address = item.data[7];
-			$scope.data.items[0][item.data[2]+'方_邮编'] = 678200;
 			obj.workUnit = item.data[11];
 			obj.linkmanTel = item.data[8];
 			obj.address = item.data[7];
 			item.text = item.data[1];
+			scope.$digest();
 			return item.data[1];
 		}
-	};
-	$scope.womanSearching=function(scope){
-		//注:select2的事件似乎无法正常获取$scope更新后的内容,只能得到初始化的内容
-		return "输入"+$('#womannameselect').find("option:selected").text()+"进行查询...";
-	};
-	$scope.manSearching=function(){
-		return "输入"+ $('#mannameselect').find("option:selected").text()+"进行查询...";
 	};
 	$scope.dateitems = {
 		cfg:[
@@ -247,6 +235,9 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					if(news[i] && item.parent[item.item]){
 						var init = item.parent[item.item];
 						$scope.dateitems[item.item]=new Date(moment(init, "YYYYMMDDHHmmss"));
+						if(item.parent[item.item] instanceof Date){
+							item.parent[item.item] = $filter("date")(item.parent[item.item],'yyyyMMddHHmmss');
+						}
 					}else{
 						$scope.dateitems[item.item]=null;
 					}
