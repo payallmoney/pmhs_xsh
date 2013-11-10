@@ -2,6 +2,11 @@ package cn.net.tongfang.web.service.commonexam;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +20,8 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -26,11 +33,14 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
+import cn.net.tongfang.framework.security.vo.ExamCrud;
 import cn.net.tongfang.framework.security.vo.ExamExamcfg;
 import cn.net.tongfang.framework.security.vo.ExamExamcfgFileno;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.security.vo.ExamItems;
 import cn.net.tongfang.framework.security.vo.ExamItemsId;
+import cn.net.tongfang.framework.security.vo.ExamQueryCfg;
+import cn.net.tongfang.framework.security.vo.ExamQuerySql;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.util.FileNoGen;
 
@@ -49,7 +59,7 @@ public class CommonExamService extends HibernateDaoSupport {
 	private static String SQL_OPT_LIKE = "like";
 	private static String SQL_OPT_LEFTLIKE = "leftlike";
 	private static String SQL_OPT_RIGHTLIKE = "rightlike";
-	private static String DATE_DAYMAX = " 23:59:59";
+	private static String DATE_DAYMAX = " 23:59:59.999";
 	private static String DATE_DAYMIN = " 00:00:00";
 	private static String PARAMS = "params";
 	private static String WHERES = "wheres";
@@ -295,10 +305,11 @@ public class CommonExamService extends HibernateDaoSupport {
 		System.out.println("======" + retlist.size());
 		ret.put("rows", retlist);
 		ret.put("currentpage", currentpage);
-		ret.put("allcount", allcount);
+		ret.put("total", allcount);
 		ret.put("pages", pages);
 		return ret;
 	}
+	
 
 	public CommonVO loadExam(String id) throws Exception {
 		ExamBaseinfo base = (ExamBaseinfo) this.getHibernateTemplate().get(ExamBaseinfo.class, id);
@@ -494,6 +505,7 @@ public class CommonExamService extends HibernateDaoSupport {
 			String key = (String) it.next();
 			Map<String, String> value = (Map) params.get(key);
 			if (value != null) {
+				System.out.println("======"+basemap.containsKey(key));
 				if (basemap.containsKey(key)) {
 					Map sqls = getBaseSql(basemap.get(key).get(COLUMN), value, basemap.get(key).getClass());
 					where += (String) sqls.get(WHERES);
@@ -502,6 +514,7 @@ public class CommonExamService extends HibernateDaoSupport {
 				} else if (COMMONQUERY.equals(key)) {
 					// 这里是通用查询
 					String[] commonparams = value.get("value").split(PARAMSPLIT);
+					System.out.println("======"+commonparams);
 					for (int i = 0; i < commonparams.length; i++) {
 						String tmp = commonparams[i];
 						while (tmp.indexOf(CONDITIONSPLIT + CONDITIONSPLIT) >= 0) {
@@ -628,22 +641,25 @@ public class CommonExamService extends HibernateDaoSupport {
 	}
 
 	private Map getBaseSql(String name, Map<String, String> value, Class type) throws Exception {
+		System.out.println("====getBaseSql==");
+		System.out.println("==name===="+name);
 		Map<String, Object> ret = new HashMap();
 		List<NullableType> types = new ArrayList();
 		int idx = value.get(VALUE).indexOf("-");
 		int idx1 = value.get(VALUE).indexOf(",");
-		Object typeobj = type.newInstance();
+		System.out.println("===idx==="+idx);
+		System.out.println("===idx1==="+idx1);
 		if (idx > 0) {
 			String[] values = value.get(VALUE).split("-");
 			ret.put(WHERES, " and " + name + " >=? and " + name + " <=? ");
-			if (typeobj instanceof java.util.Date) {
+			if (type.isAssignableFrom(java.util.Date.class)  || type.isAssignableFrom(java.sql.Date.class)) {
 				List<Date> dates = new ArrayList();
 				dates.add(shortdateformat.parse(values[0].trim()));
 				dates.add(longdateformat.parse(values[1].trim() + DATE_DAYMAX));
 				types.add(Hibernate.TIMESTAMP);
 				types.add(Hibernate.TIMESTAMP);
 				ret.put(PARAMS, dates);
-			} else if (typeobj instanceof java.lang.Number) {
+			} else if (type.isAssignableFrom(java.lang.Number.class)) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(values[0].trim()));
 				numbers.add(new BigDecimal(values[1].trim()));
@@ -664,10 +680,10 @@ public class CommonExamService extends HibernateDaoSupport {
 			List hbtparams = new ArrayList();
 			for (int i = 0; i < values.length; i++) {
 				tmp += "?,";
-				if (typeobj instanceof java.util.Date) {
+				if (type.isAssignableFrom(java.util.Date.class) || type.isAssignableFrom(java.sql.Date.class)) {
 					hbtparams.add(shortdateformat.parse(values[i]));
 					types.add(Hibernate.TIMESTAMP);
-				} else if (typeobj instanceof java.lang.Number) {
+				} else if (type.isAssignableFrom(java.lang.Number.class)) {
 					hbtparams.add(new BigDecimal(values[i]));
 					types.add(Hibernate.BIG_DECIMAL);
 				} else {
@@ -679,12 +695,18 @@ public class CommonExamService extends HibernateDaoSupport {
 			tmp = tmp.substring(0, tmp.length() - 1) + ")";
 			ret.put(WHERES, tmp);
 		} else {
+			System.out.println("====else==");
 			String opt = value.get("opt");
-			if (typeobj instanceof java.lang.Number) {
+			if (type.isAssignableFrom(java.util.Date.class) || type.isAssignableFrom(java.sql.Date.class)) {
+				List<Date> dates = new ArrayList();
+				dates.add(shortdateformat.parse(value.get(VALUE).trim()));
+				types.add(Hibernate.TIMESTAMP);
+				ret.put(PARAMS, dates);
+			} else if (type.isAssignableFrom(java.lang.Number.class)) {
 				List<BigDecimal> numbers = new ArrayList();
 				numbers.add(new BigDecimal(value.get(VALUE).trim()));
 				ret.put(PARAMS, numbers);
-				ret.put(WHERES, " and " + name + " " + opt + "?  ");
+				ret.put(WHERES, " and " + name + " " + opt + " ?  ");
 				types.add(Hibernate.BIG_DECIMAL);
 			} else {
 				List<String> params = new ArrayList();
@@ -1014,8 +1036,220 @@ public class CommonExamService extends HibernateDaoSupport {
 				}
 			}
 		}
-		System.out.println("===================" + savedata);
 		return savedata;
+	}
+	
+	public List getCrudCols(String crudname) throws Exception{
+		List ret = new ArrayList();
+		ExamCrud crud = (ExamCrud)this.getSession().load(ExamCrud.class, crudname);
+		Connection conn = getSession().connection();
+		String sql = "select "+crud.getColums()+" from "+crud.getTablename() +" where 1=2 ";
+		System.out.println("==sql===="+sql);
+		PreparedStatement stmt =  conn.prepareStatement(sql);
+//		stmt.setString(1, disid+"%");
+		ResultSet rs = stmt.executeQuery();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		for (int i = 1; i <= numberOfColumns; i++) {
+			System.out.println("======"+rsMetaData.getColumnLabel(i));
+			Map colmap = new HashMap();
+			colmap.put("name", rsMetaData.getColumnLabel(i));
+			colmap.put("nullable", rsMetaData.isNullable(i));
+			colmap.put("editable", true);
+			Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+			String type = "string";
+			if(cls.isAssignableFrom(java.util.Date.class) || cls.isAssignableFrom(java.sql.Date.class)){
+				type = "date";
+			}
+			colmap.put("type", type);
+			if(crud.getPk().trim().equals(rsMetaData.getColumnLabel(i))){
+				if(!crud.getPkeditable()){
+					colmap.put("editable", false);
+				}
+			}
+			ret.add(colmap);
+//			Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+		}
+		return ret;
+	}
+	
+	public Map loadCrud(String id,String crudname) throws Exception{
+		List ret = new ArrayList();
+		ExamCrud crud = (ExamCrud)this.getSession().load(ExamCrud.class, crudname);
+		Connection conn = getSession().connection();
+		String sql = "select "+crud.getColums()+" from "+crud.getTablename() +" where "+ crud.getPk()+" = ? ";
+		System.out.println("==sql===="+sql);
+		PreparedStatement stmt =  conn.prepareStatement(sql);
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		if("date".equals(crud.getPktype())){
+			stmt.setDate(1, new java.sql.Date(format.parse(id).getTime()));
+		}else if("int".equals(crud.getPktype())){
+			stmt.setInt(1, Integer.parseInt(id));
+		}else{
+			stmt.setObject(1, id);
+		}
+		ResultSet rs = stmt.executeQuery();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		Map colmap = new HashMap();
+		if (rs.next()) {
+			for (int i = 1; i <= numberOfColumns; i++) {
+				Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+				if (cls.isAssignableFrom(String.class)) {
+					colmap.put(rsMetaData.getColumnLabel(i), rs.getString(i));
+				} else if (cls.isAssignableFrom(Number.class)) {
+					colmap.put(rsMetaData.getColumnLabel(i), rs.getFloat(i));
+				} else if (cls.isAssignableFrom(Date.class) || cls.isAssignableFrom(java.sql.Timestamp.class)) {
+					Date obj = rs.getDate(i);
+					colmap.put(rsMetaData.getColumnLabel(i), format.format(obj));
+				} else  {
+					Object obj = rs.getObject(i);
+					colmap.put(rsMetaData.getColumnLabel(i), obj);
+				}
+			}
+		}
+		return colmap;
+	}
+	
+	public Map saveCrud(Map param,String crudname) throws Exception,RuntimeException{
+		System.out.println("====saveCrudsaveCrudsaveCrudsaveCrud==");
+		List ret = new ArrayList();
+		ExamCrud crud = (ExamCrud)this.getSession().load(ExamCrud.class, crudname);
+		Connection conn = getSession().connection();
+		String sql = "select "+crud.getColums()+" from "+crud.getTablename() +" where 1=2 ";
+		Map<String,String > colsmap = getColumns(crud.getColums());
+		
+		String pk = colsmap.get(crud.getPk().trim());
+		String pkvalue = (String)param.get(pk);
+		if(pkvalue!=null && pkvalue.trim().length()>0){
+			PreparedStatement stmt =  conn.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int numberOfColumns = rsMetaData.getColumnCount();
+			Map colmap = new HashMap();
+			String updatesql = " update "+crud.getTablename() +" set " ;
+			String setstr = "";
+			String where = " where "+pk+" = ";
+			boolean identityflag = false;
+			for (int i = 1; i <= numberOfColumns; i++) {
+				Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+				if(pk.equals(rsMetaData.getColumnLabel(i))){
+					if (cls.isAssignableFrom(String.class)|| cls.isAssignableFrom(Date.class) || cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						where+= "'"+param.get(pk)+"'";
+					} else if (cls.isAssignableFrom(Number.class)) {
+						where+= ""+param.get(pk)+"";
+					} else  {
+						where+= "'"+param.get(pk)+"'";
+					}
+				}else{
+					if (cls.isAssignableFrom(String.class)|| cls.isAssignableFrom(Date.class) || cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						setstr+= ","+colsmap.get(rsMetaData.getColumnLabel(i))+"='"+param.get(rsMetaData.getColumnLabel(i))+"'";
+					} else if (cls.isAssignableFrom(Number.class)) {
+						setstr+= ","+colsmap.get(rsMetaData.getColumnLabel(i))+"="+param.get(rsMetaData.getColumnLabel(i))+"";
+					} else  {
+						setstr+= ","+colsmap.get(rsMetaData.getColumnLabel(i))+"='"+param.get(rsMetaData.getColumnLabel(i))+"'";
+					}
+				}
+			}
+			setstr = " "+setstr.substring(1)+" ";
+			updatesql += setstr + where;
+			getSession().createSQLQuery(updatesql).executeUpdate();
+		}else{
+			PreparedStatement stmt =  conn.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int numberOfColumns = rsMetaData.getColumnCount();
+			Map colmap = new HashMap();
+			String insertsql = " insert into "+crud.getTablename() ;
+			String cols = "";
+			String values ="";
+			boolean identityflag = false;
+			for (int i = 1; i <= numberOfColumns; i++) {
+				if(pk.equals(rsMetaData.getColumnLabel(i))){
+					if(!crud.getPkeditable()){
+						identityflag = true;
+						continue;
+					}
+				}
+				cols+= ","+colsmap.get(rsMetaData.getColumnLabel(i));
+				Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+				if (cls.isAssignableFrom(String.class)) {
+					values+= ",'"+param.get(rsMetaData.getColumnLabel(i))+"'";
+				} else if (cls.isAssignableFrom(Number.class)) {
+					values+= ","+param.get(rsMetaData.getColumnLabel(i))+"";
+				} else if (cls.isAssignableFrom(Date.class) || cls.isAssignableFrom(java.sql.Timestamp.class)) {
+					values+= ",'"+param.get(rsMetaData.getColumnLabel(i))+"'";
+				} else  {
+					Object obj = rs.getObject(i);
+					colmap.put(rsMetaData.getColumnLabel(i), obj);
+				}
+			}
+			cols = "("+cols.substring(1)+")";
+			values = " values("+values.substring(1)+")";
+			insertsql +=cols+values;
+			getSession().createSQLQuery(insertsql).executeUpdate();
+			if(identityflag){
+				List<Long> identity = getSession().createSQLQuery(" select @@IDENTITY").list();
+				param.put( crud.getPk(),""+identity.get(0));
+			}
+		}
+		return param;
+	}
+	
+	public String deleteCrud(String id,String crudname) throws Exception,RuntimeException{
+		System.out.println("====saveCrudsaveCrudsaveCrudsaveCrud==");
+		List ret = new ArrayList();
+		ExamCrud crud = (ExamCrud)this.getSession().load(ExamCrud.class, crudname);
+		Connection conn = getSession().connection();
+		String sql = "select "+crud.getColums()+" from "+crud.getTablename() +" where 1=2 ";
+		Map<String,String > colsmap = getColumns(crud.getColums());
+		
+		String pk = colsmap.get(crud.getPk().trim());
+		String pkvalue = (String)id;
+		PreparedStatement stmt =  conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		Map colmap = new HashMap();
+		String deletesql = " delete "+crud.getTablename() +"" ;
+		String where = " where "+pk+" = ";
+		boolean identityflag = false;
+		for (int i = 1; i <= numberOfColumns; i++) {
+			Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+			if(pk.equals(rsMetaData.getColumnLabel(i))){
+				if (cls.isAssignableFrom(String.class)|| cls.isAssignableFrom(Date.class) || cls.isAssignableFrom(java.sql.Timestamp.class)) {
+					where+= "'"+pkvalue+"'";
+				} else if (cls.isAssignableFrom(Number.class)) {
+					where+= ""+pkvalue+"";
+				} else  {
+					where+= "'"+pkvalue+"'";
+				}
+				break;
+			}
+		}
+		deletesql +=  where;
+		getSession().createSQLQuery(deletesql).executeUpdate();
+		return "删除成功!";
+	}
+	
+	
+	private Map<String,String> getColumns(String cols) throws Exception{
+		Map<String,String> ret = new HashMap<String,String>();
+		String[] col = cols.split(",");
+		for(int i = 0 ; i<col.length;i++){
+			String str = col[i].trim().replaceAll("\\s+", " ");
+			String[] names = str.split(" ");
+			if(names.length==1){
+				ret.put(names[0].replaceAll("\"", "").replaceAll("'", ""), names[0]);
+			}else if(names.length ==2){
+				ret.put(names[1].replaceAll("\"", "").replaceAll("'", ""), names[0]);
+			}else if(names.length ==3 && names[1].toUpperCase().equals("AS")){
+				ret.put(names[2].replaceAll("\"", "").replaceAll("'", ""), names[0]);
+			}else{
+				throw new Exception("请与系统管理员联系!配置错误!");
+			}
+		}
+		return ret;
 	}
 
 	public String makstr(String examname, String itemname, Object value) {
@@ -1039,16 +1273,16 @@ public class CommonExamService extends HibernateDaoSupport {
 		Query query = this.getSession().createQuery("from ExamQueryCfg where examname = ? order by ord");
 		query.setParameter(0, examname);
 		List ret = query.list();
-		System.out.println("======" + ret.size());
 		return ret;
 	}
+	
+	
 	
 	// TODO 返回配置
 	public Map<String,String> get_cfg_list(String examname) {
 		Query query = this.getSession().createQuery("from ExamExamcfg where examname = ? ");
 		query.setParameter(0, examname);
 		List<ExamExamcfg> result = query.list();
-		System.out.println("======" + result.size());
 		Map<String,String> ret = new HashMap<String,String>();
 		for(int i = 0 ; i <result.size();i++){
 			ExamExamcfg cfg = result.get(i);
@@ -1061,7 +1295,6 @@ public class CommonExamService extends HibernateDaoSupport {
 		Query query = this.getSession().createQuery("from ExamExamcfgFileno where examname = ? ");
 		query.setParameter(0, examname);
 		List<ExamExamcfgFileno> result = query.list();
-		System.out.println("======" + result.size());
 		Map<String,String> ret = new HashMap<String,String>();
 		for(int i = 0 ; i <result.size();i++){
 			ExamExamcfgFileno cfg = result.get(i);
@@ -1069,6 +1302,113 @@ public class CommonExamService extends HibernateDaoSupport {
 		}
 		return ret;
 	}
+	
+	private Class getTypeClass(String type){
+		Map<String ,Class> typemap = new HashMap();
+		typemap.put("string",  String.class);
+		typemap.put("date",  java.sql.Timestamp.class);
+		typemap.put("int",  Long.class);
+		return typemap.get(type);
+	}
+	
+	public Map crudList(String examname, Map<String, Map> params) throws Exception {
+		// params.getBase();
+		List sqlparams = new ArrayList();
+		List<Type> sqlparamtypes = new ArrayList();
+		int count = 0;
+		Map preMap = new HashMap();
+		Map itemsMap = new HashMap();
+		List<ExamQueryCfg> collist = this.get_query_list(examname);
+		ExamQuerySql sqlcfg = (ExamQuerySql)this.getSession().get(ExamQuerySql.class, examname);
+		String where = " where 1=1 ";
+		String select = "";
+		String sql = "";
+		Map<String, NullableType> scalarmap = new HashMap();
+		Map<String, ExamQueryCfg> colmap = new HashMap();
+		int colnum = 0;
+		for (ExamQueryCfg key : collist) {
+			select += "," + key.getCol() + " 'col" + colnum + "'";
+			scalarmap.put("col" + colnum, hbtTypeMap.get(key.getColtype()));
+			colmap.put(key.getName(), key);
+			colnum++;
+		}
+		select = "select " + select.substring(1);
+		where += " and "+sqlcfg.getWherestr();
+		for (Iterator it = params.keySet().iterator(); it.hasNext();) {
+			String key = (String) it.next();
+			Map<String, String> value = (Map) params.get(key);
+			if (value != null) {
+				if(colmap.containsKey(key)){
+					Map sqls = getBaseSql(colmap.get(key).getCol(), value, getTypeClass(colmap.get(key).getColtype()));
+					where += (String) sqls.get(WHERES);
+					sqlparams.addAll((List) sqls.get(PARAMS));
+					sqlparamtypes.addAll((List) sqls.get(TYPES));
+				}
+			}
+		}
+		
+		String orderby = "";
+		if(sqlcfg.getOrderby()!=null && sqlcfg.getOrderby().trim().length()>0){
+			orderby = " order by "+sqlcfg.getOrderby();
+		}
+		sql = select  +" from "+ sqlcfg.getSql() + where + orderby;
+		// 计算总数,页数
+		String countsql = " select count(*) "+ " from "+ sqlcfg.getSql()  + where;
+		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
+		if (sqlparamtypes.size() > 0) {
+			NullableType[] types = new NullableType[sqlparamtypes.size()];
+			types = sqlparamtypes.toArray(types);
+			countquery.setParameters(sqlparams.toArray(), types);
+		}
+		List countlist = countquery.list();
+		int allcount = 0;
+		if (countlist.size() > 0) {
+			allcount = (Integer) countlist.get(0);
+		}
+		Map pageparams = params.get(PAGE);
+		int pagesize = Integer.parseInt((String) pageparams.get(PAGESIZE));
+		int currentpage = Integer.parseInt((String) pageparams.get(CURRENTPAGE));
+		if (pagesize <= 0) {
+			pagesize = DEFAULTPAGESIZE;
+		}
+
+		int pages = allcount / pagesize + (allcount % pagesize > 0 ? 1 : 0);
+		if (currentpage > pages) {
+			currentpage = pages;
+		}
+		if (currentpage <= 0) {
+			currentpage = 1;
+		}
+		int min = pagesize * (currentpage - 1);
+		int max = pagesize * currentpage;
+		// 查询分页结果
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		if (sqlparamtypes.size() > 0) {
+			NullableType[] types = new NullableType[sqlparamtypes.size()];
+			types = sqlparamtypes.toArray(types);
+			query.setParameters(sqlparams.toArray(), types);
+		}
+		if (scalarmap.size() > 0) {
+			for (Iterator it = scalarmap.keySet().iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				NullableType type = (NullableType) scalarmap.get(key);
+				query.addScalar(key, type);
+			}
+		}
+		// query.setParameters(sqlparams.toArray(),
+		// (Type[])sqlparamtypes.toArray());
+		query.setFirstResult(min);
+		query.setMaxResults(max);
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		Map ret = new HashMap();
+		List retlist = query.list();
+		ret.put("rows", retlist);
+		ret.put("currentpage", currentpage);
+		ret.put("total", allcount);
+		ret.put("pages", pages);
+		return ret;
+	}
+	
 	
 
 	public Map getDistrictMap() {

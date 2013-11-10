@@ -118,6 +118,9 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		var querytype = parseInt( scope.selects[modelname]);
 		var flag = false;
 		query.term = angular.element(".select2-drop-active .select2-search input").val();
+		console.log($.trim(query.term));
+		query.term = $.trim(query.term);
+		angular.element(".select2-drop-active .select2-search input").val($.trim(query.term));
 		if(querytype == 2 || querytype == 4){ //2是姓名,4是联系人,只要输入一位就进行查询
 			if(query.term && query.term.length >=2){
 				flag = true;
@@ -133,14 +136,6 @@ function CommonCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		}
 		if(flag){
 			var listdata = null;
-			var cachestr = "";
-			if(querytype == 2 || querytype ==4){ //2是姓名,4是联系人,只要输入一位就进行查询
-				cachestr = query.term.substring(0,2);
-			}else if (querytype == 3){ //3是身份证号,输入10位后开始查询
-				cachestr = query.term.substring(0,10);
-			}else if (querytype == 0 || querytype ==1){ //0是条形码,1是档案编号 输入4位进行查询
-				cachestr = query.term.substring(0,4);
-			}
 			var querydata = {results: []}, i, j, s;
 			FileNumSearch.listCodePageSize_new(0,0,district+"%"+query.term,true,querytype,typecode,{async:false,
 				callback:function(data){

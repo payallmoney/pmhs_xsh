@@ -1,23 +1,20 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated 2013-11-3 23:13:22 by Hibernate Tools 3.4.0.CR1 -->
+<!-- Generated 2013-11-10 23:30:07 by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
     <class name="cn.net.tongfang.framework.security.vo.ExamQuerySql" table="exam_query_sql" schema="dbo">
-        <id name="id" type="int">
-            <column name="id" />
+        <id name="examname" type="string">
+            <column name="examname" />
             <generator class="assigned" />
         </id>
-        <property name="examname" type="string">
-            <column name="examname" not-null="true" />
-        </property>
         <property name="sql" type="string">
             <column name="sql" not-null="true" />
         </property>
-        <property name="wherestr" type="serializable">
+        <property name="wherestr" type="string">
             <column name="wherestr" />
         </property>
-        <property name="orderby" type="serializable">
+        <property name="orderby" type="string">
             <column name="orderby" />
         </property>
     </class>

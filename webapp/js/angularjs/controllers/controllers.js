@@ -220,6 +220,8 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 		var district = $('#'+sexcode+'districtselect').attr("realvalue");
 		var querytype = parseInt($('#'+sexcode+'nameselect').attr("realvalue"));
 		var flag = false;
+		query.term = $.trim(query.term);
+		angular.element(".select2-drop-active .select2-search input").val($.trim(query.term));
 		if(querytype == 2 || querytype == 4){ //2是姓名,4是联系人,只要输入一位就进行查询
 			if(query.term && query.term.length >=2){
 				flag = true;
@@ -233,35 +235,32 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 				flag = true;
 			}
 		}
-		console.log(flag)
-		console.log(query.term);
-		console.log(query.term.length)
 		if(flag){
 			var listdata = null;
-			var cachestr = "";
-			if(querytype == 2 || querytype ==4){ //2是姓名,4是联系人,只要输入一位就进行查询
-				cachestr = query.term.substring(0,2);
-			}else if (querytype == 3){ //3是身份证号,输入10位后开始查询
-				cachestr = query.term.substring(0,10);
-			}else if (querytype == 0 || querytype ==1){ //0是条形码,1是档案编号 输入4位进行查询
-				cachestr = query.term.substring(0,4);
-			}
-			if(!$scope.namemap[type][querytype]){
-				$scope.namemap[type][querytype] = {};
-			}
-			if(!$scope.namemap[type][querytype][district]){
-				$scope.namemap[type][querytype][district]={}
-			}
-			if($scope.namemap[type][querytype][district][cachestr]){
-				var querydata = $scope.namemap[type][querytype][district][cachestr];
-				listdata = {results: []};
-				for(var i = 0 ;i <querydata.results.length;i++){
-					if(querydata.results[i].text.indexOf(query.term)==0){
-						listdata.results.push(querydata.results[i])
-					}
-				}
-			}else{
-				console.log(district+"%"+query.term)
+//			var cachestr = "";
+//			if(querytype == 2 || querytype ==4){ //2是姓名,4是联系人,只要输入一位就进行查询
+//				cachestr = query.term.substring(0,2);
+//			}else if (querytype == 3){ //3是身份证号,输入10位后开始查询
+//				cachestr = query.term.substring(0,10);
+//			}else if (querytype == 0 || querytype ==1){ //0是条形码,1是档案编号 输入4位进行查询
+//				cachestr = query.term.substring(0,4);
+//			}
+//			if(!$scope.namemap[type][querytype]){
+//				$scope.namemap[type][querytype] = {};
+//			}
+//			if(!$scope.namemap[type][querytype][district]){
+//				$scope.namemap[type][querytype][district]={}
+//			}
+//			if($scope.namemap[type][querytype][district][cachestr]){
+//				var querydata = $scope.namemap[type][querytype][district][cachestr];
+//				listdata = {results: []};
+//				for(var i = 0 ;i <querydata.results.length;i++){
+//					if(querydata.results[i].text.indexOf(query.term)==0){
+//						listdata.results.push(querydata.results[i])
+//					}
+//				}
+//			}else{
+//				console.log(district+"%"+query.term)
 				var querydata = {results: []}, i, j, s;
 				FileNumSearch.listCodePageSize(0,0,district+"%"+query.term,true,querytype,typecode,{async:false,
 					callback:function(data){
@@ -273,8 +272,8 @@ function MarryCheck($scope, $dialog,$routeParams,$location,$filter,$window) {
 					}
 				});
 				listdata=querydata;
-				$scope.namemap[type][querytype][district][cachestr] = querydata;
-			}
+//				$scope.namemap[type][querytype][district][cachestr] = querydata;
+//			}
 			query.callback(listdata);
 		}
 	}

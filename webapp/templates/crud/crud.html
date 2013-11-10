@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="height:100%;width:100%;" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="/js/easyui/themes/hc/easyui.css">
+		<link rel="stylesheet" type="text/css" href="/js/easyui/themes/icon.css">
+		<script type="text/javascript" src="/js/easyui/jquery-1.8.0.min.js"></script>
+		<script src='/js/angularjs/jquery/jquery.dateFormat-1.0.js'></script>
+		<script type='text/javascript' src='/dwr/engine.js'></script>
+		<script type='text/javascript' src='/dwr/util.js'></script>
+		<script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
+		<script type='text/javascript' src='/dwr/interface/UserMenuTreeService.js'></script>
+		<script src="/js/easyui/jquery.easyui.min.js"></script>
+		<script src="/js/easyui/locale/easyui-lang-zh_CN.js"></script>
+		<style>
+			.tree-file {
+				background: url(../../resources/images/default/tree/leaf.gif) no-repeat;
+			}
+			
+			.tree-node-selected {
+				background: #d9e8fb;
+				color: #000000;
+			}
+			
+			.datagrid-row-selected {
+				background: #eaf2ff !important;
+				color: #000000;
+				font-weight:bold;
+			}
+			.datagrid-row-over, .datagrid-header td.datagrid-header-over {
+				background: #eaf2ff !important;
+				color: #000000;
+				cursor: default;
+			}
+		</style>
+		<script>
+			function getParameterByName(name) {
+			    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+			    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			        results = regex.exec(location.search);
+			    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+			var crudname = getParameterByName("crudname");
+			function examDwrLoader(pluginName){
+				return function(param, success, error){
+					var opts = $(this)[pluginName]('options');
+					if (!opts.url) return false;
+					var dwrFunc = eval(opts.url);
+					param = genParam(param);
+					console.log("params===",param);
+					dwrFunc(param[0],param[1], {
+						callback: function(data){
+							success(data);
+						},
+						exceptionHandler: function(){
+							error.apply(this, arguments);
+						}
+					});
+				}
+			}
+			$.fn.datagrid.defaults.loader = examDwrLoader('datagrid');
+			
+            function exam_add() {
+            	//在新增之前,始终选择最后一层
+                $("#exam_addpanel").dialog("open");
+				var node = $('#orgtree').tree('getSelected');  
+				var url = "crud_info.html#&opt=new&crudname="+crudname;
+				$("#iframe").attr("src","about:blank");
+				$("#iframe").attr("src",url);
+            }
+            function exam_edit() {
+            	var checked = $("#querygrid").datagrid("getChecked");
+            	if(checked){
+					var url = "crud_info.html#&opt=open&id="+checked[0]["col0"]+"&crudname="+crudname;
+					if(url != $("#iframe").attr("src")){
+						$("#iframe").attr("src",url);
+					}
+					$("#exam_addpanel").dialog("open");
+            	}
+            }
+            function exam_del() {
+            	var checked = $("#querygrid").datagrid("getChecked");
+            	if(checked){
+            		var rowindex = $("#querygrid").datagrid("getRowIndex",checked[0]);
+            		$.messager.confirm('确认','是否确定删除选中数据?',function(r){   
+            		    if (r){   
+            		    	CommonExamService.deleteCrud(checked[0]["col0"],crudname,function(data){
+            		    		$.messager.alert('成功',data); 
+            		    		 $("#querygrid").datagrid("deleteRow",rowindex);
+            		    	});
+            		    }   
+            		}); 
+            	}
+            }
+            var g_basemap = {};
+            var g_colist = [];
+            var g_col_nameonly = [];
+            function getBasemap(){
+            	return g_basemap;
+            }
+            function getColList(){
+            	return g_col_nameonly;
+            }
+			function dialogClose(){
+				$("#iframe").attr("src","about:blank");
+			}
+			function getparams(pagenum){
+				return{"page":{pagesize:20,currentpage:pagenum}};
+			}
+			function gridStyle(index,row){
+				if (index % 2 == 0 ){
+					return 'background-color:#fbfbfb;';
+				}else{
+					return ':hover {background-color:#eaf2ff}';
+				}
+			}
+			function datefomattor(value,row,index){
+		 		return $.format.date(value, "yyyy-MM-dd")
+			}
+			function dblclick(rowIndex, rowData){
+				var node = $('#orgtree').tree('getSelected');  
+				console.log('rowData["col0"]===',rowData["col0"])
+				var url = "crud_info.html#&opt=open&id="+rowData["col0"]+"&crudname="+crudname;
+				//if(url != $("#iframe").attr("src")){
+					$("#iframe").attr("src","about:blank");//释放iframe内存
+					$("#iframe").attr("src",url);
+				//}
+				$("#exam_addpanel").dialog("open");
+			}
+			function closeDialog(){
+				$("#iframe").attr("src","about:blank");
+				$("#exam_addpanel").dialog("close");
+			}
+			
+			function genParam(param){
+				var value = $("#exam_searcher").searchbox("getValue")
+				var name = $("#exam_searcher").searchbox("getName")
+				var pagenumber = 1;
+				if(param.page && param.page>1){
+					pagenumber = param.page;
+				}
+				var params = getparams(pagenumber);
+				if(value){
+					params[name]={"value":value,"opt":"="};
+				}
+				var dwrparams = [crudname,params];
+				return dwrparams;
+			}
+			function exam_query(value,name,page){
+				var param = {"page":page,"rows":20}
+				$('#querygrid').datagrid('load', genParam(param)); 
+				
+			}
+			
+			
+			$(function(){
+				$('#exam_addpanel').dialog('setTitle', crudname);
+				var nodedata = window.top.earyuitreedata;
+				$('#orgtree').tree({   
+					data:nodedata,
+					onSelect:function(node){
+						$("#selectedorg").val(node.id);
+						$("#orgname").text(node.text);
+					},
+					onLoadSuccess:function(){
+						//选中第一节点
+						var node = $('#orgtree').tree('find', parseInt(nodedata[0].id));
+						$('#orgtree').tree('select', node.target);
+					}
+				});
+				
+				var columns=[[  ]]  ;
+				for(var i = 0 ; i <g_colist.length ; i ++){
+					if("选择"===g_colist[i].name){
+						columns[0].push({field:"col"+i,title: g_colist[i].name,checkbox:true});
+					}else if(g_colist[i].coltype==="date"){
+						columns[0].push({field:"col"+i,title: g_colist[i].name,formatter:datefomattor});
+					}else{
+						columns[0].push({field:"col"+i,title: g_colist[i].name});
+					}
+				}
+				$("#querygrid").datagrid({
+					columns:columns,
+					rowStyler:gridStyle,
+					singleSelect:true,
+					onDblClickRow:dblclick,
+					pageList :[20]
+				});
+			});
+		</script>
+		
+		<body >
+			<div class="easyui-panel easyui-layout" data-options='fit:true'>
+				<input id='selectedorg' type='hidden'>
+				<!-- 
+				<div data-options="region:'west'" title='行政区划' style='width:200px'>
+					<ul id="orgtree"></ul>  
+				</div> -->
+				<div id="query-tools"  data-options="region:'north'" style='height:40px;padding-top:5px;padding-left:5px;border:true;background-color: #E0ECFF;'>
+					<a id="btn_add" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="javascript:exam_add()">增加</a>
+					<a id="btn_edit" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="javascript:exam_edit()">修改</a>
+					<a id="btn_remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="javascript:exam_del()">删除</a>
+					<input id="exam_searcher" style="width:300px">	</input>
+				</div>
+				<div id="query_drop" style="width:120px">
+					
+				</div>
+				<div  class="easyui-layout" data-options = "region:'center'">
+					<!-- 
+					<div style='height:26px;padding:5px 0 0 5px;background-color: #E0ECFF;' data-options="region:'north',border:false"><font bold id='orgname'></font></div>
+					 -->
+					<div data-options = "region:'center',border:false">
+						<table id='querygrid' class="easyui-datagrid" data-options = "fit:true,pagination:true,url:CommonExamService.crudList,singleSelect:true,onDblClickRow:dblclick,pageList :[20]">
+							<thead>  
+								<tr id='title_tr'>  
+									
+								</tr>  
+							</thead>  
+							<tbody>  
+							</tbody>  
+						</table> 
+					</div>
+				</div>
+				<div id="exam_addpanel" class="easyui-dialog" title='标题'  style="width:410px;height:370px;"
+				data-options="iconCls:'icon-save',resizable:false,modal:true,closed:true,onClose:dialogClose">
+					<div style='overflow:visible;height:100%;width:100%'>
+						<!--<table id="exam_addpanel_propergrid"></table>-->
+						<iframe width="100%" height="100%" scrolling=true frameborder="0" id='iframe' name='iframe'  >
+						</iframe>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+				console.log(crudname);
+				CommonExamService.get_query_list(crudname,{
+					callback:function(data){
+						console.log(data);
+						g_colist = data;
+					},
+					async:false
+				});
+				var colstart = 0;
+				for(var i=0 ;i <g_colist.length;i++){
+					g_basemap[g_colist[i].name]=g_colist[i];
+					g_col_nameonly[i]=g_colist[i].name;
+					if(g_colist[i].isquery){
+						$("#query_drop").append("<div data-options=\"name:'"+g_colist[i].name+"'\">"+g_colist[i].name+"</div>")
+					}
+					if(g_colist[i].display){
+						$("#title_tr").append("<th data-options=\"field:'col"+i+"'\">"+g_colist[i].name+"</th>  ")
+						colstart ++;
+					}
+				}
+				
+				$("#exam_searcher").searchbox({
+					inline:true,
+					searcher:exam_query,
+					prompt:'请输入查询条件',
+					menu:'#query_drop',
+					destroy:function(){$('#query_drop'.destory())}
+				});
+			</script>
+		</body>
+</html>
