@@ -16,11 +16,10 @@
     <recheck-max>5</recheck-max>
     <check-timeout>5m</check-timeout>
   </health:HealthSystem>
-  <!--
+  
   <health:Restart>
     <health:IfHealthFatal/>
   </health:Restart>
-  -->
 
   <!--
      - Save jmx information on start.

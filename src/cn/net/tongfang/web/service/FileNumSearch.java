@@ -284,28 +284,52 @@ public class FileNumSearch extends HibernateDaoSupport{
     }
     
     public  List checkFileByIdNumber(String fileno ,String idnumber){
+    	TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		System.out.println("==user.getDistrictId()===="+user.getDistrictId());
+		String disid = user.getDistrictId();
+		while(disid.endsWith("00")){
+			disid = disid.substring(0,disid.length()-2);
+		}
+		System.out.println("====disid=="+disid);
+		System.out.println("====fileno=="+fileno);
+		String wherestr;
+		wherestr = "where hf.idcard = ? and  (" +
+				"  (not linkFileno is null and  len(linkFileno)>0 and linkFileno <> ?) or " +
+				"  (not districtId is null and  len(districtId)>0 and districtId <> substring(?,1,len(districtId) )) " +
+				"  ) ";
+		List list = new ArrayList();
+		List list1 = new ArrayList();
     	if(fileno !=null && fileno.trim().length()>0){
-    		List list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
+    		list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
         			" from HealthFile as hf, PersonalInfo as p " +
-        			"where p.fileNo = hf.fileNo " +
+        			"where p.fileNo = hf.fileNo and hf.status=0 " +
         			"and p.idnumber = ? and p.fileNo <> ? ", new Object[]{EncryptionUtils.encry(idnumber),EncryptionUtils.encry(fileno.trim())});
-    		return list;
+    		wherestr = "where hf.idcard = ? and  (" +
+					"  (not linkFileno is null and  len(linkFileno)>0 and linkFileno <> ?) or " +
+					"  (not districtId is null and  len(districtId)>0 and districtId <> substring(?,1,len(districtId) )) " +
+					"  ) ";
+    		list1 = getHibernateTemplate().find("select hf.fileno, hf.name, hf.sex " +
+        			" from HealthFileHistory2 hf " + wherestr, new Object[]{idnumber,fileno,disid});
     	}else{
-    		List list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
-        			" from HealthFile as hf, PersonalInfo as p " +
-        			"where p.fileNo = hf.fileNo " +
+    		wherestr = "where hf.idcard = ? and  (" +
+					"  (not linkFileno is null and  len(linkFileno)>0 ) or " +
+					"  (not districtId is null and  len(districtId)>0 and districtId <> substring(?,1,len(districtId) )) " +
+					"  ) ";
+    		list = getHibernateTemplate().find("select hf.fileNo, hf.name, p.sex " +
+        			" from HealthFile as hf, PersonalInfo as p  " +
+        			"where p.fileNo = hf.fileNo  and hf.status=0 " +
         			"and p.idnumber = ? ", EncryptionUtils.encry(idnumber));
-    		List list1 = getHibernateTemplate().find("select hf.fileno, hf.name, hf.sex " +
-        			" from HealthFileHistory2 hf " +
-        			"where ( len(linkFileno)>0 or len(districtId)>0 ) and hf.idcard = ? ", idnumber);
-    		for(int i = 0 ; i<list1.size();i++){
-    			Object[] obj = (Object[])list1.get(i);
-    			obj[0]= EncryptionUtils.encry((String)obj[0]);
-    			obj[1]= EncryptionUtils.encry((String)obj[1]);
-    		}
-    		list.addAll(list1);
-    		return list;
+    		list1 = getHibernateTemplate().find("select hf.fileno, hf.name, hf.sex " +
+        			" from HealthFileHistory2 hf " + wherestr, new Object[]{idnumber,disid});
     	}    	
+    	for(int i = 0 ; i<list1.size();i++){
+			Object[] obj = (Object[])list1.get(i);
+			obj[0]= EncryptionUtils.encry((String)obj[0]);
+			obj[1]= EncryptionUtils.encry((String)obj[1]);
+		}
+		list.addAll(list1);
+		
+		return list;
     }
     
     public  PagedList getHistoryList(int pageNo, String mcode, boolean startWith,String condVal,String otherparamtype){
@@ -333,15 +357,17 @@ public class FileNumSearch extends HibernateDaoSupport{
 		System.out.println("====disid=="+disid);
 		String wherestr;
 		if(disid.length()>=6){
-			wherestr = "where ( len(linkFileno)=0 or linkFileno is null )and  name like  ? and (districtId is null or len(districtId)=0 or (len(districtId)>0 and districtId = substring(?,1,len(districtId)) )) ";
+			wherestr = "where ( len(linkFileno)=0 or linkFileno is null ) and (districtId is null or len(districtId)=0 or (len(districtId)>0 and districtId = substring(?,1,len(districtId)) )) ";
 		}else{
-			wherestr = "where  ( len(linkFileno)=0 or linkFileno is null ) and  name like  ? and (districtId is null or len(districtId)=0 or (len(districtId)>0 and districtId = substring(?,1,len(districtId)) )) ";
+			wherestr = "where  ( len(linkFileno)=0 or linkFileno is null )  and (districtId is null or len(districtId)=0 or (len(districtId)>0 and districtId = substring(?,1,len(districtId)) )) ";
 		}
+		System.out.println("==wherestr===="+wherestr);
     	//改为like ,like 可以用索引 substring 不能用
     	if(condVal.equals(CondVal_History_Name)){
+    		wherestr += " and  name like  ? ";
     		Query qry = getSession().createQuery("select count(*) from HealthFileHistory2 "  + wherestr);
-    		qry.setParameter(0, otherCond+"%");
-    		qry.setParameter(1, disid);
+    		qry.setParameter(0, disid);
+    		qry.setParameter(1, otherCond+"%");
     		long count = (Long)qry.list().get(0);
     		if(pagesize == 0 ){
         		pagesize = (int)count;
@@ -355,9 +381,9 @@ public class FileNumSearch extends HibernateDaoSupport{
         	qry = getSession().createQuery("select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age," +
 				"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq" +
 				" from HealthFileHistory2 "  + wherestr);
-        			
-        	qry.setParameter(0, otherCond+"%");
-        	qry.setParameter(1, disid);
+        	qry.setParameter(0, disid);
+        	qry.setParameter(1, otherCond+"%");
+        	
         	qry.setMaxResults(pagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
@@ -365,9 +391,10 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.res = list;
         	res.currentPage = pageNo + 1;
     	}else if(condVal.equals(CondVal_History_CardId)){
+    		wherestr += " and  idcard  like  ? ";
     		Query qry = getSession().createQuery("select count(*) from HealthFileHistory2 "  + wherestr);
-    		qry.setParameter(0, otherCond+"%");
-    		qry.setParameter(1, user.getDistrictId());
+    		qry.setParameter(0, user.getDistrictId());
+    		qry.setParameter(1, otherCond+"%");
     		long count = (Long)qry.list().get(0);
     		if(pagesize == 0 ){
         		pagesize = (int)count;
@@ -381,8 +408,9 @@ public class FileNumSearch extends HibernateDaoSupport{
         	qry = getSession().createQuery("select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age," +
 				"address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq" +
 				" from HealthFileHistory2 "  + wherestr);
-        	qry.setParameter(0, otherCond+"%");
-        	qry.setParameter(1, user.getDistrictId());
+        	qry.setParameter(0, user.getDistrictId());
+        	qry.setParameter(1, otherCond+"%");
+        	
         	qry.setMaxResults(pagesize);
         	qry.setFirstResult(from);
         	List list = qry.list();
