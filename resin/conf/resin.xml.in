@@ -3,18 +3,36 @@
   -->
 <resin xmlns="http://caucho.com/ns/resin"
        xmlns:resin="urn:java:com.caucho.resin">
-  <character-encoding>utf-8</character-encoding>
+
   <!-- property-based Resin configuration -->
   <resin:properties path="${__DIR__}/resin.properties" optional="true"/>
   <resin:properties path="cloud:/resin.properties"
                     optional="true" recover="true"/>
-
 
   <resin:if test="${properties_import_url}">
      <resin:properties path="${properties_import_url}"
                     optional="true" recover="true"/>
   </resin:if>
 
+  <!-- Java system-properties -->
+  <system-property mail.smtp.host="${smtp_host?:'127.0.0.1'}"/>
+  <system-property mail.smtp.port="${smtp_port?:25}"/>
+  <system-property mail.smtp.from="${smtp_from}"/>
+
+  <!-- Cloud server configuration -->
+  <resin:import fileset="cloud:/resin-inf/**/*.xml" recover="true"/>
+
+  <!-- Local configuration. -->
+  <resin:import fileset="${resin.root}/resin-inf/**/*.xml"/>
+
+  <!--
+     - driver .jar files can be placed in ${resin.root}/resin-inf/
+     -->
+  <class-loader>
+    <tree-loader path="${resin.root}/ext-lib"/>
+    <tree-loader path="${resin.root}/resin-inf"/>
+    <tree-loader path="cloud:/resin-inf"/>
+  </class-loader>
 
   <!-- Logging configuration for the JDK logging API -->
   <log-handler name="" level="all" path="stdout:"
@@ -33,7 +51,7 @@
      - level='info' for production
      - 'fine' or 'finer' for development and troubleshooting
     -->
-  <logger name="" level="${log_level?:'info'}"/>
+  <logger name="" level="${rvar('log_level')?:'info'}"/>
 
   <logger name="com.caucho.java" level="config"/>
   <logger name="com.caucho.loader" level="config"/>
@@ -48,7 +66,6 @@
      - health configuration
     -->
   <resin:import path="${__DIR__}/health.xml"/>
-
   
   <!--
      - Remote management requires at least one enabled admin user.
@@ -61,9 +78,9 @@
   </resin:AdminAuthenticator>
 
   <!--
-     - For clustered systems, create a password in as cluster_system_key
+     - For clustered systems, create a password in as system_key
     -->
-  <cluster-system-key>${cluster_system_key}</cluster-system-key>
+  <resin-system-auth-key>${system_key}</resin-system-auth-key>
 
   <!--
      - For production sites, change dependency-check-interval to something
@@ -73,9 +90,9 @@
 
   <!-- For resin.properties dynamic cluster joining -->
   <home-cluster>${home_cluster}</home-cluster>
-  <home-server>${home_server}</home-server>
-  <elastic-server>${elastic_server}</elastic-server>
-  <elastic-dns>${elastic_dns}</elastic-dns>
+  <!-- home-server>${home_server}</home-server -->
+
+
 
   <!--
      - Configures the main application cluster.  Load-balancing configurations
@@ -83,57 +100,48 @@
     -->
   <cluster id="app">
     <!-- define the servers in the cluster -->
-	
     <server-multi id-prefix="app-" address-list="${app_servers}" port="6800"/>
-	<server-default>
-		<!--
-		<jvm-arg>-Xms32m</jvm-arg>
-		<jvm-arg>-Xmx512m</jvm-arg>
-		<jvm-arg>-Xss1m</jvm-arg>
-		<jvm-arg>-verbosegc</jvm-arg>
-		<jvm-arg>-Dfoo=bar</jvm-arg>
-		<jvm-arg>-Dcaucho.smallmem</jvm-arg>
-		<jvm-arg>-agentlib:resin</jvm-arg>
-		<jvm-arg>-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg>
-		
-		<jvm-arg>-Xdebug</jvm-arg>
-		<jvm-arg>-Xnoagent</jvm-arg>
-		<jvm-arg>-Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg>
--->
-		<jvm-arg>-Xdebug</jvm-arg> 
-		<jvm-arg>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg> 
-   </server-default>
 
     <host-default>
       <!-- creates the webapps directory for .war expansion -->
       <web-app-deploy path="webapps"
                       expand-preserve-fileset="WEB-INF/work/**"
-                      multiversion-routing="${webapp_multiversion_routing}"
-                      path-suffix="${elastic_webapp?resin.id:''}"/>
-		
+                      multiversion-routing="${webapp_multiversion_routing}"/>
     </host-default>
-
-    <!-- auto virtual host deployment in hosts/foo.example.com/webapps -->
-    <host-deploy path="hosts">
-      <host-default>
-        <resin:import path="host.xml" optional="true"/>
-      </host-default>
-    </host-deploy>
 
     <!-- the default host, matching any host name -->
     <host id="" root-directory=".">
       <!--
          - webapps can be overridden/extended in the resin.xml
+         -
+         - <web-app id="/" root-directory="webapps/ROOT"/>
         -->
-      <web-app id="/" root-directory="D:\workspace\pmhs_sd\webapp\">
-		<character-encoding>UTF-8</character-encoding>
-	  </web-app>
-      
-      <resin:if test="${resin_doc}">
+      <resin:if test="${rvar('resin_doc')}">
         <web-app id="/resin-doc" root-directory="${resin.root}/doc/resin-doc"/>
       </resin:if>
     </host>
   </cluster>
 
+  <cluster id="web">
+    <!-- define the servers in the cluster -->
+    <server-multi id-prefix="web-" address-list="${web_servers}" port="6810"/>
+
+    <host id="" root-directory="web">
+      <web-app id="">
+        <resin:LoadBalance regexp="" cluster="app"/>
+      </web-app>
+    </host>
+  </cluster>
+
+  <cluster id="cache" xmlns:memcache="urn:java:com.caucho.memcached">
+    <!-- define the servers in the cluster -->
+    <server-multi id-prefix="cache-" address-list="${cache_servers}" port="6820">
+      <!-- listen for the memcache protocol -->
+      <listen port="${rvar('memcached_port')?:11212}"
+              keepalive-timeout="600s" socket-timeout="600s">
+        <memcache:MemcachedProtocol/>
+      </listen>
+    </server-multi>
+  </cluster>
   
 </resin>

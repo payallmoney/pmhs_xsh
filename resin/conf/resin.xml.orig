@@ -3,7 +3,7 @@
   -->
 <resin xmlns="http://caucho.com/ns/resin"
        xmlns:resin="urn:java:com.caucho.resin">
-  <character-encoding>utf-8</character-encoding>
+
   <!-- property-based Resin configuration -->
   <resin:properties path="${__DIR__}/resin.properties" optional="true"/>
   <resin:properties path="cloud:/resin.properties"
@@ -83,26 +83,7 @@
     -->
   <cluster id="app">
     <!-- define the servers in the cluster -->
-	
     <server-multi id-prefix="app-" address-list="${app_servers}" port="6800"/>
-	<server-default>
-		<!--
-		<jvm-arg>-Xms32m</jvm-arg>
-		<jvm-arg>-Xmx512m</jvm-arg>
-		<jvm-arg>-Xss1m</jvm-arg>
-		<jvm-arg>-verbosegc</jvm-arg>
-		<jvm-arg>-Dfoo=bar</jvm-arg>
-		<jvm-arg>-Dcaucho.smallmem</jvm-arg>
-		<jvm-arg>-agentlib:resin</jvm-arg>
-		<jvm-arg>-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg>
-		
-		<jvm-arg>-Xdebug</jvm-arg>
-		<jvm-arg>-Xnoagent</jvm-arg>
-		<jvm-arg>-Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg>
--->
-		<jvm-arg>-Xdebug</jvm-arg> 
-		<jvm-arg>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999</jvm-arg> 
-   </server-default>
 
     <host-default>
       <!-- creates the webapps directory for .war expansion -->
@@ -110,7 +91,6 @@
                       expand-preserve-fileset="WEB-INF/work/**"
                       multiversion-routing="${webapp_multiversion_routing}"
                       path-suffix="${elastic_webapp?resin.id:''}"/>
-		
     </host-default>
 
     <!-- auto virtual host deployment in hosts/foo.example.com/webapps -->
@@ -125,9 +105,7 @@
       <!--
          - webapps can be overridden/extended in the resin.xml
         -->
-      <web-app id="/" root-directory="D:\workspace\pmhs_sd\webapp\">
-		<character-encoding>UTF-8</character-encoding>
-	  </web-app>
+      <web-app id="/" root-directory="webapps/ROOT"/>
       
       <resin:if test="${resin_doc}">
         <web-app id="/resin-doc" root-directory="${resin.root}/doc/resin-doc"/>
@@ -135,5 +113,26 @@
     </host>
   </cluster>
 
+  <cluster id="web">
+    <!-- define the servers in the cluster -->
+    <server-multi id-prefix="web-" address-list="${web_servers}" port="6810"/>
+
+    <host id="" root-directory="web">
+      <web-app id="">
+        <resin:LoadBalance regexp="" cluster="app"/>
+      </web-app>
+    </host>
+  </cluster>
+
+  <cluster id="memcached" xmlns:memcache="urn:java:com.caucho.memcached">
+    <!-- define the servers in the cluster -->
+    <server-multi id-prefix="memcached-" address-list="${memcached_servers}" port="6820">
+      <!-- listen for the memcache protocol -->
+      <listen port="${memcached_port?:11211}"
+              keepalive-timeout="600s" socket-timeout="600s">
+        <memcache:MemcachedProtocol/>
+      </listen>
+    </server-multi>
+  </cluster>
   
 </resin>

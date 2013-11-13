@@ -23,7 +23,7 @@ dev_mode      : true
 # dependency_check_interval : 5m
 
 # Enable /resin-doc Resin documentation
-resin_doc     : false
+resin_doc     : true
 
 # List Triad server ip-addresses:hmux-port for each tier, space separated
 # App tier Triad servers must be listed to enable web-tier to 
@@ -65,22 +65,21 @@ home_cluster : app
 
 # Set HTTP and HTTPS ports.
 # Use overrides for individual server control, for example: app-0.http : 8081
-app.http          : 8080
-# app.https         : 8443
+app.http          : @HTTP_PORT@
+# app.https         : @HTTPS_PORT@
 
-web.http          : 8080
-# web.https         : 8443
+web.http          : @HTTP_PORT@
+# web.https         : @HTTPS_PORT@
 
-# memcached.http      : 8080
-# memcached.https     : 8443
+# memcached.http      : @HTTP_PORT@
+# memcached.https     : @HTTPS_PORT@
 
 # For security, Resin can switch to a non-root user after binding to port 80
-setuid_user   : 
-setuid_group  : 
+setuid_user   : @SETUID_USER@
+setuid_group  : @SETUID_GROUP@
 
 # Arg passed directly to the JVM
-jvm_args  : -Xmx768m -XX:MaxPermSize=128m 
-#-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999
+# jvm_args  : -Xmx2048m -XX:MaxPermSize=256m
 
 # Local URLs for the watchdog to check to ensure the server is up,
 # space separated
@@ -137,7 +136,7 @@ session_store : true
 # remote_admin_enable : true
 
 # Enable /resin-admin web administration console
-web_admin_enable : false
+web_admin_enable : true
 
 # Permit access to /resin-admin from non-local network ip-addresses
 # web_admin_external : true
