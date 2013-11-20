@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -14,6 +15,7 @@ import cn.net.tongfang.framework.security.vo.BirthCertificate;
 import cn.net.tongfang.framework.security.vo.BusinessDataGrid;
 import cn.net.tongfang.framework.security.vo.IntInpatient;
 import cn.net.tongfang.framework.security.vo.IntOutpatient;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.security.vo.SummaryStatistics01;
 import cn.net.tongfang.framework.security.vo.SummaryStatisticsHivandSyphilis;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
@@ -37,6 +39,11 @@ public class SummaryService extends HibernateDaoSupport {
 		Query query = getSession().getNamedQuery("InputPersonProc");
 		TaxempDetail user = SecurityManager.currentOperator();
 		String str_where = "";
+		SamTaxorgcode org = (SamTaxorgcode)getSession().get(SamTaxorgcode.class, qry.getOrgId());
+		String district = org.getDistrictNumber();
+		while(district.endsWith("00")){
+			district = district.substring(0,district.length()-2);
+		}
 		if (qry.getContainLowerLevel().equals("0"))
 			str_where = " And A.InputDate >= '"
 					+ CommonConvertUtils.dateToStringWithDelimiter(qry
@@ -55,9 +62,15 @@ public class SummaryService extends HibernateDaoSupport {
 							.getEndDate())
 					+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
 					+ " (Select ID From Organization Where DistrictNumber Like "
-					+ " (Select DistrictNumber + '%' From Organization Where ID = "
-					+ qry.getOrgId() + "))) ";
+					+ " '"+ district + "%')) ";
 		}
+		System.out.println("===参数开始===");
+		System.out.println(user.getUsername());
+		System.out.println(qry.getStatisticType());
+		System.out.println(str_where);
+		System.out.println(qry.getStatisticResult());
+		System.out.println(qry.getIsQryWipeOut());
+		System.out.println("===参数结束===");
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, str_where);

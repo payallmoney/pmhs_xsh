@@ -833,6 +833,25 @@ var fieldsArray = {};
                         }
                     }
                 });
+                
+                var checks = $.map(checkfuncs, function(v){
+                    var id = v.id;
+                    var msg = v.checkfunc(id);
+                    if (!isEmpty(msg)){
+                    //if ( typeof model[id] == 'undefined' || model[id] == null || model[id] == ''){
+                        return {id:id, msg:msg}; 
+                    }
+                });
+                
+                if (checks.length > 0){
+                    var msg = "";
+                    msg += $.map(checks, function(v){
+                        return "<li>" + v.msg + "</li>";
+                    }).join("");
+                    hideDialog();
+                    showDialog(msg, true);
+                    return;
+                }
 
                 if (r.length > 0 || compositeR.length > 0){
                     var msg = "";
@@ -854,24 +873,7 @@ var fieldsArray = {};
                     showDialog(msg, true);
                     return;
                 }
-                var checks = $.map(checkfuncs, function(v){
-                    var id = v.id;
-                    var msg = v.checkfunc(id);
-                    if (!isEmpty(msg)){
-                    //if ( typeof model[id] == 'undefined' || model[id] == null || model[id] == ''){
-                        return {id:id, msg:msg}; 
-                    }
-                });
                 
-                if (checks.length > 0){
-                    var msg = "";
-                    msg += $.map(checks, function(v){
-                        return "<li>" + v.msg + "</li>";
-                    }).join("");
-                    hideDialog();
-                    showDialog(msg, true);
-                    return;
-                }
                 
 
                 var send = model;

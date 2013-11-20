@@ -346,6 +346,13 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			width : 100,
 			value : 'a.name'
 		});
+		this.onlySelfField = new Ext.form.Checkbox({
+			boxLabel  : '仅查询自己'
+		});
+		this.onlyOrgField = new Ext.form.Checkbox({
+			boxLabel  : '仅查询所在机构',
+			checked : true
+		});
 		this.filterField = new Ext.form.TextField({
 			fieldLabel : '',
 			enableKeyEvents : true,
@@ -450,6 +457,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 							}),'-',
 							this.combo,
 							this.filterField,
+							this.onlyOrgField,
+							this.onlySelfField,
 							new Ext.Action({
 								text : '查询',
 								iconCls : 'c_query',
@@ -551,6 +560,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			}),'-',this.combo01,
 			this.combo,
 			this.filterField,
+			this.onlyOrgField,
+			this.onlySelfField,
 			new Ext.Action({
 				text : '查询',
 				iconCls : 'c_query',
@@ -593,6 +604,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			}),'-',
 			this.combo,
 			this.filterField,
+			this.onlyOrgField,
+			this.onlySelfField,
 			new Ext.Action({
 				text : '查询',
 				iconCls : 'c_query',
@@ -650,6 +663,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			funcAction.push('-');
 			funcAction.push(this.combo);
 			funcAction.push(this.filterField);
+			funcAction.push(this.onlyOrgField);
+			funcAction.push(this.onlySelfField);
 			funcAction.push(new Ext.Action({
 								text : '查询',
 								iconCls : 'c_query',
@@ -675,12 +690,22 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			if(this.combo01){
 				filterVal01 = this.combo01.getValue();
 			}
+			var params = {};
+			console.log("onlyself ==" +this.onlySelfField && this.onlySelfField.getValue())
+			if(this.onlySelfField && this.onlySelfField.getValue()){
+				params['onlyself'] = this.onlySelfField.getValue();
+			}
+			console.log("onlyorg ==" +this.onlyOrgField && this.onlyOrgField.getValue())
+			if(this.onlyOrgField && this.onlyOrgField.getValue()){
+				params['onlyorg'] = this.onlyOrgField.getValue();
+			}
 			var cond = {
 				district : selNode.id,
 				filterKey : filterKey,
 				filterValue : filterValue,
 				isFirst : isFirst,
-				filterVal01 : filterVal01
+				filterVal01 : filterVal01,
+				params: params
 			};
 //			console.log(cond);
 			return cond;

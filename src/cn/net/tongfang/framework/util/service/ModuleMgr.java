@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -970,6 +971,22 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if (StringUtils.hasText(filterValue)) {
 					params.add(filterValue);
 					where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = ?");
+				}
+			}
+		}
+		if(qryCond.getParams() !=null && qryCond.getParams().size()>0){
+			for(Iterator iter = qryCond.getParams().keySet().iterator();iter.hasNext();){
+				String key = (String)iter.next();
+				String value = (String)qryCond.getParams().get(key);
+				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+				System.out.println(key+"======"+value);
+				if("onlyself".equals(key) && "true".equals(value)){
+					System.out.println("====user.getTaxempname()=="+user.getTaxempname());
+					System.out.println("====getUsername=="+user.getUsername());
+					where.append(" and a.inputPersonId = '"+ user.getTaxempname()+"' ");
+				}
+				if("onlyorg".equals(key) && "true".equals(value)){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
 				}
 			}
 		}
