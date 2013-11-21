@@ -983,7 +983,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if("onlyself".equals(key) && "true".equals(value)){
 					System.out.println("====user.getTaxempname()=="+user.getTaxempname());
 					System.out.println("====getUsername=="+user.getUsername());
-					where.append(" and a.inputPersonId = '"+ user.getTaxempname()+"' ");
+					where.append(" and a.inputPersonId = '"+ user.getUsername()+"' ");
 				}
 				if("onlyorg".equals(key) && "true".equals(value)){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
