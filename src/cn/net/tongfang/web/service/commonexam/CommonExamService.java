@@ -91,6 +91,16 @@ public class CommonExamService extends HibernateDaoSupport  {
 		return commonExamUtil.getDistrict(orgid);
 	}
 	
+	public Map<String , List> getAllDistrict(String orgid) {
+		return commonExamUtil.getAllDistrict();
+	}
+	public String getCurrentRoot(String orgid){
+		if(orgid == null){
+			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+		}
+		return orgid;
+	}
+	
 	public List examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{
 		//这是默认的查询条件
 		String countsql = " select count(*)";

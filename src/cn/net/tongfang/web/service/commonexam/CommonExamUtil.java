@@ -114,6 +114,9 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 //		Integer orgId = SecurityManager.currentOperator().getOrgId();
 		return districtDetailMap.get(orgid) ;
 	}
+	public Map<String , List> getAllDistrict(){
+		return districtDetailMap;
+	}
 	
 	public static String getDistrictName(String id , String name){
 		String ret = name;

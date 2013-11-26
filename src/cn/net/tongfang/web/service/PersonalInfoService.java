@@ -254,6 +254,17 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		return null;
 	}
 	
+	public List getCurrentOrg(){
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		String sql = "Select id,name From SamTaxorgcode Where id > 1 and (id = " + user.getOrg().getId()+" ) or parentId = " + user.getOrg().getId()+" ) ";
+		
+		Query query = getSession().createQuery(sql);
+		List list = query.list();
+		if(list.size() > 0)
+			return list;
+		return null;
+	}
+	
 	/**
 	 * 获得本医院的医生
 	 * @param hospId

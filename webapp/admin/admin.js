@@ -782,7 +782,7 @@ function stopTask() {
 };
 function logout() {
   
-  window.location = "/j_spring_security_logout";
+  window.top.location.href = "/j_spring_security_logout";
 //  try{
 //  stopTask();
 //  }catch(ex){}
@@ -1656,7 +1656,8 @@ function getTreeData(orgid,name){
 	var nodes = [];
 	var nodemap = {};
 //	console.log('orgid',orgid);
-	CommonExamService.getDistrict(orgid,{callback:function(data){
+	var data = AlldistrictMap[orgid];
+//	CommonExamService.getDistrict(orgid,{callback:function(data){
 		if(data){
 			for( var i=0 ; i< data.length;i++){
 				var treenode = {
@@ -1688,7 +1689,7 @@ function getTreeData(orgid,name){
 				treenodes[treenodes.length]=treenode;
 			}
 		}
-	},async:false});
+//	},async:false});
 	ret.nodes = nodes;
 	ret.nodemap = nodemap;
 	ret.treenodes = treenodes;
@@ -1696,9 +1697,15 @@ function getTreeData(orgid,name){
 }
 
 $(function(){
-	CommonExamService.getDistrictMap(function(data){
+	CommonExamService.getDistrictMap({callback:function(data){
 		window.districtMap = data;
-	});
-	window.districtdata = getTreeData(null)
+	},async:false});
+	CommonExamService.getCurrentRoot({callback:function(data){
+		window.currentid = data;
+	},async:false});
+	CommonExamService.getAllDistrict({callback:function(data){
+		window.AlldistrictMap = data;
+		window.districtdata = getTreeData(currentid);
+	},async:false});
 	window.earyuitreedata = window.districtdata.treenodes;
 });

@@ -84,7 +84,7 @@ function getDoctors(hospId,unit){
 $(document).ready(function(){
 	selectHover('selectBuildUnit','showSelectUnit');
 	showHover('showSelectUnit','showSelectUnit');
-	PersonalInfoService.getOrg(function(data){
+	PersonalInfoService.getCurrentOrg(function(data){
 		if(data != null){
 			var $html = '';
 			for(var i = 0;i<data.length;i++){
