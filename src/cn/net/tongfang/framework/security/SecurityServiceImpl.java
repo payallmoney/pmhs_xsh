@@ -275,6 +275,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 			where.replace(0, 4, " where ");
 		}
 		hql += where.toString() + " order by ordinal, name";
+		
 		Query query = getSession().createQuery(hql);
 		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));

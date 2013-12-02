@@ -397,8 +397,8 @@ function formatdate(date){
     			display : 1
     		},
     		maxlen:{
-    			"0":2,
-    			"1":14
+    			"0":',2,3,4,5,',
+    			"1":',15,18,'
     		},
     		showDisplay : false,
     		roWhenSet : false,

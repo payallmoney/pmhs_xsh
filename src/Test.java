@@ -40,8 +40,9 @@ public class Test {
 		// }catch(Exception ex){
 		// ex.printStackTrace();
 		// }
-		ImprovedNamingStrategy ts = new ImprovedNamingStrategy();
-		System.out.println(camelcasify("test_aaest"));
+		System.out.println("12345678".substring(0,6));
+//		ImprovedNamingStrategy ts = new ImprovedNamingStrategy();
+//		System.out.println(camelcasify("test_aaest"));
 	}
 
 	public static String camelcasify(String in) {

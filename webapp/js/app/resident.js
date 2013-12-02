@@ -53,6 +53,9 @@ app.residentPanel = new Ext.tf.HealthPanel({
 	}, {
 		name : 'personalInfo_Doctor',
 		mapping : 'doctor'
+	}, {
+		name : 'inputPersonId',
+		mapping : 'inputPersonId'
 	} ],
 	gridCmConfig : [ {
 		"header" : "状态",
@@ -94,6 +97,9 @@ app.residentPanel = new Ext.tf.HealthPanel({
 	}, {
 		"header" : "责任医生",
 		"dataIndex" : "personalInfo_Doctor"
+	}, {
+		"header" : "录入人",
+		"dataIndex" : "inputPersonId"
 	} ],
 
 	getAddParams : function() {

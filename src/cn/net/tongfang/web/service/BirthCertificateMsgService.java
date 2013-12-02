@@ -208,6 +208,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 			hql = hql + " And A.certificateId Like ?";
 			flag = true;
 		}
+		
 		Query query = getSession().createQuery(hql);
 		query.setParameter(0, orgId);
 		if (flag)

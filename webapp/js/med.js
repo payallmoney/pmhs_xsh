@@ -919,7 +919,7 @@ function data_writeback(ctrl,_s,setting){
 			}
 			if(setting.maxlen && setting.maxlen[condVal]){
 				var ttt = cond.mcode.split("%");
-				if(ttt[1].length>=setting.maxlen[condVal]){
+				if(setting.maxlen[condVal].indexOf(","+ttt[1].length+",")>-1){
 					dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
 						subject.OnNext(result);
 						subject.OnCompleted();
