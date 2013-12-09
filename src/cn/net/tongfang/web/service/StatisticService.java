@@ -65,8 +65,7 @@ public class StatisticService extends HibernateDaoSupport{
 	 */
 	public long execSQL(String sql){
 		Query query = null;
-		query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		long count = -1;
 		if(list.size() > 0){
 			Object obj = (Object)list.get(0);
@@ -123,7 +122,7 @@ public class StatisticService extends HibernateDaoSupport{
 		//今天产后访视人数统计
 		sql = "Select Count(*) From VisitAfterBorn Where recordType = 1 And CONVERT(varchar(10),nextVisitDate,112) = CONVERT(varchar(10),getDate(),112) And fileNo Like '" + user.getDistrictId() + "%'";
 		workings.add(execSQL(sql));
-		
+		System.out.println("===queryWorking===");
 		return workings;
 	}
 }

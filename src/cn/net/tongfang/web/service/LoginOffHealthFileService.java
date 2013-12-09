@@ -6,6 +6,8 @@ import java.util.List;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.HealthFile;
@@ -25,7 +27,7 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 	public void setFileNoGen(FileNoGen fileNoGen) {
 		this.fileNoGen = fileNoGen;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void loginOffService(LoginOffHealthFileBO loginoff){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
@@ -45,7 +47,7 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 			getHibernateTemplate().update(file);
 		}
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void transferService(TransferHealthFileBO transfer){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(TransferHealthfileInfo transferHealthfileInfo : transfer.getFileNos()){
@@ -68,6 +70,7 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 		}
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void transferExitHealthfile(HealthFileTransferExit exithealthfile){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		exithealthfile.setInputDate(new Timestamp(System.currentTimeMillis()));
@@ -81,6 +84,7 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 		getHibernateTemplate().update(file);
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void loginOffExitHealthfile(HealthFileLoginOffExit exithealthfile){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		exithealthfile.setInputDate(new Timestamp(System.currentTimeMillis()));
@@ -93,11 +97,12 @@ public class LoginOffHealthFileService extends HibernateDaoSupport{
 		getHibernateTemplate().update(file);
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public void sureTransferService(HealthFileTransfer transferModifyInfo)throws Exception{
 		String newfileNo = fileNoGen.getNextFileNo(transferModifyInfo.getToDistrictNumber());
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String hql = " Exec Proc_HealthFile_Transfer ?,?,?,?,?,?,?,? ";
-		Query query = getSession().createSQLQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(hql);
 		query.setParameter(0, transferModifyInfo.getId());
 		query.setParameter(1, user.getUsername());
 		query.setParameter(2, EncryptionUtils.encry(newfileNo));

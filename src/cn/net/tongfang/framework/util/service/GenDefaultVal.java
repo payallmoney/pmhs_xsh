@@ -35,9 +35,7 @@ public class GenDefaultVal extends HibernateDaoSupport{
 		if(vsCalendar == null)
 			return null;
 		String hql = "From PersonalInfo Where fileNo = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, EncryptionUtils.encry(fileNo));
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,new Object[]{EncryptionUtils.encry(fileNo)});
 		if(list.size() > 0){
 			PersonalInfo person = (PersonalInfo)list.get(0);
 			Calendar cBirthday = CommonConvertUtils.timestampToCalendar(person.getBirthday());
@@ -94,17 +92,13 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 */
 	public String getWomanDirect(String age,Integer type){
 		String hql = "From WomanDirect Where type = ? And age Like ? Order By ID";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, type);
-		query.setParameter(1, "%" + age + "%");
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,new Object[]{type,"%" + age + "%"});
 		String ret = "";
 		if(list.size() > 0){
 			WomanDirect womanDirect = (WomanDirect)list.get(0);
 			ret = womanDirect.getRemarks();
 		}else{
-			query.setParameter(1, "其它");
-			List l = query.list();
+			List l = getHibernateTemplate().find(hql,new Object[]{type,"其它"});
 			if(l.size() > 0){
 				WomanDirect womanDirect = (WomanDirect)l.get(0);
 				ret = womanDirect.getRemarks();

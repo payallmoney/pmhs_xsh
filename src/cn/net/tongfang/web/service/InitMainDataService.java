@@ -20,9 +20,7 @@ public class InitMainDataService extends HibernateDaoSupport {
 	 * @return
 	 */
 	private List execSQL(String sql){
-		Query query = getSession().createQuery(sql);
-		query.setParameter(0, date);
-		return query.list();
+		return getHibernateTemplate().find(sql,date);
 	}
 	
 	/**

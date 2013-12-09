@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BloodTrans;
@@ -34,6 +36,7 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(FirstVistBeforeBornBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));		
 //		PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("From PersonalInfo Where fileNo = ?", data.getFileNo()).get(0);
@@ -94,8 +97,8 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		ret.put("file", file);
 		HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, firstVistBeforeBorn.getForeignId());
 		ret.put("maternal", maternal);
-		PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0, firstVistBeforeBorn.getFileNo()).list().get(0);
-		getSession().evict(person);
+		PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("from PersonalInfo where fileno=?", firstVistBeforeBorn.getFileNo()).get(0);
+		getHibernateTemplate().evict(person);
 		person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 		ret.put("person", person);
 		ret.put("firstVisit", data);
@@ -114,7 +117,7 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		StringBuilder hql1 = new StringBuilder(
 				"from BloodTrans ")
 				.append(" where personalInfoId = '"+person.getId()+"' ").append(" order by transDate desc ");
-		List<BloodTrans> bloodTrans = getSession().createQuery(hql1.toString()).list();
+		List<BloodTrans> bloodTrans = getHibernateTemplate().find(hql1.toString());
 		String str = "";
 		String str1 = "";
 		if(bloodTrans.size()>0){

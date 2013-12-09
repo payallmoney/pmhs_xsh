@@ -8,6 +8,8 @@ import java.util.Map;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
@@ -41,6 +43,8 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 			ChildLastMedicalExamRecordService childRocordService) {
 		this.childRocordService = childRocordService;
 	}
+    
+    @Transactional(propagation = Propagation.REQUIRED)
 	private String update(ChildrenMediExam36BO data) throws Exception{
 //		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		ChildrenMediExam36 childrenMediExam36 = new ChildrenMediExam36();
@@ -70,13 +74,14 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 		}
 		
 		String id = childrenMediExam36.getId();
-		boHelper.deleteDetails(data, getSession(), "childrenMediExam36id", id);
+		boHelper.deleteDetails(data, getHibernateTemplate().getSessionFactory().getCurrentSession(), "childrenMediExam36id", id);
 		boHelper.setFK(data, id, "childrenMediExam36id");
 		boHelper.saveDetails(data, getHibernateTemplate());
 		return id;
 	}
     
 //	@Override
+    @Transactional(propagation = Propagation.REQUIRED)
 	public String save(ChildrenMediExam36BO data) throws Exception {
 //		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 //		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -157,10 +162,10 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 			ChildrenMediExam36 childrenMediExam = (ChildrenMediExam36)getHibernateTemplate().get(ChildrenMediExam36.class,data.getId());
 			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, childrenMediExam.getFileNo());
 			map.put("file", file);
-			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,childrenMediExam.getFileNo()).list().get(0);
+			PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("from PersonalInfo where fileno=?",childrenMediExam.getFileNo()).get(0);
 			map.put("person", person);
 			map.put("child", childrenMediExam);
-			List child1list = getSession().createQuery("from WomanPhysicalItems where id=?").setParameter(0,childrenMediExam.getId()).list();
+			List child1list = getHibernateTemplate().find("from WomanPhysicalItems where id=?",childrenMediExam.getId());
 			if(child1list.size()>0){
 				WomanPhysicalItems child1 = (WomanPhysicalItems)child1list.get(0);
 				map.put("child1",child1);
@@ -183,9 +188,7 @@ public class ChildrenMediExam36Service extends HibernateDaoSupport {
 	
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,id);
 		String ret = "未测";
 		if(list.size() > 0){
 			ret = "";

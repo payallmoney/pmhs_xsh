@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BabyVisit;
@@ -44,6 +46,7 @@ public class BabyVisitService extends HibernateDaoSupport {
 			ChildLastMedicalExamRecordService childRocordService) {
 		this.childRocordService = childRocordService;
 	}
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String update(BabyVisitBO data) throws Exception{
 //		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		BabyVisit babyVisit = new BabyVisit();
@@ -70,12 +73,13 @@ public class BabyVisitService extends HibernateDaoSupport {
 		}
 		
 		String id = babyVisit.getId();
-		boHelper.deleteDetails(data, getSession(), "babyVisitId", id);
+		boHelper.deleteDetails(data, getHibernateTemplate().getSessionFactory().getCurrentSession(), "babyVisitId", id);
 		boHelper.setFK(data, id, "babyVisitId");
 		boHelper.saveDetails(data, getHibernateTemplate());
 		return id;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(BabyVisitBO data) throws Exception {
 		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		if(data.getHighRisk().equals("是")){
@@ -114,7 +118,7 @@ public class BabyVisitService extends HibernateDaoSupport {
 		boHelper.saveDetails(data, getHibernateTemplate());
 		
 //		Object o = boHelper.saveOrUpdateAll(data, getHibernateTemplate(),
-//				getSession()).toString();
+//				getHibernateTemplate().getSessionFactory().getCurrentSession()).toString();
 //		System.out.println("res is " + o);
 //		log.debug("res is " + o);
 //		return o.toString();
@@ -163,8 +167,8 @@ public class BabyVisitService extends HibernateDaoSupport {
 			data.setBabySkins(babySkin);
 			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, babyVisit.getFileNo());
 			map.put("file", file);
-			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(babyVisit.getFileNo())).list().get(0);
-			getSession().evict(person);
+			PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("from PersonalInfo where fileno=?",EncryptionUtils.encry(babyVisit.getFileNo())).get(0);
+			getHibernateTemplate().evict(person);
 			person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 			map.put("person", person);
 			map.put("child", babyVisit);

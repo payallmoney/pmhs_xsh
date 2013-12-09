@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.web.service.bo.PagedList;
 
 public class HomeNumSearch extends HibernateDaoSupport {
 	static int pageSize = 10;
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public  PagedList listCodePage(int pageNo, String mcode, boolean startWith){
     	String likePrefix = startWith ? "" : "%";
     	System.out.println("prefix is " + likePrefix);
@@ -21,7 +24,7 @@ public class HomeNumSearch extends HibernateDaoSupport {
     	res.pageSize = pageSize;
     	res.totalPages = (int) (count / pageSize) + ((count % pageSize > 0) ? 1 : 0);
     	int from = pageNo * pageSize;
-    	Query qry = getSession().createQuery("select h.homeId,h.household,h.address from HomeInfo as h " +
+    	Query qry = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery("select h.homeId,h.household,h.address from HomeInfo as h " +
     			"where h.homeId like ?");
     	qry.setParameter(0, likePrefix + mcode + "%");
     	qry.setMaxResults(pageSize);

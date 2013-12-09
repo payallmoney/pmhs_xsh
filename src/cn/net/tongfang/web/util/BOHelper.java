@@ -12,6 +12,8 @@ import org.hibernate.Session;
 import org.hibernate.metadata.ClassMetadata;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -56,6 +58,7 @@ public class BOHelper {
 		return props;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Object saveOrUpdateAll(Object obj, HibernateTemplate ht, Session session)
 			throws Exception {
 		//System.out.println("saveOrUpdateAll");
@@ -136,6 +139,7 @@ public class BOHelper {
 		return obj;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Object updateAll(Object obj, HibernateTemplate ht, Session session) throws Exception {
 		Object id = getEntityId(obj, ht);
 		Object main = superClass.newInstance();
@@ -204,6 +208,7 @@ public class BOHelper {
 		}
 	}
 
+	@Transactional
 	public void deleteDetails(Object target, Session session, String fkName,
 			Object key) throws Exception {
 		for (PropertyDescriptor pd : listProps) {

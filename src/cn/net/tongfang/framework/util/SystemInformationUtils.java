@@ -35,9 +35,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	 */
 	public List<BasicInformation> getBasicInformation(Integer type){
 		String hql = "From BasicInformation Where type = ? And isMain = 0";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, type);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,type);
 		List<BasicInformation> ret = new ArrayList<BasicInformation>();
 		for(Object obj : list){
 			BasicInformation basicInfo = (BasicInformation)obj;
@@ -48,9 +46,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list =  getHibernateTemplate().find(hql,id);
 		String ret = "未测";
 		if(list.size() > 0){
 			ret = "";
@@ -67,15 +63,16 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public boolean checkChildrenMedicalExamIsInput(String fileNo,String items,String tableName,Integer type){
 		String typeHql = "";
-		if(type != null)
+		List params = new ArrayList();
+		params.add(fileNo);
+		params.add(items);
+		if(type != null){
 			typeHql = " And dataType = ?";
+			params.add(type);
+		}
 		String hql = "From " + tableName + " Where fileNo = ? And checkItem = ? " + typeHql; 
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, fileNo);
-		query.setParameter(1, items);
-		if(type != null)
-			query.setParameter(2, type);
-		if(query.list().size() > 0){
+		List list = getHibernateTemplate().find(hql,params.toArray());
+		if(list.size() > 0){
 			return true;
 		}
 		return false;
@@ -83,10 +80,8 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Integer checkWomanMedicalExam(String fileNo){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From HealthFileMaternal Where fileNo = :fileNo";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		List list = query.list();
+		String hql = "From HealthFileMaternal Where fileNo = ?";
+		List list = getHibernateTemplate().find(hql,fileNo);
 		if(list.size() > 0){
 			HealthFileMaternal gravidityKey = (HealthFileMaternal)list.get(0);
 			
@@ -97,7 +92,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Integer hasHealthFileMaternal(String foriegnKey){
 		if(StringUtils.hasText(foriegnKey)){
-			HealthFileMaternal maternal =(HealthFileMaternal) getSession().get(HealthFileMaternal.class, foriegnKey);
+			HealthFileMaternal maternal =(HealthFileMaternal) getHibernateTemplate().get(HealthFileMaternal.class, foriegnKey);
 			if(maternal==null){
 				return null;
 			}else{
@@ -110,75 +105,71 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public boolean checkWomanMedicalExamIsInput(String fileNo,Integer items,String tableName,String type){
 		String typeHql = "";
-		if(type != null)
-			typeHql = " And recordType = :recordType";
-		if(items != null)
-			typeHql = typeHql + "  And item = :item ";
-		String hql = "From " + tableName + " Where fileNo = :fileNo" + typeHql; 
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		if(items != null)
-			query.setParameter("item", items);
-		if(type != null)
-			query.setParameter("recordType", type);
-		if(query.list().size() > 0)
+		List params = new ArrayList();
+		params.add(fileNo);
+		if(type != null){
+			typeHql = " And recordType = ?";
+			params.add(type);
+		}
+		if(items != null){
+			typeHql = typeHql + "  And item = ? ";
+			params.add(items);
+		}
+		String hql = "From " + tableName + " Where fileNo = ? " + typeHql; 
+		List list = getHibernateTemplate().find(hql,params.toArray());
+		if(list.size() > 0)
 			return true;
 		return false;
 	}
 	
 	public boolean checkWomanGravidity(String fileNo,String tableName,Integer gravidity){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From " + tableName + " Where fileNo = :fileNo And gravidity = :gravidity ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		query.setParameter("gravidity", gravidity);
-		if(query.list().size() > 0)
+		String hql = "From " + tableName + " Where fileNo = ? And gravidity = ? ";
+		List list = getHibernateTemplate().find(hql,new Object[]{fileNo,gravidity});
+		if(list.size() > 0)
 			return true;
 		return false;
 	}
 	
 	public boolean checkWomanMedicalExamIsInput(String fileNo,String items,String recordType,Integer parities){
 		String typeHql = "";
-		if(items != null)
-			typeHql = typeHql + "  And item = :item ";
-		String hql = "From VisitAfterBorn Where fileNo = :fileNo And recordType = :recordType And parities = :parities" + typeHql; 
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		query.setParameter("recordType",recordType);
-		query.setParameter("parities",parities);
-		if(items != null)
-			query.setParameter("item", items);
-		if(query.list().size() > 0)
+		List params = new ArrayList();
+		params.add(fileNo);
+		params.add(recordType);
+		params.add(parities);
+		if(items != null){
+			typeHql = typeHql + "  And item = ? ";
+			params.add(items);
+		}
+		String hql = "From VisitAfterBorn Where fileNo = ? And recordType = ? And parities = ? " + typeHql; 
+		System.out.println("===VisitAfterBorn start===");
+		List list = getHibernateTemplate().find(hql,params.toArray());
+		System.out.println("===VisitAfterBorn end===");
+		if(list.size() > 0)
 			return true;
 		return false;
 	}
 	
 	public FirstVistBeforeBorn hasFirstVistBeforeBorn(String foreignId,Integer gravidity){
-		String hql = "From FirstVistBeforeBorn Where foreignId = :foreignId order by visitDate desc ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("foreignId", foreignId);
-		if(query.list().size() > 0){
-			return (FirstVistBeforeBorn)query.list().get(0);
+		String hql = "From FirstVistBeforeBorn Where foreignId = ? order by visitDate desc ";
+		List list = getHibernateTemplate().find(hql,foreignId);
+		if(list.size() > 0){
+			return (FirstVistBeforeBorn)list.get(0);
 		}
 		return null;
 	}
 	
 	public boolean hasVisitAfterBorn(String foreignId,String recordType,String item){
 		if("0".equals(recordType)){
-			String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType and item=:item";
-			Query query = getSession().createQuery(hql);	
-			query.setParameter("foreignId", foreignId);
-			query.setParameter("recordType", recordType);
-			query.setParameter("item", item);
-			if(query.list().size() > 0){
+			String hql = "From VisitAfterBorn Where foreignId = ? and recordType = ? and item=?";
+			List list = getHibernateTemplate().find(hql,new Object[]{foreignId,recordType,item});
+			if(list.size() > 0){
 				return true;
 			}
 		}else{
-			String hql = "From VisitAfterBorn Where foreignId = :foreignId and recordType = :recordType";
-			Query query = getSession().createQuery(hql);
-			query.setParameter("foreignId", foreignId);
-			query.setParameter("recordType", recordType);
-			if(query.list().size() > 0){
+			String hql = "From VisitAfterBorn Where foreignId = ? and recordType = ? ";
+			List list = getHibernateTemplate().find(hql,new Object[]{foreignId,recordType});
+			if(list.size() > 0){
 				return true;
 			}
 		}
@@ -192,19 +183,15 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	public boolean getPersonalInfo(String fileNo,String tableName){
 		fileNo = EncryptionUtils.encry(fileNo);
 		String hql = " From PersonalInfo A, " + tableName + " B Where A.fileNo = ? And A.fileNo = B.fileNo ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, fileNo);
-		if(query.list().size() > 0)
+		List list = getHibernateTemplate().find(hql,fileNo);
+		if(list.size() > 0)
 			return true;
 		return false;
 	}
 	public String childExamInfo(String fileNo,Integer dataType){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From ChildrenMediExam Where fileNo = :fileNo And dataType = :dataType Order By checkItem ASC ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		query.setParameter("dataType", dataType);
-		List list = query.list();
+		String hql = "From ChildrenMediExam Where fileNo = ? And dataType = :dataType Order By checkItem ASC ";
+		List list = getHibernateTemplate().find(hql,new Object[]{fileNo,dataType});
 		if(list.size() > 0){
 			String result = "";
 			for(Object obj : list){
@@ -218,10 +205,8 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	}
 	public String childExam36Info(String fileNo,Integer dataType){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From ChildrenMediExam36 Where fileNo = :fileNo Order By checkItem ASC ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("fileNo", fileNo);
-		List list = query.list();
+		String hql = "From ChildrenMediExam36 Where fileNo = ? Order By checkItem ASC ";
+		List list = getHibernateTemplate().find(hql,fileNo);
 		if(list.size() > 0){
 			String result = "";
 			for(Object obj : list){
@@ -237,9 +222,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	public List getHistoryExamRecord(String foreignId,String tableName,String where){
 		List retVal = new ArrayList();
 		String hql = "Select id From " + tableName + " Where foreignId = ? " + where + " Order By visitDate ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, foreignId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,foreignId);
 		if(list.size() > 0){
 			retVal.add(list.size());
 			retVal.add(list);
@@ -254,9 +237,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 			where = " And recordType = 1 ";
 		}
 		String hql = "Select id From " + tableName + " Where foreignId = ? " + where + "Order By visitDate ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, foreignId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,foreignId);
 		if(list.size() > 0){
 			return (String)list.get(0);
 		}
@@ -265,9 +246,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	
 	public Object getSimgleHistoryExamRecord(String  foreignId,String tableName){
 		String hql = " From " + tableName + " Where foreignId = ? Order By visitDate ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, foreignId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,foreignId);
 		if(list.size() > 0){
 			return list.get(0);
 		}

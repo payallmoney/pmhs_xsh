@@ -9,12 +9,7 @@ public class HighRiskService extends HibernateDaoSupport {
 	public List getException(String type,String filterVal){
 		type = type.equals("0") ? "儿童" : "妇女";
 		String sql = "From HighRisk Where type = ? And (number = ? Or exception Like ? Or exceptionPng Like ?)";
-		Query query = getSession().createQuery(sql);
-		query.setParameter(0, type);
-		query.setParameter(1, filterVal);
-		query.setParameter(2, "%" + filterVal + "%");
-		query.setParameter(3, "%" + filterVal + "%");
-		List list = query.list(); 
+		List list = getHibernateTemplate().find(sql,new Object[]{type,filterVal,"%" + filterVal + "%","%" + filterVal + "%"});
 		if(list.size() > 0)
 			return list;
 		return null;

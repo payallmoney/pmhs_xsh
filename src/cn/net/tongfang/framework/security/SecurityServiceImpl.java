@@ -1,5 +1,6 @@
 package cn.net.tongfang.framework.security;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,8 @@ import org.hibernate.Session;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -54,6 +57,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 	 * @see
 	 * cn.net.tongfang.framework.security.SecurityService#getModuleServices()
 	 */
+	
 	public List<String[]> getModuleServices() {
 
 		String hql = "select m, s "
@@ -175,7 +179,8 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		return (List<SamService>) getHibernateTemplate().find(
 				"from SamService where value like ? ", likename);
 	}
-
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String addModule(ModuleServiceBo moduleServiceBo) {
 		// TODO: validate params
 
@@ -190,7 +195,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		return moduleId;
 
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	private int addOnlyModuleServices(String moduleId, List<SamService> services) {
 		if (services == null)
 			return 0;
@@ -207,6 +212,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		return services.size();
 	}
 
+	@Transactional
 	public String updateModule(ModuleServiceBo moduleServiceBo) {
 
 		SamModule module = moduleServiceBo.getModule();
@@ -274,22 +280,30 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		if(params.size() > 0){
 			where.replace(0, 4, " where ");
 		}
-		hql += where.toString() + " order by ordinal, name";
+		hql += where.toString() ;
+		String orderby = " order by ordinal, name";
 		
-		Query query = getSession().createQuery(hql);
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<SamModuleCategory> list = (List<SamModuleCategory>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<SamModuleCategory> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		logger.debug(list);
 		return new PagingResult<SamModuleCategory>(totalSize, list);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public SamModuleCategory editModuleCategory(SamModuleCategory category) {
 		if (!StringUtils.hasText(category.getId()))
 			category.setId(null);
@@ -329,20 +343,27 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 			params.add("%" + name + "%");
 			hql += " where name like ?";
 		}
-		hql += " order by name";
-		Query query = getSession().createQuery(hql);
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<SamRole> list = (List<SamRole>) query.list();
+		String orderby = " order by name";
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<SamRole> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<SamRole>(totalSize, list);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public SamRole editRole(SamRole role) {
 		if (!StringUtils.hasText(role.getId()))
 			role.setId(null);
@@ -385,23 +406,29 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		if (params.size() != 0) {
 			where.replace(0, 4, " where ");
 		}
-		StringBuilder hql = new StringBuilder("from SamModule").append(where)
-				.append(" order by name");
+		StringBuilder hql = new StringBuilder("from SamModule").append(where);
+		String orderby = " order by name";
 		log.debug("hql: " + hql.toString());
-
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<SamModule> list = (List<SamModule>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString()+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<SamModule> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<SamModule>(totalSize, list);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public SamModule editModule(SamModule module) {
 		if (!StringUtils.hasText(module.getId()))
 			module.setId(null);
@@ -410,6 +437,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public ResidentPopulation editResidentPopulation(
 			ResidentPopulation population) {
 		if (!StringUtils.hasText(population.getId()))
@@ -419,6 +447,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public DoctorsBO editDoctors(DoctorsBO data) {
 		Doctors doctors = new Doctors();
 		BeanUtils.copyProperties(data, doctors);
@@ -427,6 +456,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeDoctors(String doctors) {
 		if (!StringUtils.hasText(doctors))
 			return;
@@ -460,18 +490,25 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		}
 
 		StringBuilder hql = new StringBuilder("from Doctors a,SamTaxorgcode b")
-				.append(where).append(" order by a.id");
+				.append(where);
+		String orderby = " order by a.id";
 		log.debug("hql: " + hql.toString());
 
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List list = query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString()+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		List<DoctorsBO> doctors = new ArrayList<DoctorsBO>();
 		for (Object obj : list) {
 			DoctorsBO tmpDoctors = new DoctorsBO();
@@ -503,18 +540,25 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 			where.replace(0, 4, " where ");
 		}
 		StringBuilder hql = new StringBuilder("from ResidentPopulation")
-				.append(where).append(" order by name");
+				.append(where);
+		String orderby = " order by name";
 		log.debug("hql: " + hql.toString());
 
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<ResidentPopulation> list = (List<ResidentPopulation>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString()+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<ResidentPopulation> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<ResidentPopulation>(totalSize, list);
 
 	}
@@ -557,6 +601,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveRoleModules(String roleId, List<String> moduleIds) {
 		getHibernateTemplate().deleteAll(
 				getHibernateTemplate().find(
@@ -591,23 +636,30 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		if (params.size() != 0) {
 			where.replace(0, 4, " where ");
 		}
-		StringBuilder hql = new StringBuilder("from HighRisk").append(where)
-				.append(" order by number");
+		StringBuilder hql = new StringBuilder("from HighRisk").append(where);
+		String orderby = " order by number";
 		log.debug("hql: " + hql.toString());
 
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<HighRisk> list = (List<HighRisk>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString() +orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<HighRisk>(totalSize, list);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public HighRisk editHighRisk(HighRisk data) {
 		if (!StringUtils.hasText(data.getId()))
 			data.setId(null);

@@ -3,11 +3,14 @@ package cn.net.tongfang.web.util;
 import java.util.List;
 
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.vo.HomeInfoKey;
 
 public class HomeNoGen extends HibernateDaoSupport{
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String getNextHomeNo(String districtNumber){
 		List<HomeInfoKey> c = getHibernateTemplate().find("select p from HomeInfoKey p where p.districtNumber = ?" , districtNumber);
 		int key = 1;

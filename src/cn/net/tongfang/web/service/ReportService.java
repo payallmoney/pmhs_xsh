@@ -53,8 +53,7 @@ public class ReportService extends HibernateDaoSupport {
 			String id = district.getId();
 			sql = "Select A.id,A.name From SamTaxorgcode A Where A.districtNumber = '"
 					+ id + "'";
-			query = getSession().createQuery(sql);
-			List l = query.list();
+			List l = getHibernateTemplate().find(sql);
 			for (int i = 0; i < l.size(); i++) {
 				List tmpResult = new ArrayList();
 				// 各乡镇名称
@@ -249,8 +248,7 @@ public class ReportService extends HibernateDaoSupport {
 			String id = district.getId();
 			sql = "Select A.id,A.name From SamTaxorgcode A Where A.districtNumber = '"
 					+ id + "'";
-			query = getSession().createQuery(sql);
-			List l = query.list();
+			List l = getHibernateTemplate().find(sql);
 			for (int i = 0; i < l.size(); i++) {
 				List tmpResult = new ArrayList();
 
@@ -436,8 +434,7 @@ public class ReportService extends HibernateDaoSupport {
 			String id = district.getId();
 			sql = "Select A.id,A.name From SamTaxorgcode A Where A.districtNumber = '"
 					+ id + "'";
-			query = getSession().createQuery(sql);
-			List l = query.list();
+			List l = getHibernateTemplate().find(sql);
 			for (int i = 0; i < l.size(); i++) {
 				List tmpResult = new ArrayList();
 				Object[] objs = (Object[]) l.get(i);
@@ -650,8 +647,7 @@ public class ReportService extends HibernateDaoSupport {
 	 * @return
 	 */
 	private long execSQL(String sql) {
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		return (Long) list.get(0);
 	}
 
@@ -689,8 +685,7 @@ public class ReportService extends HibernateDaoSupport {
 	private ResidentPopulation buildSQL04(String years, Integer orgId) {
 		String sql = "From ResidentPopulation Where years = '" + years
 				+ "' And orgId = " + orgId;
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		if (list.size() > 0)
 			return (ResidentPopulation) list.get(0);
 		return null;
@@ -1080,10 +1075,7 @@ public class ReportService extends HibernateDaoSupport {
 				.currentOperator();
 		String parentDistrict = user.getDistrictId();
 		List result = new ArrayList();
-		Query q = getSession().createQuery("from District where parentId = ? Or id = ? order by id");
-		q.setParameter(0, parentDistrict);
-		q.setParameter(1, parentDistrict);
-		List<District> districts = q.list();
+		List<District> districts = getHibernateTemplate().find("from District where parentId = ? Or id = ? order by id",new Object[]{parentDistrict,parentDistrict});
 		String sql = "";
 		long num1 = 0L;
 		long num2 = 0L;
@@ -1109,8 +1101,7 @@ public class ReportService extends HibernateDaoSupport {
 			String id = district.getId();
 			sql = "Select A.id,A.name From SamTaxorgcode A Where A.districtNumber = '" + 
 					id + "' And A.isDetail != 0";
-			query = getSession().createQuery(sql);
-			List l = query.list();
+			List l = getHibernateTemplate().find(sql);
 			for (int i = 0; i < l.size(); i++) {
 				List tmpResult = new ArrayList();
 				Object[] objs = (Object[])l.get(i);
@@ -1494,9 +1485,7 @@ public class ReportService extends HibernateDaoSupport {
 		String hql = "From BirthCertificate Where inputPersonId in " +
 				"(Select loginname From SamTaxempcode Where orgId = ?) And inputDate >= '" + 
 				startDay + "' And inputDate <= '" + endDay + "' And isEffectived in (2,4)";//查询限定时间内的末归档和已归档的出生证明
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,orgId);
 		List ret = new ArrayList();
 		ret.add(orgName);
 		ret.add(username);
@@ -1527,9 +1516,7 @@ public class ReportService extends HibernateDaoSupport {
 		String hql = "From BirthCertificate Where inputPersonId in " +
 				"(Select loginname From SamTaxempcode Where orgId = ?) And inputDate >= '" + 
 				startDay + "' And inputDate <= '" + endDay + "' And (isEffectived = 2 Or isEffectived = 4)";//查询限定时间内的末归档和已归档的出生证明
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,orgId);
 		List ret = new ArrayList();
 		ret.add(orgName);
 		ret.add(username);

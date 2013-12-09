@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Query;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BirthCertificate;
@@ -23,6 +25,7 @@ import cn.net.tongfang.web.service.bo.HealthFileChildrenBO;
 public class HealthFileChildrenService extends HealthMainService<HealthFileChildrenBO>{
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(HealthFileChildrenBO data) throws Exception {
 		String fileNo = EncryptionUtils.encry(data.getFileNo());
 		data.setFileNo(fileNo);
@@ -32,9 +35,7 @@ public class HealthFileChildrenService extends HealthMainService<HealthFileChild
 		getHibernateTemplate().update(file);
 //		Query query = null;
 		String hql = " From HealthFileChildren Where fileNo = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, fileNo);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,fileNo);
 		if(list.size() > 0){
 			HealthFileChildren child = (HealthFileChildren)list.get(0);
 			data.setId(child.getId());
@@ -53,9 +54,7 @@ public class HealthFileChildrenService extends HealthMainService<HealthFileChild
 	public List getChildrenOtherInfo(String fileNo){
 		Query query = null;
 		String hql = " From BirthCertificate Where fileNo = ?";
-		query = getSession().createQuery(hql);
-		query.setParameter(0, EncryptionUtils.encry(fileNo));
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,EncryptionUtils.encry(fileNo));
 		if(list.size() > 0){
 			List retList = new ArrayList();
 			BirthCertificate birth = (BirthCertificate)list.get(0);
@@ -69,9 +68,7 @@ public class HealthFileChildrenService extends HealthMainService<HealthFileChild
 			retList.add(birth.getFatherNation());
 			retList.add(birth.getBorthOrganization());
 			hql = " From ChildBirthRecord A,HealthFile B,PersonalInfo C Where A.certifiId = ? And A.fileNo = B.fileNo And B.fileNo = C.fileNo ";
-			query = getSession().createQuery(hql);
-			query.setParameter(0, birth.getCertifiId());
-			List l = query.list();
+			List l = getHibernateTemplate().find(hql,birth.getCertifiId());
 			if(l.size() > 0){
 				Object objs = l.get(0);
 				Object[] obj = (Object[])objs;
@@ -103,6 +100,7 @@ public class HealthFileChildrenService extends HealthMainService<HealthFileChild
 	    return map;
 	  }
 	
+	 @Transactional(propagation = Propagation.REQUIRED)
 	public void PregnancyRecordChildService(PregnancyRecordChild pregnancy){
 		if(pregnancy.getId() != null && !pregnancy.getId().equals("")){
 			getHibernateTemplate().update(pregnancy);

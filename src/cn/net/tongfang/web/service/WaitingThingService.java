@@ -1,13 +1,19 @@
 package cn.net.tongfang.web.service;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.bo.WaitingThingDeal;
 import cn.net.tongfang.framework.security.bo.WaitingThingQry;
@@ -55,9 +61,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		String hql = " From WaitingThing A,DiagnoseCoding B Where A.status = 0 And A.diagnoseId = B.id And substring(A.districtNum,1,"
 				+ districtNumLen + ") = ? ";
 		String countSql = "select count(*) " + hql;
-		Query query = getSession().createQuery(countSql);
-		query.setParameter(0, user.getDistrictId());
-		int totalSize = ((Long) query.uniqueResult()).intValue();
+		int totalSize = ((Long) getHibernateTemplate().find(countSql,user.getDistrictId()).get(0)).intValue();
 		if (totalSize > 0)
 			return true;
 		return false;
@@ -82,22 +86,29 @@ public class WaitingThingService extends HibernateDaoSupport {
 		}
 
 		String countSql = "select count(*) " + hql;
-		Query query = getSession().createQuery(countSql);
-		query.setParameter("districtNum", user.getDistrictId());
+		List params = new ArrayList();
+		params.add(user.getDistrictId());
 		if (qry.getType() != null) {
-			query.setParameter("serviceType", qry.getType());
+			params.add(qry.getType());
 		}
-		int totalSize = ((Long) query.uniqueResult()).intValue();
+		int totalSize = ((Long) getHibernateTemplate().find(countSql,params.toArray()).get(0)).intValue();
 
-		query = getSession().createQuery(hql + " Order By B.diagnoseName ");
-		query.setParameter("districtNum", user.getDistrictId());
-		if (qry.getType() != null) {
-			query.setParameter("serviceType", qry.getType());
-		}
 		if (pp == null)
 			pp = new PagingParam();
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		final String fhql = hql + " Order By B.diagnoseName ";
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		List<Map<String, Object>> lists = new ArrayList<Map<String, Object>>();
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
@@ -121,6 +132,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		return result;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void dealWaitingThing(List<WaitingThingDeal> deals) throws Exception{
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
@@ -133,8 +145,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 				fileNo = EncryptionUtils.encry(fileNo);
 				String subFileNo = fileNo.substring(fileNo.length() - 7);
 				String tmpFileNo = deal.getFileNo();
-				getSession()
-						.createQuery(
+				getSession().createQuery(
 								" Update HealthFile Set fileNo = ?,status = 0 Where fileNo = ?")
 						.setParameter(0, fileNo).setParameter(1, tmpFileNo)
 						.executeUpdate();
@@ -149,8 +160,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 				wt.setFileNo(fileNo);
 				wt.setDealDate(now);
 				wt.setDealPerson(user.getUsername());
-				getSession()
-						.createQuery(
+				getSession().createQuery(
 								" Update IntPersonInfo Set state = 2 Where id = ?")
 						.setParameter(0, tmpFileNo).executeUpdate();
 				getHibernateTemplate().update(wt);
@@ -209,20 +219,17 @@ public class WaitingThingService extends HibernateDaoSupport {
 		return nodes;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List getWaitingThingInfo(String id) {
 		String hql = " From WaitingThing A,HealthFile B,IntPersonInfo C Where A.fileNo = B.fileNo And A.subId = C.id And A.id = ? ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		return query.list();
+		return getHibernateTemplate().find(hql,id);
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List getWaitingThingInfo(String id,String fileNo) {
 		fileNo = EncryptionUtils.encry(fileNo.trim());
 		String hql = " From WaitingThing A,HealthFile B,IntPersonInfo C Where B.fileNo = ? And A.subId = C.id And A.id = ? ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, fileNo);
-		query.setParameter(1, id);
-		return query.list();
+		return getHibernateTemplate().find(hql,new Object[]{fileNo,id});
 	}
 	
 	public List getWaitingThingInfo(String id, Integer type, String fileNo) {
@@ -233,10 +240,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		} else if (type.equals(1)) {
 			hql = " From WaitingThing A,HealthFile B,PersonalInfo C,IntInpatient D Where A.id = ? And B.fileNo = ? And B.fileNo = C.fileNo And A.hisid = D.inKey";
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		query.setParameter(1, fileNo);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,new Object[]{id,fileNo});
 		if (list.size() > 0) {
 			Object[] objs = (Object[]) list.get(0);
 			HealthFile file = (HealthFile) objs[1];
@@ -255,6 +259,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		return null;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveNewHealthFileWt(NewHealthFileWTBO file) throws Exception{
 		String fileNo = fileNoGen
 				.getNextFileNo(file.getDistrictNumber().trim());
@@ -301,6 +306,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		getHibernateTemplate().update(wt);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveMBInfoWt(ChronicDiseaseWTBO mb)throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
@@ -350,11 +356,12 @@ public class WaitingThingService extends HibernateDaoSupport {
 //		}
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveMatchHealthFileWT(NewHealthFileWTBO file){
 		String fileNo = file.getFileNo();
 		fileNo = EncryptionUtils.encry(fileNo);
 		String hql = " From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.fileNo = ? ";
-		Query query = getSession().createQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		query.setParameter(0, fileNo);
 		List list = query.list();
 		if(list.size() > 0){
@@ -386,6 +393,7 @@ public class WaitingThingService extends HibernateDaoSupport {
 		}
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void returnWT(String id,Integer type){
 		WaitingThing wt = (WaitingThing) getHibernateTemplate().get(
 				WaitingThing.class, id);

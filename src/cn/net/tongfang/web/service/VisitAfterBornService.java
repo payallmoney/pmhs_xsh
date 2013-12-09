@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Query;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
@@ -33,6 +35,7 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(VisitAfterBornBO data) throws Exception {
 		if(sysInfo.hasHealthFileMaternal(data.getForeignId()) == null){
 			throw new Exception("请先建立孕产妇保健手册。");
@@ -85,6 +88,7 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 		return data;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public Map<String,Object> getPrintInfo_new(VisitAfterBornBO data) throws Exception {
 		Map<String,Object> map = new HashMap<String,Object>();
 		data = (VisitAfterBornBO)get_(data);
@@ -92,8 +96,8 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 		//"from HealthFile a, PersonalInfo b, VisitAfterBorn c, SamTaxempcode d,SamTaxorgcode e")
 		HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, data.getFileNo());
 		map.put("file", file);
-		PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(data.getFileNo())).list().get(0);
-		getSession().evict(person);
+		PersonalInfo person = (PersonalInfo)getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,EncryptionUtils.encry(data.getFileNo())).list().get(0);
+		getHibernateTemplate().getSessionFactory().getCurrentSession().evict(person);
 		person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 		map.put("person", person);
 		map.put("visit", data);
@@ -106,9 +110,10 @@ public class VisitAfterBornService extends HealthMainService<VisitAfterBornBO> {
 		return map;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		query.setParameter(0, id);
 		List list = query.list();
 		String ret = "未测";

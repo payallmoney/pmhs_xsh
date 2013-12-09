@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
@@ -40,6 +42,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 		this.sysInfo = sysInfo;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String update(ChildrenMediExamBO data) throws Exception{
 //		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 		ChildrenMediExam childrenMediExam = new ChildrenMediExam();
@@ -67,13 +70,14 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 			getHibernateTemplate().merge(womanItems);
 		}
 		String id = childrenMediExam.getId();
-		boHelper.deleteDetails(data, getSession(), "childrenMediExamId", id);
+		boHelper.deleteDetails(data, getHibernateTemplate().getSessionFactory().getCurrentSession(), "childrenMediExamId", id);
 		boHelper.setFK(data, id, "childrenMediExamId");
 		boHelper.saveDetails(data, getHibernateTemplate());
 		return id;
 	}
     
 //	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(ChildrenMediExamBO data) throws Exception {
 //		data.setFileNo(EncryptionUtils.encry(data.getFileNo()));
 //		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -128,6 +132,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 //		data.setFileNo(EncryptionUtils.decipher(data.getFileNo()));
 //		return data;
 //	}
+	@Transactional(propagation = Propagation.REQUIRED)
 	public ChildrenMediExamBO get(ChildrenMediExamBO data) throws Exception {
 		ChildrenMediExam childrenMediExam = (ChildrenMediExam)getHibernateTemplate().get(ChildrenMediExam.class,data.getId());
 		List womanItemsList = getHibernateTemplate().find("From WomanPhysicalItems Where id = ?",data.getId());
@@ -155,11 +160,11 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 			ChildrenMediExam childrenMediExam = (ChildrenMediExam)getHibernateTemplate().get(ChildrenMediExam.class,data.getId());
 			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, childrenMediExam.getFileNo());
 			map.put("file", file);
-			PersonalInfo person = (PersonalInfo)getSession().createQuery("from PersonalInfo where fileno=?").setParameter(0,childrenMediExam.getFileNo()).list().get(0);
+			PersonalInfo person = (PersonalInfo)getHibernateTemplate().find("from PersonalInfo where fileno=?",childrenMediExam.getFileNo()).get(0);
 			map.put("person", person);
 			map.put("child", childrenMediExam);
 			System.out.println("===========childrenMediExam.getId()========"+childrenMediExam.getId());
-			List child1list = getSession().createQuery("from WomanPhysicalItems where id=?").setParameter(0,childrenMediExam.getId()).list();
+			List child1list = getHibernateTemplate().find("from WomanPhysicalItems where id=?",childrenMediExam.getId());
 			if(child1list.size()>0){
 				WomanPhysicalItems child1 = (WomanPhysicalItems)child1list.get(0);
 				map.put("child1",child1);
@@ -181,9 +186,7 @@ public class ChildrenMediExamService extends HealthMainService<ChildrenMediExamB
 	
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,id);
 		String ret = "未测";
 		if(list.size() > 0){
 			ret = "";

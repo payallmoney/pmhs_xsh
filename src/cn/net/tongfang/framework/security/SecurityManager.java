@@ -35,7 +35,7 @@ public class SecurityManager {
 	
 	public static boolean isValidUser(String loginuser,String owneruser ){
 		//这里可以增加其他判断,如admin
-		if(loginuser!=null &&loginuser.equals(owneruser)){
+		if(loginuser!=null && (loginuser.equals(owneruser) || "admin".equals(loginuser)) ){
 			return true;
 		}else{
 			return false;

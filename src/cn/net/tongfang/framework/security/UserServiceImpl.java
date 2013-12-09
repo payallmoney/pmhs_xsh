@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.security.providers.encoding.MessageDigestPasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.bo.UserCond;
 import cn.net.tongfang.framework.security.bo.UserInfo;
@@ -80,7 +82,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 		mdpeMd5.setEncodeHashAsBase64(false);
 		return mdpeMd5.encodePassword(password, null);
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveUser(UserInfo userInfo) {
 		if ( userInfo == null ) return;
 		
@@ -113,7 +115,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 	
 	
 
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveNewUser(UserInfo userInfo) {
 		if ( userInfo == null ) return;
 		
@@ -134,7 +136,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 	}
 
 
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void saveRoles(UserInfo userInfo, String loginname) {
 		//handle roles
 		List roles = userInfo.getRoles();
@@ -199,6 +201,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 	 * 修改密码
 	 */
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean modifyPassword(String oldPwd, String newPwd) {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		if(oldPwd != null && md5(oldPwd).equals(user.getPassword())){

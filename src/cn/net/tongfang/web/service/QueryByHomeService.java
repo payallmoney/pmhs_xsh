@@ -39,10 +39,7 @@ public class QueryByHomeService extends HibernateDaoSupport {
 	public List queryByHomeAtFileNo(String fileNo, int selectNo) {
 		StringBuffer sql = new StringBuffer();
 		sql = getSQL(selectNo);
-		Query query = getSession().createQuery(sql.toString());
-		fileNo = EncryptionUtils.encry(fileNo);
-		query.setParameter(0,fileNo);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql.toString(),fileNo);
 		List resultList = new ArrayList();
 		switch (selectNo) {
 		case 1:
@@ -101,9 +98,7 @@ public class QueryByHomeService extends HibernateDaoSupport {
 			}
 			String name = "";
 			if(!tempSql.equals("")){
-				query = getSession().createQuery(tempSql);
-				query.setParameter(0, id);
-				List l = query.list();
+				List l = getHibernateTemplate().find(tempSql,id);
 				if(l.size() > 0){
 					for(Object tempO :l){
 						name = name + (String)tempO + "、";
@@ -220,10 +215,8 @@ public class QueryByHomeService extends HibernateDaoSupport {
 			break;
 		}
 		String result = "";
-		Query query = getSession().createQuery(sql);;
 		for(int i = 0; i < id.length;i++){
-			query.setParameter(0, id[i]);
-			List list = query.list();
+			List list = getHibernateTemplate().find(sql,id[i]);
 			result = result + id[i] + ":";
 			if(list.size() > 0){
 				for(Object o : list){
@@ -245,11 +238,9 @@ public class QueryByHomeService extends HibernateDaoSupport {
 		}else if(selectNo == 11){
 			sql = "select drugName,usage,dosage from DiabetesMedications where diabetesVisitId = ?";
 		}
-		Query query = getSession().createQuery(sql);
 		String result = "";
 		for(int i=0;i<ids.length;i++){
-			query.setParameter(0, ids[i]);
-			List list = query.list();
+			List list = getHibernateTemplate().find(sql,ids[i]);
 			result = result + ids[i] + ":";
 			if(list.size() > 0){
 				for(Object o : list){

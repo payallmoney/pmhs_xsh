@@ -11,9 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.CodExamlist;
@@ -41,13 +44,11 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public void setModuleMgr(ModuleMgr moduleMgr) {
 		this.moduleMgr = moduleMgr;
 	}
-
+	@Transactional
 	public synchronized String save(PersonalInfoFBO data) throws Exception{
-		
 		// update switch
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileno = data.getFileNo();
-		System.out.println("=====old======oldfileno========"+fileno);
 		//if (fileno.length() == 18){
 		
 		if(fileno != null && !fileno.equals("")){
@@ -71,7 +72,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 //		String sql = "From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.name = '" + EncryptionUtils.encry(checkName) + "' And " +
 //				"A.township = '" + checkTownship + "' And A.village = '" + checkVillage + "' And B.birthday = '" + checkBirthday + "' And " + 
 //				"B.sex = '" + checkSex + "'";
-//		Query query = getSession().createQuery(sql);
+//		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sql);
 //		List list = query.list();
 //		if(list.size() > 0){
 //			throw new RuntimeException(checkName + "已经建立档案，不需要重新建立!!!");
@@ -90,7 +91,6 @@ public class PersonalInfoService extends HibernateDaoSupport {
 			fileNo = data.getHomeId() + fileno;
 		}*/
 		String fileNo = fileNoGen.getNextFileNo(disNo);
-		System.out.println("=======fileNo============"+fileNo);
 		String tmpFileNo = fileNo;
 //		String tmpFileNo = EncryptionUtils.encry(fileNo);
 		PersonalInfo info = new PersonalInfo();
@@ -142,9 +142,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 
 	public PersonalInfoFBO getBasicInfo(PersonalInfoFBO data) throws Exception{
 		String hql = "From HealthFile A,PersonalInfo B Where A.fileNo = ? And A.fileNo = B.fileNo";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, EncryptionUtils.encry(data.getFileNo()));
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,EncryptionUtils.encry(data.getFileNo()));
 		if(list.size() > 0){
 			Object[] obj = (Object[])list.get(0);
 			HealthFile hf = (HealthFile)obj[0];
@@ -158,8 +156,8 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		return data;
 	}
 	
+	@Transactional
 	public String update(PersonalInfoFBO data) throws Exception{
-		
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 
 		PersonalInfo info = new PersonalInfo();
@@ -178,8 +176,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		
 		String sql = "Select hf.inputDate ,info.inputDate From HealthFile hf,PersonalInfo info Where" +
 					" hf.fileNo = info.fileNo And hf.fileNo = '" + hf.getFileNo() + "'";
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		if(list.size() > 0){
 			for(Object objs : list){
 				Object[] obj = (Object[])objs;
@@ -197,7 +194,6 @@ public class PersonalInfoService extends HibernateDaoSupport {
 				}
 			}
 		}
-		
 		hf.setLastModifyDate(ts);
 		
 		info.setInputPersonId(user.getUsername()); //当前登录用户
@@ -247,8 +243,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	 */
 	public List getOrg(){
 		String sql = "Select id,name From SamTaxorgcode Where id > 1";
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		if(list.size() > 0)
 			return list;
 		return null;
@@ -257,9 +252,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public List getCurrentOrg(){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String sql = "Select id,name From SamTaxorgcode Where id > 1 and (id = " + user.getOrg().getId()+" ) or parentId = " + user.getOrg().getId()+" ) ";
-		
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		if(list.size() > 0)
 			return list;
 		return null;
@@ -272,8 +265,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	 */
 	public List getDoctors(int hospId){
 		String sql = "Select id,name From Doctors Where hospId = " + hospId;
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(sql);
 		if(list.size() > 0)
 			return list;
 		return null;
@@ -283,6 +275,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	 * 保存
 	 * @param doctor
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveDoctors(String[] doctor){
 		Doctors doctors = new Doctors();
 		doctors.setName(doctor[0]);
@@ -323,7 +316,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	public List getExamInfo(PersonalInfoFBO bo){
 		String fileNo = EncryptionUtils.encry(bo.getFileNo());
 		List ret = new ArrayList();
-		List<CodExamlist> list = getSession().createQuery("from CodExamlist order by ord").list();
+		List<CodExamlist> list = getHibernateTemplate().find("from CodExamlist order by ord");
 		for(CodExamlist cod : list){
 			String sql = "select id from "+cod.getTablename()+" where fileNo = '"+fileNo+"'";
 			if(cod.getNamerule() != null && cod.getNamerule().length() >0){
@@ -335,7 +328,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 			}
 			System.out.println("=="+sql);
 			Map vo = new HashMap();
-			List<String> queryRet = getSession().createQuery(sql).list();
+			List<String> queryRet = getHibernateTemplate().find(sql);
 			if(queryRet.size()>0){
 				vo.put("size", queryRet.size());
 				vo.put("url", cod.getQueryMethod());

@@ -78,9 +78,7 @@ public class MedicalExamPrintService extends HibernateDaoSupport {
 	private String getBasicInfor(String id,String tableName,String visitId,String basicId){
 		String hql = "From BasicInformation A," + tableName + " B Where B." + visitId + "= ?" +
 				" And B." + basicId + "=A.id";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,id);
 		String ret = "";
 		if(list.size() > 0){
 			for(Object objs : list){

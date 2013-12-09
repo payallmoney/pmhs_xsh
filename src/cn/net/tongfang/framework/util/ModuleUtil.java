@@ -18,9 +18,10 @@ public class ModuleUtil extends HibernateDaoSupport implements ApplicationListen
 	}
 	
 	public void refresh() {
-		List<CodModuleMap> lists = getSession().createQuery(
-				"from CodModuleMap ").list();
-		moduleList = lists;
+		moduleList = getHibernateTemplate().find("from CodModuleMap ");
+//		List<CodModuleMap> lists = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(
+//				"from CodModuleMap ").list();
+//		moduleList = lists;
 	}
 
 	public List<CodModuleMap> getModuleList() {

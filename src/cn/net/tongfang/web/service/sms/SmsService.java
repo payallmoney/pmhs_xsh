@@ -1,9 +1,7 @@
 package cn.net.tongfang.web.service.sms;
 
-import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,19 +17,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.mapping.Column;
 import org.hibernate.type.Type;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import com.jasson.im.api.APIClient;
 
 import cn.net.tongfang.framework.security.bo.Condition;
 import cn.net.tongfang.framework.security.bo.QryCondition;
@@ -48,6 +45,8 @@ import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SmsUtil;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
+
+import com.jasson.im.api.APIClient;
 
 
 public class SmsService extends HibernateDaoSupport {
@@ -67,6 +66,7 @@ public class SmsService extends HibernateDaoSupport {
 	private SmsUtil smsUtil;
 
 	//@Cacheable(cacheName = "messageCache")
+	
 	public List<CodTelUpdateCol> getTelRule() {
 		String hql = "from  CodTelUpdateCol order by ord desc";
 		try {
@@ -91,17 +91,24 @@ public class SmsService extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		makeParamsList(qryCond,likemap ,where,params);
 		StringBuilder hql = new StringBuilder("from  CodTelUpdateCol").append(
-				where).append(" order by ord");
+				where);
+		String orderby = (" order by ord");
 		log.debug("hql: " + hql.toString());
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<CodTelUpdateCol> list = (List<CodTelUpdateCol>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find(" select count(*) from  CodTelUpdateCol").get(0))).intValue();
+		final String fhql = hql.toString()+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<CodTelUpdateCol> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<CodTelUpdateCol>(totalSize, list);
 	}
 	
@@ -131,6 +138,7 @@ public class SmsService extends HibernateDaoSupport {
 		return sb.toString();
 	}
 	//增加保存提取规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editRule(CodTelUpdateCol bo) throws Exception {
 		CodTelUpdateCol module = bo;
 		if (module.getId() != null && module.getId().isEmpty())
@@ -182,25 +190,25 @@ public class SmsService extends HibernateDaoSupport {
 				}
 				
 			}
-			getSession().createSQLQuery(" set nocount on ").executeUpdate();
+			getHibernateTemplate().bulkUpdate(" set nocount on ");
 			//删除更新后的表中的触发器
 			for(String key : old_tableMap.keySet()){
 				if(!tableMap.containsKey(key)){
-					getSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
+					getHibernateTemplate().bulkUpdate(" drop TRIGGER "+triggername+"_"+key);
 				}
 			}
 			for(String key : tableMap.keySet()){
 				List<String> cols = tableMap.get(key);
 				try{
-					getSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
+					getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
 				}catch(Exception ex){
 					//不处理异常
 				}
 				String sql = getTirggerSQL(key,cols);
-				getSession().createSQLQuery(sql).executeUpdate();
+				getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 				
 			}
-			getSession().createSQLQuery(" set nocount off ").executeUpdate();
+			getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" set nocount off ").executeUpdate();
 			return module.getId();
 		} catch (SQLException ex) {
 			return null;
@@ -208,6 +216,7 @@ public class SmsService extends HibernateDaoSupport {
 	}
 	
 	//删除提取规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeRule(String modules) {
 		if (!StringUtils.hasText(modules))
 			return;
@@ -244,25 +253,25 @@ public class SmsService extends HibernateDaoSupport {
 			}
 			
 		}
-		getSession().createSQLQuery(" set nocount on ").executeUpdate();
+		getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" set nocount on ").executeUpdate();
 		//删除更新后不存在的表中的触发器
 		for(String key : old_tableMap.keySet()){
 			if(!tableMap.containsKey(key)){
-				getSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
+				getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
 			}
 		}
 		//重新设置触发器
 		for(String key : tableMap.keySet()){
 			List<String> cols = tableMap.get(key);
 			try{
-				getSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
+				getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" drop TRIGGER "+triggername+"_"+key).executeUpdate();
 			}catch(Exception ex){
 				//不处理异常
 			}
 			String sql = getTirggerSQL(key,cols);
-			getSession().createSQLQuery(sql).executeUpdate();
+			getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		}
-		getSession().createSQLQuery(" set nocount off ").executeUpdate();
+		getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" set nocount off ").executeUpdate();
 	}
 	
 	private String getTirggerSQL(String key,List<String> cols){
@@ -307,22 +316,30 @@ public class SmsService extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		makeParamsList(qryCond,likemap ,where,params);
 		StringBuilder hql = new StringBuilder("from CodTelSendRule").append(
-				where).append(" order by optdate");
+				where);
+		String orderby = (" order by optdate");
 		log.debug("hql: " + hql.toString());
 
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<CodTelSendRule> list = (List<CodTelSendRule>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find(" select count(*) from  CodTelUpdateCol",params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString()+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<CodTelSendRule> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<CodTelSendRule>(totalSize, list);
 	}
 	
 	//增加保存发送规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editSendRule(CodTelSendRule bo) throws Exception {
 		CodTelSendRule module = bo;
 		if (module.getId() != null && module.getId().isEmpty())
@@ -452,18 +469,25 @@ public class SmsService extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		makeParamsList(qryCond,likemap ,where,params);
 		StringBuilder hql = new StringBuilder("from SmsSendTarget").append(
-				where).append(" order by name");
+				where);
+		String orderby = (" order by name");
 		log.debug("hql: " + hql.toString());
 
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<SmsSendTarget> list =  query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<SmsSendTarget> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<SmsSendTarget>(totalSize, list);
 	}
 	
@@ -477,12 +501,7 @@ public class SmsService extends HibernateDaoSupport {
 			where.replace(0, 4, " where ");
 		}
 		StringBuilder hql = new StringBuilder("select new list(id , name,msg) from SmsSendTarget");
-
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		List list =  query.list();
+		List list =  getHibernateTemplate().find(hql.toString(),params.toArray());
 		List addmap = new ArrayList();
 		addmap.add( "99");
 		addmap.add("------增加人群------");
@@ -491,6 +510,7 @@ public class SmsService extends HibernateDaoSupport {
 	}
 	
 	//增加保存发送人群规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editSendTarget(SmsSendTarget bo) throws Exception {
 		SmsSendTarget module = bo;
 		String tablename = this.camelcasify(module.getTablename());
@@ -596,32 +616,34 @@ public class SmsService extends HibernateDaoSupport {
 		}
 		StringBuilder hql = new StringBuilder("select new map(ssto.id as id , ssto.name as name ,ssto.tel as tel,ssto.districtNumber as districtNumber ,dist.name as districtNumber_name ,ssto.type as type,basic.name as type_name,ssto.isTest as isTest) " +
 				"from SmsSendTargetOther ssto , District dist , BasicInformation basic ").append(
-				where).append(" order by dist.id");
+				where);
+		String orderby = (" order by dist.id");
 		StringBuilder counthql = new StringBuilder("select count(*) " +
 				"from SmsSendTargetOther ssto , District dist , BasicInformation basic ").append(
 				where).append(" ");
 		log.debug("hql: " + hql.toString());
-		Query query = getSession().createQuery(hql.toString());
-		Query querycount = getSession().createQuery(counthql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-			querycount.setParameter(i, params.get(i));
-		}
-		List ret = querycount.list();
-		int totalSize = 0;
-		if(ret !=null && ret.size()>0){
-			totalSize = ((Long)ret.get(0)).intValue();
-		}
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List<Map> list =  query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List<Map> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<Map>(totalSize, list);
 	}
 	
 	//返回下拉列表数据
 	public List getOtherSendTargetOption() throws Exception {
 		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
-		Query query = getSession().createQuery(hql.toString());
-		List<List<String>> list =  query.list();
+		List<List<String>> list =  getHibernateTemplate().find(hql.toString());
 		for(List<String> item : list){
 			if(item.get(0).length() == 9){
 				item.set(1, "|--"+item.get(1));
@@ -638,8 +660,7 @@ public class SmsService extends HibernateDaoSupport {
 	
 	public List getDistrictOption() throws Exception {
 		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
-		Query query = getSession().createQuery(hql.toString());
-		List<List<String>> list =  query.list();
+		List<List<String>> list = getHibernateTemplate().find(hql.toString());
 		for(List<String> item : list){
 			if(item.get(0).length() == 9){
 				item.set(1, "|--"+item.get(1));
@@ -652,12 +673,12 @@ public class SmsService extends HibernateDaoSupport {
 	
 	public List getTypeOption() throws Exception {
 		StringBuilder hql = new StringBuilder("select new list(id , name) from BasicInformation where type = '4001' and isMain = 0 and isBeforehand = 1 ");
-		Query query = getSession().createQuery(hql.toString());
-		List list =  query.list();
+		List list =  getHibernateTemplate().find(hql.toString());
 		return list;
 	}
 	
 	//增加保存其他人群规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editOtherSendTarget(SmsSendTargetOther bo) throws Exception {
 		SmsSendTargetOther module = bo;
 		if(module.getIsTest() == null){
@@ -693,22 +714,31 @@ public class SmsService extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		makeParamsList(qryCond,likemap ,where,params);
 		StringBuilder hql = new StringBuilder("from  CodSmsMsg").append(
-				where).append(" order by type");
+				where);
+		String orderby = " order by type";
 		log.debug("hql: " + hql.toString());
-
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = query.list().size();
-
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<CodSmsMsg> list = (List<CodSmsMsg>) query.list();
+		
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<CodSmsMsg>(totalSize, list);
 	}
 	
 	//增加保存常用短信
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editMsg(CodSmsMsg bo) throws Exception {
 		CodSmsMsg module = bo;
 		if (module.getId() != null && module.getId().isEmpty())
@@ -766,43 +796,39 @@ public class SmsService extends HibernateDaoSupport {
 		}
 		StringBuilder hql = new StringBuilder("select new SmsPersonTel(vo)from SmsPersonTel vo , HealthFile hf  ").append(
 				where);
-		StringBuilder counthql = new StringBuilder("select count(*) from SmsPersonTel vo , HealthFile hf  ").append(
-				where);
-		log.debug("hql: " + hql.toString());
 		
-		Query countquery = getSession().createQuery(counthql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			countquery.setParameter(i, params.get(i));
-		}
-		List ret = countquery.list();
-		int totalSize = 0;
-		if(ret !=null && ret.size()>0){
-			totalSize = ((Long)ret.get(0)).intValue();
-		}
-		
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
 
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-
-		List<SmsPersonTel> list = (List<SmsPersonTel>) query.list();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString();
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		return new PagingResult<SmsPersonTel>(totalSize, list);
 	}
 	
 	//更新联系电话
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String createTels(SmsPersonTel qryCond){
 		List<CodTelUpdateCol> infos = getTelRule();
 		String truncateSQL = " truncate table Sms_PersonTel ";
-		getSession().createSQLQuery(truncateSQL).executeUpdate();
+		getHibernateTemplate().bulkUpdate(truncateSQL);
 		String insertsql = " insert into Sms_PersonTel select fileNo,fileNo,'0',name, TEL,'HealthFile.TEL',-1 from HealthFile where len(TEL)= "+tel_len+" and left(TEL,1) <>'0' ";
-		int count = getSession().createSQLQuery(insertsql).executeUpdate();
+		int count = getHibernateTemplate().bulkUpdate(insertsql);
 		for(CodTelUpdateCol rule : infos){
 			String sql = " insert into Sms_PersonTel select a.fileNo,a.fileNo,'0',a.name, b."+rule.getCol()+",'"+rule.getTablename()+"."+rule.getCol()+"',-1 " +
 					" from HealthFile a , "+rule.getTablename()+" b where a.fileNo = b.fileNo and left(b."+rule.getCol()+",1) <>'0' and  len(b."+rule.getCol()+")="+tel_len+
 					" and not exists (select 1 from Sms_PersonTel c where c.fileNo = a.fileno) ";
-			count+=getSession().createSQLQuery(sql).executeUpdate();
+			count+=getHibernateTemplate().bulkUpdate(sql);
 		}
 		String ret = "更新联系电话成功!共成功更新"+count+"户!";
 		return ret;
@@ -821,6 +847,7 @@ public class SmsService extends HibernateDaoSupport {
 		return smsUtil.isStarted();
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public  PagingResult<SmsSendLog> queryLogs(QryCondition qryCond,
 			PagingParam pp) throws Exception {
 		if (pp == null)
@@ -838,7 +865,7 @@ public class SmsService extends HibernateDaoSupport {
 		Map dateMap = new HashMap();
 		dateMap.put("vo.smsdate", null);
 		if("0".equals(qryCond.getDistrict())){
-			getSession().createSQLQuery("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ").executeUpdate();
+			getHibernateTemplate().bulkUpdate("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ");
 			StringBuilder where = new StringBuilder(" where querytype='0' ");
 			List params = new ArrayList();
 			for(Condition obj : qryCond.getConditions()){
@@ -870,33 +897,30 @@ public class SmsService extends HibernateDaoSupport {
 			}
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
 			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
-					where +" order by vo.smsdate desc,vo.sendtime desc ");
+					where) ;
+			String orderby = " order by vo.smsdate desc,vo.sendtime desc ";
 			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo   ").append(
 					where);
 			log.debug("hql: " + hql.toString());
-			
-			Query countquery = getSession().createQuery(counthql.toString());
-			for (int i = 0; i < params.size(); i++) {
-				countquery.setParameter(i, params.get(i));
-			}
-			List ret = countquery.list();
-			int totalSize = 0;
-			if(ret !=null && ret.size()>0){
-				totalSize = ((Long)ret.get(0)).intValue();
-			}
-			
-			Query query = getSession().createQuery(hql.toString());
-			for (int i = 0; i < params.size(); i++) {
-				query.setParameter(i, params.get(i));
-			}
-	
-			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-	
-			List<SmsSendLog> list =  query.list();
+			int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+			final String fhql = hql+orderby;
+			final PagingParam fpp = pp;
+			final List fparams = params;
+			List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+				@Override
+				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+					Query query = arg0.createQuery(fhql);
+					for (int i = 0; i < fparams.size(); i++) {
+						query.setParameter(i, fparams.get(i));
+					}
+					query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+					return query.list();
+				}
+			});
 			
 			return new PagingResult<SmsSendLog>(totalSize, list);
 		}else{
-			getSession().createSQLQuery("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, Sms_SendTargetOther hf where vo.fileno = hf.id and vo.personname is null  and querytype='1' ").executeUpdate();
+			getHibernateTemplate().bulkUpdate("update Sms_SendLog set personname = hf.name from Sms_SendLog vo, Sms_SendTargetOther hf where vo.fileno = hf.id and vo.personname is null  and querytype='1' ");
 			StringBuilder where = new StringBuilder(" where  querytype='1' ");
 			List params = new ArrayList();
 			for(Condition obj : qryCond.getConditions()){
@@ -929,29 +953,23 @@ public class SmsService extends HibernateDaoSupport {
 			
 			//这里的返回结果是用js进行的解密,所以没写解密的代码
 			StringBuilder hql = new StringBuilder("select vo  from SmsSendLog vo   ").append(
-					where +" order by vo.smsdate desc,vo.sendtime desc ");
-			StringBuilder counthql = new StringBuilder("select count(*) from SmsSendLog vo  ").append(
 					where);
-			log.debug("hql: " + hql.toString());
-			
-			Query countquery = getSession().createQuery(counthql.toString());
-			for (int i = 0; i < params.size(); i++) {
-				countquery.setParameter(i, params.get(i));
-			}
-			List ret = countquery.list();
-			int totalSize = 0;
-			if(ret !=null && ret.size()>0){
-				totalSize = ((Long)ret.get(0)).intValue();
-			}
-			
-			Query query = getSession().createQuery(hql.toString());
-			for (int i = 0; i < params.size(); i++) {
-				query.setParameter(i, params.get(i));
-			}
-	
-			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-	
-			List<SmsSendLog> list =  query.list();
+			String orderby = " order by vo.smsdate desc,vo.sendtime desc ";
+			int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql,params.toArray()).get(0))).intValue();
+			final String fhql = hql+orderby;
+			final PagingParam fpp = pp;
+			final List fparams = params;
+			List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+				@Override
+				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+					Query query = arg0.createQuery(fhql);
+					for (int i = 0; i < fparams.size(); i++) {
+						query.setParameter(i, fparams.get(i));
+					}
+					query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+					return query.list();
+				}
+			});
 			
 			return new PagingResult<SmsSendLog>(totalSize, list);
 		}
@@ -971,7 +989,7 @@ public class SmsService extends HibernateDaoSupport {
 		sendMsgJobonly();
 	}
 	
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void sendMsgJobonly() throws Exception{
 		System.out.println("========只发送,不生成数据,发送短信的任务===========");
 		smsUtil.setStarted(true);
@@ -981,7 +999,7 @@ public class SmsService extends HibernateDaoSupport {
 		String exceptStr = "";
 		try{
 			if(connectRe == APIClient.IMAPI_SUCC){
-				List<SmsSendLog> sendinglist = getSession().createQuery("from SmsSendLog where status = "+SmsUtil.IS_SENDED_FALSE+"").list();
+				List<SmsSendLog> sendinglist = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery("from SmsSendLog where status = "+SmsUtil.IS_SENDED_FALSE+"").list();
 				if(sendinglist.isEmpty()){
 					smsUtil.setSended();
 				}else{
@@ -1030,13 +1048,13 @@ public class SmsService extends HibernateDaoSupport {
 						        else
 						        	log.setError("出现其他错误");
 					        }
-							getSession().saveOrUpdate(log);
+							getHibernateTemplate().getSessionFactory().getCurrentSession().saveOrUpdate(log);
 						}else{
 							break;
 						}
 					}
 				}
-				sendinglist = getSession().createQuery("from SmsSendLog where status = "+SmsUtil.IS_SENDED_FALSE+"").list();
+				sendinglist = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery("from SmsSendLog where status = "+SmsUtil.IS_SENDED_FALSE+"").list();
 				if(sendinglist.isEmpty()){
 					smsUtil.setSended();
 				}
@@ -1063,6 +1081,7 @@ public class SmsService extends HibernateDaoSupport {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String sendMsg(Map params) throws Exception{
 		String ret = "";
 		int flag = Integer.parseInt((String)params.get("flag"));
@@ -1073,7 +1092,7 @@ public class SmsService extends HibernateDaoSupport {
 			if(!StringUtils.hasText(id)){
 				return "未选择类型!";
 			}
-			SmsSendTarget rule = (SmsSendTarget) getSession().get(SmsSendTarget.class, id);
+			SmsSendTarget rule = (SmsSendTarget) getHibernateTemplate().getSessionFactory().getCurrentSession().get(SmsSendTarget.class, id);
 			if(rule == null){
 				return "未选择类型!";
 			}
@@ -1121,8 +1140,7 @@ public class SmsService extends HibernateDaoSupport {
 							+ ",null,'1',newid() from Sms_SendTargetOther other  where "+where+" and NOT EXISTS (select 1 from Sms_SendLog log where log.fileNo = other.id and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and examname ='"
 							+ title
 							+ "'  ) ";
-			getSession()
-					.createSQLQuery(sql)
+			getSession().createSQLQuery(sql)
 					.executeUpdate();
 			ret = "发送成功!";
 		}
@@ -1232,9 +1250,10 @@ public class SmsService extends HibernateDaoSupport {
 		ss.Test();
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String querySendStatus(){
 		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
-		List isCreated = getSession()
+		List isCreated = getHibernateTemplate().getSessionFactory().getCurrentSession()
 				.createQuery("from SmsStatus where smsdate = ?")
 				.setParameter(0, today).list();
 		if(isCreated.isEmpty()){
@@ -1262,6 +1281,7 @@ public class SmsService extends HibernateDaoSupport {
 	}
 	
 	//新增或修改联系电话
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String editTel(SmsPersonTel bo) throws Exception {
 		SmsPersonTel module = bo.makeSaveVO();
 		if (module.getId() != null && module.getId().isEmpty())

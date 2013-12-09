@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
@@ -36,6 +38,7 @@ public class DemoServiceImpl implements DemoService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public DemoControl editControl(DemoControl control) {
 		DemoControl.save(control);
 		return control;

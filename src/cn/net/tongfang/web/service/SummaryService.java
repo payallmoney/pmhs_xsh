@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -34,12 +35,13 @@ public class SummaryService extends HibernateDaoSupport {
 		this.person = person;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<SummaryStatistics01> querySummaryStatistics(
 			SummaryQry qry, PagingParam pp) {
-		Query query = getSession().getNamedQuery("InputPersonProc");
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().getNamedQuery("InputPersonProc");
 		TaxempDetail user = SecurityManager.currentOperator();
 		String str_where = "";
-		SamTaxorgcode org = (SamTaxorgcode)getSession().get(SamTaxorgcode.class, qry.getOrgId());
+		SamTaxorgcode org = (SamTaxorgcode)getHibernateTemplate().getSessionFactory().getCurrentSession().get(SamTaxorgcode.class, qry.getOrgId());
 		String district = org.getDistrictNumber();
 		while(district.endsWith("00")){
 			district = district.substring(0,district.length()-2);
@@ -81,9 +83,10 @@ public class SummaryService extends HibernateDaoSupport {
 		return result;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<SummaryStatisticsHivandSyphilis> queryHIVAndSyphilis(
 			SummaryQry qry, PagingParam pp) {
-		Query query = getSession().getNamedQuery(
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().getNamedQuery(
 				"SummaryStatisticsHivandSyphilisProc");
 		TaxempDetail user = SecurityManager.currentOperator();
 		String str_where = " And A.InputDate >= '"
@@ -103,8 +106,9 @@ public class SummaryService extends HibernateDaoSupport {
 		return result;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public List<BusinessDataGrid> queryBusinessData(String fileNo) {
-		Query query = getSession().getNamedQuery("BusinessDataProc");
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().getNamedQuery("BusinessDataProc");
 		TaxempDetail user = SecurityManager.currentOperator();
 		String username = EncryptionUtils.encry(fileNo);
 		if (user != null) {
@@ -200,7 +204,7 @@ public class SummaryService extends HibernateDaoSupport {
 		if (type.equals(Integer.valueOf(0))) {
 			String countHql = " Select count(*) From BirthCertificate A "
 					+ joinHql + where + whereType + joinWhere + whereStr;
-			Query countQuery = getSession().createQuery(countHql);
+			Query countQuery = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(countHql);
 
 			if (!qryOrgId.equals("")) {
 				countQuery.setParameter("qryOrgId", Integer.valueOf(qryOrgId));
@@ -240,7 +244,7 @@ public class SummaryService extends HibernateDaoSupport {
 
 		String hql = " Select A From BirthCertificate A " + joinHql + where
 				+ whereType + joinWhere + whereStr;
-		Query query = getSession().createQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 
 		if (!qryOrgId.equals("")) {
 			query.setParameter("qryOrgId", Integer.valueOf(qryOrgId));
@@ -328,16 +332,17 @@ public class SummaryService extends HibernateDaoSupport {
 		return retval;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	private <T> PagingResult<T> query(String hql, List params, PagingParam pp) {
 		if (pp == null)
 			pp = new PagingParam();
 		String hqlCount = "Select Count(*) " + hql;
-		Query query = getSession().createQuery(hqlCount);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hqlCount);
 		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}
 		int count = ((Long) query.uniqueResult()).intValue();
-		query = getSession().createQuery(hql);
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}

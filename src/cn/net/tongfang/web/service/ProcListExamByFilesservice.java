@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
@@ -23,6 +25,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 		this.vaccinationService = vaccinationService;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<ListExamBeanBO> getListExam(ListExamBeanBO listExamBeanBo,PagingParam pp){
 		List retListVal = new ArrayList();
 		if(listExamBeanBo.getFileNo() == null)
@@ -38,7 +41,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 			fileNos = fileNos.substring(0, fileNos.length() - 1);
 		}
 		String sql = " Exec Proc_ListExamInfoByFile ? ";
-		List list = getSession().createSQLQuery(sql)
+		List list = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(sql)
 				.setResultSetMapping("procListExamByFiles")
 				.setParameter(0, fileNos).list();
 		for(Object obj : list){
@@ -59,6 +62,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 		return result;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public void delListExam(List<ListExamBeanBO> listExamBo)throws Exception{
 		for(ListExamBeanBO bean : listExamBo){
 			List ids = new ArrayList();
@@ -91,21 +95,21 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 				userMenuTreeService.removeDiabVisitRecords(ids);
 			}else if(bean.getFlag().equals("14")){
 				userMenuTreeService.removeHealthfilesAlreadyBuildChild(ids);
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
 				query.setParameter(0, "0");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "1");
 				query.executeUpdate();
 			}else if(bean.getFlag().equals("15")){
 				userMenuTreeService.removeHealthfilesAlreadyBuild(ids);
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
 				query.setParameter(0, "1");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "1");
 				query.executeUpdate();
 			}else if(bean.getFlag().equals("16")){
 				vaccinationService.removeVaccineImmune(bean.getId());
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,? ");
 				query.setParameter(0, "2");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "1");
@@ -116,6 +120,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 		}
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public void updateListExam(List<ListExamBeanBO> listExamBo){
 		for(ListExamBeanBO bean : listExamBo){
 			String hql = "";
@@ -148,7 +153,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 				hql = " Update DiabetesVisit Set fileNo = ? Where id = ? ";
 			}else if(bean.getFlag().equals("14")){
 				hql = " Update HealthFileChildren Set fileNo = ? Where id = ? ";
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
 				query.setParameter(0, "0");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "0");
@@ -156,7 +161,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 				query.executeUpdate();
 			}else if(bean.getFlag().equals("15")){
 				hql = " Update HealthFileMaternal Set fileNo = ? Where id = ? ";
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
 				query.setParameter(0, "1");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "0");
@@ -164,7 +169,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 				query.executeUpdate();
 			}else if(bean.getFlag().equals("16")){
 				hql = " Update VaccineImmune Set fileNo = ? Where id = ? ";
-				Query query = getSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(" Exec Proc_ExecData ?,?,?,? ");
 				query.setParameter(0, "2");
 				query.setParameter(1, bean.getId());
 				query.setParameter(2, "0");
@@ -173,7 +178,7 @@ public class ProcListExamByFilesservice extends HibernateDaoSupport {
 			}else if(bean.getFlag().equals("17")){
 				hql = " Update VaccineImmuneInfo Set fileNo = ? Where id = ? ";
 			}
-			Query query = getSession().createQuery(hql);
+			Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 			query.setParameter(0, fileNo);
 			query.setParameter(1, bean.getId());
 			query.executeUpdate();

@@ -58,7 +58,7 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 //		}else{
 			final String hql = "select p from BasicInformation p where isMain = 0 order by type, number";
 			Map<Integer, List<BasicInformation>> resMap = null;
-			List<BasicInformation> res = getSession().createQuery(hql).list();
+			List<BasicInformation> res = getHibernateTemplate().find(hql);
 			resMap = new HashMap<Integer, List<BasicInformation>>();
 			for (BasicInformation i : res) {
 				int type = i.getType();
@@ -82,10 +82,7 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 			username = user.getUsername();
 		}
 		String hql = "From " + tableName + " Where id = ? And inputPersonId In(?,'admin')";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		query.setParameter(1, username);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,new Object[]{id,username});
 		if(list.size() > 0)
 			return true;
 		return false;

@@ -415,8 +415,9 @@ var fieldsArray = {};
                 if(storeId != null){
                 	send.id = storeId;
                 }
+                console.log("start...send...",new Date().toLocaleTimeString())
                 services.save(send,{ callback :function(d){
-                	
+                	console.log("end...send...",new Date().toLocaleTimeString())
                     if ( typeof sendMessage == 'function' ) {
                           sendMessage('saved');
                     }
@@ -433,7 +434,9 @@ var fieldsArray = {};
                     var personId = $("#fileNo span").html();
                     if(personId == null || personId == '')
                     	personId = d;
+                    console.log("start...get...",new Date().toLocaleTimeString())
                     PersonalInfoService.getPersonInfo(personId,function(data){
+                    	console.log("end...get...",new Date().toLocaleTimeString())
             			if(data.length > 0){
             				var infos = data[0];
         					var catMods = data[1];
@@ -449,10 +452,9 @@ var fieldsArray = {};
                 				$(".personSex").html(personSex);
                 				$(".personBirthday").html(personBirthday);
                 				if($.isFunction(services.aftersave)){
-                            		console.log(send);
-                            		console.log('personId',personId)
+                					console.log("start...his...",new Date().toLocaleTimeString())
                             		services.aftersave(personId,send.historyselect,{ callback :function(data){
-                            			console.log("保存历史数据",data);
+                            			console.log("end...his...",new Date().toLocaleTimeString())
                             		}});
                             	}
         					}

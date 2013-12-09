@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.vo.ClinicLogs;
 import cn.net.tongfang.framework.security.vo.SickInfo;
@@ -17,6 +19,7 @@ public class ClinicLogsService extends HibernateDaoSupport {
 	 * @param data
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(ClinicLogs data){
 		String id = data.getId();
 		if(id != null && !id.equals("")){
@@ -28,7 +31,7 @@ public class ClinicLogsService extends HibernateDaoSupport {
 		getHibernateTemplate().save(data);
 		return data.getId();
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void update(ClinicLogs data){
 		data.setIsModify(true);
 		getHibernateTemplate().update(data);
@@ -40,6 +43,7 @@ public class ClinicLogsService extends HibernateDaoSupport {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List getPersonalInfo(String fileNo){
 		String sql = "from SickInfo A Where A.fileNo = \'" + fileNo + "\'";
 		List sickList = ExecSQLStr(sql);
@@ -67,6 +71,7 @@ public class ClinicLogsService extends HibernateDaoSupport {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Transactional(propagation = Propagation.REQUIRED)
 	private List save_Update_Get(String fileNo,SickInfo sickInfo){
 		if(sickInfo == null)
 			sickInfo = new SickInfo();
@@ -132,8 +137,8 @@ public class ClinicLogsService extends HibernateDaoSupport {
 	 * @return
 	 */
 	private Boolean ExecSQL(String sql){
-		Query query = getSession().createQuery(sql);
-		if(query.list().size() > 0)
+		List list = getHibernateTemplate().find(sql);
+		if(list.size() > 0)
 			return true;
 		return false;
 	}
@@ -145,8 +150,7 @@ public class ClinicLogsService extends HibernateDaoSupport {
 	 */
 	@SuppressWarnings("rawtypes")
 	private List ExecSQLStr(String sql){
-		Query query = getSession().createQuery(sql);
-		return query.list();
+		return getHibernateTemplate().find(sql);
 	}
 	
 	public ClinicLogs get(ClinicLogs data){

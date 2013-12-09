@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.vo.ExamId;
 import cn.net.tongfang.framework.security.vo.HealthFileKey;
@@ -12,6 +14,7 @@ import cn.net.tongfang.framework.security.vo.HealthFileKey;
 public class FileNoGen extends HibernateDaoSupport{
 	private static final Logger log = Logger.getLogger(FileNoGen.class);
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String getNextFileNo(String districtNumber) throws Exception{
 		List<HealthFileKey> c = getHibernateTemplate().find("select p from HealthFileKey p where p.districtNumber = ?" , districtNumber);
 		int key = 1;
@@ -46,6 +49,7 @@ public class FileNoGen extends HibernateDaoSupport{
 		
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String getNextExamId() throws Exception{
 		String year = ""+Calendar.getInstance().get(Calendar.YEAR);
 		List<ExamId> list = getHibernateTemplate().find("from ExamId where id.year = ?" , year);

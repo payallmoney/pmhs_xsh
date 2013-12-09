@@ -17,6 +17,8 @@ import net.sf.json.JSONObject;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -97,6 +99,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return "";
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private CertificateBO initDeleteOption(String json,Integer optionType){
 		String[] propeties = json.split(",");
 		String prex = getSecondProp(propeties[0]);
@@ -155,10 +158,12 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param json
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public CertificateBO initCertificateId(String json) {
 		return initDeleteOption(json,INIT_OPTION);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public CertificateBO deleteInitCertificateId(String json){
 		return initDeleteOption(json,DELETE_OPTION);
 	}
@@ -178,6 +183,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	/**
 	 * @param birthCertificateId
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void saveCertificate(String birthCertificateId) {
 		BirthCertificate birthCertificate = new BirthCertificate();
 		birthCertificate.setCertifiId(birthCertificateId);
@@ -185,6 +191,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		getHibernateTemplate().saveOrUpdate(birthCertificate);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private boolean deteleCertificate(String birthCertificateId) {
 		BirthCertificate birthCertificate = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificateId);
 		if(birthCertificate == null){
@@ -204,16 +211,13 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		String hql = "Select A.certificateId From BirthCertificateOrg A,BirthCertificate B" +
 				" Where A.orgId = ? And B.isEffectived = 1 And A.certificateId = B.certifiId";
 		boolean flag = false;
+		List params = new ArrayList();
+		params.add(orgId);
 		if (StringUtils.hasText(resTxt)) {
 			hql = hql + " And A.certificateId Like ?";
-			flag = true;
+			params.add(resTxt + "%");
 		}
-		
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		if (flag)
-			query.setParameter(1, resTxt + "%");
-		List<String> list = query.list();
+		List<String> list = getHibernateTemplate().find(hql,params.toArray());
 		if (list.size() > 0)
 			return list;
 		return null;
@@ -236,9 +240,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @return
 	 */
 	private List<String> execHql(String hql, int orgId) {
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		List<String> list = query.list();
+		List<String> list = getHibernateTemplate().find(hql,orgId);
 		if (list.size() > 0)
 			return list;
 		return null;
@@ -259,13 +261,13 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 */
 	public List<String> getUnDistributeCertiId() {
 		String hql = "Select certifiId From BirthCertificate Where isEffectived = 0";
-		Query query = getSession().createQuery(hql);
-		List<String> list = query.list();
+		List<String> list = getHibernateTemplate().find(hql);
 		if (list.size() > 0)
 			return list;
 		return null;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private CertificateBO disUndisCertificate(String json,int orgId,int types){
 		String[] propeties = json.split(",");
 		String prex = getSecondProp(propeties[0]);
@@ -354,6 +356,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return condition;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String saveBirthCertificateRemarks(String prex,
 			String otherCondition,int type,int orgId) {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -374,11 +377,10 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param orgId
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String distriCertificate(String birthCertificateId, int orgId) {
 		String hql = "From BirthCertificate Where certifiId = ? And isEffectived = 0";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, birthCertificateId);
-		List list = query.list();
+		List list =  getHibernateTemplate().find(hql,birthCertificateId);
 		if (list.size() > 0) {
 			BirthCertificate birthCertificate = (BirthCertificate) getHibernateTemplate()
 					.get(BirthCertificate.class, birthCertificateId);
@@ -408,16 +410,13 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 
 	private List<BirthCertificate> getBirthCertificates(int orgId,
 			String resTxt, String hql) {
-		boolean flag = false;
+		List params = new ArrayList();
+		params.add(orgId);
 		if (StringUtils.hasText(resTxt)) {
 			hql =  hql + " And A.certifiId Like ?";
-			flag = true;
+			params.add(resTxt + "%");
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		if (flag)
-			query.setParameter(1, resTxt + "%");
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,params.toArray());
 		List<BirthCertificate> listCert = new ArrayList<BirthCertificate>();
 		for(Object obj : list){
 			Object[] objs = (Object[])obj;
@@ -566,9 +565,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 */
 	private void execHql1(String disId, List borthAddress) {
 		String hql = "From District Where id = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, disId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,disId);
 		if (list.size() > 0) {
 			District district = (District) list.get(0);
 			String parentId = district.getParentId();
@@ -604,9 +601,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 */
 	public BirthCertificate getBirthCertificateInfo(String certifiId) {
 		String hql = "From BirthCertificate Where certifiId = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, certifiId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,certifiId);
 		if (list.size() > 0) {
 			BirthCertificate birthCertificate = (BirthCertificate) list.get(0);
 			return birthCertificate;
@@ -616,9 +611,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	
 	public List getDestroyBirthCertificateInfo(String certifiId) {
 		String hql = "From BirthCertificate A,BirthCertifiDestroyReason B Where A.certifiId = ? And A.certifiId = B.certifiId";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, certifiId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,certifiId);
 		List ret = new ArrayList();
 		if (list.size() > 0) {
 			Object[] objs = (Object[]) list.get(list.size() - 1);
@@ -633,6 +626,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param certifiId
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean setPigeonhole(String certifiId,int type){
 		BirthCertificate birthCertificate = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, certifiId);
 		if(type == 0)
@@ -649,14 +643,15 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return null;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public CertificateBO restoreDistriCertificateId(String json,int orgId){
 		return disUndisCertificate(json,orgId,1);
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String execHql2(String certifiId,int orgId){
 		String hql = "From BirthCertificateOrg Where orgId = " + orgId + " And certificateId = '" + certifiId + "'";
-		Query query = getSession().createQuery(hql);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql);
 		if(list.size() > 0){
 			getHibernateTemplate().delete((BirthCertificateOrg)list.get(0));
 			BirthCertificate birthCertificate = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, certifiId);
@@ -673,6 +668,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param json
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public BarCodeBo barCodeInit(String json){
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		BarCodeHistory barCodeHistory = (BarCodeHistory) JSONObject
@@ -725,6 +721,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param json
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public BarCodeBo barCodeDel(String json){
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		BarCodeHistory barCodeHistory = (BarCodeHistory) JSONObject
@@ -787,6 +784,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param json
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public BarCodeBo barCodeRestore(String json){
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		BarCodeHistory barCodeHistory = (BarCodeHistory) JSONObject
@@ -873,9 +871,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	public List getAuthority(){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String username = user.getUsername();
-		Query query = getSession().createQuery("From SamTaxempcodeRole Where id.loginname = ?");
-		query.setParameter(0, username);
-		List list = query.list();
+		List list = getHibernateTemplate().find("From SamTaxempcodeRole Where id.loginname = ?",username);
 		boolean flag = false;
 		if(list.size() > 0){
 			for(Object obj : list){
@@ -927,10 +923,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		}
 		if(flag){
 			String hql = "From BirthCertifiDestroyReason Where certifiId = ? And type = ? Order By reasonDate DESC";
-			Query query = getSession().createQuery(hql);
-			query.setParameter(0, birthCertificate.getCertifiId());
-			query.setParameter(1, type);
-			List list = query.list();
+			List list = getHibernateTemplate().find(hql,new Object[]{birthCertificate.getCertifiId(),type});
 			if(list.size() > 0){
 				BirthCertifiDestroyReason reason = (BirthCertifiDestroyReason)list.get(0);
 				reason.setType(tmpType);
@@ -963,6 +956,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertifi.getCertifiId();
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(BirthCertificateBO birthCertificate)throws Exception{	
 		Integer tmpType = birthCertificate.getType();
 		birthCertificate.setInputDate(new Timestamp(System.currentTimeMillis()));
@@ -1093,6 +1087,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param certifiId
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean setCancelUsed(String certifiId)throws Exception{
 		BirthCertificate birthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, certifiId);
 		Class clazz = birthCertifi.getClass();

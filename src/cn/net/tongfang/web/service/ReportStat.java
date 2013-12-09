@@ -14,14 +14,14 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import cn.net.tongfang.framework.security.bo.HealthFileQry;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.SamTaxempcode;
 import cn.net.tongfang.framework.util.EncryptionUtils;
-import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
 
 public class ReportStat extends HibernateDaoSupport {
@@ -58,6 +58,7 @@ public class ReportStat extends HibernateDaoSupport {
 	private static final String inputPersonName = "inputPersonName";
 	
 	private static final Logger logger = Logger.getLogger(ReportStat.class);
+	
 	
 	public PagingResult findReport01() throws Exception {
 		try {
@@ -299,11 +300,12 @@ public class ReportStat extends HibernateDaoSupport {
 		}
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult findReport02() throws Exception {
 		try {
 			List list = new ArrayList();
 			SortedMap<String, Map<String, Object>> map = new TreeMap<String, Map<String, Object>>();
-			Session sess = getSession();
+			Session sess = getHibernateTemplate().getSessionFactory().getCurrentSession();
 			String sql = "";
 			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 					.currentOperator();
@@ -645,7 +647,7 @@ public class ReportStat extends HibernateDaoSupport {
 				String id = district.getId();
 				sql = "Select A.id,A.name From SamTaxorgcode A Where A.districtNumber = '" + 
 						id + "'";
-				query = getSession().createQuery(sql);
+				query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sql);
 				List l = query.list();
 				for (int i = 0; i < l.size(); i++) {
 					Object[] objs = (Object[])l.get(i);

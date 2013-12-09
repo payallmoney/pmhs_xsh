@@ -2,7 +2,7 @@ package cn.net.tongfang.web.service.commonexam;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,15 +12,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.NullableType;
 import org.hibernate.type.Type;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.vo.District;
@@ -195,13 +199,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 		}
 		//计算总数,页数
 		countsql += froms+where;
-		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
-		countquery.setParameters(sqlparams.toArray(), (Type[])sqlparamtypes.toArray());
-		List countlist = countquery.list();
-		int allcount = 0;
-		if(countlist.size()>0){
-			allcount = (Integer)countlist.get(0);
-		}
+		int allcount = ((Long)(getHibernateTemplate().find(countsql.toString(),sqlparams.toArray()).get(0))).intValue();
 		Map pageparams = params.get(PAGE);
 		int pagesize = (Integer)pageparams.get(PAGESIZE);
 		int currentpage = (Integer)pageparams.get(CURRENTPAGE);
@@ -216,19 +214,29 @@ public class CommonExamService extends HibernateDaoSupport  {
 		if(currentpage <=0){
 			currentpage = 1;
 		}
-		int min = pagesize*(currentpage-1);
-		int max = pagesize*currentpage;
+		final int min = pagesize*(currentpage-1);
+		final int max = pagesize*currentpage;
 		//查询分页结果
-		SQLQuery query = this.getSession().createSQLQuery(sql);
-		query.setParameters(sqlparams.toArray(), (Type[])sqlparamtypes.toArray());
-		query.setFirstResult(min);
-		query.setMaxResults(max);
-		Map ret= new HashMap();
-		ret.put("data", query.list());
-		ret.put("currentpage", currentpage);
-		ret.put("allcount", allcount);
-		ret.put("pages", pages);
-		return query.list();
+		final String fhql = sql;
+		final List fsqlparams = sqlparams;
+		final List<Type> fsqlparamtypes = sqlparamtypes;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				SQLQuery query = arg0.createSQLQuery(fhql);
+				for (int i = 0; i < fsqlparams.size(); i++) {
+					query.setParameter(i, fsqlparams.get(i),fsqlparamtypes.get(i));
+				}
+				query.setFirstResult(min).setMaxResults(max);
+				return query.list();
+			}
+		});
+//		Map ret= new HashMap();
+//		ret.put("data", list);
+//		ret.put("currentpage", currentpage);
+//		ret.put("allcount", allcount);
+//		ret.put("pages", pages);
+		return list;
 	}
 	
 	public CommonVO loadExam(String id)  throws Exception{
@@ -251,68 +259,83 @@ public class CommonExamService extends HibernateDaoSupport  {
         			" p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber" +
         			" from HealthFile hf, PersonalInfo  p where  p.fileNo = hf.fileNo " +
         			" and hf.fileNo = ? and hf.status = 0 " ; 
-		SQLQuery womanquery = this.getSession().createSQLQuery(sql);
-		womanquery.setParameters(new Object[]{base.getFileno()}, new Type[]{Hibernate.STRING});
-		womanquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		womanquery.addScalar("fileno",Hibernate.STRING);
-		womanquery.addScalar("name",Hibernate.STRING);
-		womanquery.addScalar("sex",Hibernate.STRING);
-		womanquery.addScalar("birthday",Hibernate.TIMESTAMP);
-		womanquery.addScalar("age",Hibernate.INTEGER);
-		womanquery.addScalar("idcard",Hibernate.STRING);
-		womanquery.addScalar("barCode",Hibernate.STRING);
-		womanquery.addScalar("address",Hibernate.STRING);
-		womanquery.addScalar("linkmanTel",Hibernate.STRING);
-		womanquery.addScalar("township",Hibernate.STRING);
-		womanquery.addScalar("village",Hibernate.STRING);
-		womanquery.addScalar("workUnit",Hibernate.STRING);
-		womanquery.addScalar("folk",Hibernate.STRING);
-		womanquery.addScalar("folkOther",Hibernate.STRING);
-		womanquery.addScalar("education",Hibernate.STRING);
-		womanquery.addScalar("occupation",Hibernate.STRING);
-		womanquery.addScalar("idnumber",Hibernate.STRING);
-		womanquery.addScalar("residenceAddress",Hibernate.STRING);
-		womanquery.addScalar("districtNumber",Hibernate.STRING);
-		List<Map> womanlist= womanquery.list();
+		
+		final String fhql = sql;
+		final String fileno = base.getFileno();
+		List<Map> womanlist = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				SQLQuery womanquery = arg0.createSQLQuery(fhql);
+				womanquery.setParameters(new Object[]{fileno}, new Type[]{Hibernate.STRING});
+				womanquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+				womanquery.addScalar("fileno",Hibernate.STRING);
+				womanquery.addScalar("name",Hibernate.STRING);
+				womanquery.addScalar("sex",Hibernate.STRING);
+				womanquery.addScalar("birthday",Hibernate.TIMESTAMP);
+				womanquery.addScalar("age",Hibernate.INTEGER);
+				womanquery.addScalar("idcard",Hibernate.STRING);
+				womanquery.addScalar("barCode",Hibernate.STRING);
+				womanquery.addScalar("address",Hibernate.STRING);
+				womanquery.addScalar("linkmanTel",Hibernate.STRING);
+				womanquery.addScalar("township",Hibernate.STRING);
+				womanquery.addScalar("village",Hibernate.STRING);
+				womanquery.addScalar("workUnit",Hibernate.STRING);
+				womanquery.addScalar("folk",Hibernate.STRING);
+				womanquery.addScalar("folkOther",Hibernate.STRING);
+				womanquery.addScalar("education",Hibernate.STRING);
+				womanquery.addScalar("occupation",Hibernate.STRING);
+				womanquery.addScalar("idnumber",Hibernate.STRING);
+				womanquery.addScalar("residenceAddress",Hibernate.STRING);
+				womanquery.addScalar("districtNumber",Hibernate.STRING);
+				return womanquery.list();
+			}
+		});
 		if(womanlist.size()>0){
 			ret.setWoman(womanlist.get(0));
 		}
-		SQLQuery manquery = this.getSession().createSQLQuery(sql);
-		manquery.setParameters(new Object[]{items.get(0).get("男方_编号")}, new Type[]{Hibernate.STRING});
-		manquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		manquery.addScalar("fileno",Hibernate.STRING);
-		manquery.addScalar("name",Hibernate.STRING);
-		manquery.addScalar("sex",Hibernate.STRING);
-		manquery.addScalar("birthday",Hibernate.TIMESTAMP);
-		manquery.addScalar("age",Hibernate.INTEGER);
-		manquery.addScalar("idcard",Hibernate.STRING);
-		manquery.addScalar("barCode",Hibernate.STRING);
-		manquery.addScalar("address",Hibernate.STRING);
-		manquery.addScalar("linkmanTel",Hibernate.STRING);
-		manquery.addScalar("township",Hibernate.STRING);
-		manquery.addScalar("village",Hibernate.STRING);
-		manquery.addScalar("workUnit",Hibernate.STRING);
-		manquery.addScalar("folk",Hibernate.STRING);
-		manquery.addScalar("folkOther",Hibernate.STRING);
-		manquery.addScalar("education",Hibernate.STRING);
-		manquery.addScalar("occupation",Hibernate.STRING);
-		manquery.addScalar("idnumber",Hibernate.STRING);
-		manquery.addScalar("residenceAddress",Hibernate.STRING);
-		manquery.addScalar("districtNumber",Hibernate.STRING);
-		List<Map> manlist= manquery.list();
+		
+		final Object manfileno = items.get(0).get("男方_编号");
+		List<Map> manlist = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				SQLQuery womanquery = arg0.createSQLQuery(fhql);
+				womanquery.setParameters(new Object[]{manfileno}, new Type[]{Hibernate.STRING});
+				womanquery.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+				womanquery.addScalar("fileno",Hibernate.STRING);
+				womanquery.addScalar("name",Hibernate.STRING);
+				womanquery.addScalar("sex",Hibernate.STRING);
+				womanquery.addScalar("birthday",Hibernate.TIMESTAMP);
+				womanquery.addScalar("age",Hibernate.INTEGER);
+				womanquery.addScalar("idcard",Hibernate.STRING);
+				womanquery.addScalar("barCode",Hibernate.STRING);
+				womanquery.addScalar("address",Hibernate.STRING);
+				womanquery.addScalar("linkmanTel",Hibernate.STRING);
+				womanquery.addScalar("township",Hibernate.STRING);
+				womanquery.addScalar("village",Hibernate.STRING);
+				womanquery.addScalar("workUnit",Hibernate.STRING);
+				womanquery.addScalar("folk",Hibernate.STRING);
+				womanquery.addScalar("folkOther",Hibernate.STRING);
+				womanquery.addScalar("education",Hibernate.STRING);
+				womanquery.addScalar("occupation",Hibernate.STRING);
+				womanquery.addScalar("idnumber",Hibernate.STRING);
+				womanquery.addScalar("residenceAddress",Hibernate.STRING);
+				womanquery.addScalar("districtNumber",Hibernate.STRING);
+				return womanquery.list();
+			}
+		});
 		if(manlist.size()>0){
 			ret.setMan(manlist.get(0));
 		}
 		return ret;
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String delExam(String id) throws Exception{
 		ExamBaseinfo base = (ExamBaseinfo)this.getHibernateTemplate().get(ExamBaseinfo.class, id);
 		if(!base.getInputpersonid().equals(SecurityManager.currentOperator().getUsername())){
 			throw new Exception("只允许"+base.getInputpersonid()+"进行删除!");
 		}
 		this.getHibernateTemplate().delete(base);
-		this.getSession().createQuery(" delete ExamItems where id.id =?  ").setParameter(0, id).executeUpdate();
+		getHibernateTemplate().bulkUpdate(" delete ExamItems where id.id =?   ", id);
 		return "删除成功!";
 	}
 	/**
@@ -402,7 +425,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 			}
 		}
 		//添加scalar
-		Map<String,NullableType> scalarmap = new HashMap();
+		Map<String,Type> scalarmap = new HashMap();
 		if(collist != null && !collist.isEmpty()){
 			int colnum =0;
 			for(String key : collist){
@@ -435,18 +458,8 @@ public class CommonExamService extends HibernateDaoSupport  {
 		}
 		//计算总数,页数
 		countsql += froms+where;
-		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
 		
-		if(sqlparamtypes.size()>0){
-			NullableType[] types = new NullableType[sqlparamtypes.size()];
-			types = sqlparamtypes.toArray(types);
-			countquery.setParameters(sqlparams.toArray(), types);
-		}
-		List countlist = countquery.list();
-		int allcount = 0;
-		if(countlist.size()>0){
-			allcount = (Integer)countlist.get(0);
-		}
+		int allcount = ((Long)(getHibernateTemplate().find(countsql,sqlparams.toArray()).get(0))).intValue();
 		Map pageparams = params.get(PAGE);
 		int pagesize = Integer.parseInt((String)pageparams.get(PAGESIZE));
 		int currentpage = Integer.parseInt((String)pageparams.get(CURRENTPAGE));
@@ -464,24 +477,35 @@ public class CommonExamService extends HibernateDaoSupport  {
 		int min = pagesize*(currentpage-1);
 		int max = pagesize*currentpage;
 		//查询分页结果
-		SQLQuery query = this.getSession().createSQLQuery(sql);
-		if(sqlparamtypes.size()>0){
-			NullableType[] types = new NullableType[sqlparamtypes.size()];
-			types = sqlparamtypes.toArray(types);
-			query.setParameters(sqlparams.toArray(), types);
-		}
-		if(scalarmap.size()>0){
-			for(Iterator it = scalarmap.keySet().iterator();it.hasNext();){
-				String key = (String)it.next();
-				NullableType type= (NullableType)scalarmap.get(key);
-				query.addScalar(key,type);
+		final String fhql = sql;
+		final List<Type> fsqlparamtypes= sqlparamtypes;
+		final Map fscalarmap = scalarmap;
+		final int fmin = min;
+		final int fmax = max;
+		List retlist = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				SQLQuery query = arg0.createSQLQuery(fhql);
+				if(fsqlparamtypes.size()>0){
+					NullableType[] types = new NullableType[fsqlparamtypes.size()];
+					types = fsqlparamtypes.toArray(types);
+					query.setParameters(fsqlparamtypes.toArray(), types);
+				}
+				if(fscalarmap.size()>0){
+					for(Iterator it = fscalarmap.keySet().iterator();it.hasNext();){
+						String key = (String)it.next();
+						NullableType type= (NullableType)fscalarmap.get(key);
+						query.addScalar(key,type);
+					}
+				}
+				query.setFirstResult(fmin);
+				query.setMaxResults(fmax);
+				query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+				return query.list();
 			}
-		}
-		query.setFirstResult(min);
-		query.setMaxResults(max);
-		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		});
+		
 		Map ret= new HashMap();
-		List retlist = query.list();
 		ret.put("rows", retlist);
 		ret.put("currentpage", currentpage);
 		ret.put("total", allcount);
@@ -664,7 +688,7 @@ public class CommonExamService extends HibernateDaoSupport  {
 		ret.put(TYPES, types);
 		return ret;
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public CommonVO saveExam(CommonVO savedata) throws Exception{
 		//完成baseinfo属性拷贝
 		ExamBaseinfo base = savedata.getBase();

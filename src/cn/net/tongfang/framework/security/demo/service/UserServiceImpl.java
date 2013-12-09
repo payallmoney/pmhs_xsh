@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.vo.DwrListVO;
 import cn.net.tongfang.framework.security.vo.SamTaxempcode;
@@ -25,6 +27,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 	 * 登记
 	 */
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String regUser(SamTaxempcode regVO) {
 		log.debug("call findUsers()");
 		regVO.setUsername(regVO.getLoginname());

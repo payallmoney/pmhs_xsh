@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.web.util.BOHelper;
 
@@ -26,17 +28,20 @@ public abstract class HealthMainService<T> extends HibernateDaoSupport {
 		 boHelper = new BOHelper(clazz);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	protected String save_(T data) throws Exception {
 		Object o = boHelper.saveOrUpdateAll(data, getHibernateTemplate(),
-				getSession()).toString();
+				getHibernateTemplate().getSessionFactory().getCurrentSession()).toString();
 		System.out.println("res is " + o);
 		return o.toString();
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	protected Object get_(T data) throws Exception {
 		return  boHelper.readAll(data, getHibernateTemplate());
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public abstract String save(T data) throws Exception ;
 	public abstract Object get(T data) throws Exception ;
 	

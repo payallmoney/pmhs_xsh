@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
@@ -24,27 +26,25 @@ import cn.net.tongfang.web.service.bo.VisitAfterBornBO;
 public class HealthfileMaternalBuildService extends HealthMainService<HealthFileMaternalBO>{
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(HealthFileMaternalBO data) throws Exception {
 		String fileNo = EncryptionUtils.encry(data.getFileNo());
 		data.setFileNo(fileNo);
-		Query query = null;
+		List query = null;
 		boolean flag = false;
 		if(data.getId() == null){
-			query = getSession().createQuery(" From HealthFileMaternal Where fileNo = ? And gravidity = ? ");
-			query.setParameter(0, fileNo);
-			query.setParameter(1, data.getGravidity());
+			query = getHibernateTemplate().find(" From HealthFileMaternal Where fileNo = ? And gravidity = ? ",new Object[]{fileNo,data.getGravidity()});
 		}
 		
-		if(query == null || query.list().size() == 0 ){
+		if(query == null || query.size() == 0 ){
 			data.setIdnumber(EncryptionUtils.encry(data.getIdnumber()));
 			data.setName(EncryptionUtils.encry(data.getName()));
 			if(data.getIsClosed() == null || data.getIsClosed().equals(""))
 				data.setIsClosed("0");
-//			query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '是' Where fileNo = ? ");
-			query = getSession().createQuery(" From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.fileNo = ? ");
-			query.setParameter(0, fileNo);
-			if(query.list().size() == 1){
-				List list = query.list();
+//			query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(" Update PersonalInfo Set bornStatus = '是' Where fileNo = ? ");
+			query = getHibernateTemplate().find(" From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.fileNo = ? ",fileNo);
+			if(query.size() == 1){
+				List list = query;
 				Object[] objs = (Object[])list.get(0);
 				HealthFile file = (HealthFile)objs[0];
 				PersonalInfo person = (PersonalInfo)objs[1];
@@ -81,6 +81,7 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 		return data;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void finishGestation(FinishGestation gestation){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		gestation.setInputPersonId(user.getUsername());
@@ -91,11 +92,10 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 		maternal.setClosedDate(gestation.getFinishDate());//结案时间
 		getHibernateTemplate().update(maternal);
 		String fileNo = maternal.getFileNo();
-		Query query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ");
-		query.setParameter(0, fileNo);
-		query.executeUpdate();
+		getHibernateTemplate().bulkUpdate(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ", fileNo);
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void PregnancyRecordService(PregnancyRecord pregnancy){
 		if(pregnancy.getId() != null && !pregnancy.getId().equals("")){
 			getHibernateTemplate().update(pregnancy);
@@ -125,9 +125,7 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 	
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey){
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,id);
 		String ret = "未测";
 		if(list.size() > 0){
 			ret = "";

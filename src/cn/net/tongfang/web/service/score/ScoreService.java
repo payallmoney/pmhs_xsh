@@ -22,6 +22,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -59,22 +61,22 @@ public class ScoreService extends HibernateDaoSupport implements
 		String sql = " select a.username,b.id.scorename,b.id.personid,case when b.allcount = null then 0 else b.allcount end  as allcount  from SamTaxempcode a, ScorePerson b "
 				+ "where a.loginname = b.id.personid and b.examgroup = '"
 				+ param.get("group") + "'" + "order by b.allcount desc ";
-		List idlist = this.getSession().createQuery(sql).list();
+		List idlist = this.getHibernateTemplate().find(sql);
 
 		return idlist;
 	}
 
 	// 生成分数规则
 	public List queryGroup() {
-		List ret = getSession()
-				.createQuery(
+		List ret = getHibernateTemplate().find(
 						"select groupname as code,groupname as name,scoredate from ScoreExamdate order by scoredate desc ")
-				.list();
+				;
 		return ret;
 	}
 
 
 	// 生成分数规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public PagingResult<Map> getScore(Map param) {
 		String examdate = "";
 		if (param != null && param.containsKey("examdate")) {
@@ -201,6 +203,7 @@ public class ScoreService extends HibernateDaoSupport implements
 	}
 
 	// 生成分数规则
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Map getPersonScore(Map param) {
 		String examdate = "";
 		Map retmap=null;
@@ -335,7 +338,7 @@ public class ScoreService extends HibernateDaoSupport implements
 				+ rule.getQuerydatecolumn() + " <='" + examdate
 				+ " 23:59:59.999' order by " + rule.getQuerydatecolumn()
 				+ " desc";
-		List<String> idlist = this.getSession().createQuery(sql).list();
+		List<String> idlist = this.getHibernateTemplate().find(sql);
 		if (idlist.isEmpty()) {
 			return null;
 		}
@@ -373,7 +376,7 @@ public class ScoreService extends HibernateDaoSupport implements
 		}
 		return value;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	private String saveScores(String scorename, ScorePerson person,
 			Map allscores, List detailList) {
 		String retstr = "";
@@ -421,7 +424,8 @@ public class ScoreService extends HibernateDaoSupport implements
 		saveVO(person);
 		return retstr;
 	}
-
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private BigDecimal saveScores(String scorename, ScorePerson person,
 			String item, Map scores, Map<String, CodScoreProp> detailsitem) {
 		int scouresum = 0;
@@ -456,11 +460,12 @@ public class ScoreService extends HibernateDaoSupport implements
 		saveVO(sr);
 		return res;
 	}
-
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void saveVO(Object obj) {
-		getSession().saveOrUpdate(obj);
-		getSession().flush();
-		getSession().evict(obj);
+		getHibernateTemplate().saveOrUpdate(obj);
+		getHibernateTemplate().flush();
+		getHibernateTemplate().evict(obj);
 	}
 
 	// 增加保存提取规则

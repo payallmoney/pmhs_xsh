@@ -920,10 +920,19 @@ function data_writeback(ctrl,_s,setting){
 			if(setting.maxlen && setting.maxlen[condVal]){
 				var ttt = cond.mcode.split("%");
 				if(setting.maxlen[condVal].indexOf(","+ttt[1].length+",")>-1){
-					dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
-						subject.OnNext(result);
-						subject.OnCompleted();
-					});
+					if(med.hissearch.oldval && med.hissearch.oldcode 
+							&& med.hissearch.oldval == cond.condVal
+							&& med.hissearch.oldcode == cond.mcode
+					){
+						return ;
+					}else{
+						med.hissearch.oldval =  cond.mcode;
+						med.hissearch.oldval =  cond.condVal;
+						dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {
+							subject.OnNext(result);
+							subject.OnCompleted();
+						});
+					}
 				}
 			}else{
 				dsFunc(cond.pageNo, cond.mcode, cond.startWith,condVal , isWomanRecord, function(result) {

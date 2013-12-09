@@ -519,11 +519,12 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 									callback : function(data) {
 										showInfoObj.Infor('删除成功！');
 										this.load();
-									}.createDelegate(this),
-									errorHandler : function(msg) {
-										console.log(msg);
-										showInfoObj.Infor('删除出错！');
-									}
+									}.createDelegate(this)
+//									,
+//									errorHandler : function(msg) {
+//										console.log(msg);
+//										showInfoObj.Infor('删除出错！');
+//									}
 								});
 							}
 						};
@@ -647,11 +648,12 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 													callback : function(data) {
 														Ext.Msg.alert('', '删除成功！');
 														this.load();
-													}.createDelegate(this),
-													errorHandler : function(msg) {
-														console.log(msg);
-														Ext.Msg.alert('', '删除出错！');
-													}
+													}.createDelegate(this)
+//													,
+//													errorHandler : function(msg) {
+//														console.log(msg);
+//														Ext.Msg.alert('', '删除出错！');
+//													}
 												});
 											}
 										};

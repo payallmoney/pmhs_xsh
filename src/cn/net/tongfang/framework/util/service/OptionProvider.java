@@ -103,10 +103,7 @@ public class OptionProvider extends HibernateDaoSupport {
 			log.warn("entityName not found ! [" + entityName + "]");
 			return empty;
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, extraParam);
-		query.setParameter(1, extraParam);
-		List<Object> list = query.list();
+		List<Object> list =  getHibernateTemplate().find(hql,new Object[]{extraParam,extraParam});
 		return list;
 	}
 	

@@ -1186,7 +1186,6 @@ function hideHUD($t, includeError){
         			'<span style="margin-left:10px;">' + 
         			'<font size=2 color="red">人员检索条件：<select id="selecthistory">'+
         			'<option value="1">身份证号</option>'+
-        			'<option value="0">姓名</option>'+
     			'</select></font></span>');
         	$('#selecthistory').change(function(){
         		var $thisVal = $(this).val();

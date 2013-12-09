@@ -3,6 +3,8 @@ package cn.net.tongfang.framework.security.demo.service;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityService;
 import cn.net.tongfang.framework.security.bo.ModuleServiceBo;
@@ -109,6 +111,7 @@ public class ModuleServiceImpl implements ModuleService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveRoleModules(String roleId, List<String> moduleIds) {
 		this.securityService.saveRoleModules(roleId, moduleIds);
 	}

@@ -3,6 +3,8 @@ package cn.net.tongfang.web.service;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.vo.Opshistory;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
@@ -12,6 +14,7 @@ import cn.net.tongfang.web.service.bo.HealthFileBO;
 public class HealthFileService extends HibernateDaoSupport {
 	private static final Logger log = Logger.getLogger(HealthFileService.class);
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public PersonalInfo save(HealthFileBO data) {
 
 		PersonalInfo info = new PersonalInfo();

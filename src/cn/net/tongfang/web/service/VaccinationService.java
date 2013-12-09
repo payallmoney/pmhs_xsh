@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.bean.VacciProgram;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -29,6 +31,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			.getLogger(VaccinationService.class);
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(VaccinationBO data) throws Exception {
 		String fileno = EncryptionUtils.encry(data.getFileNo());
 		List checklist = getHibernateTemplate().find("from VaccineImmune where vfileno = '"+fileno+"'");
@@ -87,10 +90,11 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return retList;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public List<VacciProgram> vacciProgram(String fileNo) {
 		fileNo = EncryptionUtils.encry(fileNo);
 		String sql = " EXEC Proc_Vacci ? ";
-		List list = getSession().createSQLQuery(sql)
+		List list = getHibernateTemplate().getSessionFactory().getCurrentSession().createSQLQuery(sql)
 				.setResultSetMapping("vacciProgramResultSet")
 				.setParameter(0, fileNo).list();
 		return list;
@@ -102,12 +106,12 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		if (isSpecail.equals(1)) {
 			hql = " From VaccineImmuneRules Where vaccineName = ? ";
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, col);
+		List params = new ArrayList();
+		params.add(col);
 		if (!isSpecail.equals(1)) {
-			query.setParameter(1, row);
+			params.add(row);
 		}
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,params.toArray());
 		if (list.size() > 0) {
 			return (VaccineImmuneRules) list.get(0);
 		}
@@ -120,6 +124,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return vo;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public VaccineImmuneInfo saveVaccineImmuneInfo(VaccineImmuneInfoBO vacciInfo)throws Exception {
 //		if (vacciInfo.getLimitDate() != null) {
 //			if (vacciInfo.getVaccinationDate().compareTo(
@@ -144,22 +149,14 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			String fileNo = EncryptionUtils.encry(vacciInfo.getFileNo());
 			//检测此疫苗是否已接种
 			String sql = " From VaccineImmuneInfo Where fileNo = ? And colNum = ? And rowNumber = ? And number = ? ";
-			Query q = getSession().createQuery(sql);
-			q.setParameter(0, fileNo);
-			q.setParameter(1, vacciInfo.getColNum());
-			q.setParameter(2, vacciInfo.getRowNumber());
-			q.setParameter(3, vacciInfo.getNumber());
-			List l = q.list();
+			List l = getHibernateTemplate().find(sql,new Object[]{fileNo,vacciInfo.getColNum(),vacciInfo.getRowNumber(),vacciInfo.getNumber()});
 			if(l.size() > 0){
 				return null;
 			}else{
 				vacciInfo.setFileNo(fileNo);
 				if (vacciInfo.getIsSpecail().equals(1)) {
 					String hql = " From VaccineImmuneInfo Where fileNo = ? And colNum = ? ";
-					Query query = getSession().createQuery(hql);
-					query.setParameter(0, fileNo);
-					query.setParameter(1, vacciInfo.getColNum());
-					List list = query.list();
+					List list = getHibernateTemplate().find(hql,new Object[]{fileNo,vacciInfo.getColNum()});
 					if (list.size() == 2) {
 						throw new Exception("规划内A群流脑疫苗接种完毕");
 					} else if (list.size() == 1) {
@@ -183,6 +180,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		}
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveVaccineImmuneInfoUnPlaned(VaccineImmuneInfoBO vacciInfo)throws Exception{
 		if (vacciInfo.getVaccinationDate().compareTo(vacciInfo.getBirthday()) >= 0) {
 			if (vacciInfo.getId() != null && !vacciInfo.getId().equals("")) {
@@ -223,11 +221,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		if (isSpecail.equals(1)) {
 			hql = " From VaccineImmuneInfo A Where A.fileNo = ? And A.colNum = ? And A.rowNumber = ? ";
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, fileNo);
-		query.setParameter(1, col);
-		query.setParameter(2, row);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,new Object[]{fileNo,col,row});
 		List retList = new ArrayList();
 		if (list.size() > 0) {
 			if (isSpecail.equals(1)) {
@@ -247,12 +241,13 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return null;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<VaccineImmuneRules> queryVacciRulesInfo(PagingParam pp) {
 		String hql = " From VaccineImmuneRules Where id in (Select min(id) From VaccineImmuneRules Where rules = 0 Group By vaccineRemark) ";
 		String countHql = " Select Count(*) " + hql;
-		Query query = getSession().createQuery(countHql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(countHql);
 		int totalSize = ((Long) query.uniqueResult()).intValue();
-		query = getSession().createQuery(hql + " Order By id ");
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql + " Order By id ");
 		if (pp == null)
 			pp = new PagingParam();
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
@@ -262,15 +257,16 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return result;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<VaccineImmuneInfo> queryVacciInfo(String fileNo,Integer type,PagingParam pp) {
 		String hql = " From VaccineImmuneInfo Where fileNo = ? And isPlan = ? ";
 		String countHql = " Select Count(*) " + hql;
 		fileNo = EncryptionUtils.encry(fileNo);
-		Query query = getSession().createQuery(countHql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(countHql);
 		query.setParameter(0, fileNo);
 		query.setParameter(1, type);
 		int totalSize = ((Long) query.uniqueResult()).intValue();
-		query = getSession().createQuery(hql + " Order By colNum,number ");
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql + " Order By colNum,number ");
 		query.setParameter(0, fileNo);
 		query.setParameter(1, type);
 		if (pp == null)
@@ -282,12 +278,13 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return result;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeVacciInfo(List<VaccineImmuneInfo> vacciInfos) throws Exception{
 		String hql = " From VaccineImmuneHistoryStaticData Where fileNo = ? And colNum = ? And rowNum = ? ";
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(VaccineImmuneInfo info : vacciInfos){
 			if(cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),info.getInputPersonId())){
-				Query query = getSession().createQuery(hql);
+				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 				query.setParameter(0, info.getFileNo());
 				query.setParameter(1, info.getColNum());
 				query.setParameter(2, info.getRowNumber());
@@ -311,9 +308,10 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return vacci;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public PagingResult<VaccineImmuneInfo> getPrintVacciImmuneInfo(PrintVacciImmuneInfoBO info){
 		String hql = " From VaccineImmuneInfo vii,BasicInformation bi Where vii.colNum = bi.id And bi.printPage = ? And vii.fileNo = ? Order By bi.id,vii.number ASC ";
-		Query query = getSession().createQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		query.setParameter(0, info.getPrintPage());
 		query.setParameter(1, EncryptionUtils.encry(info.getFileNo()));
 		List list = query.list();
@@ -337,20 +335,21 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		}
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeVaccineImmune(String id){
 		String hql = " From VaccineImmune Where id = ?";
-		Query query = getSession().createQuery(hql);
+		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		query.setParameter(0, id);
 		List list = query.list();
 		if(list.size() > 0){
 			VaccineImmune vacci = (VaccineImmune)list.get(0);
 			String fileNo = vacci.getFileNo();
 			hql = " Delete From VaccineImmuneHistoryStaticData Where fileNo = ?";
-			query = getSession().createQuery(hql);
+			query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 			query.setParameter(0, fileNo);
 			query.executeUpdate();
 			hql = " Delete From VaccineImmuneInfo Where fileNo = ?";
-			query = getSession().createQuery(hql);
+			query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 			query.setParameter(0, fileNo);
 			query.executeUpdate();
 			getHibernateTemplate().delete(vacci);

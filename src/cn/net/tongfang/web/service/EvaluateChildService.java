@@ -53,11 +53,7 @@ public class EvaluateChildService extends HibernateDaoSupport {
 		Double a2s = -1.0;
 		if(evaluateItem.equals(ITEM_WEIGHT)){
 			hql = "From ChildrenStandardWeight Where sex = ? And minMonth <= ? And maxMonth > ?";
-			Query query = getSession().createQuery(hql);
-			query.setParameter(0, sex);
-			query.setParameter(1, age);
-			query.setParameter(2, age);
-			List l = query.list();
+			List l = getHibernateTemplate().find(hql,new Object[]{sex,age,age});
 			if (l.size() > 0) {
 				ChildrenStandardWeight evaluate = (ChildrenStandardWeight) l.get(0);
 				b2s = evaluate.getSub2s();
@@ -70,11 +66,7 @@ public class EvaluateChildService extends HibernateDaoSupport {
 			}
 		} else if (evaluateItem.equals(ITEM_HEIGHT)) {
 			hql = "From ChildrenStandardHeight Where sex = ? And minMonth <= ? And maxMonth > ?";
-			Query query = getSession().createQuery(hql);
-			query.setParameter(0, sex);
-			query.setParameter(1, age);
-			query.setParameter(2, age);
-			List l = query.list();
+			List l = getHibernateTemplate().find(hql,new Object[]{sex,age,age});
 			if (l.size() > 0) {
 				ChildrenStandardHeight evaluate = (ChildrenStandardHeight) l.get(0);
 				b2s = evaluate.getSub2s();
@@ -119,10 +111,7 @@ public class EvaluateChildService extends HibernateDaoSupport {
 		if(height >= 131)
 			height = 130.0;	
 		hql = "From ChildrenHeightWeight Where sex = ? And height = Floor(?)";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, sex);
-		query.setParameter(1, height);
-		List l = query.list();
+		List l = getHibernateTemplate().find(hql,new Object[]{sex,height});
 		if(l.size() > 0){
 			ChildrenHeightWeight childrenHeightWeight = (ChildrenHeightWeight) l.get(0);
 			if(_2sd == 2){

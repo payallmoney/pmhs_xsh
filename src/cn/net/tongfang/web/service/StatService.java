@@ -4,6 +4,9 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
 import cn.net.tongfang.web.service.bo.StatBO;
@@ -12,6 +15,7 @@ import cn.net.tongfang.web.service.bo.StatBO;
 public class StatService extends HealthMainService<StatBO> {
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(StatBO data) throws Exception {
 		return save_(data);
 	}

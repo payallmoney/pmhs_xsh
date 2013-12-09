@@ -22,7 +22,10 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import cn.net.tongfang.framework.security.SecurityManager;
@@ -188,6 +191,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public boolean hasCatInfoId(String modid) {
 		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
 				+ " sam_module m where m.id = '"+modid+"' and m.id in ( select rm.module_id from sam_role_module rm "
@@ -198,12 +202,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		List ret = getSession().createSQLQuery(sql).list();
 		if(ret.size()>0){
+			System.out.println("===hasCatInfoId true===");
 			return true;
 		}else{
+			System.out.println("===hasCatInfoId false===");
 			return false;
 		}
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public boolean hasCatInfoName(String name) {
 		final String sql = "select 1 from sam_module_category mc, ( select m.* from"
 				+ " sam_module m where m.name = '"+name+"' and m.id in ( select rm.module_id from sam_role_module rm "
@@ -254,9 +261,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}else if(type.equals(1)){
 			hql = "From SamTaxorgcode Where parentId = ?";
 		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		orgs = query.list();
+		orgs = getHibernateTemplate().find(hql,id);
 		ExtJSTreeNode last = l;
 		for (SamTaxorgcode org : orgs) {
 			String orgName = org.getName();
@@ -575,7 +580,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		return nodes;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public District saveDistrict(District district) {
 		log.debug("district: " + district);
 		int level = district.getLevel();
@@ -586,7 +591,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				district.getId());
 		return district;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeDistrict(String districtId) {
 		log.debug("district id: " + districtId);
 		District district = (District) getHibernateTemplate().get(
@@ -595,7 +600,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			getHibernateTemplate().delete(district);
 		return;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public SamTaxorgcode saveOrg(SamTaxorgcode org) {
 		org.setIsDetail(1);
 		org.setIsOrgDepart(0);
@@ -608,7 +613,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				org.getId());
 		return org;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeOrg(Integer orgId) {
 		SamTaxorgcode org = (SamTaxorgcode) getHibernateTemplate().get(
 				SamTaxorgcode.class, orgId);
@@ -631,7 +636,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		if (StringUtils.hasText(name)) {
 			System.out.println("==========name========="+name);
 			params.add(name);
-			where.append(" and substring(name,1," + name.trim().length() + ") = ?");
+			where.append(" and name like ?+'%'");
 		}
 
 		if (params.size() != 0) {
@@ -660,13 +665,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 		if (StringUtils.hasText(districtId) && !districtId.equals("0")) {
 			String districtPrefix = BusiUtils.trimTailSeq(districtId, "00");
 			params.add(districtPrefix);
-			where.append(" and substring(id,1," + districtPrefix.trim().length() + ") = ?");
+			where.append(" and id like ?+'%' ");
 		}
 
 		String name = qryCond.getName();
 		if (StringUtils.hasText(name)) {
 			params.add(name);
-			where.append(" and substring(name,1," + name.trim().length() + ") = ?");
+			where.append(" and name like ?+'%'");
 		}
 
 		if (params.size() != 0) {
@@ -689,26 +694,28 @@ public class ModuleMgr extends HibernateDaoSupport {
 		String countSql = "select count(*) " + hql.substring(fromPos, orderBy);
 		log.debug("countSql: " + countSql);
 
-		Query q = getSession().createQuery(countSql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			q.setParameter(i, params.get(i));
-		}
-		int totalSize = ((Long) q.uniqueResult()).intValue();
-		log.debug("totalSize: " + totalSize);
-
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			System.out.println("=param="+ params.get(i));
-			query.setParameter(i, params.get(i));
-		}
-		List<T> list = new ArrayList();
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		try{
-			list = query.list();
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-		
+//		Query q = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(countSql.toString());
+//		for (int i = 0; i < params.size(); i++) {
+//			q.setParameter(i, params.get(i));
+//		}
+		HibernateTemplate temp = getHibernateTemplate();
+		int totalSize = ((Long)(getHibernateTemplate().find(countSql,params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString();
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				System.out.println("======"+fhql);
+				System.out.println("===query.list().size()==="+query.list().size());
+				return query.list();
+			}
+		});
 		return new PagingResult<T>(totalSize, list);
 	}
 
@@ -716,6 +723,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder());
+		System.out.println("==findHealthFiles====");
 		return queryHealthFiles(pp, params, hql);
 	}
 
@@ -765,7 +773,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b").append(where).append(
-				" order by a.name ASC");
+				" order by a.inputDate DESC");
 		log.debug("hql: " + hql.toString());
 		return hql;
 	}
@@ -926,7 +934,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId);
-			where.append(" and substring(a.districtNumber,1," + districtId.trim().length() + ") = ? ");
+			where.append(" and a.districtNumber like ?+'%' ");
 		}
 		genQueryParams(qryCond, params, where);
 
@@ -970,7 +978,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}else{
 				if (StringUtils.hasText(filterValue)) {
 					params.add(filterValue);
-					where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = ?");
+					where.append(" and " + filterKey + " like ?+'%'");
 				}
 			}
 		}
@@ -1006,7 +1014,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
 				filterValue = EncryptionUtils.encry(filterValue);
 				params.add(filterValue);
-				where.append(" and substring(" + filterKey + ",1," + filterValue.trim().length() + ") = ?");
+				where.append(" and " + filterKey + " like ?+'%'");
 			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
@@ -1039,7 +1047,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}else{
 				if (StringUtils.hasText(filterValue)) {
 					params.add(filterValue);
-					where.append(" and substring(" + filterKey + ",1," + filterValue.trim().length() + ") = ?");
+					where.append(" and " + filterKey + " like ? +'%'");
 				}
 			}
 		}
@@ -1311,7 +1319,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		log.debug("hql: " + hql.toString());
 		return hql;
 	}
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHealthFile(String fileNo,Integer type) throws Exception{//0表示需要验证登录用户与录入人是否一致,1表示不需要验证
 		HealthFile file = (HealthFile) getHibernateTemplate().get(
 				HealthFile.class, fileNo);
@@ -1323,13 +1331,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if(SecurityManager.isValidUser(user.getUsername(),(file.getInputPersonId()))){
 					getHibernateTemplate().deleteAll(personList);
 					getHibernateTemplate().delete(file);
+					getHibernateTemplate().bulkUpdate(" update HealthFileHistory2 "+
+							" set linkFileno = null "+
+							"  "+ 
+							" where linkFileno = '"+EncryptionUtils.decipher(fileNo)+"'" );
 				}else{
 					throw new Exception("该操作员无法删除,只能登录用户为"+file.getInputPersonId()+"的操作员进行删除!");
 				}
-
 			}else if(type.equals(1)){
 				getHibernateTemplate().deleteAll(personList);
 				getHibernateTemplate().delete(file);
+				getHibernateTemplate().bulkUpdate(" update HealthFileHistory2 "+
+						" set linkFileno = null "+
+						"  "+ 
+						" where linkFileno = '"+EncryptionUtils.decipher(fileNo)+"'" );
 			}
 		}
 
@@ -1352,6 +1367,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @param newPwd2
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean changePwd(String pwd, String newPwd, String newPwd2) {
 		TaxempDetail o = SecurityManager.currentOperator();
 		SamTaxempcode user = (SamTaxempcode) getHibernateTemplate().get(
@@ -1371,7 +1387,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		return true;
 	}
-
+	
+	@Transactional
 	private void removeRecords(final List<String> recordIdList,
 			final Class clazz) throws Exception {
 		if (recordIdList == null || recordIdList.size() == 0) {
@@ -2228,7 +2245,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			StringBuilder hql1 = new StringBuilder(
 					"from BloodTrans ")
 					.append(" where personalInfoId = '"+person.getId()+"' ").append(" order by transDate desc ");
-			List<BloodTrans> bloodTrans = getSession().createQuery(hql1.toString()).list();
+			List<BloodTrans> bloodTrans = getHibernateTemplate().find(hql1.toString());
 			String str = "";
 			String str1 = "";
 			if(bloodTrans.size()>0){
@@ -2250,9 +2267,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	
 	public String getPrintBasicInfo(String id,String tableName,String key,String tableKey)throws Exception{
 		String hql = "From BasicInformation A," + tableName + " B Where A.id = B." + key + " And B." + tableKey + " = ?";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, id);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,id);
 		String ret = "未测";
 		if(list.size() > 0){
 			ret = "";
@@ -2988,6 +3003,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * 
 	 * @param homeId
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHomeInfo(String homeId) {
 
 		HomeInfo home = (HomeInfo) getHibernateTemplate().get(HomeInfo.class,
@@ -3023,6 +3039,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * 
 	 * @param homeId
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String removeTuber(String id) {
 
 		Tuberculosis tuber = (Tuberculosis) getHibernateTemplate().get(
@@ -3132,14 +3149,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 		String districtId = qryCond.getDistrict();
 		if (StringUtils.hasText(districtId)) {
 			params.add(EncryptionUtils.encry(districtId));
-			where.append(" and substring(a.fileNo,1," + districtId.trim().length() + ") = ?");
+			where.append(" and a.fileNo like  ? +'%' ");
 		}
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {
 			String filterValue = qryCond.getFilterValue();
 			if (StringUtils.hasText(filterValue)) {
 				params.add(filterValue);
-				where.append(" and substring(" + filterKey + ",1," + filterValue.trim().length() + ") = ?");
+				where.append(" and " + filterKey + " like  ?+'%' ");
 			}
 		}
 		where.append(" and a.fileNo = b.fileNo");
@@ -3395,19 +3412,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 			district = district.substring(0,district.length()-2);
 		}
 		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
-				" Where Substring(a.districtNumber,1," + 
-				district.length() + ") = '" + district + "' " + where.toString();
+				" Where a.districtNumber like '" + district + "%' " + where.toString();
 		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
-				" Where Substring(a.districtNumber,1," + 
-				district.length() + ") = '" + district + "' " + where.toString();
-		SQLQuery q = getSession().createSQLQuery(countsql);
-		int totalSize = ((Integer) q.uniqueResult()).intValue();
+				" Where a.districtNumber like '" + district + "%' " + where.toString();
+		int totalSize = ((Long)(getHibernateTemplate().find(countsql).get(0))).intValue();
 //		int totalSize = 100;
-		
-		SQLQuery query = getSession().createSQLQuery(hql);
-		query.addEntity(HealthFile.class).addEntity(VaccineImmune.class);
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List<Object[]> list = query.list();
+		final String fhql = hql;
+		final PagingParam fpp = pp;
+		List<Object[]> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				query.setEntity(0,HealthFile.class);
+				query.setEntity(1,VaccineImmune.class);
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		List<HealthFile> files = new ArrayList<HealthFile>();
 		String tmpFileNo = "";
 		if(list.size() > 0){
@@ -3417,7 +3438,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 //				PersonalInfo person = (PersonalInfo) obj[1];
 //				getHibernateTemplate().evict(person);
 //				file.setPersonalInfo(person);
-				List<PersonalInfo> personlist = getSession().createQuery(" from PersonalInfo where fileNo=?").setParameter(0, file.getFileNo()).list();
+				List<PersonalInfo> personlist = getHibernateTemplate().find(" from PersonalInfo where fileNo=?",file.getFileNo());
 				PersonalInfo person  = null;
 				if(personlist.size()>0){
 					person = personlist.get(0);
@@ -3475,7 +3496,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 						where.append(" and " + filterKey + " >= '" + startDate + "' and " + filterKey + " <= '" + endDate + "'");
 					}else{
 						if (StringUtils.hasText(filterValue)) {
-							where.append(" and substring(" + filterKey + ",1," + filterValue.length() + ") = '" + filterValue + "'");
+							where.append(" and " + filterKey + " like '" + filterValue + "%'");
 						}
 					}
 				}
@@ -3488,14 +3509,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
 		
-		Query query = getSession().createQuery(" Select Count(*)" + hql);
-		query.setParameter(0, qryCond.getDistrict());
-		int totalSize = ((Long)query.uniqueResult()).intValue();
+		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,qryCond.getDistrict()).get(0)).intValue();
 		
-		query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
-		query.setParameter(0, qryCond.getDistrict());
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		final String fhql = hql + " order by c.lastExamDate ASC";
+		final PagingParam fpp = pp;
+		final String fdistrict = qryCond.getDistrict();
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				query.setParameter(0, fdistrict);
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
 		String tmpFileNo = "";
 		for (Object object : list) {
@@ -3530,14 +3557,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
 		
-		Query query = getSession().createQuery(" Select Count(*)" + hql);
-		query.setParameter(0, qryCond.getDistrict());
-		int totalSize = ((Long)query.uniqueResult()).intValue();
+		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,qryCond.getDistrict()).get(0)).intValue();
 		
-		query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
-		query.setParameter(0, qryCond.getDistrict());
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		final String fhql = hql + "  order by c.lastExamDate ASC";
+		final PagingParam fpp = pp;
+		final String fdistrict = qryCond.getDistrict();
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				query.setParameter(0, fdistrict);
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
 		String tmpFileNo = "";
 		for (Object object : list) {
@@ -3569,17 +3602,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public List getPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
-		Query query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
-		query.setParameter(0, qryCond.getDistrict());
-		return query.list();
+		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC",qryCond.getDistrict());
 	}
 	
 	public List getChildPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
-		Query query =  getSession().createQuery(hql + " order by c.lastExamDate ASC");
-		query.setParameter(0, qryCond.getDistrict());
-		return query.list();
+		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC ",qryCond.getDistrict());
 	}
 	
 	private String genQryCondition(QryCondition qryCond) throws Exception{
@@ -3591,17 +3620,19 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(cond.getFilterKey().equals("a.name") || cond.getFilterKey().equals("a.fileNo") ||
 							 cond.getFilterKey().equals("b.idnumber")){
 						cond.setFilterVal(EncryptionUtils.encry(cond.getFilterVal()));
-						filterKey = " SubString(" + cond.getFilterKey() + ",1," + cond.getFilterVal().trim().length() + ") "; 
+						where = where + " And " + cond.getFilterKey() + " like '" + cond.getFilterVal() + "%' ";
 					}else if(cond.getFilterKey().equals("b.birthday")){
 						filterKey = " Convert(Varchar(20)," + cond.getFilterKey() + ",23) ";
+						where = where + " And " + filterKey + " = '" + cond.getFilterVal() + "' ";
 					}else if(cond.getFilterKey().equals("startDate")){
 						where = where + " And Convert(Varchar(30),c.lastExamDate,120) >= '" + cond.getFilterVal() + " 00:00:00' ";
 						continue;
 					}else if(cond.getFilterKey().equals("endDate")){
 						where = where + " And Convert(Varchar(30),c.lastExamDate,120) <= '" + cond.getFilterVal() + " 23:59:59' ";
 						continue;
+					}else{
+						where = where + " And " + filterKey + " = '" + cond.getFilterVal() + "' ";
 					}
-					where = where + " And " + filterKey + " = '" + cond.getFilterVal() + "' ";
 				}
 			}
 		}
@@ -3615,7 +3646,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		
 		where = " Where " +
-				" Substring(a.districtNumber,1," + qryCond.getDistrict().length() + ")=? And a.fileNo = b.fileNo " +
+				" a.districtNumber like ?+'%' And a.fileNo = b.fileNo " +
 				" And a.fileNo = c.fileNo " + where;
 		return where;
 	}
@@ -4059,10 +4090,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 			params.add(qry.getType());
 		}
 		if(qry.getFlowType().equals("0")){
-			where.append(" And SubString(toDistrictNumber,1," + qry.getDistrict().length() + ") = ? ");
+			where.append(" And toDistrictNumber like ?+'%' ");
 			params.add(qry.getDistrict());
 		}else if(qry.getFlowType().equals("1")){
-			where.append(" And SubString(fromDistrictNumber,1," + qry.getDistrict().length() + ") = ? ");
+			where.append(" And fromDistrictNumber like ?+'%' ");
 			params.add(qry.getDistrict());
 		}
 		if(params.size() > 0){
@@ -4071,18 +4102,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 		
 		String hql = " From HealthFileTransfer a,District b " + where.toString();
 		String countHql = " Select Count(*) " + hql;
-		Query query = getSession().createQuery(countHql);
-		for(int i=0;i<params.size();i++){
-			query.setParameter(i, params.get(i));
-		}
-		int totalSize = ((Long) query.uniqueResult()).intValue();
+		int totalSize = ((Long)(getHibernateTemplate().find(countHql,params.toArray()).get(0))).intValue();
 		if(pp == null) pp = new PagingParam();
-		query = getSession().createQuery(hql + " Order By a.name");
-		for(int i=0;i<params.size();i++){
-			query.setParameter(i, params.get(i));
-		}
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-		List list = query.list();
+		
+		final String fhql = hql+" Order By a.name";
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		Pattern p = Pattern.compile("[0-9]+"); 
 		Matcher m = null;
 //		boolean b = m.matches(); 
@@ -4180,7 +4216,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		return result;
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHealthfilesAlreadyBuild(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -4188,18 +4224,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, id);
 			if(SecurityManager.isValidUser(user.getUsername(),maternal.getInputPersonId())){
 				String fileNo = maternal.getFileNo();
-				query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ");
-				query.setParameter(0, fileNo);
-				query.executeUpdate();
-				query = getSession().createQuery(" Delete From PregnancyRecord Where healthFileMaternalId = ? ");
-				query.setParameter(0, maternal.getId());
-				query.executeUpdate();
+				getHibernateTemplate().bulkUpdate(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ", fileNo);
+				getHibernateTemplate().bulkUpdate(" Delete From PregnancyRecord Where healthFileMaternalId = ? ", maternal.getId());
 				getHibernateTemplate().delete(maternal);
 			}else{
 				throw new Exception("该操作员无法删除,只能登录用户为"+maternal.getInputPersonId()+"的操作员进行删除!");
 			}
 		}
 	}
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removehealthfilePregnancyRecord(final List<String> recordIdList) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
@@ -4211,6 +4244,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		}
 	}
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removehealthfilePregnancyRecordChild(final List<String> recordIdList) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(String id : recordIdList){
@@ -4222,16 +4256,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		}
 	}
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHealthfilesFinishGestation(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for (String id : recordIdList) {
-			query = getSession().createQuery(" From FinishGestation Where healthFileMaternalId = ? ");
-			query.setParameter(0, id);
-			List l = query.list();
-			// FinishGestation gestation =
-			// (FinishGestation)getHibernateTemplate().get(FinishGestation.class,
-			// id);
+			List l = getHibernateTemplate().find(" From FinishGestation Where healthFileMaternalId = ? ",id);
 			if (l.size() > 0) {
 				FinishGestation gestation = (FinishGestation) l.get(0);
 				if (SecurityManager.isValidUser(user.getUsername(),gestation.getInputPersonId())) {
@@ -4240,10 +4270,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					maternal.setIsClosed("0");
 					getHibernateTemplate().update(maternal);
 					getHibernateTemplate().delete(gestation);
-					String fileNo = maternal.getFileNo();
-					query = getSession().createSQLQuery(" update PersonalInfo set bornStatus = '是'  Where fileNo = ? ");
-					query.setParameter(0, fileNo);
-					query.executeUpdate();
+					getHibernateTemplate().bulkUpdate(" update PersonalInfo set bornStatus = '是'  Where fileNo = ? ", maternal.getFileNo());
 				}else{
 					throw new Exception("该操作员无法撤消,只能登录用户为"+gestation.getInputPersonId()+"的操作员进行撤消!");
 				}
@@ -4253,32 +4280,46 @@ public class ModuleMgr extends HibernateDaoSupport {
 	
 	public PagingResult<PregnancyRecord> findhealthfilePregnancyRecord(PregnancyRecord qryCond,PagingParam pp){
 		String hql = " From PregnancyRecord Where healthFileMaternalId = ? ";
-		Query query = getSession().createQuery(" Select Count(*) " + hql);
-		query.setParameter(0, qryCond.getHealthFileMaternalId());
-		int totalSize = ((Long) query.uniqueResult()).intValue();
-		query = getSession().createQuery(hql + " Order By recordDate ");
-		query.setParameter(0, qryCond.getHealthFileMaternalId());
-		if(pp == null) pp = new PagingParam();
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+		String orderby = " Order By recordDate ";
+		final String param = qryCond.getHealthFileMaternalId();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),param).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				query.setParameter(0, param);
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		PagingResult<PregnancyRecord> result = new PagingResult<PregnancyRecord>(
-				totalSize, query.list());
+				totalSize, list);
 		return result;
 	}
 	
 	public PagingResult<PregnancyRecordChild> findhealthfilePregnancyRecordChild(PregnancyRecordChild qryCond,PagingParam pp){
 		String hql = " From PregnancyRecordChild Where healthFileChildrenId = ? ";
-		Query query = getSession().createQuery(" Select Count(*) " + hql);
-		query.setParameter(0, qryCond.getHealthFileChildrenId());
-		int totalSize = ((Long) query.uniqueResult()).intValue();
-		query = getSession().createQuery(hql + " Order By recordDate ");
-		query.setParameter(0, qryCond.getHealthFileChildrenId());
-		if(pp == null) pp = new PagingParam();
-		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+		String orderby = " Order By recordDate ";
+		final String param = qryCond.getHealthFileChildrenId();
+		int totalSize = ((Long)(getHibernateTemplate().find("select count(*) "+hql.toString(),param).get(0))).intValue();
+		final String fhql = hql+orderby;
+		final PagingParam fpp = pp;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				query.setParameter(0, param);
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
 		PagingResult<PregnancyRecordChild> result = new PagingResult<PregnancyRecordChild>(
-				totalSize, query.list());
+				totalSize, list);
 		return result;
 	}
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHealthfilesAlreadyBuildChild(final List<String> recordIdList) throws Exception{
 		Query query = null;
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
@@ -4286,12 +4327,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileChildren child = (HealthFileChildren)getHibernateTemplate().get(HealthFileChildren.class, id);
 			if(SecurityManager.isValidUser(user.getUsername(),child.getInputPersonId())){
 				String fileNo = child.getFileNo();
-				query = getSession().createQuery(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ");
-				query.setParameter(0, fileNo);
-				query.executeUpdate();
-				query = getSession().createQuery(" Delete From PregnancyRecordChild Where healthFileChildrenId = ? ");
-				query.setParameter(0, child.getId());
-				query.executeUpdate();
+				getHibernateTemplate().bulkUpdate(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ", fileNo);
+				getHibernateTemplate().bulkUpdate(" Delete From PregnancyRecordChild Where healthFileChildrenId = ? ", child.getId());
 				getHibernateTemplate().delete(child);
 			}else{					
 				throw new Exception("该操作员无法删除,只能登录用户为"+child.getInputPersonId()+"的操作员进行删除!");
@@ -4300,9 +4337,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	public FinishGestation getFinishGestation(String healthFileMaternalId){
 		String hql = " From FinishGestation Where healthFileMaternalId = ? ";
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, healthFileMaternalId);
-		List list = query.list();
+		List list = getHibernateTemplate().find(hql,healthFileMaternalId);
 		if(list.size() > 0){
 			return (FinishGestation)list.get(0);
 		}

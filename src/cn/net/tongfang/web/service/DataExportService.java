@@ -1,8 +1,8 @@
 package cn.net.tongfang.web.service;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -18,13 +18,13 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.support.HttpRequestHandlerServlet;
-import org.springframework.web.util.WebUtils;
-
-import com.csvreader.CsvWriter;
 
 import cn.net.tongfang.framework.security.bo.QryCondition;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -48,6 +48,8 @@ import cn.net.tongfang.framework.util.ExcelUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
 import cn.net.tongfang.web.service.bo.BirthCertifiQry;
+
+import com.csvreader.CsvWriter;
 
 /**
  * @author Jackstraw
@@ -542,6 +544,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param filterVal
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String dataExportHealthFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
 		StringBuilder where = new StringBuilder();
@@ -556,8 +559,8 @@ public class DataExportService extends HibernateDaoSupport{
 				"select dbo.denc(a.fileNo) as  fileNo ," +
 				"dbo.denc(a.name) as name," +
 				"b.sex, " +
-				"REPLACE( CONVERT( CHAR(10), b.birthday, 102), '.', '-')," +
-				"dbo.denc(b.idnumber)," +
+				"REPLACE( CONVERT( CHAR(10), b.birthday, 102), '.', '-') as birthday," +
+				"dbo.denc(b.idnumber) idnumber," +
 				"a.address," +
 				"b.linkman," +
 				"a.tel " +
@@ -572,12 +575,26 @@ public class DataExportService extends HibernateDaoSupport{
 		dataList.add(headerList);
 //		List list = query(hql,params);
 		
-		Query query = getSession().createSQLQuery(hql.toString());
+		SQLQuery query = getSession().createSQLQuery(hql.toString());
+		String[] resultname = new String[]{"fileNo","name","sex","birthday","idnumber","address","linkman","tel"};
+		for(int i =0 ; i<resultname.length;i++){
+			query.addScalar(resultname[i],Hibernate.STRING);
+		}
 		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
+			if(params.get(i) instanceof java.util.Date || params.get(i) instanceof java.sql.Date || params.get(i) instanceof java.sql.Timestamp){
+				query.setParameter(i, params.get(i),Hibernate.DATE);
+			}else if(params.get(i) instanceof BigDecimal){
+				query.setParameter(i, params.get(i),Hibernate.BIG_DECIMAL);
+			}else if(params.get(i) instanceof Integer){
+				query.setParameter(i, params.get(i),Hibernate.INTEGER);
+			}else if(params.get(i) instanceof String){
+				query.setParameter(i, params.get(i),Hibernate.STRING);
+			}else{
+				query.setParameter(i, params.get(i),Hibernate.STRING);
+			}
+//			query.setParameter(i, params.get(i));
 		}
 		List list =  query.list();
-		list.add(0,headerHealthFile);
 //		for (Object object : list) {
 //			Object[] objs = (Object[]) object;
 ////			HealthFile file = (HealthFile) objs[0];
@@ -962,11 +979,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @return
 	 */
 	private List query(StringBuilder hql, List params) {
-		Query query = getSession().createQuery(hql.toString());
-		for (int i = 0; i < params.size(); i++) {
-			query.setParameter(i, params.get(i));
-		}
-		return query.list();
+		return getHibernateTemplate().find(hql.toString(),params.toArray());
 	}
 	
 	/**

@@ -4,6 +4,9 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.util.EncryptionUtils;
@@ -13,6 +16,7 @@ import cn.net.tongfang.web.service.bo.MedicalExamBO;
 public class MedicalExamService extends HealthMainService<MedicalExamBO> {
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String save(MedicalExamBO data) throws Exception {
 		String fileNo = EncryptionUtils.encry(data.getFileNo());
 		Timestamp examDate = data.getExamDate();

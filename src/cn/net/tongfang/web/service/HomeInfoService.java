@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -43,6 +45,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public synchronized String save(HomeInfoBO data) throws Exception{
 		
 		// save routine
@@ -81,6 +84,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 	 * 删除家庭成员信息
 	 * @param fileNoList
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeModules(String modules) throws Exception {
 		if (!StringUtils.hasText(modules))
 			return;
@@ -121,8 +125,7 @@ public class HomeInfoService extends HibernateDaoSupport{
 		String id = data.getHomeId();
 		HomeInfo home = new HomeInfo();
 		StringBuilder sql = new StringBuilder("from HomeInfo c ").append("where c.homeId = '").append(id).append("'");
-		Query q = getSession().createQuery(sql.toString());
-		List list = q.list();
+		List list = getHibernateTemplate().find(sql.toString());
 			home = (HomeInfo)list.get(0);
 //		}
 		return home;
@@ -154,18 +157,19 @@ public class HomeInfoService extends HibernateDaoSupport{
 	 * @param fileNo
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String saveToHome(String homeId,String fileNo){
 		String sqlQueryHomeId = "from PersonalInfo where FileNo = \'" + fileNo + "\'";
 		Query query;
-		query = getSession().createQuery(sqlQueryHomeId);
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sqlQueryHomeId);
 		PersonalInfo obj = (PersonalInfo)query.uniqueResult();
 		if(obj.getHomeId() == null || obj.getHomeId().equals("")){
 			String sql = "update PersonalInfo set HomeID = \'" + homeId + "\' where FileNo = \'" + fileNo + "\'";
-			query = getSession().createQuery(sql);
+			query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sql);
 			return String.valueOf(query.executeUpdate());
 		}
 		String sqlQueryHome = "from HomeInfo where HomeID = \'" + obj.getHomeId() + "\'";
-		query = getSession().createQuery(sqlQueryHome);
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sqlQueryHome);
 		HomeInfo home = (HomeInfo)query.uniqueResult();
 		return home.getHomeId() + "," + home.getHousehold();
 	}
@@ -176,16 +180,17 @@ public class HomeInfoService extends HibernateDaoSupport{
 	 * @param fileNo
 	 * @return 0表示成功，-1表示档案还没有添加到户，-2代表该档案不是此户的档案，-3表示更新失败
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public int delFromHome(String homeId,String fileNo){
 		String sqlQueryHomeId = "from PersonalInfo where FileNo = \'" + fileNo + "\'";
 		Query query;
-		query = getSession().createQuery(sqlQueryHomeId);
+		query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sqlQueryHomeId);
 		PersonalInfo obj = (PersonalInfo)query.uniqueResult();
 		String id = obj.getHomeId();
 		if(id != null && !id.equals("")){
 			if(id.equals(homeId)){
 				String sql = "update PersonalInfo set HomeID = \'\' where FileNo = \'" + fileNo + "\'";
-				query = getSession().createQuery(sql);
+				query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(sql);
 				int i = query.executeUpdate();
 				if(i >= 1)
 					return 0;

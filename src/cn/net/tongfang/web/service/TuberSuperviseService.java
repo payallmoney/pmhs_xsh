@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.vo.TuberSuperDetail;
 import cn.net.tongfang.framework.security.vo.Tuberculosis;
@@ -24,9 +26,7 @@ public class TuberSuperviseService extends HibernateDaoSupport {
 	 * @return
 	 */
 	private List OptDatabse(String sql){
-		Query q = getSession().createQuery(sql);
-		List list = q.list();
-		return list;
+		return getHibernateTemplate().find(sql);
 	}
 	/**
 	 * 获得个人基本信息
@@ -59,6 +59,7 @@ public class TuberSuperviseService extends HibernateDaoSupport {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public synchronized String save(TuberculosisBO data) throws Exception{
 		String fileNo = data.getFileNo();
 		String sql = "from Tuberculosis a where a.fileNo = '" + fileNo + "'";
@@ -150,6 +151,7 @@ public class TuberSuperviseService extends HibernateDaoSupport {
 	 * @param data
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String updateTuberInfo(String id,TuberculosisBO data){
 		Tuberculosis tuber = (Tuberculosis)getHibernateTemplate().get(Tuberculosis.class, id);
 		BeanUtils.copyProperties(data, tuber,new String[]{"districtNumber"});
@@ -163,6 +165,7 @@ public class TuberSuperviseService extends HibernateDaoSupport {
 	 * @param data
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String updateTuberDetailInfo(int id,TuberculosisBO data){
 		TuberSuperDetail tuberDetail = (TuberSuperDetail)getHibernateTemplate().get(TuberSuperDetail.class, id);
 		BeanUtils.copyProperties(data, tuberDetail);
@@ -175,6 +178,7 @@ public class TuberSuperviseService extends HibernateDaoSupport {
 	 * @param id
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String deleteDetailInfo(int id){
 		TuberSuperDetail tuberDetail = (TuberSuperDetail)getHibernateTemplate().get(TuberSuperDetail.class, id);
 		getHibernateTemplate().delete(tuberDetail);
