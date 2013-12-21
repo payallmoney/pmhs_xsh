@@ -326,6 +326,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		return;
 	}
 
+	@Transactional
 	private void removeModuleCategoryById(String id) {
 		getHibernateTemplate().delete(
 				getHibernateTemplate().get(SamModuleCategory.class, id));
@@ -381,6 +382,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		}
 	}
 
+	@Transactional
 	private void removeRoleById(String id) {
 		getHibernateTemplate().delete(
 				getHibernateTemplate().get(SamRole.class, id));
@@ -563,6 +565,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 
 	}
 
+	@Transactional
 	@Override
 	public void removeModules(String modules) {
 		if (!StringUtils.hasText(modules))
@@ -669,6 +672,7 @@ public class SecurityServiceImpl extends HibernateDaoSupport implements
 		return data;
 	}
 
+	@Transactional
 	@Override
 	public void removeHighRisk(String highRiskId) {
 		if (!StringUtils.hasText(highRiskId))

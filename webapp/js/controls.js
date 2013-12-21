@@ -886,6 +886,10 @@ function hideHUD($t, includeError){
             if (setting.defaultVal) {
                 valFunc(setting.defaultVal);
             }
+            if(setting.defaultValFunc){
+            	console.log(c,setting, fieldName,cfg);
+            	valFunc(setting.defaultValFunc(fieldName));
+            }
 
             return {
                 enable : function(effect){
@@ -923,7 +927,7 @@ function hideHUD($t, includeError){
                           if (arguments.length > 0 ){
                                  valFunc(v);
                           } else {
-                              return valFunc();
+                        	  return valFunc();
                           }
                       },
                 focus : function(){
@@ -944,6 +948,15 @@ function hideHUD($t, includeError){
                                 ele.val("");
                             }
                         }
+                    }
+                    if(setting.defaultValFunc){
+                    	console.log(c,setting, fieldName,cfg);
+                    	if (setting.asLabel) {
+                            ele.text(setting.defaultValFunc(fieldName));
+                        } else {
+                            ele.val(setting.defaultValFunc(fieldName));
+                        }
+                    	valFunc(setting.defaultValFunc(fieldName));
                     }
                     hideHUD(ele); 
                 },

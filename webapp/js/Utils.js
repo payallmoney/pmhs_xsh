@@ -51,5 +51,17 @@ Utils.prototype.parseParams = function(url){
 	}
 	return null;
 }
+Utils.prototype.setVisibleDetail = function(gridName,colsVisibleTrue,colsVisibleFalse){
+	for(var i = 0;i< colsVisibleTrue.length;i++){
+		Ext.getCmp(gridName).getColumnModel().setHidden(colsVisibleTrue[i], true);
+	}
+	for(var i = 0;i< colsVisibleFalse.length;i++){
+		Ext.getCmp(gridName).getColumnModel().setHidden(colsVisibleFalse[i], false);
+	}
+}
+
+Utils.prototype.getColumnsIndexDetail = function(gridName,colName){
+	return Ext.getCmp(gridName).getColumnModel().getIndexById(colName)
+}
 var Utils = new Utils();
 

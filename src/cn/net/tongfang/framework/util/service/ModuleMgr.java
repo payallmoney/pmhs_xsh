@@ -628,20 +628,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	public PagingResult<SamTaxorgcode> findOrgs(SamTaxorgcode qryCond,
 			PagingParam pp) {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		List params = new ArrayList();
 		System.out.println("==========qryCond========="+qryCond);
 		System.out.println("=============qryCond.getName()======"+qryCond.getName());
 		String name = qryCond.getName();
 		if (StringUtils.hasText(name)) {
 			System.out.println("==========name========="+name);
-			params.add(name);
-			where.append(" and name like ?+'%'");
+//			params.add(name);
+			where.append(" and name like '"+name+"%'");
 		}
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder("from SamTaxorgcode").append(
 				where).append(" order by id");
 		System.out.println("==================="+hql);
@@ -658,25 +658,25 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<District> findDistricts(District qryCond, PagingParam pp) {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		List params = new ArrayList();
 
 		String districtId = qryCond.getId();
 		if (StringUtils.hasText(districtId) && !districtId.equals("0")) {
 			String districtPrefix = BusiUtils.trimTailSeq(districtId, "00");
-			params.add(districtPrefix);
-			where.append(" and id like ?+'%' ");
+//			params.add(districtPrefix);
+			where.append(" and id like '"+districtPrefix+"%' ");
 		}
 
 		String name = qryCond.getName();
 		if (StringUtils.hasText(name)) {
-			params.add(name);
-			where.append(" and name like ?+'%'");
+//			params.add(name);
+			where.append(" and name like '"+name+"%' ");
 		}
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder("from District").append(where)
 				.append(" order by id");
 		log.debug("hql: " + hql.toString());
@@ -698,7 +698,6 @@ public class ModuleMgr extends HibernateDaoSupport {
 //		for (int i = 0; i < params.size(); i++) {
 //			q.setParameter(i, params.get(i));
 //		}
-		HibernateTemplate temp = getHibernateTemplate();
 		int totalSize = ((Long)(getHibernateTemplate().find(countSql,params.toArray()).get(0))).intValue();
 		final String fhql = hql.toString();
 		final PagingParam fpp = pp;
@@ -711,8 +710,6 @@ public class ModuleMgr extends HibernateDaoSupport {
 					query.setParameter(i, fparams.get(i));
 				}
 				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
-				System.out.println("======"+fhql);
-				System.out.println("===query.list().size()==="+query.list().size());
 				return query.list();
 			}
 		});
@@ -763,14 +760,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private StringBuilder buildHealthHql(HealthFileQry qryCond, List params,StringBuilder otherParams)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ").append(otherParams.toString());
-		}else{
-			where.append(otherParams.replace(0, 4, " where ").toString());
-		}
+		where.append(otherParams.toString());
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b").append(where).append(
 				" order by a.inputDate DESC");
@@ -821,11 +814,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, HealthFileChildren b").append(where).append(
 				" order by a.name ASC");
@@ -868,12 +861,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findHealthfilesFinishGestation(
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 		where.append(" and b.id = c.healthFileMaternalId and b.isClosed = '2' ");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, HealthFileMaternal b,FinishGestation c ").append(where).append(
 				" order by a.name ASC");
@@ -909,16 +902,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	private StringBuilder buildHealthAlreadyBuildHql(HealthFileQry qryCond, List params)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 		if(!qryCond.getFilterVal01().equals("100")){
 			where.append(" And b.isClosed = ? ");
 			params.add(qryCond.getFilterVal01());
 		}
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, HealthFileMaternal b ").append(where).append(
 				" order by a.name ASC");
@@ -933,8 +926,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 			districtId = districtId.substring(0,districtId.length()-2);
 		}
 		if (StringUtils.hasText(districtId)) {
-			params.add(districtId);
-			where.append(" and a.districtNumber like ?+'%' ");
+//			params.add(districtId);
+			where.append(" and a.districtNumber like '"+districtId+"%' ");
 		}
 		genQueryParams(qryCond, params, where);
 
@@ -965,20 +958,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 						startDate = filterValue + " 00:00:00.000";
 						endDate = filterValue + " 23:59:59.999";
 					}
-					params.add(format.parse(startDate));
-					params.add(format.parse(endDate));
+					//params.add(format.parse(startDate));
+					//params.add(format.parse(endDate));
 					if(filterKey.equals("c.edc")){
 						where.append(" and exists( select 1 from FirstVistBeforeBorn c where c.foreignId = b.id and  c.edc >= ? and c.edc <= ? )");
 					}else{
-						where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
+						where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + " <= '"+format.parse(endDate)+"' ");
 					}
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}				
 			}else{
 				if (StringUtils.hasText(filterValue)) {
-					params.add(filterValue);
-					where.append(" and " + filterKey + " like ?+'%'");
+//					params.add(filterValue);
+					where.append(" and " + filterKey + " like '"+filterValue+"%'");
 				}
 			}
 		}
@@ -1004,17 +997,17 @@ public class ModuleMgr extends HibernateDaoSupport {
 			StringBuilder where)throws Exception {
 		String districtId = qryCond.getDistrict();
 		if (StringUtils.hasText(districtId)) {
-			params.add(districtId + '%');
-			params.add(districtId + '%');
-			where.append(" and (a.districtNumber like ? or c.execDistrictNum like ?) ");
+//			params.add(districtId + '%');
+//			params.add(districtId + '%');
+			where.append(" and (a.districtNumber like '"+districtId +"%' or c.execDistrictNum like '"+districtId +"%' ) ");
 		}
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {
 			String filterValue = qryCond.getFilterValue();
 			if(filterKey.equals("a.name") || filterKey.equals("a.fileNo")){
 				filterValue = EncryptionUtils.encry(filterValue);
-				params.add(filterValue);
-				where.append(" and " + filterKey + " like ?+'%'");
+//				params.add(filterValue);
+				where.append(" and " + filterKey + " like '"+filterValue+"%'");
 			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
@@ -1031,23 +1024,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 						startDate = filterValue + " 00:00:00.000";
 						endDate = filterValue + " 23:59:59.999";
 					}
-					params.add(format.parse(startDate));
-					params.add(format.parse(endDate));
+//					params.add(format.parse(startDate));
+//					params.add(format.parse(endDate));
 					if(filterKey.equals("a.inputDate"))
 						filterKey = "c.inputDate";
-					where.append(" and " + filterKey + " >= ? and " + filterKey + "<= ? ");
+					where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + "<= '"+format.parse(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterValue)) {
-					params.add(filterValue);
-					where.append(" and " + filterKey + " = ?");
+//					params.add(filterValue);
+					where.append(" and " + filterKey + " = '"+filterValue+"' ");
 				}
 			}else{
 				if (StringUtils.hasText(filterValue)) {
-					params.add(filterValue);
-					where.append(" and " + filterKey + " like ? +'%'");
+//					params.add(filterValue);
+					where.append(" and " + filterKey + " like '"+filterValue+"%'");
 				}
 			}
 		}
@@ -1096,15 +1089,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findChildPrint1(
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(  " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 		where.append(" and a.fileNo = g.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 		where.append(" and c.certifiId  = g.certifiId ");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql;
 		if(qryCond.getIsFirst() == 0){
 			hql = new StringBuilder(
@@ -1167,16 +1160,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, BabyVisit c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -1248,13 +1241,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private StringBuilder buildWomanBirthHealthHql(HealthFileQry qryCond, List params) throws Exception{
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
 		where.append(" and ( b.bornStatus = '是' or b.homeId = '曾经') ");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b").append(where).append(
 				" order by a.fileNo");
@@ -1263,7 +1256,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	private StringBuilder buildChildHealthHql(HealthFileQry qryCond, List params) throws Exception{
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
 		Timestamp childAge = BusiUtils.getChildAge();
@@ -1271,9 +1264,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and b.birthday >= ?");
 		params.add(childAge);
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b").append(where).append(
 				" order by a.fileNo");
@@ -1282,17 +1275,17 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 
 	private StringBuilder buildHypHealthHql(HealthFileQry qryCond, List params)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(  " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
-		where.append(" and c.diseaseId = ?");
-		params.add(DISEASE_HYP);
+		where.append(" and c.diseaseId = "+DISEASE_HYP+"");
+//		params.add(DISEASE_HYP);
 
 		where.append(" and c.personalInfoId = b.id");
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, DiseaseHistory c").append(
 				where).append(" order by a.fileNo");
@@ -1302,7 +1295,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	private StringBuilder buildDiseaseHealthHql(HealthFileQry qryCond,
 			List params, Integer DiseaseType)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
 		where.append(" and c.diseaseId = ?");
@@ -1310,9 +1303,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 		where.append(" and c.personalInfoId = b.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, DiseaseHistory c").append(
 				where).append(" order by a.fileNo");
@@ -1440,16 +1433,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, BabyVisit c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -1496,16 +1486,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(  " where 1=1 " );
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, BabyVisit c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -1563,20 +1553,20 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, Integer type) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		if (type != null) {
-			where.append(" and c.dataType = ?");
-			params.add(type);
+			where.append(" and c.dataType = '"+type+"'");
+//			params.add(type);
 		}
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -1623,7 +1613,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(  " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and c.dataType = ?");
@@ -1633,9 +1623,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.id = f.id ");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam c, SamTaxempcode d,SamTaxorgcode e ,WomanPhysicalItems f")
 				.append(where).append(" order by a.fileNo");
@@ -1686,7 +1676,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and c.dataType = ?");
@@ -1696,9 +1686,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.id = f.id ");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam c, SamTaxempcode d,SamTaxorgcode e ,WomanPhysicalItems f")
 				.append(where).append(" order by a.fileNo");
@@ -1750,7 +1740,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 
@@ -1758,9 +1748,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.id = f.id ");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam36 c, SamTaxempcode d,SamTaxorgcode e ,WomanPhysicalItems f")
 				.append(where).append(" order by a.fileNo");
@@ -1811,14 +1801,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findChildExam3Records(
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam3 c, SamTaxempcode d")
 				.append(where).append(" order by a.fileNo");
@@ -1862,15 +1852,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, MedicalExam c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -1922,15 +1912,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql;
 		if(qryCond.getIsFirst() == 0){
 			hql = new StringBuilder(
@@ -1990,15 +1980,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql;
 		if(qryCond.getIsFirst() == 0){
 			hql = new StringBuilder(
@@ -2058,15 +2048,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql;
 		if(qryCond.getIsFirst() == 0){
 			hql = new StringBuilder(
@@ -2126,15 +2116,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, FuriousInfo c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2186,15 +2176,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 		
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, FirstVistBeforeBorn c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2290,15 +2280,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, VisitBeforeBorn c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2362,7 +2352,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and c.recordType = ?");
@@ -2371,9 +2361,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql ;
 		if(qryCond.getIsFirst() == 0){
 			hql = new StringBuilder(
@@ -2434,16 +2424,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, Reception c, SamTaxempcode d, SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2496,16 +2486,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, Consultation c,SamTaxempcode d,SamTaxorgcode e").append(
 				where).append(" order by a.fileNo");
@@ -2554,16 +2544,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, CureSwitch c, SamTaxempcode d, SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2616,15 +2606,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, CureBack c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -2676,11 +2666,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type) {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.orgId = e.id");
 
-		where.replace(0, 4, " where ");
 		// if ( params.size() != 0 ) {
 		// where.replace(0, 4, " where ");
 		// }
@@ -2723,14 +2712,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, VaccineInfo c").append(
 				where).append(" order by a.fileNo");
@@ -2777,15 +2766,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, Vaccination c,SamTaxempcode d,SamTaxorgcode e").append(
 				where).append(" order by a.fileNo");
@@ -2835,11 +2824,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp, String type) {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.orgId = e.id");
 
-		where.replace(0, 4, " where ");
+//		where.replace(0, 4, " where ");
 
 		StringBuilder hql = new StringBuilder(
 				"from InfectionReport c, SamTaxempcode d, SamTaxorgcode e")
@@ -2880,11 +2869,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 			String type) {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder("from Stat c").append(where)
 				.append(" order by c.reportMonth desc");
 		log.debug("hql: " + hql.toString());
@@ -2908,11 +2897,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<HomeInfo> getHomeResidents(HealthFileQry qryCond,
 			PagingParam pp) throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildWhereByHome(qryCond, params, where);
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder("from HomeInfo a").append(where)
 				.append(" order by a.homeId");
 		log.debug("hql: " + hql.toString());
@@ -2940,11 +2929,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Tuberculosis> getTuberSupervise(HealthFileQry qryCond,
 			PagingParam pp) {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildWhereByHome(qryCond, params, where);
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder("from Tuberculosis a").append(
 				where).append(" order by a.id");
 		log.debug("hql: " + hql.toString());
@@ -3081,11 +3070,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	private StringBuilder buildQueryHomeHql(HealthFileQry qryCond, List params) {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildQueryHomeWhere(qryCond, params, where);
 
 		// if (params.size() != 0) {
-		where.replace(0, 4, " where ");
+//		where.replace(0, 4, " where ");
 		// }
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b").append(where).append(
@@ -3145,24 +3134,24 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<ClinicLogs> queryClinicLogs(HealthFileQry qryCond,
 			PagingParam pp) throws Exception{
 		List params = new ArrayList();
-		StringBuffer where = new StringBuffer();
+		StringBuffer where = new StringBuffer(" where 1=1 ");
 		String districtId = qryCond.getDistrict();
 		if (StringUtils.hasText(districtId)) {
-			params.add(EncryptionUtils.encry(districtId));
-			where.append(" and a.fileNo like  ? +'%' ");
+//			params.add(EncryptionUtils.encry(districtId));
+			where.append(" and a.fileNo like  '"+EncryptionUtils.encry(districtId)+"%' ");
 		}
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {
 			String filterValue = qryCond.getFilterValue();
 			if (StringUtils.hasText(filterValue)) {
-				params.add(filterValue);
-				where.append(" and " + filterKey + " like  ?+'%' ");
+//				params.add(filterValue);
+				where.append(" and " + filterKey + " like  '"+filterValue+"%' ");
 			}
 		}
 		where.append(" and a.fileNo = b.fileNo");
-		if (params.size() > 0) {
-			where.replace(0, 4, "where");
-		}
+//		if (params.size() > 0) {
+//			where.replace(0, 4, "where");
+//		}
 		StringBuilder hql = new StringBuilder("from ClinicLogs a,SickInfo b ")
 				.append(where).append(" order by a.fileNo,a.inputTime DESC");
 		return ExecSQLClinicLogs(pp, params, hql);
@@ -3190,14 +3179,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 */
 	private StringBuilder buildOldManHealthHql(HealthFileQry qryCond,
 			List params)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
 		where.append(" and (year(getDate()) - year(b.birthday)) >= 65  ");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b ").append(
 				where).append(" order by a.fileNo");
@@ -3214,16 +3203,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and c.age >= 65");
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, MedicalExam c, SamTaxempcode d")
 				.append(where).append(" order by a.fileNo");
@@ -3272,14 +3261,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findChildExam36Records(
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam36 c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3341,15 +3330,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findBirthChildRecords(
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 		where.append(" and c.certifiId = f.certifiId");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildBirthRecord c, SamTaxempcode d,SamTaxorgcode e , BirthCertificate f")
 				.append(where).append(" order by a.fileNo");
@@ -3602,13 +3591,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public List getPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
-		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC",qryCond.getDistrict());
+		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC");
 	}
 	
 	public List getChildPrintHighRiskRecords(QryCondition qryCond)throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
-		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC ",qryCond.getDistrict());
+		return getHibernateTemplate().find(hql + " order by c.lastExamDate ASC ");
 	}
 	
 	private String genQryCondition(QryCondition qryCond) throws Exception{
@@ -3646,7 +3635,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 		
 		where = " Where " +
-				" a.districtNumber like ?+'%' And a.fileNo = b.fileNo " +
+				" a.districtNumber like '"+qryCond.getDistrict()+"%' And a.fileNo = b.fileNo " +
 				" And a.fileNo = c.fileNo " + where;
 		return where;
 	}
@@ -3661,16 +3650,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, BabyDeathSurvey c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3727,16 +3716,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenDeathSurvey01 c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3793,16 +3782,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenDeathSurvey02 c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3859,16 +3848,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, DiseaseAndHearScreenConsent c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3923,16 +3912,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, HearScreenReportCard c, SamTaxempcode d,SamTaxorgcode e")
 				.append(where).append(" order by a.fileNo");
@@ -3987,7 +3976,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhere(qryCond, params, where);
 
 		where.append(" and a.fileNo = c.fileNo");
@@ -4049,15 +4038,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 * @return
 	 */
 	public PagingResult<Map<String, Object>> getTransferHealthfile(TransferHealthFileQry qry,PagingParam pp)throws Exception{
-		StringBuffer where = new StringBuffer();
+		StringBuffer where = new StringBuffer(" where 1=1 ");
 		List params = new ArrayList();
 		String filterVal = qry.getFilterValue().trim();
 		if(StringUtils.hasText(filterVal) && !filterVal.equals("")){
 			String filterKey = qry.getFilterKey();
 			if(filterKey.equals("fromFileNo") || filterKey.equals("toFileNo")){
 				filterVal = EncryptionUtils.encry(filterVal);
-				where.append(" And " + filterKey + " = ? ");
-				params.add(filterVal);
+				where.append(" And " + filterKey + " = '"+filterVal+"' ");
+//				params.add(filterVal);
 			}else if(filterKey.equals("birthday")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
@@ -4074,32 +4063,35 @@ public class ModuleMgr extends HibernateDaoSupport {
 						startDate = filterVal + " 00:00:00.000";
 						endDate = filterVal + " 23:59:59.999";
 					}
-					params.add(format.parse(startDate));
-					params.add(format.parse(endDate));
-					where.append(" and " + filterKey + " >= ? and " + filterKey + " <= ? ");
+//					params.add(format.parse(startDate));
+//					params.add(format.parse(endDate));
+					where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + " <= '"+format.parse(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else{
-				where.append(" And " + filterKey + " = ? ");
-				params.add(filterVal);
+				where.append(" And " + filterKey + " = '"+filterVal+"' ");
+//				params.add(filterVal);
 			}
 		}
 		if(!qry.getType().equals("100")){
-			where.append(" And isSure = ? ");
-			params.add(qry.getType());
+			where.append(" And isSure = '"+qry.getType()+"' ");
+//			params.add(qry.getType());
 		}
 		if(qry.getFlowType().equals("0")){
-			where.append(" And toDistrictNumber like ?+'%' ");
-			params.add(qry.getDistrict());
+			where.append(" And toDistrictNumber like '"+qry.getDistrict()+"%' ");
+//			params.add(qry.getDistrict());
 		}else if(qry.getFlowType().equals("1")){
-			where.append(" And fromDistrictNumber like ?+'%' ");
-			params.add(qry.getDistrict());
-		}
-		if(params.size() > 0){
-			where.replace(0, 4, " Where ").append(" And a.toDistrictNumber = b.id ");
+			where.append(" And fromDistrictNumber like '"+qry.getDistrict()+"%' ");
+//			params.add(qry.getDistrict());
 		}
 		
+		where.append(" And a.toDistrictNumber = b.id ");
+//		
+//		if(params.size() > 0){
+//			where.replace(0, 4, " Where ").append(" And a.toDistrictNumber = b.id ");
+//		}
+//		
 		String hql = " From HealthFileTransfer a,District b " + where.toString();
 		String countHql = " Select Count(*) " + hql;
 		int totalSize = ((Long)(getHibernateTemplate().find(countHql,params.toArray()).get(0))).intValue();
@@ -4155,7 +4147,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			TransferHealthFileQry qryCond, PagingParam pp) throws Exception{
 		List params = new ArrayList();
 
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		HealthFileQry qry = new HealthFileQry();
 		BeanUtils.copyProperties(qryCond, qry);
 		buildGeneralWhereHealthFile(qry, params, where,44);
@@ -4165,13 +4157,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 		where.append(" and d.orgId = e.id");
 		
 		if(!qryCond.getType().equals("0")){
-			where.append(" and c.loginOffReason = ? ");
-			params.add(Integer.parseInt(qryCond.getType()));
+			where.append(" and c.loginOffReason = '"+qryCond.getType()+"' ");
+//			params.add(Integer.parseInt(qryCond.getType()));
 		}
 		where.append(" and c.loginOffReason = f.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, HealthFileLoginOff c, SamTaxempcode d,SamTaxorgcode e,BasicInformation f ")
 				.append(where).append(" order by a.fileNo");

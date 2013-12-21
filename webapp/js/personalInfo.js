@@ -71,7 +71,35 @@ function formatdate(date){
     }
     return console.log(msg);
   };
-
+  
+  window.beforeSave = function (send){
+	  if(!send.fileNo || !send.fileNo.trim()){
+		  if(send.buildUnit != window.top.buildUnit && send.buildUnit && send.buildUnit.trim()){
+			  FileNumSearch.saveHealthfileHistoryData("healthfile",'buildUnit',send.buildUnit,{ callback :function(data){
+				  window.top.buildUnit = send.buildUnit;
+			  }});
+		  }
+		  if(send.buildPerson != window.top.buildPerson && send.buildPerson  && send.buildPerson.trim()){
+			  FileNumSearch.saveHealthfileHistoryData("healthfile",'buildPerson',send.buildPerson,{ callback :function(data){
+				  window.top.buildPerson = send.buildPerson;
+			  }});
+		  }
+		  if(send.doctor != window.top.doctor && send.buildPerson  && send.doctor.trim()){
+			  FileNumSearch.saveHealthfileHistoryData("healthfile",'doctor',send.doctor,{ callback :function(data){
+				  window.top.doctor = send.doctor;
+			  }});
+		  }
+	  }
+  }
+  window.getLastData = function(fieldname){
+	  if(!window.top[fieldname]){
+		  FileNumSearch.getHealthfileHistoryData("healthfile",fieldname,{ callback :function(data){
+			  window.top[fieldname] = data;
+		  },async:false});
+	  }
+	  return window.top[fieldname];
+  }
+  
   window.getDWRUrl = function(geturl) {
     return "dwr/interface/" + geturl.substr(0, geturl.indexOf(".")) + ".js";
   };
@@ -265,6 +293,7 @@ function formatdate(date){
     get: PersonalInfoService.get,
     save: PersonalInfoService.save,
     aftersave:FileNumSearch.saveHistoryLink,
+    beforeSave: window.beforeSave,
     afterinit : function(flag){
     	if(flag){
     		//加载页面时
@@ -342,7 +371,7 @@ function formatdate(date){
           }
       }
       //if(!pass) alert(tip);
-      
+     
       return { valid : pass, msg : tip};
       //return pass;
   }
@@ -357,6 +386,7 @@ function formatdate(date){
 	  if(!valid.valid){
 		  return "身份证号"+valid.msg;
 	  }
+	  
 	  FileNumSearch.checkFileByIdNumber($("#fileNo span").html(),idnumber,		{ 
 	        async: false,
 	        callback: function(data){
@@ -366,8 +396,7 @@ function formatdate(date){
 	        		for(var i = 0 ; i <data.length;i++){
 	        			ret += "<br>姓名:"+denc(data[i][1])+"&nbsp;&nbsp;档案编号:"+denc(data[i][0]);
 	        		}
-	        	}
-	        }
+	        	}	        }
 	  });
 	  return ret;
   }
@@ -863,7 +892,8 @@ function formatdate(date){
       xtype: "input",
       setting: {
         maxlen: 18,
-        size: 18
+        size: 18,
+        defaultValFunc:window.getLastData
       }
     }, {
       id: "districtNumber",
@@ -876,14 +906,16 @@ function formatdate(date){
       xtype: "input",
       setting: {
         maxlen: 18,
-        size: 18
+        size: 18,
+        defaultValFunc:window.getLastData
       }
     }, {
       id: "doctor",
       xtype: "input",
       setting: {
         maxlen: 18,
-        size: 18
+        size: 18,
+        defaultValFunc:window.getLastData
       }
     }, {
       id: "buildDate",

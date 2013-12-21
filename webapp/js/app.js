@@ -415,7 +415,10 @@ var fieldsArray = {};
                 if(storeId != null){
                 	send.id = storeId;
                 }
-                console.log("start...send...",new Date().toLocaleTimeString())
+                console.log("start...send...",new Date().toLocaleTimeString());
+                if($.isFunction(services.beforeSave)){
+                	services.beforeSave(send);
+                }
                 services.save(send,{ callback :function(d){
                 	console.log("end...send...",new Date().toLocaleTimeString())
                     if ( typeof sendMessage == 'function' ) {
@@ -435,6 +438,7 @@ var fieldsArray = {};
                     if(personId == null || personId == '')
                     	personId = d;
                     console.log("start...get...",new Date().toLocaleTimeString())
+                   
                     PersonalInfoService.getPersonInfo(personId,function(data){
                     	console.log("end...get...",new Date().toLocaleTimeString())
             			if(data.length > 0){

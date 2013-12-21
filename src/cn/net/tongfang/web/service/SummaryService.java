@@ -17,6 +17,7 @@ import cn.net.tongfang.framework.security.vo.BusinessDataGrid;
 import cn.net.tongfang.framework.security.vo.IntInpatient;
 import cn.net.tongfang.framework.security.vo.IntOutpatient;
 import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
+import cn.net.tongfang.framework.security.vo.StatisticByDistrict;
 import cn.net.tongfang.framework.security.vo.SummaryStatistics01;
 import cn.net.tongfang.framework.security.vo.SummaryStatisticsHivandSyphilis;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
@@ -26,6 +27,7 @@ import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.BirthCertifiQry;
 import cn.net.tongfang.web.service.bo.PatientQry;
 import cn.net.tongfang.web.service.bo.PersonalInfoFBO;
+import cn.net.tongfang.web.service.bo.StatisticByDistrictQry;
 import cn.net.tongfang.web.service.bo.SummaryQry;
 
 public class SummaryService extends HibernateDaoSupport {
@@ -66,13 +68,11 @@ public class SummaryService extends HibernateDaoSupport {
 					+ " (Select ID From Organization Where DistrictNumber Like "
 					+ " '"+ district + "%')) ";
 		}
-		System.out.println("===参数开始===");
 		System.out.println(user.getUsername());
 		System.out.println(qry.getStatisticType());
 		System.out.println(str_where);
 		System.out.println(qry.getStatisticResult());
 		System.out.println(qry.getIsQryWipeOut());
-		System.out.println("===参数结束===");
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, str_where);
@@ -346,8 +346,6 @@ public class SummaryService extends HibernateDaoSupport {
 		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}
-		if (pp == null)
-			pp = new PagingParam();
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 		List list = query.list();
 		return new PagingResult(count, list);
@@ -370,4 +368,27 @@ public class SummaryService extends HibernateDaoSupport {
 		String hql = "From IntInpatient " + where;
 		return query(hql, params, pp);
 	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public PagingResult<StatisticByDistrict> statisticByDistrict(StatisticByDistrictQry qry) {
+		Query query = getSession().getNamedQuery("statisticByDistrictResultSet");
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		query.setParameter(0, user.getUsername());
+		query.setParameter(1, qry.getRules());
+		query.setParameter(2, qry.getQryType());
+		String dateWhere = " A.InputDate >= '"
+				+ CommonConvertUtils.dateToStringWithDelimiter(qry
+						.getStartDate())
+				+ " 00:00:00' And A.InputDate <= '"
+				+ CommonConvertUtils.dateToStringWithDelimiter(qry
+						.getEndDate())
+				+ " 23:59:59' ";
+		query.setParameter(3, dateWhere);
+		query.setParameter(4, qry.getIsQryWipeOut());
+		query.setParameter(5, qry.getDistrictNumber());
+		List list = query.list();
+		PagingResult result = new PagingResult(list.size(), list);
+		return result;
+	}
+	
 }
