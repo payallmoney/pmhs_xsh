@@ -129,8 +129,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 			long count = getcount(
 					"select count(*) from HealthFile hf,PersonalInfo p "
 							+ otherTables
-							+ "where  hf.fileNo = p.fileNo And hf.fileNo like ? and hf.status = 0 "
-							+ hsqlparam, fileNo);
+							+ "where  hf.fileNo = p.fileNo And hf.fileNo like '"+fileNo+"' and hf.status = 0 "
+							+ hsqlparam);
 			if (newpagesize == 0) {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
@@ -146,8 +146,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
 					+ "where  p.fileNo = hf.fileNo "
-					+ "and hf.fileNo like ? and hf.status = 0 " + hsqlparam;
-			List list = getList(sql, fileNo, newpagesize, from);
+					+ "and hf.fileNo like '"+fileNo+"' and hf.status = 0 " + hsqlparam;
+			List list = getList(sql, newpagesize, from);
 			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
@@ -155,10 +155,9 @@ public class FileNumSearch extends HibernateDaoSupport {
 			long count = getcount(
 					"select count(*) from HealthFile hf,PersonalInfo p "
 							+ otherTables
-							+ "where hf.fileNo = p.fileNo And hf.districtNumber like ? "
-							+ "And hf.name like ?  and hf.status = 0"
-							+ hsqlparam, new Object[] { districtNumber + "%",
-							EncryptionUtils.encry(otherCond) + "%" });
+							+ "where hf.fileNo = p.fileNo And hf.districtNumber like '"+districtNumber + "%' "
+							+ "And hf.name like '"+EncryptionUtils.encry(otherCond) + "%'  and hf.status = 0"
+							+ hsqlparam);
 			if (newpagesize == 0) {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
@@ -174,20 +173,18 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ extendCols
 					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
-					+ "where p.fileNo = hf.fileNo and hf.districtNumber like ? "
-					+ "And hf.name like  ?  and hf.status = 0 " + hsqlparam;
-			List list = getList(sql, new Object[] { districtNumber + "%",
-					EncryptionUtils.encry(otherCond) + "%" }, newpagesize, from);
+					+ "where p.fileNo = hf.fileNo and hf.districtNumber like '"+districtNumber + "%' "
+					+ "And hf.name like  '"+EncryptionUtils.encry(otherCond) + "%'  and hf.status = 0 " + hsqlparam;
+			List list = getList(sql, newpagesize, from);
 			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_LinkMan)) {
 			String countsql = ("select count(*) from HealthFile hf,PersonalInfo p "
 					+ otherTables
-					+ "where hf.fileNo = p.fileNo And hf.districtNumber like ? "
-					+ "And p.linkman like ? and hf.status = 0 " + hsqlparam);
-			long count = getcount(countsql, new Object[] {
-					districtNumber + "%", "%" + otherCond + "%" });
+					+ "where hf.fileNo = p.fileNo And hf.districtNumber like '"+districtNumber + "%' "
+					+ "And p.linkman like '%" + otherCond + "%' and hf.status = 0 " + hsqlparam);
+			long count = getcount(countsql);
 			if (newpagesize == 0) {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
@@ -203,20 +200,17 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ extendCols
 					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
-					+ "where p.fileNo = hf.fileNo and hf.districtNumber like ? "
-					+ "And p.linkman like ?  and hf.status = 0 " + hsqlparam);
-			List list = getList(sql, new Object[] { districtNumber + "%",
-					"%" + otherCond + "%" }, newpagesize, from);
+					+ "where p.fileNo = hf.fileNo and hf.districtNumber like '"+districtNumber + "%' "
+					+ "And p.linkman like '%" + otherCond + "%'  and hf.status = 0 " + hsqlparam);
+			List list = getList(sql, newpagesize, from);
 			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_CardId)) {
 			String countsql = ("select count(*) from HealthFile hf , PersonalInfo as p "
 					+ otherTables
-					+ "where p.fileNo = hf.fileNo And hf.districtNumber like ? And p.idnumber like ?  and hf.status = 0" + hsqlparam);
-			long count = getcount(countsql, new Object[] {
-					districtNumber + "%",
-					EncryptionUtils.encry(otherCond) + "%" });
+					+ "where p.fileNo = hf.fileNo And hf.districtNumber like '"+districtNumber + "%' And p.idnumber like '"+EncryptionUtils.encry(otherCond) + "%'  and hf.status = 0" + hsqlparam);
+			long count = getcount(countsql);
 			if (newpagesize == 0) {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
@@ -230,19 +224,18 @@ public class FileNumSearch extends HibernateDaoSupport {
 			String sql = ("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
 					+ " p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
-					+ "where hf.districtNumber like ? "
-					+ "And p.idnumber like ?  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
-			List list = getList(sql, new Object[] { districtNumber + "%",
-					EncryptionUtils.encry(otherCond) + "%" }, newpagesize, from);
+					+ "where hf.districtNumber like '"+districtNumber + "%' "
+					+ "And p.idnumber like '"+EncryptionUtils.encry(otherCond) + "%'  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
+			List list = getList(sql, newpagesize, from);
 			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_Barcode)) {
 			String countsql = ("select count(*) from HealthFile hf , PersonalInfo as p "
 					+ otherTables
-					+ "where p.fileNo = hf.fileNo  And hf.barCode like ?  and hf.status = 0" + hsqlparam);
+					+ "where p.fileNo = hf.fileNo  And hf.barCode like '"+otherCond + "%'  and hf.status = 0" + hsqlparam);
 			// qry.setParameter(0, districtNumber + "%");
-			long count = getcount(countsql, otherCond + "%");
+			long count = getcount(countsql);
 			if (newpagesize == 0) {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
@@ -259,9 +252,9 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
 					+ "where p.fileNo = hf.fileNo  "
-					+ "And hf.barCode like ?  and hf.status = 0 " + hsqlparam);
+					+ "And hf.barCode like '" + otherCond + "%'  and hf.status = 0 " + hsqlparam);
 			// qry.setParameter(0, districtNumber + "%");
-			List list = getList(sql, "%" + otherCond + "%", newpagesize, from);
+			List list = getList(sql, newpagesize, from);
 			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
@@ -353,8 +346,7 @@ public class FileNumSearch extends HibernateDaoSupport {
 						+ " p.idnumber,hf.barCode"
 						+ " from HealthFile as hf, PersonalInfo as p "
 						+ "where p.fileNo = hf.fileNo "
-						+ "and p.fileNo = ? and hf.status = 0 ",
-						EncryptionUtils.encry(code));
+						+ "and p.fileNo = '"+EncryptionUtils.encry(code)+"' and hf.status = 0 ");
 		return parseResult(list);
 	}
 
@@ -364,25 +356,22 @@ public class FileNumSearch extends HibernateDaoSupport {
 					"select hf.fileNo, hf.name, p.sex "
 							+ " from HealthFile as hf, PersonalInfo as p "
 							+ "where p.fileNo = hf.fileNo "
-							+ "and p.idnumber = ? and p.fileNo <> ? ",
-					new Object[] { EncryptionUtils.encry(idnumber),
-							EncryptionUtils.encry(fileno.trim()) });
+							+ "and p.idnumber = '"+EncryptionUtils.encry(idnumber)+"' and p.fileNo <> '"+EncryptionUtils.encry(fileno.trim())+"' "
+					);
 			return list;
 		} else {
 			List list = getHibernateTemplate().find(
 					"select hf.fileNo, hf.name, p.sex "
 							+ " from HealthFile as hf, PersonalInfo as p "
 							+ "where p.fileNo = hf.fileNo "
-							+ "and p.idnumber = ? ",
-					EncryptionUtils.encry(idnumber));
+							+ "and p.idnumber = '"+EncryptionUtils.encry(idnumber)+"' ");
 			if (list.size() > 0) {
 				return list;
 			} else {
 				List list1 = getHibernateTemplate()
 						.find("select hf.fileno, hf.name, hf.sex "
 								+ " from HealthFileHistory2 hf "
-								+ "where (linkFileno is null  or  len(linkFileno)=0 ) and  hf.idcard = ? ",
-								idnumber);
+								+ "where (linkFileno is null  or  len(linkFileno)=0 ) and  hf.idcard = '"+idnumber+"' ");
 				for (int i = 0; i < list1.size(); i++) {
 					Object[] obj = (Object[]) list1.get(i);
 					obj[0] = EncryptionUtils.encry((String) obj[0]);
@@ -396,18 +385,12 @@ public class FileNumSearch extends HibernateDaoSupport {
 	public List checkFileByIdNumber(String fileno, String idnumber) {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		System.out.println("==user.getDistrictId()====" + user.getDistrictId());
 		String disid = user.getDistrictId();
 		while (disid.endsWith("00")) {
 			disid = disid.substring(0, disid.length() - 2);
 		}
-		System.out.println("====disid==" + disid);
-		System.out.println("====fileno==" + fileno);
 		String wherestr;
-		wherestr = "where hf.idcard = ? and  ("
-				+ "  (not linkFileno is null and  linkFileno <> '' and linkFileno <> ?) or "
-				+ "  (not districtId is null and  districtId <> '' and districtId <> substring(?,1,len(districtId) )) "
-				+ "  ) ";
+		wherestr = "";
 		List list = new ArrayList();
 		List list1 = new ArrayList();
 		if (fileno != null && fileno.trim().length() > 0) {
@@ -415,20 +398,17 @@ public class FileNumSearch extends HibernateDaoSupport {
 					"select  hf.fileNo, hf.name, p.sex "
 							+ " from HealthFile as hf, PersonalInfo as p "
 							+ "where p.fileNo = hf.fileNo and hf.status=0 "
-							+ "and p.idnumber = ? and p.fileNo <> ? ",
-					new Object[] { EncryptionUtils.encry(idnumber),
-							EncryptionUtils.encry(fileno.trim()) });
+							+ "and p.idnumber = '"+EncryptionUtils.encry(idnumber)+"' and p.fileNo <> '"+EncryptionUtils.encry(fileno.trim())+"' ");
 			if (list.size() > 0) {
 				return list;
 			} else {
-				wherestr = "where hf.idcard = ? and  ("
-						+ "  (not linkFileno is null and  linkFileno <> '' and linkFileno <> ?) or "
-						+ "  (not districtId is null and  districtId <> '' and districtId <> substring(?,1,len(districtId) )) "
+				wherestr = "where hf.idcard = '"+idnumber+"' and  ("
+						+ "  (not linkFileno is null and  linkFileno <> '' and linkFileno <> '"+fileno+"') or "
+						+ "  (not districtId is null and  districtId <> '' and districtId <> substring('"+disid+"',1,len(districtId) )) "
 						+ "  ) ";
 				list1 = getHibernateTemplate().find(
 						"select hf.fileno, hf.name, hf.sex "
-								+ " from HealthFileHistory2 hf " + wherestr,
-						new Object[] { idnumber, fileno, disid });
+								+ " from HealthFileHistory2 hf " + wherestr);
 				for (int i = 0; i < list1.size(); i++) {
 					Object[] obj = (Object[]) list1.get(i);
 					obj[0] = EncryptionUtils.encry((String) obj[0]);
@@ -437,23 +417,21 @@ public class FileNumSearch extends HibernateDaoSupport {
 				return list1;
 			}
 		} else {
-			wherestr = "where hf.idcard = ? and  ("
+			wherestr = "where hf.idcard = '"+idnumber+"' and  ("
 					+ "  (not linkFileno is null and  linkFileno <> '' ) or "
-					+ "  (not districtId is null and  districtId <> '' and districtId <> substring(?,1,len(districtId) )) "
+					+ "  (not districtId is null and  districtId <> '' and districtId <> substring('"+disid+"',1,len(districtId) )) "
 					+ "  ) ";
 			list = getHibernateTemplate().find(
 					"select  hf.fileNo, hf.name, p.sex "
 							+ " from HealthFile as hf, PersonalInfo as p  "
 							+ "where p.fileNo = hf.fileNo  and hf.status=0 "
-							+ "and p.idnumber = ? ",
-					EncryptionUtils.encry(idnumber));
+							+ "and p.idnumber = '"+EncryptionUtils.encry(idnumber)+"' ");
 			if (list.size() > 0) {
 				return list;
 			} else {
 				list1 = getHibernateTemplate().find(
 						"select hf.fileno, hf.name, hf.sex "
-								+ " from HealthFileHistory2 hf " + wherestr,
-						new Object[] { idnumber, disid });
+								+ " from HealthFileHistory2 hf " + wherestr);
 				for (int i = 0; i < list1.size(); i++) {
 					Object[] obj = (Object[]) list1.get(i);
 					obj[0] = EncryptionUtils.encry((String) obj[0]);
@@ -560,7 +538,7 @@ public class FileNumSearch extends HibernateDaoSupport {
 		if (newid != null && newid.trim().length() > 0 && fileno != null
 				&& fileno.trim().length() > 0) {
 			List oldret = getHibernateTemplate().find(
-					" from HealthFileHistory2 where linkFileno = ?", fileno);
+					" from HealthFileHistory2 where linkFileno = '"+fileno+"'");
 			if (oldret.size() > 0) {
 				for (int i = 0; i < oldret.size(); i++) {
 					HealthFileHistory2 vo = ((HealthFileHistory2) (oldret
@@ -587,8 +565,7 @@ public class FileNumSearch extends HibernateDaoSupport {
 			List list = getHibernateTemplate().find(
 					"select id, name, sex, idcard, birthday,0,"
 							+ "address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq"
-							+ " from HealthFileHistory2 " + "where  id = ? ",
-					Long.parseLong(code));
+							+ " from HealthFileHistory2 " + "where  id = "+code+" ");
 			return parseResult(list);
 		}
 	}
@@ -687,8 +664,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 	}
 
 	public boolean districtIdIsExists(String disId) {
-		String hql = "From District Where id = ?";
-		List list = getHibernateTemplate().find(hql, disId);
+		String hql = "From District Where id = '"+disId+"'";
+		List list = getHibernateTemplate().find(hql);
 		if (list.size() > 0)
 			return true;
 		return false;

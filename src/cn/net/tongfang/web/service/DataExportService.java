@@ -1,9 +1,13 @@
 package cn.net.tongfang.web.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,8 +22,17 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
@@ -165,12 +178,34 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param list
 	 * @return
 	 */
-	private String writeExecl(String disNo,List list,String type,String title){
-		return writeExeclFile(disNo,list,type,title);
-//		return writeCsvFile(disNo,list,type,title);
+	private String writeExecl(String disNo,List list,String type,String title) throws Exception{
+//		return writePoiExeclFile(disNo,list,type,title);
+//		return writeExeclFile(disNo,list,type,title);
+		delOldFile(getWebRootAbsolutePath() + "data/");
+		return writeCsvFileNew(disNo,list,type,title);
+//		return writeXLSXFile(disNo,list,type,title);
 	}
 	
-	private String writeExeclFile(String disNo,List list,String type,String title){
+	private void delOldFile(String path){
+		File[] files = new File(path).listFiles();
+//		long day = 1000* 60*60*24;
+		long day = 1000* 60*60;//delete file before an hour
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	        	try{
+	        	BasicFileAttributes attributes = 
+	        			Files.readAttributes(f.toPath(), BasicFileAttributes.class);
+	        	FileTime creationTime = attributes.creationTime();
+	        	if(new Date().getTime() - creationTime.toMillis() > day)
+	               f.delete();
+	        	}catch(Exception e){
+	        		
+	        	}
+	        }
+	    }
+	}
+	
+	private String writeExeclFile(String disNo,List list,String type,String title) throws Exception{
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".xls";
 		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
@@ -178,7 +213,7 @@ public class DataExportService extends HibernateDaoSupport{
 		WritableWorkbook wwb = null;
 		try {
 			wwb = Workbook.createWorkbook(file);
-			WritableSheet sheet = wwb.createSheet("sheet1",1000000);
+			WritableSheet sheet = wwb.createSheet("sheet1",list.size());
 			Label labTitle = new Label(0, 0, title);
 			sheet.addCell(labTitle);
 			if(list.size()>0){
@@ -188,7 +223,9 @@ public class DataExportService extends HibernateDaoSupport{
 					sheet.mergeCells(0, 0, ((List)list.get(0)).size() - 1, 0);
 				}
 				int i = 1;
+				System.out.println("===list.size()==="+list.size());
 				for (Object object : list) {
+//					System.out.println("===i==="+i);
 					if(object instanceof Object[]){
 						Object[] l = (Object[])object;
 						for(int j=0;j<l.length;j++){
@@ -202,6 +239,9 @@ public class DataExportService extends HibernateDaoSupport{
 							sheet.addCell(lab);
 						}	
 					}
+					if(i%100 ==0){
+						wwb.write();
+					}
 					i++;
 				}
 			}
@@ -212,6 +252,12 @@ public class DataExportService extends HibernateDaoSupport{
 			e.printStackTrace();
 		} catch (WriteException e) {
 			e.printStackTrace();
+		}catch (OutOfMemoryError e) {
+			e.printStackTrace();
+			throw e;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw e;
 		} finally{
 			 try {
 				 wwb.close(); 
@@ -225,15 +271,66 @@ public class DataExportService extends HibernateDaoSupport{
 		return fileName;
 	}
 	
+	private String writeXLSXFile(String disNo,List list,String type,String title) throws Exception{
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".xlsx";
+		try {
+//			File f = new File(getWebRootAbsolutePath() + "data/" + fileName);
+			FileOutputStream out = new FileOutputStream(getWebRootAbsolutePath() + "data/" + fileName);
+//			OPCPackage pkg = OPCPackage.create(f);
+//			org.apache.poi.ss.usermodel.Workbook wb = new XSSFWorkbook(pkg);
+			org.apache.poi.ss.usermodel.Workbook wb = new XSSFWorkbook();
+			Sheet sheet = wb.createSheet();
+			if(list.size()>0){
+				int i = 0;
+				for (Object object : list) {
+					Row row = sheet.createRow(i);
+					if(object instanceof Object[]){
+						Object[] l = (Object[])object;
+						for(int j=0;j<l.length;j++){
+							Cell cell = row.createCell(j);
+							String value = String.valueOf(l[j]);
+							cell.setCellValue(value);
+						}	
+					}else if(object instanceof List){
+						List l = (List)object;
+						for(int j=0;j<l.size();j++){
+							Cell cell = row.createCell(j);
+							String value = String.valueOf(l.get(j));
+							cell.setCellValue(value);
+						}	
+					}
+					i++;
+				}
+			}
+			wb.write(out);
+//			f.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch (OutOfMemoryError e) {
+			e.printStackTrace();
+			throw e;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}catch(Throwable t){
+			t.printStackTrace();
+		}finally{
+			 
+		}
+		return fileName;
+	}
+	
+	
 	private String writeCsvFile(String disNo,List list,String type,String title){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".csv";
 //		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
-		System.out.println("==================="+fileName);
-		System.out.println("========list.size()=========="+list.size());
 		CsvWriter fw = null;
+//		CSVFormat csfformat = CSVFormat.EXCEL;
 		try {
 			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName,',',Charset.forName("GBK"));
+			fw.setForceQualifier(true);
 			for (Object object : list) {
 				if(object instanceof Object[]){
 					Object[] l = (Object[])object;
@@ -242,7 +339,7 @@ public class DataExportService extends HibernateDaoSupport{
 						if(!StringUtils.hasText(text)){
 							text = "";
 						}
-						fw.write(text);
+						fw.write("\t"+text);
 					}	
 				}else{
 					List l = (List)object;
@@ -251,7 +348,7 @@ public class DataExportService extends HibernateDaoSupport{
 						if(!StringUtils.hasText(text)){
 							text = "";
 						}
-						fw.write(text);
+						fw.write("\t"+text);
 					}		
 				}
 				fw.endRecord();
@@ -268,19 +365,80 @@ public class DataExportService extends HibernateDaoSupport{
 		return fileName;
 	}
 	
+	private String writeCsvFileNew(String disNo,List list,String type,String title){
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		String fileName = DateToStr(new Date()) + "_" + disNo + "_" +user.getUsername() + "_" + type + ".csv";
+		try {
+			PrintWriter out = new PrintWriter(getWebRootAbsolutePath() + "data/" + fileName);
+			for (Object object : list) {
+				if(object instanceof Object[]){
+					Object[] l = (Object[])object;
+					for(int j=0;j<l.length;j++){
+						String text = String.valueOf(l[j]);
+						if(!StringUtils.hasText(text)){
+							text = "";
+						}
+						if(l[j]==null){
+							text = "";
+						}
+						if(j==0){
+							out.write(format(text));
+						}else{
+							out.write(","+format(text));
+						}
+					}	
+				}else{
+					List l = (List)object;
+					for(int j=0;j<l.size();j++){
+						String text = String.valueOf(l.get(j));
+						if(l.get(j)==null){
+							text = "";
+						}
+						if(!StringUtils.hasText(text)){
+							text = "";
+						}
+						if(j==0){
+							out.write(format(text));
+						}else{
+							out.write(","+format(text));
+						}
+					}		
+				}
+				out.write("\r\n");
+			}
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch (OutOfMemoryError e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return fileName;
+	}
+	
+	private String  format(String txt){
+		String ret = CSVFormat.EXCEL.format(txt);
+		if(ret.startsWith("\"")){
+			ret = "="+ret;
+		}else{
+			ret = "=\""+ret+"\"";
+		}
+		return ret;
+	}
+	
 	public String dataExportChildFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where," and a.districtNumber like ? ");
 		Timestamp childAge = BusiUtils.getChildAge();
-		params.add(childAge);
-		where.append(" and b.birthday >= ?");
+//		params.add(childAge);
+		where.append(" and b.birthday >= '"+childAge+"'");
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
-		StringBuilder hql = new StringBuilder("from HealthFile a, PersonalInfo b ").append(where).append(" order by a.fileNo");
-		List list = query(hql,params);
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
+		StringBuilder hql = new StringBuilder("from HealthFile a, PersonalInfo b ").append(where);
+		List list = query(hql);
 		
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
@@ -312,16 +470,16 @@ public class DataExportService extends HibernateDaoSupport{
 	
 	public String dataExportWomanBirthFile(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where," and a.districtNumber like ? ");
-		params.add("是");
-		where.append(" and b.bornStatus >= ?");
+//		params.add("是");
+		where.append(" and b.bornStatus >= '是'");
 		
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
-		StringBuilder hql = new StringBuilder("from HealthFile a, PersonalInfo b ").append(where).append(" order by a.fileNo");
-		List list = query(hql,params);
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
+		StringBuilder hql = new StringBuilder("from HealthFile a, PersonalInfo b ").append(where);
+		List list = query(hql);
 		
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
@@ -360,18 +518,18 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	public String dataExportBabyVisit(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, BabyVisit c, SamTaxempcode d,SamTaxorgcode e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 		
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
@@ -379,7 +537,7 @@ public class DataExportService extends HibernateDaoSupport{
 			headerList.add(headerVistAfterBorn[i]);
 		}
 		dataList.add(headerList);
-		List list = query(hql,params);
+		List list = query(hql);
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
@@ -416,19 +574,19 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	private String dataExportChild(String disNo,String filterKey,String filterVal,Integer type,String status,String title)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
 		where.append(" and c.dataType = " + type);
 		StringBuilder hql = new StringBuilder(
 			"from HealthFile a, PersonalInfo b, ChildrenMediExam c, SamTaxempcode d,SamTaxorgcode e")
-			.append(where).append(" order by a.fileNo");
-		List list = query(hql,params);
+			.append(where);
+		List list = query(hql);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerChildren.length;i++){
@@ -493,19 +651,19 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	public String dataExportChildExam36(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, ChildrenMediExam36 c, SamTaxempcode d,SamTaxorgcode e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 
-		List list = query(hql,params);
+		List list = query(hql);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerChildren.length;i++){
@@ -546,14 +704,17 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String dataExportHealthFile(String disNo,String filterKey,String filterVal)throws Exception{
+		try{
+			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportHealthfileWhere(disNo,filterKey,filterVal,params,where,null);
 		where.append(" and d.org_id = e.id ");
 		where.append(" and a.inputPersonId = d.loginname ");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+		where.append(" and a.inputPersonId = '"+ user.getUsername()+"' ");
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		System.out.println("======where============="+where);
 		StringBuilder hql = new StringBuilder(
 				"select dbo.denc(a.fileNo) as  fileNo ," +
@@ -565,7 +726,7 @@ public class DataExportService extends HibernateDaoSupport{
 				"b.linkman," +
 				"a.tel " +
 				"from HealthFile a, PersonalInfo b,  Sam_Taxempcode d , Organization e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 		System.out.println("=========hql=========="+hql);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
@@ -580,21 +741,22 @@ public class DataExportService extends HibernateDaoSupport{
 		for(int i =0 ; i<resultname.length;i++){
 			query.addScalar(resultname[i],Hibernate.STRING);
 		}
-		for (int i = 0; i < params.size(); i++) {
-			if(params.get(i) instanceof java.util.Date || params.get(i) instanceof java.sql.Date || params.get(i) instanceof java.sql.Timestamp){
-				query.setParameter(i, params.get(i),Hibernate.DATE);
-			}else if(params.get(i) instanceof BigDecimal){
-				query.setParameter(i, params.get(i),Hibernate.BIG_DECIMAL);
-			}else if(params.get(i) instanceof Integer){
-				query.setParameter(i, params.get(i),Hibernate.INTEGER);
-			}else if(params.get(i) instanceof String){
-				query.setParameter(i, params.get(i),Hibernate.STRING);
-			}else{
-				query.setParameter(i, params.get(i),Hibernate.STRING);
-			}
-//			query.setParameter(i, params.get(i));
-		}
+//		for (int i = 0; i < params.size(); i++) {
+//			if(params.get(i) instanceof java.util.Date || params.get(i) instanceof java.sql.Date || params.get(i) instanceof java.sql.Timestamp){
+//				query.setParameter(i, params.get(i),Hibernate.DATE);
+//			}else if(params.get(i) instanceof BigDecimal){
+//				query.setParameter(i, params.get(i),Hibernate.BIG_DECIMAL);
+//			}else if(params.get(i) instanceof Integer){
+//				query.setParameter(i, params.get(i),Hibernate.INTEGER);
+//			}else if(params.get(i) instanceof String){
+//				query.setParameter(i, params.get(i),Hibernate.STRING);
+//			}else{
+//				query.setParameter(i, params.get(i),Hibernate.STRING);
+//			}
+////			query.setParameter(i, params.get(i));
+//		}
 		List list =  query.list();
+		System.out.println("===sql end ===");
 //		for (Object object : list) {
 //			Object[] objs = (Object[]) object;
 ////			HealthFile file = (HealthFile) objs[0];
@@ -613,8 +775,15 @@ public class DataExportService extends HibernateDaoSupport{
 //			contentList.add((String)objs[7]);
 //			dataList.add(contentList);
 //		}
-		String fileName = writeExecl(disNo,list,HEALTHFILE,HEALTHFILE_TITLE);
+		dataList.addAll(list);
+		
+		String fileName = writeExecl(disNo,dataList,HEALTHFILE,HEALTHFILE_TITLE);
+		
 		return getDownloadURL() + fileName;
+		}catch (Exception e){
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
 	/**
@@ -626,24 +795,24 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	public String dataExportFirstBabyVisit(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, FirstVistBeforeBorn c, SamTaxempcode d,SamTaxorgcode e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerFirstVistBeforeBorn.length;i++){
 			headerList.add(headerFirstVistBeforeBorn[i]);
 		}
 		dataList.add(headerList);
-		List list = query(hql,params);
+		List list = query(hql);
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
@@ -679,24 +848,24 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	public String dataExportVisitBeforeBorn(String disNo,String filterKey,String filterVal)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, VisitBeforeBorn c, SamTaxempcode d,SamTaxorgcode e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerVistBeforeBorn.length;i++){
 			headerList.add(headerVistBeforeBorn[i]);
 		}
 		dataList.add(headerList);
-		List list = query(hql,params);
+		List list = query(hql);
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
@@ -734,27 +903,27 @@ public class DataExportService extends HibernateDaoSupport{
 	private String dataExportVisitAfter(String disNo,String filterKey,String filterVal,String type,
 			String status,String title)throws Exception{
 		List params = new ArrayList();
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildExportDataGeneralWhere(disNo,filterKey,filterVal,params,where,null);
 		
-		where.append(" and c.recordType = ?");
-		params.add(type);
+		where.append(" and c.recordType = '"+type+"'");
+//		params.add(type);
 		where.append(" and a.fileNo = c.fileNo");
 		where.append(" and c.inputPersonId = d.loginname");
 		where.append(" and d.orgId = e.id");
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+//		if (params.size() != 0) {
+//			where.replace(0, 4, " where ");
+//		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, VisitAfterBorn c, SamTaxempcode d,SamTaxorgcode e")
-				.append(where).append(" order by a.fileNo");
+				.append(where);
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerVistAfterBorn.length;i++){
 			headerList.add(headerVistAfterBorn[i]);
 		}
 		dataList.add(headerList);
-		List list = query(hql,params);
+		List list = query(hql);
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
@@ -832,7 +1001,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 */
 	private String DateToStr(Date date){
 		if(date != null){
-			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+			SimpleDateFormat fomart = new SimpleDateFormat("yyyyMMddhhmmss");
 			return fomart.format(date);
 		}
 		return "";
@@ -853,12 +1022,12 @@ public class DataExportService extends HibernateDaoSupport{
 		}
 		System.out.println("===========disNo========"+disNo);
 		if(appendVal == null){
-			params.add(disNo + '%');
-			appendVal = " and (a.districtNumber like ? or c.execDistrictNum like ?) ";
+//			params.add(disNo + '%');
+			appendVal = " and (a.districtNumber like '"+disNo + "%') ";
 		}
 		if (StringUtils.hasText(disNo)) {
-			params.add(disNo + '%');
-			where.append(appendVal);
+//			params.add(disNo + '%');
+			where.append(appendVal.replaceAll("?", "'"+disNo + "%'"));
 		}
 		if (StringUtils.hasText(filterKey)) {
 			
@@ -887,21 +1056,21 @@ public class DataExportService extends HibernateDaoSupport{
 						startDate = format.parse(filterVal + " 00:00:00");
 						endDate = format.parse(filterVal + " 23:59:59");
 					}
-					params.add(startDate);
-					params.add(endDate);
-					where.append(" and " + filterKey + " between ? and  ? ");
+//					params.add(startDate);
+//					params.add(endDate);
+					where.append(" and " + filterKey + " between '"+format.format(startDate)+"' and  '"+format.format(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterVal)) {
-					params.add(filterVal);
-					where.append(" and " + filterKey + " = ?");
+//					params.add(filterVal);
+					where.append(" and " + filterKey + " = '"+filterVal+"'");
 				}
 			}else{
 				if (StringUtils.hasText(filterVal)) {
-					params.add('%' + filterVal + '%');
-					where.append(" and " + filterKey + " like ?");
+//					params.add('%' + filterVal + '%');
+					where.append(" and " + filterKey + " like '%" + filterVal + "%'");
 				}
 			}
 		}
@@ -916,8 +1085,8 @@ public class DataExportService extends HibernateDaoSupport{
 			disNo = disNo.substring(0,disNo.length()-2);
 		}
 		if(appendVal == null){
-			params.add(disNo + '%');
-			appendVal = " and (a.districtNumber like ?) ";
+//			params.add(disNo + '%');
+			appendVal = " and (a.districtNumber like '"+disNo +"%') ";
 		}
 		if (StringUtils.hasText(disNo)) {
 			where.append(appendVal);
@@ -949,21 +1118,21 @@ public class DataExportService extends HibernateDaoSupport{
 						startDate = format.parse(filterVal + " 00:00:00");
 						endDate = format.parse(filterVal + " 23:59:59");
 					}
-					params.add(startDate);
-					params.add(endDate);
-					where.append(" and " + filterKey + " between ? and  ? ");
+//					params.add(startDate);
+//					params.add(endDate);
+					where.append(" and " + filterKey + " between '"+format.format(startDate)+"' and  '"+format.format(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
 			}else if(filterKey.equals("c.highRisk")){
 				if (StringUtils.hasText(filterVal)) {
-					params.add(filterVal);
-					where.append(" and " + filterKey + " = ?");
+//					params.add(filterVal);
+					where.append(" and " + filterKey + " = '"+filterVal+"'");
 				}
 			}else{
 				if (StringUtils.hasText(filterVal)) {
-					params.add('%' + filterVal + '%');
-					where.append(" and " + filterKey + " like ?");
+//					params.add('%' + filterVal + '%');
+					where.append(" and " + filterKey + " like '%"+filterVal+"%'");
 				}
 			}
 		}
@@ -982,13 +1151,17 @@ public class DataExportService extends HibernateDaoSupport{
 		return getHibernateTemplate().find(hql.toString(),params.toArray());
 	}
 	
+	private List query(StringBuilder hql) {
+		return getHibernateTemplate().find(hql.toString());
+	}
+	
 	/**
 	 * 乡镇汇总统计数据导出
 	 * @param startDay
 	 * @param endDay
 	 * @return
 	 */
-	public String dataExportByTownship(String startDay, String endDay){
+	public String dataExportByTownship(String startDay, String endDay) throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerStatisticTownship.length;i++){
@@ -1011,7 +1184,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param endDay
 	 * @return
 	 */
-	public String dataExportByHospital(String startDay, String endDay){
+	public String dataExportByHospital(String startDay, String endDay) throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerStatisticTownship.length;i++){
@@ -1034,7 +1207,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param endDay
 	 * @return
 	 */
-	public String dataExportByHighRisk(String startDay, String endDay){
+	public String dataExportByHighRisk(String startDay, String endDay) throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerStatisticHighRisk.length;i++){
@@ -1132,7 +1305,7 @@ public class DataExportService extends HibernateDaoSupport{
 	 * @param endDay
 	 * @return
 	 */
-	public String dataExportByMonth01(String startDay, String endDay){
+	public String dataExportByMonth01(String startDay, String endDay) throws Exception{
 		List dataList = new ArrayList();
 		List headerList = new ArrayList();
 		for(int i = 0;i<headerStatisticMonth01.length;i++){
@@ -1407,7 +1580,7 @@ public class DataExportService extends HibernateDaoSupport{
 		if(!ret.substring(ret.length() - 1, ret.length()).equals("/")){
 			ret += "/";
 		}
-		return ret;
+		return "/data/";
 	}
 	
 	/**
@@ -1420,6 +1593,8 @@ public class DataExportService extends HibernateDaoSupport{
 		return format.format(now);
 	}
 	
-	
+	public static void main(String[] args){
+		System.out.println("======"+CSVFormat .EXCEL.format(new String[]{"a\"bc"}));
+	}
 	
 }
