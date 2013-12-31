@@ -581,7 +581,7 @@ function formatdate(date){
       id: "tel",
       xtype: "input",
       setting: {
-        maxlen: 30,
+        maxlen: 20,
         size: 15
       }
     }, {
@@ -913,7 +913,7 @@ function formatdate(date){
       id: "doctor",
       xtype: "input",
       setting: {
-        maxlen: 18,
+        maxlen: 10,
         size: 18,
         defaultValFunc:window.getLastData
       }

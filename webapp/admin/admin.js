@@ -1360,6 +1360,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod statistic_04 mod_disable"><img src="../image/menu/statistic_04.gif"/><div>按年汇总统计</div><div class="remarks"></div></div>'+
 			'<div class="mod statistic_05 mod_disable"><img src="../image/menu/statistic_05.gif"/><div>按月汇总统计</div><div class="remarks"></div></div>'+
 			'<div class="mod statistic_06 mod_disable"><img src="../image/menu/statistic_06.gif"/><div>按日汇总统计</div><div class="remarks"></div></div>'+
+			'<div class="mod statistic_07 mod_disable"><img src="../image/menu/statistic_07.gif"/><div>按区县统计</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_personInfo_template'){
 		flag = true;

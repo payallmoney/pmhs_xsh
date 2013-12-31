@@ -999,7 +999,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 		if (StringUtils.hasText(districtId)) {
 //			params.add(districtId + '%');
 //			params.add(districtId + '%');
-			where.append(" and (a.districtNumber like '"+districtId +"%' or c.execDistrictNum like '"+districtId +"%' ) ");
+//			where.append(" and (a.districtNumber like '"+districtId +"%' or c.execDistrictNum like '"+districtId +"%' ) ");
+			where.append(" and (a.districtNumber like '"+districtId +"%' ) ");
 		}
 		String filterKey = qryCond.getFilterKey();
 		if (StringUtils.hasText(filterKey)) {

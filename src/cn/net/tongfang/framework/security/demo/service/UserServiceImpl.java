@@ -19,7 +19,7 @@ public class UserServiceImpl extends HibernateDaoSupport implements UserService 
 	@Override
 	public boolean findUser(SamTaxempcode queryVO) throws Exception {
 		log.debug("call findUser()");
-		List users = getHibernateTemplate().find("from SamTaxempcode where loginname=?", queryVO.getLoginname());
+		List users = getHibernateTemplate().find("from SamTaxempcode where loginname='"+queryVO.getLoginname()+"'");
 		return users == null || users.size() <= 0 ? false : true;
 	}
 
