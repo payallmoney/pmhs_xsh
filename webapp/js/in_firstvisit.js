@@ -2,7 +2,10 @@ var services = {
 	get : FirstVistBeforeBornService.get,
 	save : FirstVistBeforeBornService.save,
 	propValidate : FirstVistBeforeBornService.hasAllThese,
-	tableName : 'FirstVistBeforeBorn'
+	tableName : 'FirstVistBeforeBorn',
+	beforesave:checkFree,
+	aftersave:updateFree,
+	hasfree:true
 };
 
 var cfg = [

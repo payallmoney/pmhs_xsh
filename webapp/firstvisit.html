@@ -7,6 +7,7 @@
 <script type='text/javascript' src='/dwr/engine.js'></script>
 <script type='text/javascript' src='/dwr/interface/MetaProvider.js'></script>
 <script type='text/javascript' src='/dwr/interface/FileNumSearch.js'></script>
+<script type='text/javascript' src='/dwr/interface/VisitBeforeBornService.js'></script>
 <script type='text/javascript'
 	src='/dwr/interface/FirstVistBeforeBornService.js'></script>
 <script type='text/javascript' src='/dwr/interface/HighRiskService.js'></script>
@@ -30,10 +31,10 @@
 <script type="text/javascript" src="js/ext/ext-all-debug.js"></script>
 <script type="text/javascript" src="js/med.js"></script>
 <script type="text/javascript" src="js/validate.js"></script>
-<script type="text/javascript" src="js/app.js"></script>
-<script type="text/javascript" src="js/in_firstvisit.js"></script>
+<script type="text/javascript" src="js/app.js?v=20140101"></script>
+<script type="text/javascript" src="js/in_firstvisit.js?v=20140102"></script>
 <!-- Framework CSS -->
-<link rel="stylesheet" href="css/screen.css" type="text/css"
+<link rel="stylesheet" href="css/screen.css?v=20140102" type="text/css"
 	media="screen, projection" />
 <link rel="stylesheet" href="css/print.css" type="text/css"
 	media="print" />
@@ -296,13 +297,29 @@
 					</tr>
 					<tr>
 						<td class="header" rowspan="16">辅助检查</td>
-						<td>血常规</td>
+						<td><div>血常规</div>
+							<div class="onoffswitch">
+							    <input type="checkbox"  class="onoffswitch-checkbox" name="free-bloodroutine" id="free-bloodroutine" >
+							    <label class="onoffswitch-label" for="free-bloodroutine"  >
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4">血红蛋白值<span id="exam08"></span>g/L <br />
 							白细胞计数值<span id="exam09"></span>×10<sup>9</sup>/L 血小板计数值<span
 							id="exam10"></span>×10<sup>9</sup>/L <br />其他<span id="exam11"></span></td>
 					</tr>
 					<tr>
-						<td>尿常规*</td>
+						<td><div>尿常规*</div>
+							<div class="onoffswitch">
+							    <input type="checkbox"   class="onoffswitch-checkbox" name='free-urineroutine' id="free-urineroutine" >
+							    <label class="onoffswitch-label" for="free-urineroutine" >
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4">尿蛋白 <span id="exam12"></span> 尿糖 <span
 							id="exam13"></span> <br /> 尿酮体 <span id="exam14"></span> 尿潜血 <span
 							id="exam15"></span> <br />其他 <span id="exam16"></span>
@@ -310,17 +327,47 @@
 					</tr>
 					<tr>
 						<td rowspan="2">血型</td>
-						<td colspan="4" id="bloodTypeAbo"></td>
+						<td colspan="4" ><span id="bloodTypeAbo"></span>
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" name='free-bloodTypeAbo' id="free-bloodTypeAbo" >
+							    <label class="onoffswitch-label" for="free-bloodTypeAbo"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div></td>
 					</tr>
 					<tr>
-						<td colspan="4">RH阴性*:<span id="bloodTypeRh"></span></td>
+						<td colspan="4">RH阴性*:<span id="bloodTypeRh"></span>
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-bloodTypeRh" name="free-bloodTypeRh">
+							    <label class="onoffswitch-label" for="free-bloodTypeRh"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div></td>
 					</tr>
 					<tr>
-						<td>血糖*</td>
+						<td>血糖*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-bloodSugar" name="free-bloodSugar">
+							    <label class="onoffswitch-label" for="free-bloodSugar"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4"><span id="bloodSugar"></span>mmol/L</td>
 					</tr>
 					<tr>
-						<td>肝功能*</td>
+						<td>肝功能*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-liver" name="free-liver">
+							    <label class="onoffswitch-label" for="free-liver"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4">血清谷丙转氨酶 <span id="exam17"></span> U/L 血清谷草转氨酶
 							<span id="exam18"></span> U/L<br /> 白蛋白 <span id="exam19"></span>
 							g/L 总胆红素 <span id="exam20"></span> μmol/L<br /> 结合胆红素 <span
@@ -328,14 +375,30 @@
 						</td>
 					</tr>
 					<tr>
-						<td>肾功能*</td>
+						<td>肾功能*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-kidney" name="free-kidney">
+							    <label class="onoffswitch-label" for="free-kidney"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4">血清肌酐 <span id="exam22"></span> μmol/L 血尿素氮 <span
 							id="exam23"></span> mmol/L <br /> 血钾浓度 <span id="exam24"></span>
 							mmol/L 血钠浓度 <span id="exam25"></span> mmol/L
 						</td>
 					</tr>
 					<tr>
-						<td rowspan="2">阴道分泌物*</td>
+						<td rowspan="2">阴道分泌物*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-vaginalfluid" name="free-vaginalfluid">
+							    <label class="onoffswitch-label" for="free-vaginalfluid"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4"><span id="femeSecretion"></span><span
 							id="exam26other"></span></td>
 					</tr>
@@ -343,7 +406,15 @@
 						<td colspan="4">阴道清洁度：<span id="femeClean"></span></td>
 					</tr>
 					<tr>
-						<td rowspan="4">乙型肝炎五项</td>
+						<td rowspan="4">乙型肝炎五项
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-hepatitisB" name="free-hepatitisB">
+							    <label class="onoffswitch-label" for="free-hepatitisB"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td style="width: 140px;">乙型肝炎表面抗原</td>
 						<td><span id="hepatitis01"></span></td>
 						<td>乙型肝炎表面抗体</td>
@@ -366,19 +437,43 @@
 						
 					</tr>
 					<tr>
-						<td>梅毒血清学试验*</td>
+						<td>梅毒血清学试验*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-syphilis" name="free-syphilis">
+							    <label class="onoffswitch-label" for="free-syphilis"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td><span id="exam27"></span></td>
 						<td class="header">梅毒血清学检测时间</td>
 						<td colspan="2" id="syphilisDetectDate"></td>
 					</tr>
 					<tr>
-						<td>HIV抗体检测*</td>
+						<td>HIV抗体检测*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-hiv" name="free-hiv">
+							    <label class="onoffswitch-label" for="free-hiv"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td><span id="exam28"></span></td>
 						<td class="header">HIV抗体首次检测时间</td>
 						<td colspan="2" id="hivdetectDate"></td>
 					</tr>
 					<tr>
-						<td>B超*</td>
+						<td>B超*
+							<div class="onoffswitch" style='float:right'>
+							    <input type="checkbox"   class="onoffswitch-checkbox" id="free-bscan" name="free-bscan">
+							    <label class="onoffswitch-label" for="free-bscan"  title='已超过最大免费数'>
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div>
+						</td>
 						<td colspan="4"><span id="exam29"></span></td>
 					</tr>
 					<tr>
