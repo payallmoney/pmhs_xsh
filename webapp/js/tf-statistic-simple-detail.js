@@ -587,7 +587,35 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 					boxLabel : '全部（包含下级数据）',
 					id : 'containLowerLevel',
 					name : 'containLowerLevel'
-				}]
+				},{
+				text : '图表',
+				iconCls : 'c_refresh',
+				handler : function(){
+					//alert("zzz");
+					var o = this.getParams();
+					SummaryChartService.querySummaryChartStatistics(o,function(d){
+						//alert(d);
+
+						   var chart = new FusionCharts("/Charts/StackedColumn2D.swf", "indiChart333", "1000", "550", "0", "0");
+						   chart.setXMLData(d.xmlData);		   
+						   chart.render("chartdiv");
+						   chartTools.init("indiChart");
+						   //alert(d.selectData);
+						   document.getElementById("selectdiv").innerHTML = d.selectData;
+						   //alert(d.selectData);
+						   //if(o.statisticType == "010"){
+								
+						   //}
+							if(d.xmlData == ""){
+								document.getElementById("buttondiv").innerHTML = "没有记录";
+								
+							}
+
+					});
+					
+					//this.load(true);
+				}.createDelegate(this)
+			}]
 			},topPanel,grid]
 		});
 

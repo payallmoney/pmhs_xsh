@@ -38,6 +38,7 @@
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.util.service.vo.*" />
 		<dwr:convert type="bean" class="cn.net.tongfang.web.service.bo.*" />
+		<dwr:convert type="bean" class="cn.net.tongfang.web.service.*" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.demo.service.vo.*" />
 
@@ -45,7 +46,10 @@
 			class="cn.net.tongfang.framework.security.demo.service.TaxempDetail" />
 		<dwr:convert type="bean"
 			class="org.springframework.security.GrantedAuthorityImpl" />
-
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.web.service.chart.SummaryChartBean" />
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.web.service.map.MapConfigBean" />
 
 	</dwr:configuration>
 
@@ -533,4 +537,16 @@
 		<property name="fileNoGen" ref="fileNoGen" />
 		<dwr:remote javascript="CommonExamService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
+	
+	<bean id="summaryChartService" class="cn.net.tongfang.web.service.chart.SummaryChartService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="SummaryChartService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>	
+
+	<bean id="mapService" class="cn.net.tongfang.web.service.map.MapService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="MapService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>		
 </beans>
