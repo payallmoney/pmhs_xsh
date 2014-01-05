@@ -404,6 +404,11 @@ var fieldsArray = {};
         window.saving = false;
         
         function doSave(send, updateMode){
+        	if ( typeof services.beforesave == 'function' ) {
+            	if(!services.beforesave(send)){
+            		return;
+            	}
+            }
             if (saving) {
                 console.error("already saving");
                 return;
@@ -427,6 +432,10 @@ var fieldsArray = {};
                     }
                     if(typeof(immidiatelyLoadObj) != 'undefined'){
                     	immidiatelyLoadObj.immidiatelyLoad(d,send.foreignId);
+                    }
+                    if( typeof services.aftersave == 'function'){
+                    	console.log(d,send);
+                    	services.aftersave(d,send,function(){});
                     }
                     var personId = $("#fileNo span").html();
                     if(personId == null || personId == '')
@@ -721,8 +730,11 @@ var fieldsArray = {};
                         setFormVal(dataLoaded);
                         
                         initButtons();
-                        
+                        if(services.hasfree){
+                    		loadFree(data);
+                    	}
                     }
+                    
                     /**改用admin.js里面设置的统一异常处理, errorHandler : top.errorProcess **/}); 
                 } else {
                     //不需从server端加载，直接set
@@ -757,6 +769,9 @@ var fieldsArray = {};
 
             function quit(){
                 if ( typeof sendMessage == 'function' ) {
+                	if(typeof(services.exitfunc) == 'function'){
+                		services.exitfunc();
+                	}
                   sendMessage('quit');
                 }
             }
@@ -967,6 +982,7 @@ $(function(){
 		var id = unescape(json.id);
 		MetaProvider.isInputPerson(id,services.tableName,function(data){
 			medObj = med.buildForm(cfg);
+			
 			if(!data){
 				flag = true;
 				$('.save').remove();
@@ -976,6 +992,7 @@ $(function(){
 				$('button.quit').remove();
 			}
 		});
+		
 	}else if(json.certifiId != undefined){
 		medObj = med.buildForm(cfg);
 		var type = json.type;
@@ -1002,3 +1019,131 @@ $(function(){
        return "你确认要离开这个当前操作页面么?";
     };
 });
+$(function(){
+	$(".onoffswitch-label").bind("click",function(){
+		var inputitem = $(this).prev();
+		if(!inputitem.attr( "checked" )){
+			var flag = false;
+			var msg = '';
+			var id = '';
+			var inputid = inputitem.attr("id");
+			var examid = inputid.substring(5);//去掉了"free-"的字符串头
+			var fileno = $("#fileNo span").html();
+			//如果当前为选中,则判断是否达到最大数量
+			VisitBeforeBornService.checkcanfree(fileno,examid,{async:false,callback:function(data){
+				flag = data;
+			}});
+			if(!flag){
+				$.unblockUI();
+	            showDialog("已经达到免费最大数量!", true);
+	            return false;
+			}else{
+				return true;
+			}
+		}else{
+			return true;
+		}
+	})
+})
+
+//免费检查
+var free_ids = ['bloodroutine','bloodSugar','bloodTypeAbo','bloodTypeRh','bscan','hepatitisB','hiv','kidney','liver','syphilis','urineroutine','vaginalfluid'];
+function loadFree(data){
+	if(data && !Ext.isEmpty(data.id)){
+		console.log(data);
+		var fileno = data.fileNo;
+		var examid = data.id;
+		VisitBeforeBornService.loadFree(fileno,examid,{async:false,callback:function(data){
+			for(var i=0 ;i<data.length;i++){
+				console.log("#free-"+data[i]);
+				$("#free-"+data[i]).attr("checked",true);
+			}
+		}});
+	}
+}
+
+function checkFree(send,func){
+	var saveids = [];
+	var changevalues = [];
+	for(var i=0 ;i <free_ids.length;i++){
+		var id= free_ids[i];
+		if($("#free-"+id).attr && $("#free-"+id).attr("checked")){
+			saveids[saveids.length] = id;
+			changevalues[changevalues.length] = true;
+		}else{
+			changevalues[changevalues.length] = false;
+		}
+	}
+	var msglist;
+	var fileno = send.fileNo;
+	if(Ext.isEmpty(send.id)){
+		VisitBeforeBornService.checkALLcanfree(fileno,saveids,{async:false,callback:function(data){
+			msglist = data;
+		}});
+	}else{
+		VisitBeforeBornService.checkEditfree(fileno,send.id,free_ids,changevalues,{async:false,callback:function(data){
+			msglist = data;
+		}});
+	}
+	if(msglist instanceof Array && msglist.length >0){
+		var msg = "";
+        msg += $.map(msglist, function(v){
+            return "<li>" + v + "</li>";
+        }).join("");
+        $.unblockUI();
+        showDialog(msg, true);
+        return false;
+	}else{
+		return true;
+	}
+}
+
+
+function updateFree(id,send,func){
+	var saveids = [];
+	var changevalues = [];
+	for(var i = 0 ;i <free_ids.length ;i++){
+		if($("#free-"+free_ids[i]).attr && $("#free-"+free_ids[i]).attr("checked")){
+			saveids[saveids.length] = free_ids[i];
+			changevalues[changevalues.length] = true;
+		}else{
+			changevalues[changevalues.length] = false;
+		}
+	}
+	var fileno = send.fileNo;
+	if(!Ext.isEmpty(send.id)){
+		VisitBeforeBornService.updateFrees(fileno,free_ids,id,changevalues,{async:false,callback:function(data){
+		}});
+	}else{
+		VisitBeforeBornService.saveFrees(fileno,saveids,id,{async:false,callback:function(data){
+		}});
+	}
+}
+
+function delFree(){
+	var ids = ['bloodroutine','bloodSugar','bloodTypeAbo','bloodTypeRh','bscan','hepatitisB','hiv','kidney','liver','syphilis','urineroutine','vaginalfluid'];
+	for(var id in ids){
+		if(services[id]){
+			var fileno = $("#fileNo span").html();
+			VisitBeforeBornService.delFree(services[id],{async:false,callback:function(){
+			}});
+			services[id] = null;
+		}
+	}
+}
+
+function showDialog(msg, clickToClose){
+    $.blockUI({ css: { 
+        border: 'none', 
+        padding: '15px', 
+        backgroundColor: '#000', 
+        '-webkit-border-radius': '10px', 
+        '-moz-border-radius': '10px', 
+        opacity: .5, 
+        color: '#fff'
+    },  message: msg });
+    if (clickToClose) {
+        $('.blockOverlay').one('click', $.unblockUI);
+    }
+
+}

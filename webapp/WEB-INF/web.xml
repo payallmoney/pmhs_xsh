@@ -121,4 +121,15 @@
 		<url-pattern>/servlet/onLineTakePhotoServlet</url-pattern>
 	</servlet-mapping>
 
+    <servlet>
+        <display-name>OrganizationTreeServlet</display-name>
+        <servlet-name>OrganizationTreeServlet</servlet-name>
+        <servlet-class>cn.net.tongfang.web.service.map.OrganizationTreeServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>OrganizationTreeServlet</servlet-name>
+        <url-pattern>/OrganizationTreeServlet</url-pattern>
+    </servlet-mapping>	
+
 </web-app>
