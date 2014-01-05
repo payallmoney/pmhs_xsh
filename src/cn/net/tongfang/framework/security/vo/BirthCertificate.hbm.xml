@@ -118,5 +118,26 @@
         <property name="isSupply" type="java.lang.Integer">
             <column name="IsSupply" />
         </property>
+        <property name="motherAddress" type="java.lang.String">
+            <column name="MotherAddress" />
+        </property>
+        <property name="motherCardType" type="java.lang.String">
+            <column name="MotherCardType" />
+        </property>
+        <property name="motherCardTypeOther" type="java.lang.String">
+            <column name="MotherCardTypeOther" />
+        </property>
+        <property name="fatherAddress" type="java.lang.String">
+            <column name="FatherAddress" />
+        </property>
+        <property name="fatherCardType" type="java.lang.String">
+            <column name="FatherCardType" />
+        </property>
+        <property name="fatherCardTypeOther" type="java.lang.String">
+            <column name="FatherCardTypeOther" />
+        </property>
+        <property name="issuingUsers" type="java.lang.String">
+            <column name="IssuingUsers" />
+        </property>
     </class>
 </hibernate-mapping>

@@ -294,9 +294,18 @@ function useCertifiService(url){
 			var certifiId = $('.selected').html();
 			var orgName = escape(currentNode.text);
 			var nationality = escape('中国');
-			var province = escape(data[0]);
-			var city = escape(data[1]);
-			var county = escape(data[2]);
+			var province = '';
+			var city = '';
+			var county = '';
+			if(data.length >= 1){
+				province = escape(data[0]);
+			}
+			if(data.length >= 2){
+				city = escape(data[1]);
+			}
+			if(data.length >= 3){
+				county = escape(data[2]);
+			}
 			var params = '?certifiId=' + certifiId + '&borthOrganization=' + orgName +
 			'&issuingOrganization=' + orgName + '&motherNationality=' + nationality +
 			'&fatherNationality=' + nationality + '&province=' + province + 

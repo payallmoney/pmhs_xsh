@@ -268,7 +268,7 @@
 					</tr>
 					<tr>
 						<td class="header">接生人员</td>
-						<td id="widwife" colspan="3"></td>
+						<td id="widWife" colspan="3"></td>
 					</tr>
 				</table>
 			</div>
@@ -284,15 +284,15 @@
 					</tr>
 					<tr>
 						<td class="header">出生地</td>
-						<td colspan="7"><span id="province"></span>&nbsp;- <span
+						<td colspan="7"><span id="province" style="margin-left: 5px;"></span>&nbsp;- <span
 							id="city"></span>&nbsp;- <span id="county"></span>&nbsp;- <span
 							id="township"></span>乡</td>
 					</tr>
 					<tr>
-						<td class="header">健康状况</td>
-						<td id="healthStatus" colspan="3"></td>
+						<td class="header">医疗机构名称</td>
+						<td id="borthAddressCategory" colspan="3"></td>
 						<td class="header">身长</td>
-						<td colspan="3"><span id="height"></span>cm</td>
+						<td colspan="3"><span id="height" style="margin-left: 5px;"></span>cm</td>
 					</tr>
 					<tr>
 						<td class="header">母亲姓名</td>
@@ -305,8 +305,14 @@
 						<td id="motherNation"></td>
 					</tr>
 					<tr>
-						<td class="header">身份证号</td>
-						<td colspan="7" id="motherIdCard"></td>
+						<td class="header">住址</td>
+						<td colspan="7" id="motherAddress"></td>
+					</tr>
+					<tr>
+						<td class="header">有效身份证件类别</td>
+						<td colspan="3"><span id="motherCardType"></span><span id="motherCardTypeOther"></span></td>
+						<td colspan="2" class="header">有效身份证件号码</td>
+						<td colspan="2" id="motherIdCard"></td>
 					</tr>
 					<tr>
 						<td class="header">父亲姓名</td>
@@ -319,29 +325,30 @@
 						<td id="fatherNation"></td>
 					</tr>
 					<tr>
-						<td class="header">身份证号</td>
-						<td colspan="7" id="fatherIdCard"></td>
+						<td class="header">住址</td>
+						<td colspan="7" id="fatherAddress"></td>
 					</tr>
 					<tr>
-						<td class="header">出生地分类</td>
-						<td colspan="7"><span id="borthAddressCategory"></span> <span
-							id="otherBorthAddressCategory"></span></td>
+						<td class="header">有效身份证件类别</td>
+						<td colspan="3"><span id="fatherCardType"></span><span id="fatherCardTypeOther"></span></td>
+						<td colspan="2" class="header">有效身份证件号码</td>
+						<td colspan="2" id="fatherIdCard"></td>
 					</tr>
 					<tr>
 						<td class="header">出生证编号</td>
 						<td colspan="3" id="certifiId"></td>
 						<td class="header">签发日期</td>
-						<td colspan="3" id="issuingDatebo"></td>
+						<td colspan="3">&nbsp;<span id="issuingDatebo"></span></td>
 					</tr>
 					<tr>
-						<td class="header">签证机构</td>
+						<td class="header">签发机构</td>
 						<td colspan="3" id="issuingOrganization">${name}</td>
-						<td class="header">家庭住址</td>
-						<td colspan="3" id="familyAddress"></td>
+						<td class="header">签发人员</td>
+						<td colspan="3" id="issuingUsers"></td>
 					</tr>
 					<tr>
 						<td class="header">所属行政区划编码</td>
-						<td colspan="3"><span id="districtNum"></span>&nbsp;<font
+						<td colspan="3"><span id="districtNum" style="margin-left: 5px;"></span>&nbsp;<font
 							size=2 color="red" class="showDistrictName"></font></td>
 						<td class="header">联系电话</td>
 						<td id="linkmanTel" colspan="3"></td>
