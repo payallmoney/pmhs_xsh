@@ -78,5 +78,41 @@
 		<property name="inputPersonId" type="java.lang.String">
 			<column name="InputPersonId" />
 		</property>
+		<property name="chileHealthFileCount" type="java.lang.Long">
+			<column name="ChileHealthFileCount" />
+		</property>
+		<property name="childHighRiskHealthFileCount" type="java.lang.Long">
+			<column name="ChildHighRiskHealthFileCount" />
+		</property>
+		<property name="oldManHeathFileCount" type="java.lang.Long">
+			<column name="OldManHeathFileCount" />
+		</property>
+		<property name="hypertensionHealthFileCount" type="java.lang.Long">
+			<column name="HypertensionHealthFileCount" />
+		</property>
+		<property name="diabetesHealthFileCount" type="java.lang.Long">
+			<column name="DiabetesHealthFileCount" />
+		</property>
+		<property name="holergasiaHealthFileCount" type="java.lang.Long">
+			<column name="HolergasiaHealthFileCount" />
+		</property>
+		<property name="womanInitBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanInitBirthHealthFileCount" />
+		</property>
+		<property name="womanAreadyBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanAreadyBirthHealthFileCount" />
+		</property>
+		<property name="womanExceptionBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanExceptionBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskInitBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskInitBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskAreadyBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskAreadyBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskExceptionBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskExceptionBirthHealthFileCount" />
+		</property>
 	</class>
 </hibernate-mapping>

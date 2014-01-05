@@ -6,7 +6,8 @@
 -->
 <hibernate-mapping>
     <sql-query name="InputPersonProc" callable="true">
-    	<return alias="SummaryStatistics01" class="cn.net.tongfang.framework.security.vo.SummaryStatistics01">
+    	<return alias="SummaryStatistics01" class="cn.net.tongfang.framework.security.vo.SummaryStatistics01"/>
+    	    <!-- 
     		<return-property name="id" column="ID"></return-property>
     		<return-property name="rowId" column="RowID"></return-property>
     		<return-property name="orgId" column="OrgID"></return-property>
@@ -35,8 +36,8 @@
     		<return-property name="vacciInfoCount" column="VacciInfoCount"></return-property>
     		<return-property name="userName" column="UserName"></return-property>
     		<return-property name="orgName" column="OrgName"></return-property>
-    		<return-property name="optPersonId" column="OptPersonID"></return-property>
-    	</return>
+    		<return-property name="optPersonId" column="OptPersonID"></return-property> 
+    	</return>-->
     	{call InputPersonProc_SP(?,?,?,?,?)}
     </sql-query>
 </hibernate-mapping>

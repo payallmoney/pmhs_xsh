@@ -59,6 +59,9 @@ function createFieldset(id,name,x,y,title,items,width){
 
 
 function setVisibleDetail(gridName,colsVisibleTrue,colsVisibleFalse){
+	console.log(gridName);
+	console.log(colsVisibleTrue);
+	console.log(colsVisibleFalse);
 	for(var i = 0;i< colsVisibleTrue.length;i++){
 		Ext.getCmp(gridName).getColumnModel().setHidden(colsVisibleTrue[i], true);
 	}
@@ -68,6 +71,9 @@ function setVisibleDetail(gridName,colsVisibleTrue,colsVisibleFalse){
 }
 
 function getColumnsIndexDetail(gridName,colName){
+//	console.log(gridName + ":::" + colName);
+//	console.log(Ext.getCmp(gridName).getColumnModel().getIndexById(colName));
+//	console.log("***************************************");
 	return Ext.getCmp(gridName).getColumnModel().getIndexById(colName)
 }
 
@@ -102,8 +108,6 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 	}, {
 		name : 'babyAllVisitCount'
 	}, {
-		name : 'maternalCount'
-	}, {
 		name : 'firstVistBeforeBornCount'
 	}, {
 		name : 'visitBeforeBornCount'
@@ -127,6 +131,24 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		name : 'furiousVisitCount'
 	}, {
 		name : 'vacciInfoCount'
+	}, {
+		name : 'childHighRiskHealthFileCount'
+	}, {
+		name : 'oldManHeathFileCount'
+	}, {
+		name : 'medicalExamCount'
+	}, {
+		name : 'womanInitBirthHealthFileCount'
+	}, {
+		name : 'womanAreadyBirthHealthFileCount'
+	}, {
+		name : 'womanExceptionBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskInitBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskAreadyBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskExceptionBirthHealthFileCount'
 	}],
 	gridCmConfig : [ {
 		"header" : "组织机构",
@@ -151,8 +173,55 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 	}, {
 		"header" : "儿童档案数",
 		"dataIndex" : "babyHealthCount",
-		"id" : "babyHealthCount",
-		"hidden" : true
+		"id" : "babyHealthCount"
+	},{
+		"header" : "高危儿童档案数",
+		"dataIndex" : "childHighRiskHealthFileCount",
+		"id" : "childHighRiskHealthFileCount"
+	},{
+		"header" : "未结案孕产妇档案数",
+		"dataIndex" : "womanInitBirthHealthFileCount",
+		"id" : "womanInitBirthHealthFileCount"
+	},{
+		"header" : "已结案孕产妇档案数",
+		"dataIndex" : "womanAreadyBirthHealthFileCount",
+		"id" : "womanAreadyBirthHealthFileCount"
+	},{
+		"header" : "终止妊娠孕产妇档案数",
+		"dataIndex" : "womanExceptionBirthHealthFileCount",
+		"id" : "womanExceptionBirthHealthFileCount"
+	},{
+		"header" : "高危未结案孕产妇档案数",
+		"dataIndex" : "womanHighRiskInitBirthHealthFileCount",
+		"id" : "womanHighRiskInitBirthHealthFileCount"
+	},{
+		"header" : "高危已结案孕产妇档案数",
+		"dataIndex" : "womanHighRiskAreadyBirthHealthFileCount",
+		"id" : "womanHighRiskAreadyBirthHealthFileCount"
+	},{
+		"header" : "高危终止妊娠孕产妇档案数",
+		"dataIndex" : "womanHighRiskExceptionBirthHealthFileCount",
+		"id" : "womanHighRiskExceptionBirthHealthFileCount"
+	},{
+		"header" : "老年人档案数",
+		"dataIndex" : "oldManHeathFileCount",
+		"id" : "oldManHeathFileCount"
+	},{
+		"header" : "高血压档案数",
+		"dataIndex" : "hypertensionHealthCount",
+		"id" : "hypertensionHealthCount"
+	},{
+		"header" : "二型糖尿病档案数",
+		"dataIndex" : "diabetesHealthCount",
+		"id" : "diabetesHealthCount"
+	},{
+		"header" : "重性精神病档案数",
+		"dataIndex" : "furiousHealthCount",
+		"id" : "furiousHealthCount"
+	}, {
+		"header" : "健康体检",
+		"dataIndex" : "medicalExamCount",
+		"id" : "medicalExamCount"
 	}, {
 		"header" : "新生儿家庭访视",
 		"dataIndex" : "babyVisitCount",
@@ -174,11 +243,6 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		"dataIndex" : "babyAllVisitCount",
 		"id" : "babyAllVisitCount"
 	}, {
-		"header" : "孕产妇档案数",
-		"dataIndex" : "maternalCount",
-		"id" : "maternalCount",
-		"hidden" : true
-	}, {
 		"header" : "第1次产前随访",
 		"dataIndex" : "firstVistBeforeBornCount",
 		"id" : "firstVistBeforeBornCount"
@@ -199,28 +263,13 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		"dataIndex" : "visitAfterBorn42count",
 		"id" : "visitAfterBorn42count"
 	}, {
-		"header" : "高血压档案数",
-		"dataIndex" : "hypertensionHealthCount",
-		"id" : "hypertensionHealthCount",
-		"hidden" : true
-	}, {
 		"header" : "高血压随访",
 		"dataIndex" : "hypertensionVisitCount",
 		"id" : "hypertensionVisitCount"
 	}, {
-		"header" : "糖尿病档案数",
-		"dataIndex" : "diabetesHealthCount",
-		"id" : "diabetesHealthCount",
-		"hidden" : true
-	}, {
 		"header" : "糖尿病随访",
 		"dataIndex" : "diabetesVisitCount",
 		"id" : "diabetesVisitCount"
-	}, {
-		"header" : "重性精神病档案数",
-		"dataIndex" : "furiousHealthCount",
-		"id" : "furiousHealthCount",
-		"hidden" : true
 	}, {
 		"header" : "重性精神病随访",
 		"dataIndex" : "furiousVisitCount",
@@ -249,9 +298,10 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		var maternal = Ext.getCmp(this.idsArray.maternal).getValue();
 		var chronicDisease = Ext.getCmp(this.idsArray.chronicDisease).getValue();
 		var vacciInfor = Ext.getCmp(this.idsArray.vacciInfo).getValue();
+		var medicalexam = Ext.getCmp(this.idsArray.medicalexam).getValue();
 		var statisticResult = (healthfile ? '1' : '0') + (children ? '1' : '0') +
-			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '0' +
-			(vacciInfor ? '1' : '0');;
+			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + (medicalexam ? '1' : '0') +
+			(vacciInfor ? '1' : '0');
 		var isQryWipeOut = Ext.getCmp(this.idsArray.isQryWipeOut).getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
 		var containLowerLevel = Ext.getCmp('containLowerLevel').getValue();
@@ -277,7 +327,8 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		var maternal = Ext.getCmp(this.idsArray.maternal).getValue();
 		var chronicDisease = Ext.getCmp(this.idsArray.chronicDisease).getValue();
 		var vacciInfor = Ext.getCmp(this.idsArray.vacciInfo).getValue();
-		if(healthfile || children || maternal || chronicDisease){
+		var medicalexam = Ext.getCmp(this.idsArray.medicalexam).getValue();
+		if(healthfile || children || maternal || chronicDisease || medicalexam){
 			Ext.getCmp(this.idsArray.grid).getStore().reload();
 			
 			var colsVisibleFalse = [];
@@ -287,7 +338,6 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 			var org = tmpStatisticType.substring(0,1);
 			var inputPerson = this.statisticType.substring(1,2);
 			var date = this.statisticType.substring(2,3);
-//			console.log(org + '-' + inputPerson + '-' + date);
 			if(org == '1' || inputPerson == '1')
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'orgName'));
 			else
@@ -307,32 +357,26 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 			if(healthfile){
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'vhealthCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'chealthCount'));
-//				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'maternalCount'));
-//				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'oldManHeathFileCount'));
 			}else{
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'vhealthCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'chealthCount'));
-//				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'maternalCount'));
-//				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'oldManHeathFileCount'));
 			}
-			
+			if(healthfile || children){
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'childHighRiskHealthFileCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'childHighRiskHealthFileCount'));
+			}
 			if(children){
-//				if(!healthfile)
-//					colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'babyVisitCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'children01count'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'children02count'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'children36count'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'babyAllVisitCount'));
 			}else{
-//				if(!healthfile)
-//					colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'babyHealthCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'babyVisitCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'children01count'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'children02count'));
@@ -340,39 +384,49 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'babyAllVisitCount'));
 			}
 			
+			if(healthfile || maternal){
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanInitBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanAreadyBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanExceptionBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskInitBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskAreadyBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskExceptionBirthHealthFileCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanInitBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanAreadyBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanExceptionBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskInitBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskAreadyBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'womanHighRiskExceptionBirthHealthFileCount'));
+			}
+			
 			if(maternal){
-//				if(!healthfile)
-//					colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'maternalCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'firstVistBeforeBornCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'visitBeforeBornCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'prenatalVisitCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'visitAfterBornCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'visitAfterBorn42count'));
 			}else{
-//				if(!healthfile)
-//					colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'maternalCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'firstVistBeforeBornCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'visitBeforeBornCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'prenatalVisitCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'visitAfterBornCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'visitAfterBorn42count'));
 			}
-			
+			if(healthfile || chronicDisease){
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
+			}
 			if(chronicDisease){
-//				if(!healthfile){
-//					colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
-//					colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
-//					colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
-//				}
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionVisitCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesVisitCount'));
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'furiousVisitCount'));
 			}else{
-//				if(!healthfile){
-//					colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionHealthCount'));
-//					colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesHealthCount'));
-//					colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousHealthCount'));
-//				}
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'hypertensionVisitCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'diabetesVisitCount'));
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'furiousVisitCount'));
@@ -381,6 +435,11 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'vacciInfoCount'));
 			}else{
 				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'vacciInfoCount'));
+			}
+			if(medicalexam){
+				colsVisibleFalse.push(getColumnsIndexDetail(this.idsArray.grid,'medicalExamCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndexDetail(this.idsArray.grid,'medicalExamCount'));
 			}
 			setVisibleDetail(this.idsArray.grid,colsVisibleTrue,colsVisibleFalse);
 		}else{
@@ -463,10 +522,11 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 						  createDatefield(this.idsArray.endDate,this.idsArray.endDate,20,40,'Y-m-d',120,new Date())],140),
 				 createFieldset('statisticResult','statisticResult',180,0,'统计数据显示',
 						 [createCheckBox('居民健康档案',true,this.idsArray.healthfile,this.idsArray.healthfile,0,0,1,null),
-						  createCheckBox('儿童业务数据',false,this.idsArray.children,this.idsArray.children,100,0,2,null),
+						  createCheckBox('儿童业务数据',false,this.idsArray.children,this.idsArray.children,110,0,2,null),
 						  createCheckBox('孕产妇业务数据',false,this.idsArray.maternal,this.idsArray.maternal,0,25,3,null),
 						  createCheckBox('疫苗接种',false,this.idsArray.vacciInfo,this.idsArray.vacciInfo,110,25,3,null),
-						  createCheckBox('慢性病业务数据',false,this.idsArray.chronicDisease,this.idsArray.chronicDisease,0,50,4,null)],200)]
+						  createCheckBox('慢性病业务数据',false,this.idsArray.chronicDisease,this.idsArray.chronicDisease,0,50,4,null),
+						  createCheckBox('健康体检数据',false,this.idsArray.medicalexam,this.idsArray.medicalexam,110,50,3,null)],210)]
 			}]
 		});
 		this.menu = new Ext.tree.TreePanel({

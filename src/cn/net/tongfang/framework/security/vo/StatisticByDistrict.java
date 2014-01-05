@@ -27,6 +27,18 @@ public class StatisticByDistrict {
 	private Long medicalExamCount;
 	private String inputPersonId;
 
+	private Long chileHealthFileCount;
+	private Long childHighRiskHealthFileCount;
+	private Long oldManHeathFileCount;
+	private Long hypertensionHealthFileCount;
+	private Long diabetesHealthFileCount;
+	private Long holergasiaHealthFileCount;
+	private Long womanInitBirthHealthFileCount;
+	private Long womanAreadyBirthHealthFileCount;
+	private Long womanExceptionBirthHealthFileCount;
+	private Long womanHighRiskInitBirthHealthFileCount;
+	private Long womanHighRiskAreadyBirthHealthFileCount;
+	private Long womanHighRiskExceptionBirthHealthFileCount;	
 	// Constructors
 
 	/** default constructor */
@@ -44,7 +56,16 @@ public class StatisticByDistrict {
 			Long visitBeforeBornTotals, Long visitAfterBornCount,
 			Long visitAfterBorn42count, Long hypertensionVisitCount,
 			Long diabetesVisitCount, Long furiousVisitCount,
-			Long medicalExamCount, String inputPersonId) {
+			Long medicalExamCount, String inputPersonId,
+			Long chileHealthFileCount, Long childHighRiskHealthFileCount,
+			Long oldManHeathFileCount, Long hypertensionHealthFileCount,
+			Long diabetesHealthFileCount, Long holergasiaHealthFileCount,
+			Long womanInitBirthHealthFileCount,
+			Long womanAreadyBirthHealthFileCount,
+			Long womanExceptionBirthHealthFileCount,
+			Long womanHighRiskInitBirthHealthFileCount,
+			Long womanHighRiskAreadyBirthHealthFileCount,
+			Long womanHighRiskExceptionBirthHealthFileCount) {
 		super();
 		this.flagId = flagId;
 		this.id = id;
@@ -70,6 +91,18 @@ public class StatisticByDistrict {
 		this.furiousVisitCount = furiousVisitCount;
 		this.medicalExamCount = medicalExamCount;
 		this.inputPersonId = inputPersonId;
+		this.chileHealthFileCount = chileHealthFileCount;
+		this.childHighRiskHealthFileCount = childHighRiskHealthFileCount;
+		this.oldManHeathFileCount = oldManHeathFileCount;
+		this.hypertensionHealthFileCount = hypertensionHealthFileCount;
+		this.diabetesHealthFileCount = diabetesHealthFileCount;
+		this.holergasiaHealthFileCount = holergasiaHealthFileCount;
+		this.womanInitBirthHealthFileCount = womanInitBirthHealthFileCount;
+		this.womanAreadyBirthHealthFileCount = womanAreadyBirthHealthFileCount;
+		this.womanExceptionBirthHealthFileCount = womanExceptionBirthHealthFileCount;
+		this.womanHighRiskInitBirthHealthFileCount = womanHighRiskInitBirthHealthFileCount;
+		this.womanHighRiskAreadyBirthHealthFileCount = womanHighRiskAreadyBirthHealthFileCount;
+		this.womanHighRiskExceptionBirthHealthFileCount = womanHighRiskExceptionBirthHealthFileCount;
 	}
 
 	// Property accessors
@@ -78,7 +111,6 @@ public class StatisticByDistrict {
 		return flagId;
 	}
 
-	
 
 	public void setFlagId(String flagId) {
 		this.flagId = flagId;
@@ -267,4 +299,106 @@ public class StatisticByDistrict {
 	public void setInputPersonId(String inputPersonId) {
 		this.inputPersonId = inputPersonId;
 	}
+
+	public Long getChileHealthFileCount() {
+		return chileHealthFileCount;
+	}
+
+	public void setChileHealthFileCount(Long chileHealthFileCount) {
+		this.chileHealthFileCount = chileHealthFileCount;
+	}
+
+	public Long getChildHighRiskHealthFileCount() {
+		return childHighRiskHealthFileCount;
+	}
+
+	public void setChildHighRiskHealthFileCount(Long childHighRiskHealthFileCount) {
+		this.childHighRiskHealthFileCount = childHighRiskHealthFileCount;
+	}
+
+	public Long getOldManHeathFileCount() {
+		return oldManHeathFileCount;
+	}
+
+	public void setOldManHeathFileCount(Long oldManHeathFileCount) {
+		this.oldManHeathFileCount = oldManHeathFileCount;
+	}
+
+	public Long getHypertensionHealthFileCount() {
+		return hypertensionHealthFileCount;
+	}
+
+	public void setHypertensionHealthFileCount(Long hypertensionHealthFileCount) {
+		this.hypertensionHealthFileCount = hypertensionHealthFileCount;
+	}
+
+	public Long getDiabetesHealthFileCount() {
+		return diabetesHealthFileCount;
+	}
+
+	public void setDiabetesHealthFileCount(Long diabetesHealthFileCount) {
+		this.diabetesHealthFileCount = diabetesHealthFileCount;
+	}
+
+	public Long getHolergasiaHealthFileCount() {
+		return holergasiaHealthFileCount;
+	}
+
+	public void setHolergasiaHealthFileCount(Long holergasiaHealthFileCount) {
+		this.holergasiaHealthFileCount = holergasiaHealthFileCount;
+	}
+
+	public Long getWomanInitBirthHealthFileCount() {
+		return womanInitBirthHealthFileCount;
+	}
+
+	public void setWomanInitBirthHealthFileCount(Long womanInitBirthHealthFileCount) {
+		this.womanInitBirthHealthFileCount = womanInitBirthHealthFileCount;
+	}
+
+	public Long getWomanAreadyBirthHealthFileCount() {
+		return womanAreadyBirthHealthFileCount;
+	}
+
+	public void setWomanAreadyBirthHealthFileCount(
+			Long womanAreadyBirthHealthFileCount) {
+		this.womanAreadyBirthHealthFileCount = womanAreadyBirthHealthFileCount;
+	}
+
+	public Long getWomanExceptionBirthHealthFileCount() {
+		return womanExceptionBirthHealthFileCount;
+	}
+
+	public void setWomanExceptionBirthHealthFileCount(
+			Long womanExceptionBirthHealthFileCount) {
+		this.womanExceptionBirthHealthFileCount = womanExceptionBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskInitBirthHealthFileCount() {
+		return womanHighRiskInitBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskInitBirthHealthFileCount(
+			Long womanHighRiskInitBirthHealthFileCount) {
+		this.womanHighRiskInitBirthHealthFileCount = womanHighRiskInitBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskAreadyBirthHealthFileCount() {
+		return womanHighRiskAreadyBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskAreadyBirthHealthFileCount(
+			Long womanHighRiskAreadyBirthHealthFileCount) {
+		this.womanHighRiskAreadyBirthHealthFileCount = womanHighRiskAreadyBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskExceptionBirthHealthFileCount() {
+		return womanHighRiskExceptionBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskExceptionBirthHealthFileCount(
+			Long womanHighRiskExceptionBirthHealthFileCount) {
+		this.womanHighRiskExceptionBirthHealthFileCount = womanHighRiskExceptionBirthHealthFileCount;
+	}
+	
 }

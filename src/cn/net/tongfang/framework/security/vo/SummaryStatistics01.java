@@ -38,53 +38,24 @@ public class SummaryStatistics01 implements java.io.Serializable {
 	private String orgName;
 	private String optPersonId;
 
+	private Long childHighRiskHealthFileCount;
+	private Long oldManHeathFileCount;
+	private Long womanInitBirthHealthFileCount;
+	private Long womanAreadyBirthHealthFileCount;
+	private Long womanExceptionBirthHealthFileCount;
+	private Long womanHighRiskInitBirthHealthFileCount;
+	private Long womanHighRiskAreadyBirthHealthFileCount;
+	private Long womanHighRiskExceptionBirthHealthFileCount;	
+	private Long medicalExamCount;
 	// Constructors
 
 	/** default constructor */
 	public SummaryStatistics01() {
 	}
 
-	/** minimal constructor */
-	public SummaryStatistics01(Integer rowId, Integer orgId,
-			String inputPersonId, Long vhealthCount, Long chealthCount,
-			Long babyVisitCount, Long babyHealthCount, Long children01count,
-			Long children02count, Long children36count, Long babyAllVisitCount,
-			Long maternalCount, Long firstVistBeforeBornCount,
-			Long visitBeforeBornCount, Long prenatalVisitCount,
-			Long visitAfterBornCount, Long visitAfterBorn42count,
-			Long hypertensionVisitCount, Long hypertensionHealthCount,
-			Long diabetesVisitCount, Long diabetesHealthCount,
-			Long furiousVisitCount, Long furiousHealthCount,
-			Long vacciInfoCount, String optPersonId) {
-		this.rowId = rowId;
-		this.orgId = orgId;
-		this.inputPersonId = inputPersonId;
-		this.vhealthCount = vhealthCount;
-		this.chealthCount = chealthCount;
-		this.babyVisitCount = babyVisitCount;
-		this.babyHealthCount = babyHealthCount;
-		this.children01count = children01count;
-		this.children02count = children02count;
-		this.children36count = children36count;
-		this.babyAllVisitCount = babyAllVisitCount;
-		this.maternalCount = maternalCount;
-		this.firstVistBeforeBornCount = firstVistBeforeBornCount;
-		this.visitBeforeBornCount = visitBeforeBornCount;
-		this.prenatalVisitCount = prenatalVisitCount;
-		this.visitAfterBornCount = visitAfterBornCount;
-		this.visitAfterBorn42count = visitAfterBorn42count;
-		this.hypertensionVisitCount = hypertensionVisitCount;
-		this.hypertensionHealthCount = hypertensionHealthCount;
-		this.diabetesVisitCount = diabetesVisitCount;
-		this.diabetesHealthCount = diabetesHealthCount;
-		this.furiousVisitCount = furiousVisitCount;
-		this.furiousHealthCount = furiousHealthCount;
-		this.vacciInfoCount = vacciInfoCount;
-		this.optPersonId = optPersonId;
-	}
-
 	/** full constructor */
-	public SummaryStatistics01(Integer rowId, Integer orgId,
+
+	public SummaryStatistics01(String id, Integer rowId, Integer orgId,
 			String inputPersonId, String groupDate, Long vhealthCount,
 			Long chealthCount, Long babyVisitCount, Long babyHealthCount,
 			Long children01count, Long children02count, Long children36count,
@@ -95,7 +66,17 @@ public class SummaryStatistics01 implements java.io.Serializable {
 			Long hypertensionHealthCount, Long diabetesVisitCount,
 			Long diabetesHealthCount, Long furiousVisitCount,
 			Long furiousHealthCount, Long vacciInfoCount, String userName,
-			String orgName, String optPersonId) {
+			String orgName, String optPersonId,
+			Long childHighRiskHealthFileCount, Long oldManHeathFileCount,
+			Long womanInitBirthHealthFileCount,
+			Long womanAreadyBirthHealthFileCount,
+			Long womanExceptionBirthHealthFileCount,
+			Long womanHighRiskInitBirthHealthFileCount,
+			Long womanHighRiskAreadyBirthHealthFileCount,
+			Long womanHighRiskExceptionBirthHealthFileCount,
+			Long medicalExamCount) {
+		super();
+		this.id = id;
 		this.rowId = rowId;
 		this.orgId = orgId;
 		this.inputPersonId = inputPersonId;
@@ -124,6 +105,15 @@ public class SummaryStatistics01 implements java.io.Serializable {
 		this.userName = userName;
 		this.orgName = orgName;
 		this.optPersonId = optPersonId;
+		this.childHighRiskHealthFileCount = childHighRiskHealthFileCount;
+		this.oldManHeathFileCount = oldManHeathFileCount;
+		this.womanInitBirthHealthFileCount = womanInitBirthHealthFileCount;
+		this.womanAreadyBirthHealthFileCount = womanAreadyBirthHealthFileCount;
+		this.womanExceptionBirthHealthFileCount = womanExceptionBirthHealthFileCount;
+		this.womanHighRiskInitBirthHealthFileCount = womanHighRiskInitBirthHealthFileCount;
+		this.womanHighRiskAreadyBirthHealthFileCount = womanHighRiskAreadyBirthHealthFileCount;
+		this.womanHighRiskExceptionBirthHealthFileCount = womanHighRiskExceptionBirthHealthFileCount;
+		this.medicalExamCount = medicalExamCount;
 	}
 
 	// Property accessors
@@ -358,6 +348,83 @@ public class SummaryStatistics01 implements java.io.Serializable {
 
 	public void setOptPersonId(String optPersonId) {
 		this.optPersonId = optPersonId;
+	}
+
+	public Long getChildHighRiskHealthFileCount() {
+		return childHighRiskHealthFileCount;
+	}
+
+	public void setChildHighRiskHealthFileCount(Long childHighRiskHealthFileCount) {
+		this.childHighRiskHealthFileCount = childHighRiskHealthFileCount;
+	}
+
+	public Long getOldManHeathFileCount() {
+		return oldManHeathFileCount;
+	}
+
+	public void setOldManHeathFileCount(Long oldManHeathFileCount) {
+		this.oldManHeathFileCount = oldManHeathFileCount;
+	}
+
+	public Long getWomanInitBirthHealthFileCount() {
+		return womanInitBirthHealthFileCount;
+	}
+
+	public void setWomanInitBirthHealthFileCount(Long womanInitBirthHealthFileCount) {
+		this.womanInitBirthHealthFileCount = womanInitBirthHealthFileCount;
+	}
+
+	public Long getWomanAreadyBirthHealthFileCount() {
+		return womanAreadyBirthHealthFileCount;
+	}
+
+	public void setWomanAreadyBirthHealthFileCount(
+			Long womanAreadyBirthHealthFileCount) {
+		this.womanAreadyBirthHealthFileCount = womanAreadyBirthHealthFileCount;
+	}
+
+	public Long getWomanExceptionBirthHealthFileCount() {
+		return womanExceptionBirthHealthFileCount;
+	}
+
+	public void setWomanExceptionBirthHealthFileCount(
+			Long womanExceptionBirthHealthFileCount) {
+		this.womanExceptionBirthHealthFileCount = womanExceptionBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskInitBirthHealthFileCount() {
+		return womanHighRiskInitBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskInitBirthHealthFileCount(
+			Long womanHighRiskInitBirthHealthFileCount) {
+		this.womanHighRiskInitBirthHealthFileCount = womanHighRiskInitBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskAreadyBirthHealthFileCount() {
+		return womanHighRiskAreadyBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskAreadyBirthHealthFileCount(
+			Long womanHighRiskAreadyBirthHealthFileCount) {
+		this.womanHighRiskAreadyBirthHealthFileCount = womanHighRiskAreadyBirthHealthFileCount;
+	}
+
+	public Long getWomanHighRiskExceptionBirthHealthFileCount() {
+		return womanHighRiskExceptionBirthHealthFileCount;
+	}
+
+	public void setWomanHighRiskExceptionBirthHealthFileCount(
+			Long womanHighRiskExceptionBirthHealthFileCount) {
+		this.womanHighRiskExceptionBirthHealthFileCount = womanHighRiskExceptionBirthHealthFileCount;
+	}
+
+	public Long getMedicalExamCount() {
+		return medicalExamCount;
+	}
+
+	public void setMedicalExamCount(Long medicalExamCount) {
+		this.medicalExamCount = medicalExamCount;
 	}
 
 }
