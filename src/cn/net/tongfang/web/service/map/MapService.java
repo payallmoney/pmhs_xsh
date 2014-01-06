@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -13,6 +15,7 @@ import cn.net.tongfang.framework.security.vo.Pointer;
 
 public class MapService extends HibernateDaoSupport {
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String saveAreaRestrictConfig(String xzqCode, String sw_x,
 			String sw_y, String ne_x, String ne_y, String centerPoint_x,
 			String centerPoint_y, String zoomLevel) {
@@ -46,6 +49,7 @@ public class MapService extends HibernateDaoSupport {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String savePointer(String coordinates, String organId,
 			String organName) {
 		Pointer p = new Pointer();
@@ -78,6 +82,7 @@ public class MapService extends HibernateDaoSupport {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public String deletePointerById(String id) {
 		getSession().createQuery(
 				"delete from Pointer vo where vo.id = '" + id + "'")
