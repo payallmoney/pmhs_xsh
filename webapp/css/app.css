@@ -38,6 +38,7 @@
 	border-color: #95B8E7;
 }
 .login {
+	/*
 -webkit-background-clip: border-box;
 -webkit-background-origin: padding-box;
 -webkit-background-size: auto;
@@ -78,6 +79,7 @@ text-align: left;
 box-shadow: 2px 2px 3px #cccccc;
 filter: progid:DXImageTransform.Microsoft.Blur(pixelRadius=2,MakeShadow=false,ShadowOpacity=0.2);
 z-index: 9001;
+*/
 }
 .content{
 border-color: #95B8E7;
@@ -86,6 +88,14 @@ color: #000000;
 border: 1px solid  #95B8E7;
 font: 14px '宋体';
 padding:15px 0 0 0;
+}
+.content1{
+	padding-top:140px;
+	padding-left:0px;
+	line-height:32px;
+}
+.content1 p{
+	margin:0 0 0 100px !important;
 }
 .title{
 	font-weight:bold;
@@ -410,3 +420,6 @@ a{
 	max-height:182px; 
 	z-index:-1;
 }	
+.div_login{
+	
+}

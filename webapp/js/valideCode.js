@@ -41,12 +41,7 @@ function authentication(){
 	if(msg == ''){
 		formSubmiter();
 	}else{
-		Ext.Msg.show({
-			title:'错误提示',
-			msg:msg,
-			icon:Ext.MessageBox.ERROR,
-			buttons:Ext.Msg.OK
-		});
+		$(".error").html(msg);
 	}
 }
 
@@ -81,5 +76,7 @@ $().ready(function(){
 	$('#login_cancel').click(function(){
 		clearInput();
 	});
-	
+	if(window.location.href.indexOf('login_error')>0){
+		$(".error").html('用户名或密码错误!');
+	}
 });
