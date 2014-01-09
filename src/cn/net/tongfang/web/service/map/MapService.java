@@ -1,9 +1,13 @@
 package cn.net.tongfang.web.service.map;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +38,7 @@ public class MapService extends HibernateDaoSupport {
 		MapConfigBean mcb = new MapConfigBean();
 		TaxempDetail user = SecurityManager.currentOperator();
 		String districtId = String.valueOf(user.getDistrictId());
-//		System.out.println("districtId--------" + districtId + "-------");
+		// System.out.println("districtId--------" + districtId + "-------");
 		List<AreaRestrict> list = getSession().createQuery(
 				"from AreaRestrict vo where id = '" + districtId + "'").list();
 		if (list != null && list.size() > 0) {
@@ -129,7 +133,7 @@ public class MapService extends HibernateDaoSupport {
 	public MapConfigBean getAreaRestrictConfigByDistrictId(String districtId) {
 		MapConfigBean mcb = new MapConfigBean();
 		TaxempDetail user = SecurityManager.currentOperator();
-//		System.out.println("districtId--------" + districtId + "-------");
+		// System.out.println("districtId--------" + districtId + "-------");
 		List<AreaRestrict> list = getSession().createQuery(
 				"from AreaRestrict vo where id = '" + districtId + "'").list();
 		if (list != null && list.size() > 0) {
@@ -148,7 +152,7 @@ public class MapService extends HibernateDaoSupport {
 		TaxempDetail user = SecurityManager.currentOperator();
 		return user.getOrg().getId() + "-" + user.getOrg().getLevel();
 	}
-	
+
 	public String getOrganListByDistrictId(String districtId) {
 		String sql = "select a.Id as id,a.OrganId as organId,a.OrganName as organName,b.ParentID as parentId,b.Level as level from Pointer a,Organization b,District c where 1=1 and a.OrganId = b.ID and c.ID = b.DistrictNumber and c.ParentID = '"
 				+ districtId + "'";
@@ -158,7 +162,7 @@ public class MapService extends HibernateDaoSupport {
 						Hibernate.INTEGER)
 				.addScalar("level", Hibernate.INTEGER).list();
 		StringBuffer sb = new StringBuffer();
-		sb.append("{'total':'" + list.size() +"','rows':[");
+		sb.append("{'total':'" + list.size() + "','rows':[");
 		if (list != null && list.size() > 0) {
 			for (int i = 0; i < list.size(); i++) {
 				Object[] objs = (Object[]) list.get(i);
@@ -167,17 +171,44 @@ public class MapService extends HibernateDaoSupport {
 				String organName = (String) objs[2];
 				int parentId = (Integer) objs[3];
 				int level = (Integer) objs[4];
-				sb.append("{'id':'" + id + "','organId':'" + organId + "','organName':'" + organName + "'}");
+				sb.append("{'id':'" + id + "','organId':'" + organId
+						+ "','organName':'" + organName + "'}");
 				sb.append(",");
 			}
 			sb.delete(sb.lastIndexOf(","), sb.length());
 			sb.append("]}");
 
-		}else{
+		} else {
 			sb.append("]}");
 		}
 		String ret = sb.toString().replaceAll("\"", "").replaceAll("'", "\"");
 		System.out.println("-----------" + ret);
 		return ret;
+	}
+
+	public List<HealthFileElectronicMapVO> getOrganDetailInfo(String organId) {
+		System.out.println("-----------" + organId);
+		List<HealthFileElectronicMapVO> retList = new ArrayList();
+		Connection con = getSession().connection();
+		String procedure = "{call HealthFileElectronicMap(?) }";
+		try {
+			CallableStatement cstmt = con.prepareCall(procedure);
+			cstmt.setString(1, organId);
+			ResultSet rs = cstmt.executeQuery();
+			while(rs.next()){
+				HealthFileElectronicMapVO vo = new HealthFileElectronicMapVO();
+				vo.setItemName(rs.getString(1));
+				vo.setTotals(rs.getString(2));
+				retList.add(vo);
+//					System.out.println("存储过程得到的第一个返回值是:"+rs.getString(1));
+//					System.out.println("存储过程得到的第二个返回值是:"+rs.getString(2));
+			}
+			rs.close();
+			cstmt.close();
+			con.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retList;
 	}
 }
