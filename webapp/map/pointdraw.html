@@ -12,6 +12,8 @@
 
 <script type='text/javascript' src='/dwr/engine.js'></script>
 <script type='text/javascript' src='/dwr/interface/MapService.js'></script>
+<script type="text/javascript" src="SearchControl_min.js"></script>
+<link rel="stylesheet" href="SearchControl_min.css" />
 <title>卫生机构设置</title>  
 <style type="text/css">  
 html{height:100%}  
@@ -151,8 +153,8 @@ $(function(){
 	
 
 		<div data-options="region:'north',iconCls:'icon-ok'" style="width:900px;border:1">
+			<div id="searchBox" style="width:600px;border:1"></div>
 			<input type="button" value="选择" onclick="selectStyle()"/>
-
 		</div>		
 
 
@@ -278,6 +280,12 @@ function openTreeOrgan(){
 	$('#organizationinfo').dialog('open'); 
 
 }
+
+var searchControl = new BMapLib.SearchControl({
+    container : "searchBox" //存放控件的容器
+    , map     : map  //关联地图对象
+    , type    : 1  //检索类型
+});
 
 </script>
 
