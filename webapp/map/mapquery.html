@@ -79,7 +79,7 @@ $(function(){
 						var sContent =
 						"<table>" + 
 							"<tr><td>" +
-								"<img style='float:right;margin:2px' id='imgDemo' src='red1.jpg' width='16' height='16'/>" +
+								"<img style='float:right;margin:2px' id='imgDemo' src='red1.jpg' width='15' height='15'/>" +
 							"</td><td>" +
 								"<span style='margin:0 0 10px 0;color:orange'>" + organName + "</span>" + 
 							"</td></tr>" +
@@ -94,7 +94,12 @@ $(function(){
 							//alert(JSON.stringify(data));
 							$.each(data, function(i, n){
 									//alert(i);
-									sContent = sContent + "<tr><td align=right><font color='orange'>" + n.itemName + "</font>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><font color='orange'><b>" + n.totals + "</b></font></td></tr>";
+									if(i%2 == 0){
+										sContent = sContent + "<tr><td align=right><font color='orange'>" + n.itemName + "</font>:<td><td align=left><font color='red'>" + n.totals + "</font></td>";							
+									}else{
+										sContent = sContent + "<td align=right><font color='orange'>" + n.itemName + "</font>:<td><td align=left><font color='red'>" + n.totals + "</font></td></tr>";
+									}
+									
 								//alert(JSON.stringify(n));
 							});
 							$.messager.progress('close');
