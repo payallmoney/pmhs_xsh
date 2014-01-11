@@ -170,6 +170,17 @@
 <!-- 20121229 -->
 <script type="text/javascript" src="../js/tf-repeatfiles.js"></script>
 <script type='text/javascript' src='/dwr/interface/repeatFileNoService.js'></script>
+
+<!-- 20131105 -->
+<script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/js/chart/jquery.simplemodal.js"></script>
+<script type="text/javascript" src="/js/chart/FusionCharts.js"></script>
+<script type="text/javascript" src="/js/chart/chartsplot.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/chart/chart.css"/>
+<script type='text/javascript' src='/dwr/interface/SummaryChartService.js'></script>
+<link rel="stylesheet" type="text/css" href="/themes/sunny/easyui.css">
+<link rel="stylesheet" type="text/css" href="/themes/icon.css">
+
 <style type="text/css">
 html,body {
 	font: normal 12px '宋体';
@@ -422,6 +433,111 @@ ScoreService.basicInformationMap( {callback:function(data){
     window.meta = data;
 }});
 </script>
+		<!-- 图标展现的模态框 -->
+		<div id="indiChart" style="width:900px">
+			<!--<div id="chartTitle"></div>-->
+			<div class="close"><a href="#" class="simplemodal-close" style="display:none;">x</a></div>
+			<div id="chartContent" style="display:none;">
+
+				<table width="100%%" border="0" cellspacing="0" cellpadding="3" align="center">
+				  <tr> 
+					<td valign="top" class="text" align="center"> <div id="chartdiv" align="center"> 
+						</div>
+					  <script type="text/javascript">
+						function subChart(queryType,subId){
+						//var o = app.summaryOptPerson.getParams();
+						//alert(JSON.stringify(o));
+							if(queryType == 1){
+								var o = app.summaryOptPerson.getParams();
+								document.getElementById("queryTypeId").innerText = "1";
+							}
+							if(queryType == 2){
+								var o = app.summaryOrg.getParams();
+								document.getElementById("queryTypeId").innerText = "2";
+							}
+							if(queryType == 3){
+								var o = app.summaryByYear.getParams();
+								document.getElementById("queryTypeId").innerText = "3";
+							}
+							if(queryType == 4){
+								var o = app.summaryByMonth.getParams();
+								document.getElementById("queryTypeId").innerText = "4";
+							}
+							if(queryType == 5){
+								var o = app.summaryByDay.getParams();
+								document.getElementById("queryTypeId").innerText = "5";
+							}
+							SummaryChartService.querySummaryChartStatisticsBySub(o,subId,function(d){
+								//alert(d);
+
+								   var chart = new FusionCharts("/Charts/Column2D.swf", "indiChart444", "1000", "550", "0", "0");
+								   chart.setXMLData(d);		   
+								   chart.render("chartdiv");
+								   chartTools.init("indiChart");
+								   //alert(d.selectData);
+								   //if(o.statisticType == "010"){
+										
+								   //}
+
+
+							});
+						
+						}
+
+						function bySum(){
+							var queryTypeId = document.getElementById('queryTypeId').innerText;
+							//alert(queryTypeId);
+							var o = null;
+							if(queryTypeId == 1){
+								o = app.summaryOptPerson.getParams();
+							}
+							if(queryTypeId == 2){
+								o = app.summaryOrg.getParams();
+							}
+							if(queryTypeId == 3){
+								o = app.summaryByYear.getParams();
+							}
+							if(queryTypeId == 4){
+								o = app.summaryByMonth.getParams();
+							}
+							if(queryTypeId == 5){
+								o = app.summaryByDay.getParams();
+							}
+							//alert(JSON.stringify(o));
+							SummaryChartService.querySummaryChartStatistics(o,function(d){
+								//alert(d);
+
+								   var chart = new FusionCharts("/Charts/StackedColumn2D.swf", "indiChart555", "1000", "550", "0", "0");
+								   chart.setXMLData(d.xmlData);		   
+								   chart.render("chartdiv");
+								   chartTools.init("indiChart");
+								   //alert(d.selectData);
+								   document.getElementById("selectdiv").innerHTML = d.selectData;
+								   //alert(d.selectData);
+								   //if(o.statisticType == "010"){
+										
+								   //}
+
+
+							});						
+						}
+						</script> </td>
+				  </tr>
+				  <tr> 
+					<td valign="top" class="text" align="center"> 
+
+						<span id="buttondiv" align="center"> 
+							<a href="javascript:bySum()" class="easyui-linkbutton">汇总</a>
+						</span>
+						<span id="selectdiv" align="center"> 
+						</span>
+					</td>
+				  </tr>
+				</table>
+				<div id="queryTypeId" style="display:none"></div>
+			</div>
+		</div>
+
 </body>
 </html>
 
