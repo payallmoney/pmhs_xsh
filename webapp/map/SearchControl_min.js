@@ -1672,7 +1672,7 @@ var BMapLib = window.BMapLib = BMapLib || {};
                 cityTab = this.dom.cityTab;
             myCity.get(function(result){
                 var cityName = result.name;
-                map.setCenter(cityName);
+                //map.setCenter(cityName);
                 cityTab.innerHTML = cityName;
             });
             
@@ -1942,12 +1942,12 @@ var BMapLib = window.BMapLib = BMapLib || {};
                     var geoArr = geo.split(",");
                     var px = new BMap.Pixel(geoArr[0], geoArr[1]);
                     var point = me.projection.pointToLngLat(px);
-                    me.map.centerAndZoom(point, 13);
+                    //me.map.centerAndZoom(point, 13);
                     me.hideCitySelect();
                 } else if (type == 3) {
                     //点击了全市
                     var cityName = t.getAttribute("cityname");
-                    me.map.centerAndZoom(cityName, 12);
+                    //me.map.centerAndZoom(cityName, 12);
                     me.setCityTabName(cityName);
                     me.hideCitySelect();
                 }

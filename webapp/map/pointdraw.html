@@ -9,11 +9,13 @@
 <script type="text/javascript" src="../js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=10fd14046e11c2285e97009ff7cc6a0f"></script>
 <script type="text/javascript" src="MarkerTool.js"></script>
-
+<script type="text/javascript" src="dwrloader.js"></script>
 <script type='text/javascript' src='/dwr/engine.js'></script>
+<script type='text/javascript' src='/dwr/util.js'></script>
 <script type='text/javascript' src='/dwr/interface/MapService.js'></script>
 <script type="text/javascript" src="SearchControl_min.js"></script>
 <link rel="stylesheet" href="SearchControl_min.css" />
+
 <title>卫生机构设置</title>  
 <style type="text/css">  
 html{height:100%}  
@@ -29,8 +31,12 @@ var html = [];
 html.push('<span style="font-size:12px">卫生组织机构信息: </span><br/>');
 html.push('<table border="0" cellpadding="1" cellspacing="1" >');
 html.push('  <tr>'); 
-html.push('      <td align="left" class="common">组织机构选择：</td>');
+html.push('      <td align="left" class="common">树形组织机构选择：</td>');
 html.push('      <td colspan="1"><input type="button" name="btnOK"  onclick="openTreeOrgan()" value="组织机构选择"></td>');
+html.push('  </tr>');
+html.push('  <tr>'); 
+html.push('      <td align="left" class="common">查询组织机构选择：</td>');
+html.push('      <td colspan="1"><input type="button" name="btn2OK"  onclick="openGridDid()" value="组织机构选择"></td>');
 html.push('  </tr>');
 html.push('  <tr>'); 
 html.push('      <td align="left" class="common">组织机构代码：</td>');
@@ -132,15 +138,32 @@ $(function(){
 
 		});	
 	
+ 	
+		$('#positonButtonId').bind('click', function(){  
 
+			var organName = document.getElementById("organNameId").value;
+			$('#payerInfoId').datagrid({
+				columns: [[
+					{field:"organId",title:'organId',width:100},
+					{field:"organName",title:'organName',width:200}
+				]],
+				singleSelect: true,
+				autoRowHeight: false,
+				width: 510,
+				height: 150,
+				url: MapService.getDataGridData(organName,function(data){
+						//alert(JSON.stringify(data));
+					})
+			});	
+		
+		});
 
-
-	
-
-	
-	
 	}
 )
+
+function openGridDid(){
+	$('#positionDiv').dialog('open');
+}
 </script>
 
 </head>  
@@ -173,10 +196,16 @@ $(function(){
 
 
 <script>
+
 var coordinates = "";
 
 var map = new BMap.Map("container");
-map.centerAndZoom("昆明", 16);
+
+MapService.getDistinctName(function(data){
+	map.centerAndZoom(data, 16);
+})
+
+
 map.enableScrollWheelZoom(); 
 
 //拼接infowindow内容字串
@@ -198,8 +227,11 @@ mkrTool.addEventListener("markend", function(evt){
 		MapService.queryPointerById(coordinates,function(data){
 			//var mkr = evt.marker;
 			mkr.openInfoWindow(infoWin);
-			document.getElementById("organId").value = data.organId;
-			document.getElementById("organName").value = data.organName;
+			if(data != null){
+				document.getElementById("organId").value = data.organId;
+				document.getElementById("organName").value = data.organName;		
+			}
+
 
 			//alert(JSON.stringify(data));
 		});		
@@ -214,7 +246,10 @@ mkrTool.addEventListener("markend", function(evt){
 function fnOK(){
     var organId = encodeHTML(document.getElementById("organId").value);
     var organName = encodeHTML(document.getElementById("organName").value);
-
+	if(organId == ""){
+		alert("组织机构代码不能为空");
+		return ;
+	}
 
     if(curMkr){
         //设置label
@@ -230,6 +265,11 @@ function fnOK(){
      //   map.closeInfoWindow();
     }
 	MapService.savePointer(coordinates,organId,organName,function(d){
+		if(d == "01"){
+			alert("已经存在相同的组织机构，不能保存");
+			//map.removeOverlay(delmaker);
+			return;
+		}
 		if(d == "00"){
 			alert("保存成功");
 		}
@@ -287,6 +327,34 @@ var searchControl = new BMapLib.SearchControl({
     , type    : 1  //检索类型
 });
 
+function queryOrgans(){
+	var organName = document.getElementById("organNameId").value;
+	var sContent = "<table border=0 cellpadding=2 cellspacing=0><tr><td>选择</td><td>组织机构代码</td><td>组织机构名称</td></tr>";
+	MapService.getOrganData(organName,function(data){
+	$.each(data, function(i, n){
+		sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "_" + n.name + "'/></td><td>"+n.id+"</td><td>" + n.name + "</td></tr>"
+
+	});
+	sContent = sContent + "</table>"
+		//alert(JSON.stringify(d));
+	document.getElementById("payerInfoId").innerHTML = sContent;
+
+	})
+}
+
+function selectOrgan(){
+	var chkObjs = document.getElementsByName("organName");
+	for(var i=0;i<chkObjs.length;i++){
+		if(chkObjs[i].checked){
+			document.getElementById("organId").value = chkObjs[i].value.split("_")[0];
+			document.getElementById("organName").value = chkObjs[i].value.split("_")[1];	
+			$('#positionDiv').window('close');  // open a window   
+			break;
+			//alert(chkObjs[i].value);
+		}
+	}	
+
+}
 </script>
 
 
@@ -299,6 +367,15 @@ var searchControl = new BMapLib.SearchControl({
 			</div>
 		</div>
 
+
+		<div id="positionDiv" class="easyui-dialog" title="组织机构查询" data-options="iconCls:'icon-save',closed:true,modal:false,collapsible:true"  style="width:550px;padding:20px">
+			组织机构名称：<input type="text" id="organNameId" style="width:200px;"/>&nbsp;&nbsp;
+			<a href="#" id="positonButtonId2" onclick="queryOrgans()" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-search'">查询</a>&nbsp;&nbsp;
+			<a href="javascript:selectOrgan()" class="easyui-linkbutton" iconCls="icon-add">选择</a>&nbsp;&nbsp;
+			<div id="payerInfoId" style="height:300px;overflow:auto;">
+			
+			</div>
+		</div>
 </body>  
 
 </html>  
