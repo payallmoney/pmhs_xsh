@@ -4,7 +4,12 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -15,10 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.AreaRestrict;
+import cn.net.tongfang.framework.security.vo.Organization;
 import cn.net.tongfang.framework.security.vo.Pointer;
 
 public class MapService extends HibernateDaoSupport {
 
+	public String getDistinctName(){
+		return SecurityManager.currentOperator().getDistrict().getName();
+	}
+	
 	@Transactional(propagation = Propagation.REQUIRED)
 	public String saveAreaRestrictConfig(String xzqCode, String sw_x,
 			String sw_y, String ne_x, String ne_y, String centerPoint_x,
@@ -29,7 +39,7 @@ public class MapService extends HibernateDaoSupport {
 		ar.setNe(ne_x + "," + ne_y);
 		ar.setCenterPoint(centerPoint_x + "," + centerPoint_y);
 		ar.setZoomLevel(zoomLevel);
-		getSession().save(ar);
+		getSession().saveOrUpdate(ar);
 		getSession().flush();
 		return "00";
 	}
@@ -56,6 +66,11 @@ public class MapService extends HibernateDaoSupport {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public String savePointer(String coordinates, String organId,
 			String organName) {
+		String hql = "from Pointer where organId = '" + organId + "'";
+		List list = getSession().createQuery(hql).list();
+		if (list != null && list.size() > 0) {
+			return "01";
+		}
 		Pointer p = new Pointer();
 		p.setId(coordinates);
 		p.setOrganId(organId);
@@ -195,13 +210,13 @@ public class MapService extends HibernateDaoSupport {
 			CallableStatement cstmt = con.prepareCall(procedure);
 			cstmt.setString(1, organId);
 			ResultSet rs = cstmt.executeQuery();
-			while(rs.next()){
+			while (rs.next()) {
 				HealthFileElectronicMapVO vo = new HealthFileElectronicMapVO();
 				vo.setItemName(rs.getString(1));
 				vo.setTotals(rs.getString(2));
 				retList.add(vo);
-//					System.out.println("存储过程得到的第一个返回值是:"+rs.getString(1));
-//					System.out.println("存储过程得到的第二个返回值是:"+rs.getString(2));
+				// System.out.println("存储过程得到的第一个返回值是:"+rs.getString(1));
+				// System.out.println("存储过程得到的第二个返回值是:"+rs.getString(2));
 			}
 			rs.close();
 			cstmt.close();
@@ -211,4 +226,40 @@ public class MapService extends HibernateDaoSupport {
 		}
 		return retList;
 	}
+
+	public List<Map<String,Object>> getDataGridData(String organName) {
+		List<Map<String,Object>> items = new ArrayList<Map<String,Object>>();    
+		String hql = "from Organization where name like '%" + organName + "%'";
+		Query query = getSession().createQuery(hql);
+		List queryList = query.list();
+		JSONObject jSONObject = new JSONObject();
+		if (queryList != null && queryList.size() > 0) {
+			JSONArray result = new JSONArray();
+			for (int i = 0; i < queryList.size(); i++) {
+				Organization vo = (Organization) queryList.get(i);
+				Map<String,Object> item = new HashMap<String,Object>(); 
+				item.put("organId", vo.getId());    
+		        item.put("organName", vo.getName());   
+		        items.add(item);
+			}
+		}
+		return items;
+	}
+	
+	public List<Organization> getOrganData(String organName) {
+		List<Organization> items = new ArrayList<Organization>();    
+		String hql = "from Organization where name like '%" + organName + "%'";
+		Query query = getSession().createQuery(hql);
+		List queryList = query.list();
+		JSONObject jSONObject = new JSONObject();
+		if (queryList != null && queryList.size() > 0) {
+			JSONArray result = new JSONArray();
+			for (int i = 0; i < queryList.size(); i++) {
+				Organization vo = (Organization) queryList.get(i);
+		        items.add(vo);
+			}
+		}
+		return items;
+	}
+
 }
