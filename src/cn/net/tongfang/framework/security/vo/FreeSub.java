@@ -17,6 +17,7 @@ public class FreeSub implements java.io.Serializable {
 	private Timestamp examtime;
 	private String inputpersonid;
 	private Integer status;
+	private Integer type;
 
 	// Constructors
 
@@ -37,7 +38,8 @@ public class FreeSub implements java.io.Serializable {
 
 	/** full constructor */
 	public FreeSub(String id, String fileno, String examname, String examid,
-			Timestamp examtime, String inputpersonid, Integer status) {
+			Timestamp examtime, String inputpersonid, Integer status,
+			Integer type) {
 		this.id = id;
 		this.fileno = fileno;
 		this.examname = examname;
@@ -45,6 +47,7 @@ public class FreeSub implements java.io.Serializable {
 		this.examtime = examtime;
 		this.inputpersonid = inputpersonid;
 		this.status = status;
+		this.type = type;
 	}
 
 	// Property accessors
@@ -103,6 +106,14 @@ public class FreeSub implements java.io.Serializable {
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
 	}
 
 }

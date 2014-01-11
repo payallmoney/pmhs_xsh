@@ -28,5 +28,8 @@
         <property name="status" type="java.lang.Integer">
             <column name="status" not-null="true" />
         </property>
+        <property name="type" type="java.lang.Integer">
+            <column name="type" />
+        </property>
     </class>
 </hibernate-mapping>

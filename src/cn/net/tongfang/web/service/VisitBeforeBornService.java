@@ -286,7 +286,7 @@ public class VisitBeforeBornService extends
 	}
 
 	public List checkEditfree(String fileno, String examid, String[] codelist,
-			final boolean[] values) {
+			final boolean[] values,int type) {
 		List msglist = new ArrayList();
 		for (int i = 0; i < codelist.length; i++) {
 			checkHasFree(fileno, codelist[i]);
@@ -312,16 +312,16 @@ public class VisitBeforeBornService extends
 		return msglist;
 	}
 	
-	public List loadFree(String fileno , String examid){
+	public List loadFree(String fileno , String examid,int type){
 		return getHibernateTemplate().find(
 				" select examname From FreeSub Where fileNo = '" + fileno
 				+ "' and examid = '" + examid
-				+ "' and status = 1");
+				+ "' and status = 1 and type = "+type);
 	}
 
 	// 保存
 	public Object updateFrees(final String fileno, final String[] examcodes,
-			final String examid, final boolean[] values) {
+			final String examid, final boolean[] values,final int type) {
 		final String userid = SecurityManager.currentOperator().getUsername();
 		return getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session)
@@ -331,7 +331,7 @@ public class VisitBeforeBornService extends
 							" select 1 From FreeSub Where fileNo = '" + fileno
 									+ "' and examname = '" + examcodes[i]
 									+ "' and examid = '" + examid
-									+ "' and status = 1");
+									+ "' and status = 1 and type="+type);
 					if ((values[i] && sublist.size() > 0)
 							|| (!values[i] && sublist.size() <= 0)) {
 						continue;
@@ -341,7 +341,7 @@ public class VisitBeforeBornService extends
 								"insert into free_sub values('" + id + "','"
 										+ fileno + "','" + examcodes[i] + "','"
 										+ examid + "',getDate(),'" + userid
-										+ "',1)").executeUpdate();
+										+ "',1,"+type+")").executeUpdate();
 						session.createSQLQuery(
 								"update free_main set leftnum = leftnum -1 Where fileNo = '"
 										+ fileno + "' and examname = '"
@@ -351,7 +351,7 @@ public class VisitBeforeBornService extends
 								"delete free_sub where fileno = '" + fileno
 										+ "' and examname='" + examcodes[i]
 										+ "' and examid = '" + examid
-										+ "' and status = 1").executeUpdate();
+										+ "' and status = 1 and type ="+type).executeUpdate();
 						session.createSQLQuery(
 								"update free_main set leftnum = leftnum +1 Where fileNo = '"
 										+ fileno + "' and examname = '"
@@ -365,7 +365,7 @@ public class VisitBeforeBornService extends
 
 	// 保存
 	public Object saveFrees(final String fileno, final String[] examcodes,
-			final String examid) {
+			final String examid, final int type) {
 		final String userid = SecurityManager.currentOperator().getUsername();
 		return getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session)
@@ -379,7 +379,7 @@ public class VisitBeforeBornService extends
 							"insert into free_sub values('" + id + "','"
 									+ fileno + "','" + examcode + "','"
 									+ finalid + "',getDate(),'" + userid
-									+ "',1)").executeUpdate();
+									+ "',1,"+type+")").executeUpdate();
 					session.createSQLQuery(
 							"update free_main set leftnum = leftnum -1 Where fileNo = '"
 									+ fileno + "' and examname = '" + examcode
@@ -390,42 +390,4 @@ public class VisitBeforeBornService extends
 		});
 	}
 
-	public Map querFreeList(String examname, String userdistrict,
-			Map<String, Map> params, Map<String, Map<String, String>> basemap,
-			List<String> collist) throws Exception {
-
-		// 计算总数,页数
-		String countsql = " select count(*) from free_main ";
-		SQLQuery countquery = this.getSession().createSQLQuery(countsql);
-		List countlist = countquery.list();
-		int allcount = 0;
-		if (countlist.size() > 0) {
-			allcount = (Integer) countlist.get(0);
-		}
-		Map pageparams = params.get("page");
-		int pagesize = 20;
-		int currentpage = Integer.parseInt((String) pageparams.get("pagesize"));
-		int pages = allcount / pagesize + (allcount % pagesize > 0 ? 1 : 0);
-		if (currentpage > pages) {
-			currentpage = pages;
-		}
-		if (currentpage <= 0) {
-			currentpage = 1;
-		}
-		int min = pagesize * (currentpage - 1);
-		int max = pagesize * currentpage;
-		// 查询分页结果
-		SQLQuery query = this.getSession().createSQLQuery(
-				" select * from free_main ");
-		query.setFirstResult(min);
-		query.setMaxResults(max);
-		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-		Map ret = new HashMap();
-		List retlist = query.list();
-		ret.put("rows", retlist);
-		ret.put("currentpage", currentpage);
-		ret.put("total", allcount);
-		ret.put("pages", pages);
-		return ret;
-	}
 }

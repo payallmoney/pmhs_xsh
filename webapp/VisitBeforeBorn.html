@@ -32,7 +32,7 @@
 <script type="text/javascript" src="js/in_VisitBeforeBorn.js"></script>
 <script type="text/javascript" src="js/health-book-multi.js"></script>
 <!-- Framework CSS -->
-<link rel="stylesheet" href="css/screen.css" type="text/css"
+<link rel="stylesheet" href="css/screen.css?v=20140106" type="text/css"
 	media="screen, projection" />
 <link rel="stylesheet" href="css/print.css" type="text/css"
 	media="print" />
@@ -204,11 +204,25 @@
 							id="systolicPressure"></span></td>
 					</tr>
 					<tr>
-						<td colspan="2" class="header">血红蛋白值（g/L）</td>
+						<td colspan="2" class="header">血红蛋白值（g/L）
+							<div class="onoffswitch">
+							    <input type="checkbox"  class="onoffswitch-checkbox" name="free-bloodroutine" id="free-bloodroutine" >
+							    <label class="onoffswitch-label" for="free-bloodroutine"  >
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div></td>
 						<td colspan="2"><span id="exam04"></span></td>
 					</tr>
 					<tr>
-						<td colspan="2" class="header">尿蛋白*</td>
+						<td colspan="2" class="header">尿蛋白*
+							<div class="onoffswitch">
+							    <input type="checkbox"   class="onoffswitch-checkbox" name='free-urineroutine' id="free-urineroutine" >
+							    <label class="onoffswitch-label" for="free-urineroutine" >
+							        <div class="onoffswitch-inner"></div>
+							        <div class="onoffswitch-switch"></div>
+							    </label>
+							</div></td>
 						<td colspan="2"><span id="exam05"></span></td>
 					</tr>
 					<tr>

@@ -2324,7 +2324,21 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVisitBeforeBornRecords(List ids)throws Exception {
+	public void removeVisitBeforeBornRecords(final List<String> ids)throws Exception {
+		getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				for (String id : ids) {
+					List<FreeSub> list = session.createQuery("from FreeSub where examid = '"+id+"' and status = 1 ").list();
+					for(FreeSub sub : list){
+						session.createQuery(" update FreeMain set leftnum = leftnum+1 where id.fileno = '"+sub.getFileno()+"' and id.examname ='"+sub.getExamname()+"'").executeUpdate();
+						session.delete(sub);
+					}
+				}
+				return null;
+			}
+		});
 		removeRecords(ids, VisitBeforeBorn.class);
 	}
 
