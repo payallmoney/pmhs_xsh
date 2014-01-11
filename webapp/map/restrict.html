@@ -27,25 +27,10 @@ a.theforever_knight1:visited {color:orange;}
 <script type="text/javascript">
 
 var html = [];
-html.push('<span style="font-size:12px">卫生组织机构信息: </span><br/>');
 html.push('<table border="0" cellpadding="1" cellspacing="1" >');
-html.push('  <tr>'); 
-html.push('      <td align="left" class="common">组织机构选择：</td>');
-html.push('      <td colspan="1"><input type="button" name="btnOK"  onclick="openTreeOrgan()" value="组织机构选择"></td>');
-html.push('  </tr>');
-html.push('  <tr>'); 
-html.push('      <td align="left" class="common">组织机构代码：</td>');
-html.push('      <td colspan="1"><input type="text" maxlength="50" size="18" id="organId" readonly="true"></td>');
-html.push('  </tr>');
 html.push('  <tr>');
 html.push('      <td  align="left" class="common">组织机构名称：</td>');
-html.push('      <td colspan="1"><input type="text" maxlength="30" size="18" id="organName" readonly="true></td>');
-html.push('  </tr>');
-html.push('  <tr>');
-html.push('	     <td  align="center" colspan="2">');
-html.push('          <input type="button" name="btnOK"  onclick="fnOK()" value="保存">&nbsp;&nbsp;');
-html.push('		     <input type="button" name="btnClear" onclick="fnClear()" value="删除">');
-html.push('	     </td>');
+html.push('      <td colspan="1"><span id="organName"></span></td>');
 html.push('  </tr>');
 html.push('</table>');	
 
@@ -69,12 +54,12 @@ $(function(){
 
 				maker.addEventListener("click", function(){
 					var id = this.getPosition().lng + "," + this.getPosition().lat;
-					alert(id);
+					//alert(id);
 					MapService.queryPointerById(id,function(data){
 						//var mkr = evt.marker;
 						maker.openInfoWindow(infoWin);
-						document.getElementById("organId").value = data.organId;
-						document.getElementById("organName").value = data.organName;
+						//document.getElementById("organId").value = data.organId;
+						document.getElementById("organName").innerHTML = data.organName;
 
 						//alert(JSON.stringify(data));
 					});
@@ -112,7 +97,31 @@ $(function(){
 				document.getElementById("xzqCodeId").value = node.id;
 				//alert(node.text + "---" + node.id);
 
+				MapService.getAreaRestrictConfigByDistrictId(node.id,function(d){
+					if(d == null){
+						document.getElementById("sw_xId").value = "";
+						document.getElementById("sw_yId").value = "";
+						document.getElementById("ne_xId").value = "";
+						document.getElementById("ne_yId").value = "";
+						document.getElementById("center_xId").value = "";
+						document.getElementById("center_yId").value = "";
+						document.getElementById("zoom_levelId").value= "";	
 
+
+						//alert("没有获取到地图限制范围");
+						return;
+					}else{
+						document.getElementById("sw_xId").value = d.sw.split(",")[0];
+						document.getElementById("sw_yId").value = d.sw.split(",")[1];
+						document.getElementById("ne_xId").value = d.ne.split(",")[0];
+						document.getElementById("ne_yId").value = d.ne.split(",")[1];
+						document.getElementById("center_xId").value = d.centerPoint.split(",")[0];
+						document.getElementById("center_yId").value = d.centerPoint.split(",")[1];
+						document.getElementById("zoom_levelId").value= d.zoomLevel;								
+
+					}
+
+				});
  
 			},
 			onDblClick:function(node){
@@ -139,6 +148,26 @@ $(function(){
 			var center_x = document.getElementById("center_xId").value;
 			var center_y = document.getElementById("center_yId").value;
 			var zoom_level = document.getElementById("zoom_levelId").value;
+			if(xzqCode == ""){
+				alert("行政区域代码不能为空");
+				return;
+			}
+			if(sw_x == ""){
+				alert("西南限制点X不能为空");
+				return;
+			}
+			if(ne_x == ""){
+				alert("东北限制点X不能为空");
+				return;
+			}
+			if(center_x == ""){
+				alert("中心定位点X不能为空");
+				return;
+			}
+			if(zoom_level == ""){
+				alert("地图缩放级别不能为空");
+				return;
+			}
 			MapService.saveAreaRestrictConfig(xzqCode,sw_x,sw_y,ne_x,ne_y,center_x,center_y,zoom_level,function(d){
 				alert("配置保存成功");
 
@@ -180,7 +209,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行政区域名称：
 						</td>
 						<td>
-							<input id="xzqNameId" type="text" value=""/>
+							<input id="xzqNameId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -190,7 +219,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行政区域代码：
 						</td>
 						<td>
-							<input id="xzqCodeId" type="text" value=""/>
+							<input id="xzqCodeId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -205,7 +234,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;<input id="swPointCheckboxId" type="checkbox"/>&nbsp;&nbsp;西南限制点X：
 						</td>
 						<td>
-							<input id="sw_xId" type="text" value=""/>
+							<input id="sw_xId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -215,7 +244,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;西南限制点Y：
 						</td>
 						<td>
-							<input id="sw_yId" type="text" value=""/>
+							<input id="sw_yId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -232,7 +261,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;<input id="nePointCheckboxId" type="checkbox"/>&nbsp;&nbsp;东北限制点X：
 						</td>
 						<td>
-							<input id="ne_xId" type="text" value=""/>
+							<input id="ne_xId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -242,7 +271,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;东北限制点Y：
 						</td>
 						<td>
-							<input id="ne_yId" type="text" value=""/>
+							<input id="ne_yId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -259,7 +288,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;中心定位点X：
 						</td>
 						<td>
-							<input id="center_xId" type="text" value=""/>
+							<input id="center_xId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -269,7 +298,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;中心定位点Y：
 						</td>
 						<td>
-							<input id="center_yId" type="text" value=""/>
+							<input id="center_yId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -284,7 +313,7 @@ $(function(){
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;地图缩放级别：
 						</td>
 						<td>
-							<input id="zoom_levelId" type="text" value=""/>
+							<input id="zoom_levelId" type="text" value="" readonly="true"/>
 						 
 						</td>
 
@@ -315,9 +344,13 @@ $(function(){
 
 
 <script>
+var centerCityName = "";
+
 
 	var map = new BMap.Map("container");
-	map.centerAndZoom("昆明", 16);
+	MapService.getDistinctName(function(data){
+		map.centerAndZoom(data, 16);
+	})
 	map.enableScrollWheelZoom(); 
 	map.addEventListener("click", function(e){
 		if(document.getElementById("swPointCheckboxId").checked){
