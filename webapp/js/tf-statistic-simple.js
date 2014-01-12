@@ -107,6 +107,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 		var maternal = Ext.getCmp('maternal').getValue();
 		var chronicDisease = Ext.getCmp('chronicDisease').getValue();
 		var vacciInfor = Ext.getCmp('vacciInfor').getValue();
+//		var medicalexam = Ext.getCmp('medicalexam').getValue();
 		var statisticResult = (healthfile ? '1' : '0') + (children ? '1' : '0') +
 			(maternal ? '1' : '0') + (chronicDisease ? '1' : '0') + '0' + 
 			(vacciInfor ? '1' : '0');
@@ -165,6 +166,7 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 		var maternal = Ext.getCmp('maternal').getValue();
 		var chronicDisease = Ext.getCmp('chronicDisease').getValue();
 		var vacciInfor = Ext.getCmp('vacciInfor').getValue();
+//		var medicalexam = Ext.getCmp('medicalexam').getValue();
 		if((org || inputPerson || year || month || day) && (healthfile || children || maternal || chronicDisease)){
 			if (isReset) {
 				this.pagingBar.changePage(1);
@@ -191,72 +193,78 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 			if(healthfile){
 				colsVisibleFalse.push(getColumnsIndex('vhealthCount'));
 				colsVisibleFalse.push(getColumnsIndex('chealthCount'));
-//				colsVisibleFalse.push(getColumnsIndex('babyHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndex('maternalCount'));
-//				colsVisibleFalse.push(getColumnsIndex('hypertensionHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndex('diabetesHealthCount'));
-//				colsVisibleFalse.push(getColumnsIndex('furiousHealthCount'));
+				colsVisibleFalse.push(getColumnsIndex('healthCount'));
+				colsVisibleFalse.push(getColumnsIndex('medicalExamCount'));
+				colsVisibleFalse.push(getColumnsIndex('oldManHeathFileCount'));
 			}else{
 				colsVisibleTrue.push(getColumnsIndex('vhealthCount'));
 				colsVisibleTrue.push(getColumnsIndex('chealthCount'));
-//				colsVisibleTrue.push(getColumnsIndex('babyHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndex('maternalCount'));
-//				colsVisibleTrue.push(getColumnsIndex('hypertensionHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndex('diabetesHealthCount'));
-//				colsVisibleTrue.push(getColumnsIndex('furiousHealthCount'));
+				colsVisibleTrue.push(getColumnsIndex('healthCount'));
+				colsVisibleTrue.push(getColumnsIndex('medicalExamCount'));
+				colsVisibleTrue.push(getColumnsIndex('oldManHeathFileCount'));
 			}
-			
+			if(healthfile || children){
+				colsVisibleFalse.push(getColumnsIndex('babyHealthCount'));
+				colsVisibleFalse.push(getColumnsIndex('childHighRiskHealthFileCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndex('babyHealthCount'));
+				colsVisibleTrue.push(getColumnsIndex('childHighRiskHealthFileCount'));
+			}
 			if(children){
-//				if(!healthfile)
-//					colsVisibleFalse.push(getColumnsIndex('babyHealthCount'));
 				colsVisibleFalse.push(getColumnsIndex('babyVisitCount'));
 				colsVisibleFalse.push(getColumnsIndex('children01count'));
 				colsVisibleFalse.push(getColumnsIndex('children02count'));
 				colsVisibleFalse.push(getColumnsIndex('children36count'));
 				colsVisibleFalse.push(getColumnsIndex('babyAllVisitCount'));
 			}else{
-//				if(!healthfile)
-//					colsVisibleTrue.push(getColumnsIndex('babyHealthCount'));
 				colsVisibleTrue.push(getColumnsIndex('babyVisitCount'));
 				colsVisibleTrue.push(getColumnsIndex('children01count'));
 				colsVisibleTrue.push(getColumnsIndex('children02count'));
 				colsVisibleTrue.push(getColumnsIndex('children36count'));
 				colsVisibleTrue.push(getColumnsIndex('babyAllVisitCount'));
 			}
-			
+			if(healthfile || maternal){
+				colsVisibleFalse.push(getColumnsIndex('womanInitBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndex('womanAreadyBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndex('womanExceptionBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndex('womanHighRiskInitBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndex('womanHighRiskAreadyBirthHealthFileCount'));
+				colsVisibleFalse.push(getColumnsIndex('womanHighRiskExceptionBirthHealthFileCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndex('womanInitBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndex('womanAreadyBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndex('womanExceptionBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndex('womanHighRiskInitBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndex('womanHighRiskAreadyBirthHealthFileCount'));
+				colsVisibleTrue.push(getColumnsIndex('womanHighRiskExceptionBirthHealthFileCount'));
+			}
 			if(maternal){
-//				if(!healthfile)
-//					colsVisibleFalse.push(getColumnsIndex('maternalCount'));
 				colsVisibleFalse.push(getColumnsIndex('firstVistBeforeBornCount'));
 				colsVisibleFalse.push(getColumnsIndex('visitBeforeBornCount'));
 				colsVisibleFalse.push(getColumnsIndex('prenatalVisitCount'));
 				colsVisibleFalse.push(getColumnsIndex('visitAfterBornCount'));
 				colsVisibleFalse.push(getColumnsIndex('visitAfterBorn42count'));
 			}else{
-//				if(!healthfile)
-//					colsVisibleTrue.push(getColumnsIndex('maternalCount'));
 				colsVisibleTrue.push(getColumnsIndex('firstVistBeforeBornCount'));
 				colsVisibleTrue.push(getColumnsIndex('visitBeforeBornCount'));
 				colsVisibleTrue.push(getColumnsIndex('prenatalVisitCount'));
 				colsVisibleTrue.push(getColumnsIndex('visitAfterBornCount'));
 				colsVisibleTrue.push(getColumnsIndex('visitAfterBorn42count'));
 			}
-			
+			if(healthfile || chronicDisease){
+				colsVisibleFalse.push(getColumnsIndex('hypertensionHealthCount'));
+				colsVisibleFalse.push(getColumnsIndex('diabetesHealthCount'));
+				colsVisibleFalse.push(getColumnsIndex('furiousHealthCount'));
+			}else{
+				colsVisibleTrue.push(getColumnsIndex('hypertensionHealthCount'));
+				colsVisibleTrue.push(getColumnsIndex('diabetesHealthCount'));
+				colsVisibleTrue.push(getColumnsIndex('furiousHealthCount'));
+			}
 			if(chronicDisease){
-//				if(!healthfile){
-//					colsVisibleFalse.push(getColumnsIndex('hypertensionHealthCount'));
-//					colsVisibleFalse.push(getColumnsIndex('diabetesHealthCount'));
-//					colsVisibleFalse.push(getColumnsIndex('furiousHealthCount'));
-//				}
 				colsVisibleFalse.push(getColumnsIndex('hypertensionVisitCount'));
 				colsVisibleFalse.push(getColumnsIndex('diabetesVisitCount'));
 				colsVisibleFalse.push(getColumnsIndex('furiousVisitCount'));
 			}else{
-//				if(!healthfile){
-//					colsVisibleTrue.push(getColumnsIndex('hypertensionHealthCount'));
-//					colsVisibleTrue.push(getColumnsIndex('diabetesHealthCount'));
-//					colsVisibleTrue.push(getColumnsIndex('furiousHealthCount'));
-//				}
 				colsVisibleTrue.push(getColumnsIndex('hypertensionVisitCount'));
 				colsVisibleTrue.push(getColumnsIndex('diabetesVisitCount'));
 				colsVisibleTrue.push(getColumnsIndex('furiousVisitCount'));
@@ -266,6 +274,11 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 			}else{
 				colsVisibleTrue.push(getColumnsIndex('vacciInfoCount'));
 			}
+//			if(medicalexam){
+//				colsVisibleFalse.push(getColumnsIndex('medicalExamCount'));
+//			}else{
+//				colsVisibleTrue.push(getColumnsIndex('medicalExamCount'));
+//			}
 			setVisible(colsVisibleTrue,colsVisibleFalse);
 		}else{
 			showInfoObj.Error('请选择条件!');
@@ -378,10 +391,12 @@ Ext.tf.SummaryStatisticPanel = Ext.extend(Ext.Panel,{
 						  })],120),
 				 createFieldset('statisticResult','statisticResult',325,0,'统计数据显示',
 						 [createCheckBox('居民健康档案',true,'healthfile','healthfile',0,0,1,null),
-						  createCheckBox('儿童业务数据',false,'children','children',100,0,2,null),
+						  createCheckBox('儿童业务数据',false,'children','children',110,0,2,null),
 						  createCheckBox('孕产妇业务数据',false,'maternal','maternal',0,25,3,null),
 						  createCheckBox('疫苗接种',false,'vacciInfor','vacciInfor',110,25,3,null),
-						  createCheckBox('慢性病业务数据',false,'chronicDisease','chronicDisease',0,50,4,null)],200)]
+						  createCheckBox('慢性病业务数据',false,'chronicDisease','chronicDisease',0,50,4,null)
+//						  createCheckBox('健康体检数据',false,'medicalexam','medicalexam',110,50,3,null)
+						  ],210)]
 			}]
 		});
 		

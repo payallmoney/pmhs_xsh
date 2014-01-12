@@ -1053,7 +1053,7 @@ function loadFree(data){
 		console.log(data);
 		var fileno = data.fileNo;
 		var examid = data.id;
-		VisitBeforeBornService.loadFree(fileno,examid,{async:false,callback:function(data){
+		VisitBeforeBornService.loadFree(fileno,examid,services.type,{async:false,callback:function(data){
 			for(var i=0 ;i<data.length;i++){
 				console.log("#free-"+data[i]);
 				$("#free-"+data[i]).attr("checked",true);
@@ -1081,7 +1081,7 @@ function checkFree(send,func){
 			msglist = data;
 		}});
 	}else{
-		VisitBeforeBornService.checkEditfree(fileno,send.id,free_ids,changevalues,{async:false,callback:function(data){
+		VisitBeforeBornService.checkEditfree(fileno,send.id,free_ids,changevalues,services.type,{async:false,callback:function(data){
 			msglist = data;
 		}});
 	}
@@ -1112,10 +1112,10 @@ function updateFree(id,send,func){
 	}
 	var fileno = send.fileNo;
 	if(!Ext.isEmpty(send.id)){
-		VisitBeforeBornService.updateFrees(fileno,free_ids,id,changevalues,{async:false,callback:function(data){
+		VisitBeforeBornService.updateFrees(fileno,free_ids,id,changevalues,services.type,{async:false,callback:function(data){
 		}});
 	}else{
-		VisitBeforeBornService.saveFrees(fileno,saveids,id,{async:false,callback:function(data){
+		VisitBeforeBornService.saveFrees(fileno,saveids,id,services.type,{async:false,callback:function(data){
 		}});
 	}
 }

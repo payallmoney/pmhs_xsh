@@ -5,6 +5,7 @@ var services = {
 	tableName : 'FirstVistBeforeBorn',
 	beforesave:checkFree,
 	aftersave:updateFree,
+	type:1,
 	hasfree:true
 };
 
