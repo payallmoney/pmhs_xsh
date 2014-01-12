@@ -13,7 +13,8 @@
 
 <script type='text/javascript' src='/dwr/engine.js'></script>
 <script type='text/javascript' src='/dwr/interface/MapService.js'></script>
-
+<script type="text/javascript" src="SearchControl_min.js"></script>
+<link rel="stylesheet" href="SearchControl_min.css" />
 
 <title>地图展示信息</title>  
 <style type="text/css">  
@@ -38,40 +39,41 @@ var infoWin = new BMap.InfoWindow(html.join(""), {offset: new BMap.Size(0, -10)}
 
 $(function(){
 
+		MapService.queryPointer(function(data){
+			if(data == null){
+				//alert("null");
+				return;
+			}else{
 
-	MapService.queryPointer(function(data){
-		if(data == null){
-			//alert("null");
-			return;
-		}else{
+				$.each(data, function(i, n){
+					var lng = parseFloat(n.id.split(",")[0]);
+					var lat = parseFloat(n.id.split(",")[1]);
+					var pt = new BMap.Point(lng,lat);
+					var maker = new BMap.Marker(pt);
+					map.addOverlay(maker);    
+					var label = new BMap.Label(n.organName,{offset:new BMap.Size(20,-15)});
+					maker.setLabel(label);
+					maker.addEventListener("click", function(){
+						var id = this.getPosition().lng + "," + this.getPosition().lat;
+						//alert(id);
+						MapService.queryPointerById(id,function(data){
+							//var mkr = evt.marker;
+							maker.openInfoWindow(infoWin);
+							//document.getElementById("organId").value = data.organId;
+							document.getElementById("organName").innerHTML = data.organName;
 
-			$.each(data, function(i, n){
-				var lng = parseFloat(n.id.split(",")[0]);
-				var lat = parseFloat(n.id.split(",")[1]);
-				var pt = new BMap.Point(lng,lat);
-				var maker = new BMap.Marker(pt);
-				map.addOverlay(maker);    
-
-				maker.addEventListener("click", function(){
-					var id = this.getPosition().lng + "," + this.getPosition().lat;
-					//alert(id);
-					MapService.queryPointerById(id,function(data){
-						//var mkr = evt.marker;
-						maker.openInfoWindow(infoWin);
-						//document.getElementById("organId").value = data.organId;
-						document.getElementById("organName").innerHTML = data.organName;
-
-						//alert(JSON.stringify(data));
+							//alert(JSON.stringify(data));
+						});
+						
 					});
-					
+
 				});
 
-			});
 
+			}
 
-		}
+		});
 
-	});
 
 		$('#treeOrganizationId').bind('click', function(){  
 			$('#organizationinfo').dialog('open'); 
@@ -122,6 +124,57 @@ $(function(){
 					}
 
 				});
+
+				var bdary = new BMap.Boundary();
+				bdary.get(node.text, function(rs){       //获取行政区域
+					map.clearOverlays();        //清除地图覆盖物       
+					var count = rs.boundaries.length; //行政区域的点有多少个
+					for(var i = 0; i < count; i++){
+						var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 2, strokeColor: "#ff0000"}); //建立多边形覆盖物
+						map.addOverlay(ply);  //添加覆盖物
+						map.setViewport(ply.getPath());    //调整视野         
+					}         
+					
+					MapService.queryPointer(function(data){
+						if(data == null){
+							//alert("null");
+							return;
+						}else{
+
+							$.each(data, function(i, n){
+								var lng = parseFloat(n.id.split(",")[0]);
+								var lat = parseFloat(n.id.split(",")[1]);
+								var pt = new BMap.Point(lng,lat);
+								var maker = new BMap.Marker(pt);
+								map.addOverlay(maker);    
+
+								maker.addEventListener("click", function(){
+									var id = this.getPosition().lng + "," + this.getPosition().lat;
+									//alert(id);
+									MapService.queryPointerById(id,function(data){
+										//var mkr = evt.marker;
+										maker.openInfoWindow(infoWin);
+										//document.getElementById("organId").value = data.organId;
+										document.getElementById("organName").innerHTML = data.organName;
+
+										//alert(JSON.stringify(data));
+									});
+									
+								});
+
+							});
+
+
+						}
+
+					});
+
+
+				}); 
+
+
+
+
  
 			},
 			onDblClick:function(node){
@@ -188,7 +241,9 @@ $(function(){
 	<div class="easyui-layout" style="width:1100px;height:650px;">
 
 	
-
+		<div data-options="region:'north',iconCls:'icon-ok'" style="width:900px;border:1">
+			<div id="searchBox" style="width:600px;border:1"></div>
+		</div>		
 	
 
 		<div data-options="region:'center',iconCls:'icon-ok'" style="width:750px;border:1">
@@ -372,6 +427,12 @@ var centerCityName = "";
 		document.getElementById("zoom_levelId").value = map.getZoom();
 	});
 
+
+var searchControl = new BMapLib.SearchControl({
+    container : "searchBox" //存放控件的容器
+    , map     : map  //关联地图对象
+    , type    : 1  //检索类型
+});
 </script>
 
 
