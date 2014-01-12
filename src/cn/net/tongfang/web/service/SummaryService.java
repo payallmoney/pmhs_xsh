@@ -66,13 +66,9 @@ public class SummaryService extends HibernateDaoSupport {
 							.getEndDate())
 					+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
 					+ " (Select ID From Organization Where DistrictNumber Like "
-					+ " '"+ district + "%')) ";
+					+ " (Select DistrictNumber + '%' From Organization Where ID = "
+					+ qry.getOrgId() + "))) ";
 		}
-		System.out.println(user.getUsername());
-		System.out.println(qry.getStatisticType());
-		System.out.println(str_where);
-		System.out.println(qry.getStatisticResult());
-		System.out.println(qry.getIsQryWipeOut());
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getStatisticType());
 		query.setParameter(2, str_where);
@@ -346,6 +342,8 @@ public class SummaryService extends HibernateDaoSupport {
 		for (int i = 0; i < params.size(); i++) {
 			query.setParameter(i, params.get(i));
 		}
+		if (pp == null)
+			pp = new PagingParam();
 		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 		List list = query.list();
 		return new PagingResult(count, list);

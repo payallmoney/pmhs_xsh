@@ -98,29 +98,30 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	public static final String encry(String str) {
-		if (str == null) {
-			return "";
-		}
-		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
-		if(util!=null && util.isNeedEncry()){
-			String result = "";
-			String tmpStr = "";
-			char[] charData = str.toCharArray();
-			for (int i = 0; i < charData.length; i++) {
-				tmpStr = String.copyValueOf(charData, i, 1);
-				if (!tmpStr.equals("%") && tmpStr != "%") {
-					if (ENCODE_HASHMAP.get(tmpStr) == null) {
-						tmpStr = encryChinese(tmpStr);
-					} else {
-						tmpStr = ENCODE_HASHMAP.get(tmpStr);
-					}
-				}
-				result = result + tmpStr;
-			}
-			return result;
-		}else{
-			return str;
-		}
+		return str;
+//		if (str == null) {
+//			return "";
+//		}
+//		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
+//		if(util!=null && util.isNeedEncry()){
+//			String result = "";
+//			String tmpStr = "";
+//			char[] charData = str.toCharArray();
+//			for (int i = 0; i < charData.length; i++) {
+//				tmpStr = String.copyValueOf(charData, i, 1);
+//				if (!tmpStr.equals("%") && tmpStr != "%") {
+//					if (ENCODE_HASHMAP.get(tmpStr) == null) {
+//						tmpStr = encryChinese(tmpStr);
+//					} else {
+//						tmpStr = ENCODE_HASHMAP.get(tmpStr);
+//					}
+//				}
+//				result = result + tmpStr;
+//			}
+//			return result;
+//		}else{
+//			return str;
+//		}
 	}
 	
 	public static final String testEncry(String str) {
@@ -151,29 +152,30 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	public static final String decipher(String str) {
-		if (str == null) {
-			return "";
-		}
-		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
-		if(util!=null && util.isNeedEncry()){
-			String result = "";
-			String tmpStr = "";
-			char[] charData = str.toCharArray();
-			for (int i = 0; i < charData.length; i++) {
-				tmpStr = String.copyValueOf(charData, i, 1);
-				if (!tmpStr.equals("%") && tmpStr != "%") {
-					if (DECODE_HASHMAP.get(tmpStr) == null) {
-						tmpStr = decipherChinese(tmpStr);
-					} else {
-						tmpStr = DECODE_HASHMAP.get(tmpStr);
-					}
-				}
-				result = result + tmpStr;
-			}
-			return result;
-		}else{
-			return str;
-		}
+		return str;
+//		if (str == null) {
+//			return "";
+//		}
+//		EncryUtils util = (EncryUtils)applicationContext.getBean("EncryUtils");
+//		if(util!=null && util.isNeedEncry()){
+//			String result = "";
+//			String tmpStr = "";
+//			char[] charData = str.toCharArray();
+//			for (int i = 0; i < charData.length; i++) {
+//				tmpStr = String.copyValueOf(charData, i, 1);
+//				if (!tmpStr.equals("%") && tmpStr != "%") {
+//					if (DECODE_HASHMAP.get(tmpStr) == null) {
+//						tmpStr = decipherChinese(tmpStr);
+//					} else {
+//						tmpStr = DECODE_HASHMAP.get(tmpStr);
+//					}
+//				}
+//				result = result + tmpStr;
+//			}
+//			return result;
+//		}else{
+//			return str;
+//		}
 	}
 	
 	public static final String testDecipher(String str) {
@@ -204,18 +206,19 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	private static final String encryChinese(String str) {
-		int len = 0;
-		char[] chars = str.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			if (i >= charArray.length) {
-				len = 0;
-			} else {
-				len = i + STEP;
-			}
-			chars[i] = (char) (chars[i] ^ charArray[len]);
-		}
-		String result = new String(chars);
-		return result;
+		return str;
+//		int len = 0;
+//		char[] chars = str.toCharArray();
+//		for (int i = 0; i < chars.length; i++) {
+//			if (i >= charArray.length) {
+//				len = 0;
+//			} else {
+//				len = i + STEP;
+//			}
+//			chars[i] = (char) (chars[i] ^ charArray[len]);
+//		}
+//		String result = new String(chars);
+//		return result;
 	}
 
 	/**
@@ -225,18 +228,19 @@ public class EncryptionUtils {
 	 * @return
 	 */
 	private static final String decipherChinese(String str) {
-		int len = 0;
-		char[] chars = str.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			if (i >= charArray.length) {
-				len = 0;
-			} else {
-				len = i + STEP;
-			}
-			chars[i] = (char) (chars[i] ^ charArray[len]);
-		}
-		String result = new String(chars);
-		return result;
+		return str;
+//		int len = 0;
+//		char[] chars = str.toCharArray();
+//		for (int i = 0; i < chars.length; i++) {
+//			if (i >= charArray.length) {
+//				len = 0;
+//			} else {
+//				len = i + STEP;
+//			}
+//			chars[i] = (char) (chars[i] ^ charArray[len]);
+//		}
+//		String result = new String(chars);
+//		return result;
 	}
 
 	/**
