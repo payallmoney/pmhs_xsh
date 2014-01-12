@@ -72,7 +72,8 @@ $(function(){
 				var pt = new BMap.Point(lng,lat);
 				var maker = new BMap.Marker(pt);
 				map.addOverlay(maker);    
-
+				var label = new BMap.Label(n.organName,{offset:new BMap.Size(20,-15)});
+				maker.setLabel(label);
 				maker.addEventListener("click", function(){
 					var id = this.getPosition().lng + "," + this.getPosition().lat;
 					delcoordinates = id;
