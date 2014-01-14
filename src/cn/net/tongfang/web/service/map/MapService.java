@@ -101,6 +101,17 @@ public class MapService extends HibernateDaoSupport {
 		}
 	}
 
+	public List<Pointer> queryPointerByName(String organName) {
+		List<Pointer> list = getSession().createQuery(
+				"from Pointer vo where vo.organName like '%" + organName + "%'").list();
+		Pointer p = new Pointer();
+		if (list != null && list.size() > 0) {
+			return list;
+		} else {
+			return null;
+		}
+	}
+	
 	@Transactional(propagation = Propagation.REQUIRED)
 	public String deletePointerById(String id) {
 		getSession().createQuery(
