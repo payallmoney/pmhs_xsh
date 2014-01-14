@@ -28,6 +28,9 @@
         <property name="chealthCount" type="java.lang.Long">
             <column name="CHealthCount" not-null="true" />
         </property>
+        <property name="healthCount" type="java.lang.Long">
+            <column name="HealthCount" not-null="true" />
+        </property>
         <property name="babyVisitCount" type="java.lang.Long">
             <column name="BabyVisitCount" not-null="true" />
         </property>
@@ -94,5 +97,33 @@
         <property name="optPersonId" type="java.lang.String">
             <column name="OptPersonID" not-null="true" />
         </property>
+        
+        <property name="childHighRiskHealthFileCount" type="java.lang.Long">
+			<column name="ChildHighRiskHealthFileCount" />
+		</property>
+		<property name="oldManHeathFileCount" type="java.lang.Long">
+			<column name="OldManHeathFileCount" />
+		</property>
+		<property name="womanInitBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanInitBirthHealthFileCount" />
+		</property>
+		<property name="womanAreadyBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanAreadyBirthHealthFileCount" />
+		</property>
+		<property name="womanExceptionBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanExceptionBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskInitBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskInitBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskAreadyBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskAreadyBirthHealthFileCount" />
+		</property>
+		<property name="womanHighRiskExceptionBirthHealthFileCount" type="java.lang.Long">
+			<column name="WomanHighRiskExceptionBirthHealthFileCount" />
+		</property>
+		<property name="medicalExamCount" type="java.lang.Long">
+			<column name="MedicalExamCount" />
+		</property>
     </class>
 </hibernate-mapping>

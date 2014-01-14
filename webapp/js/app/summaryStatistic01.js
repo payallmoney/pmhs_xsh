@@ -13,6 +13,8 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 	}, {
 		name : 'chealthCount'
 	}, {
+		name : 'healthCount'
+	}, {
 		name : 'babyHealthCount'
 	}, {
 		name : 'babyVisitCount'
@@ -50,6 +52,24 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		name : 'furiousVisitCount'
 	}, {
 		name : 'vacciInfoCount'
+	}, {
+		name : 'childHighRiskHealthFileCount'
+	}, {
+		name : 'oldManHeathFileCount'
+	}, {
+		name : 'medicalExamCount'
+	}, {
+		name : 'womanInitBirthHealthFileCount'
+	}, {
+		name : 'womanAreadyBirthHealthFileCount'
+	}, {
+		name : 'womanExceptionBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskInitBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskAreadyBirthHealthFileCount'
+	}, {
+		name : 'womanHighRiskExceptionBirthHealthFileCount'
 	}],
 	gridCmConfig : [ {
 		"header" : "组织机构",
@@ -73,10 +93,61 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		"dataIndex" : "chealthCount",
 		"id" : "chealthCount"
 	}, {
+		"header" : "档案总数",
+		"dataIndex" : "healthCount",
+		"id" : "healthCount"
+	}, {
+		"header" : "健康体检",
+		"dataIndex" : "medicalExamCount",
+		"id" : "medicalExamCount"
+	}, {
 		"header" : "儿童档案数",
 		"dataIndex" : "babyHealthCount",
-		"id" : "babyHealthCount",
-		"hidden" : true 
+		"id" : "babyHealthCount"
+	},{
+		"header" : "高危儿童档案数",
+		"dataIndex" : "childHighRiskHealthFileCount",
+		"id" : "childHighRiskHealthFileCount"
+	},{
+		"header" : "未结案孕产妇档案数",
+		"dataIndex" : "womanInitBirthHealthFileCount",
+		"id" : "womanInitBirthHealthFileCount"
+	},{
+		"header" : "已结案孕产妇档案数",
+		"dataIndex" : "womanAreadyBirthHealthFileCount",
+		"id" : "womanAreadyBirthHealthFileCount"
+	},{
+		"header" : "终止妊娠孕产妇档案数",
+		"dataIndex" : "womanExceptionBirthHealthFileCount",
+		"id" : "womanExceptionBirthHealthFileCount"
+	},{
+		"header" : "高危未结案孕产妇档案数",
+		"dataIndex" : "womanHighRiskInitBirthHealthFileCount",
+		"id" : "womanHighRiskInitBirthHealthFileCount"
+	},{
+		"header" : "高危已结案孕产妇档案数",
+		"dataIndex" : "womanHighRiskAreadyBirthHealthFileCount",
+		"id" : "womanHighRiskAreadyBirthHealthFileCount"
+	},{
+		"header" : "高危终止妊娠孕产妇档案数",
+		"dataIndex" : "womanHighRiskExceptionBirthHealthFileCount",
+		"id" : "womanHighRiskExceptionBirthHealthFileCount"
+	},{
+		"header" : "老年人档案数",
+		"dataIndex" : "oldManHeathFileCount",
+		"id" : "oldManHeathFileCount"
+	},{
+		"header" : "高血压档案数",
+		"dataIndex" : "hypertensionHealthCount",
+		"id" : "hypertensionHealthCount"
+	},{
+		"header" : "二型糖尿病档案数",
+		"dataIndex" : "diabetesHealthCount",
+		"id" : "diabetesHealthCount"
+	},{
+		"header" : "重性精神病档案数",
+		"dataIndex" : "furiousHealthCount",
+		"id" : "furiousHealthCount"
 	}, {
 		"header" : "新生儿家庭访视",
 		"dataIndex" : "babyVisitCount",
@@ -98,11 +169,6 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		"dataIndex" : "babyAllVisitCount",
 		"id" : "babyAllVisitCount"
 	}, {
-		"header" : "孕产妇档案数",
-		"dataIndex" : "maternalCount",
-		"id" : "maternalCount",
-		"hidden" : true
-	}, {
 		"header" : "第1次产前随访",
 		"dataIndex" : "firstVistBeforeBornCount",
 		"id" : "firstVistBeforeBornCount"
@@ -123,28 +189,13 @@ app.summary01 = new Ext.tf.SummaryStatisticPanel({
 		"dataIndex" : "visitAfterBorn42count",
 		"id" : "visitAfterBorn42count"
 	}, {
-		"header" : "高血压档案数",
-		"dataIndex" : "hypertensionHealthCount",
-		"id" : "hypertensionHealthCount",
-		"hidden" : true
-	}, {
 		"header" : "高血压随访",
 		"dataIndex" : "hypertensionVisitCount",
 		"id" : "hypertensionVisitCount"
 	}, {
-		"header" : "糖尿病档案数",
-		"dataIndex" : "diabetesHealthCount",
-		"id" : "diabetesHealthCount",
-		"hidden" : true
-	}, {
 		"header" : "糖尿病随访",
 		"dataIndex" : "diabetesVisitCount",
 		"id" : "diabetesVisitCount"
-	}, {
-		"header" : "重性精神病档案数",
-		"dataIndex" : "furiousHealthCount",
-		"id" : "furiousHealthCount",
-		"hidden" : true
 	}, {
 		"header" : "重性精神病随访",
 		"dataIndex" : "furiousVisitCount",

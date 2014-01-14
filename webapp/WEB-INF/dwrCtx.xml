@@ -50,6 +50,8 @@
 			class="cn.net.tongfang.web.service.chart.SummaryChartBean" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.web.service.map.MapConfigBean" />
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.web.service.map.HealthFileElectronicMapVO" />
 
 	</dwr:configuration>
 
