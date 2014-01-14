@@ -13,8 +13,6 @@
 
 <script type='text/javascript' src='/dwr/engine.js'></script>
 <script type='text/javascript' src='/dwr/interface/MapService.js'></script>
-<script type="text/javascript" src="SearchControl_min.js"></script>
-<link rel="stylesheet" href="SearchControl_min.css" />
 
 <title>地图展示信息</title>  
 <style type="text/css">  
@@ -231,6 +229,10 @@ $(function(){
 
 		}); 	
 })
+
+function openGridDid(){
+	$('#positionDiv').dialog('open');
+}
 </script>
 
 </head>  
@@ -239,12 +241,6 @@ $(function(){
 
 
 	<div class="easyui-layout" style="width:1100px;height:650px;">
-
-	
-		<div data-options="region:'north',iconCls:'icon-ok'" style="width:900px;border:1">
-			<div id="searchBox" style="width:600px;border:1"></div>
-		</div>		
-	
 
 		<div data-options="region:'center',iconCls:'icon-ok'" style="width:750px;border:1">
 			<div id="container">
@@ -255,8 +251,8 @@ $(function(){
 
 		<div data-options="region:'east',split:true,title:'地图区域配置',border:true" style="width:350px;">
 
+				<a href="#" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-position'"  onclick="openGridDid()">查询组织机构</a>
 				<a href="#" id="treeOrganizationId" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-position'">地图定位</a>
-
 				<br><br>
 				<table border="0">
 					<tr>
@@ -428,16 +424,37 @@ var centerCityName = "";
 	});
 
 
-var searchControl = new BMapLib.SearchControl({
-    container : "searchBox" //存放控件的容器
-    , map     : map  //关联地图对象
-    , type    : 1  //检索类型
-});
 </script>
 
 
 <script>
+	function queryOrgans(){
+		var organName = document.getElementById("organNameId").value;
+		var sContent = "<table border=0 cellpadding=2 cellspacing=0><tr><td>选择</td><td>组织机构代码</td><td>组织机构名称</td></tr>";
+		MapService.queryPointerByName(organName,function(data){
+		$.each(data, function(i, n){
+			sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "'/></td><td>"+n.organId+"</td><td>" + n.organName + "</td></tr>"
 
+		});
+		sContent = sContent + "</table>"
+			//alert(JSON.stringify(d));
+		document.getElementById("payerInfoId").innerHTML = sContent;
+
+		})
+	}
+
+	function selectOrgan(){
+		var chkObjs = document.getElementsByName("organName");
+		for(var i=0;i<chkObjs.length;i++){
+			if(chkObjs[i].checked){
+				map.centerAndZoom(new BMap.Point(parseFloat( chkObjs[i].value.split(",")[0]),parseFloat( chkObjs[i].value.split(",")[1])),16);	
+				$('#positionDiv').window('close');  // open a window   
+				break;
+				//alert(chkObjs[i].value);
+			}
+		}	
+
+	}
 </script>
 
 		<div id="organizationinfo" class="easyui-dialog" title="&nbsp;" data-options="iconCls:'icon-save',closed:true,modal:false,collapsible:true"  style="width:300px;height:500px;">
@@ -449,6 +466,14 @@ var searchControl = new BMapLib.SearchControl({
 			</div>
 		</div>
 
+		<div id="positionDiv" class="easyui-dialog" title="组织机构查询" data-options="iconCls:'icon-save',closed:true,modal:false,collapsible:true"  style="width:550px;padding:20px">
+			组织机构名称：<input type="text" id="organNameId" style="width:200px;"/>&nbsp;&nbsp;
+			<a href="#" id="positonButtonId2" onclick="queryOrgans()" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-search'">查询</a>&nbsp;&nbsp;
+			<a href="javascript:selectOrgan()" class="easyui-linkbutton" iconCls="icon-add">选择</a>&nbsp;&nbsp;
+			<div id="payerInfoId" style="height:300px;overflow:auto;">
+			
+			</div>
+		</div>
 </body>  
 
 </html>  
