@@ -47,7 +47,14 @@ public class BirthCertificate implements java.io.Serializable {
 	private String linkmanTel;
 	private Integer isPrint;
 	private Integer isSupply;
-
+	
+	private String motherAddress;
+	private String motherCardType;
+	private String motherCardTypeOther;
+	private String fatherAddress;
+	private String fatherCardType;
+	private String fatherCardTypeOther;
+	private String issuingUsers;
 	// Constructors
 
 	/** default constructor */
@@ -72,7 +79,11 @@ public class BirthCertificate implements java.io.Serializable {
 			String otherBorthAddressCategory, String widWife, String province,
 			String city, String county, String township, String familyAddress,
 			String districtNum, String fileNo, String linkmanTel,
-			Integer isPrint, Integer isSupply) {
+			Integer isPrint, Integer isSupply, String motherAddress,
+			String motherCardType, String motherCardTypeOther,
+			String fatherAddress, String fatherCardType,
+			String fatherCardTypeOther,String issuingUsers) {
+		super();
 		this.certifiId = certifiId;
 		this.name = name;
 		this.sex = sex;
@@ -110,6 +121,13 @@ public class BirthCertificate implements java.io.Serializable {
 		this.linkmanTel = linkmanTel;
 		this.isPrint = isPrint;
 		this.isSupply = isSupply;
+		this.motherAddress = motherAddress;
+		this.motherCardType = motherCardType;
+		this.motherCardTypeOther = motherCardTypeOther;
+		this.fatherAddress = fatherAddress;
+		this.fatherCardType = fatherCardType;
+		this.fatherCardTypeOther = fatherCardTypeOther;
+		this.issuingUsers = issuingUsers;
 	}
 
 	// Property accessors
@@ -117,6 +135,8 @@ public class BirthCertificate implements java.io.Serializable {
 	public String getCertifiId() {
 		return this.certifiId;
 	}
+
+	
 
 	public void setCertifiId(String certifiId) {
 		this.certifiId = certifiId;
@@ -408,6 +428,62 @@ public class BirthCertificate implements java.io.Serializable {
 
 	public void setIsSupply(Integer isSupply) {
 		this.isSupply = isSupply;
+	}
+
+	public String getMotherAddress() {
+		return motherAddress;
+	}
+
+	public void setMotherAddress(String motherAddress) {
+		this.motherAddress = motherAddress;
+	}
+
+	public String getMotherCardType() {
+		return motherCardType;
+	}
+
+	public void setMotherCardType(String motherCardType) {
+		this.motherCardType = motherCardType;
+	}
+
+	public String getMotherCardTypeOther() {
+		return motherCardTypeOther;
+	}
+
+	public void setMotherCardTypeOther(String motherCardTypeOther) {
+		this.motherCardTypeOther = motherCardTypeOther;
+	}
+
+	public String getFatherAddress() {
+		return fatherAddress;
+	}
+
+	public void setFatherAddress(String fatherAddress) {
+		this.fatherAddress = fatherAddress;
+	}
+
+	public String getFatherCardType() {
+		return fatherCardType;
+	}
+
+	public void setFatherCardType(String fatherCardType) {
+		this.fatherCardType = fatherCardType;
+	}
+
+	public String getFatherCardTypeOther() {
+		return fatherCardTypeOther;
+	}
+
+	public void setFatherCardTypeOther(String fatherCardTypeOther) {
+		this.fatherCardTypeOther = fatherCardTypeOther;
+	}
+
+	public String getIssuingUsers() {
+		return issuingUsers;
+	}
+
+	public void setIssuingUsers(String issuingUsers) {
+		this.issuingUsers = issuingUsers;
 	}
 
 }

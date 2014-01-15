@@ -52,6 +52,9 @@ app.womanBirthBuildPanel = new Ext.tf.HealthBookRecordsPanel({
 	},{
         name : 'inputdate',
         mapping : 'maternal.inputDate'
+    },{
+        name : 'inputPersonId',
+        mapping : 'maternal.inputPersonId'
     }  ],
 	gridCmConfig : [ {
 		"header" : "状态",
@@ -106,6 +109,9 @@ app.womanBirthBuildPanel = new Ext.tf.HealthBookRecordsPanel({
 		"header" : "建册日期",
 		"dataIndex" : "inputdate",
 		"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
+	}, {
+		"header" : "录入人",
+		"dataIndex" : "inputPersonId"
 	} ],
 	readerConfig01 : [ {
 		name : 'id',

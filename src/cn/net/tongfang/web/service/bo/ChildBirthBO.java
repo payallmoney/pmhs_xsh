@@ -31,7 +31,7 @@ public class ChildBirthBO extends ChildBirthRecord {
 	private String issuingOrganization;
 	private Integer isEffectived;
 	private String otherBorthAddressCategory;
-	private String widwife;
+	private String widWife;
 	private String province;
 	private String city;
 	private String county;
@@ -41,6 +41,13 @@ public class ChildBirthBO extends ChildBirthRecord {
 	private String fileNo;
 	private Integer isPrint;
 	private String linkmanTel;
+	private String motherAddress;
+	private String motherCardType;
+	private String motherCardTypeOther;
+	private String fatherAddress;
+	private String fatherCardType;
+	private String fatherCardTypeOther;
+	private String issuingUsers;
 	private List<DiseaseScreening> diseaseScreening;
 	public String getLinkmanTel() {
 		return linkmanTel;
@@ -193,11 +200,12 @@ public class ChildBirthBO extends ChildBirthRecord {
 	public void setOtherBorthAddressCategory(String otherBorthAddressCategory) {
 		this.otherBorthAddressCategory = otherBorthAddressCategory;
 	}
-	public String getWidwife() {
-		return widwife;
+
+	public String getWidWife() {
+		return widWife;
 	}
-	public void setWidwife(String widwife) {
-		this.widwife = widwife;
+	public void setWidWife(String widWife) {
+		this.widWife = widWife;
 	}
 	public String getProvince() {
 		return province;
@@ -252,6 +260,48 @@ public class ChildBirthBO extends ChildBirthRecord {
 	}
 	public void setDiseaseScreening(List<DiseaseScreening> diseaseScreening) {
 		this.diseaseScreening = diseaseScreening;
+	}
+	public String getMotherAddress() {
+		return motherAddress;
+	}
+	public void setMotherAddress(String motherAddress) {
+		this.motherAddress = motherAddress;
+	}
+	public String getMotherCardType() {
+		return motherCardType;
+	}
+	public void setMotherCardType(String motherCardType) {
+		this.motherCardType = motherCardType;
+	}
+	public String getMotherCardTypeOther() {
+		return motherCardTypeOther;
+	}
+	public void setMotherCardTypeOther(String motherCardTypeOther) {
+		this.motherCardTypeOther = motherCardTypeOther;
+	}
+	public String getFatherAddress() {
+		return fatherAddress;
+	}
+	public void setFatherAddress(String fatherAddress) {
+		this.fatherAddress = fatherAddress;
+	}
+	public String getFatherCardType() {
+		return fatherCardType;
+	}
+	public void setFatherCardType(String fatherCardType) {
+		this.fatherCardType = fatherCardType;
+	}
+	public String getFatherCardTypeOther() {
+		return fatherCardTypeOther;
+	}
+	public void setFatherCardTypeOther(String fatherCardTypeOther) {
+		this.fatherCardTypeOther = fatherCardTypeOther;
+	}
+	public String getIssuingUsers() {
+		return issuingUsers;
+	}
+	public void setIssuingUsers(String issuingUsers) {
+		this.issuingUsers = issuingUsers;
 	}
 	
 }

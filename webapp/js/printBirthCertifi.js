@@ -42,19 +42,17 @@
 		});
 	}
 	
-	
+	function dataIsNull(value){
+		if(value == null)
+			return '';
+		return value;
+	}
 	
 	//打印数据获取
 	function generateJson(data){
+		
 		//性别
 		var sex = data.sex;
-		var male = '';
-		var female = '';
-		if(sex == '男'){
-			male = '√';
-		}else if(sex == '女'){
-			female = '√';
-		}
 		
 		//出生日期
 		var dBirthday = data.birthday;
@@ -65,10 +63,10 @@
 		var minute = dBirthday.getMinutes();
 		
 		//出生地
-		var province = data.province;
-		var city = data.city;
-		var county = data.county;
-		var township = data.township;
+		var province = dataIsNull(data.province);
+		var city = dataIsNull(data.city);
+		var county = dataIsNull(data.county);
+		var township = dataIsNull(data.township);
 		
 		//健康状况
 		var healthStatus = data.healthStatus;
@@ -84,21 +82,35 @@
 		}
 		
 		//出生机构
-		var borthAddressCategory = data.borthAddressCategory;
-		var generalHospital = '';
-		var MCHhospital = '';
-		var home = '';
-		var other = '';
-		var otherRemark = '';
-		if(borthAddressCategory == '医院'){
-			generalHospital = '√';
-		}else if(borthAddressCategory == '妇幼保健院'){
-			MCHhospital = '√';
-		}else if(borthAddressCategory == '家庭'){
-			home = '√';
-		}else if(borthAddressCategory == '其它'){
-			other = data.otherBorthAddressCategory;
-			otherRemark = '√';
+		var borthAddressCategory = dataIsNull(data.borthAddressCategory);
+		var motherAddress = dataIsNull(data.motherAddress);
+		var motherCardType = dataIsNull(data.motherCardType);
+		var motherCard = '';
+		var motherhz = '';
+//		var motherOtherType = '';
+		var motherOther = '';
+		var fatherAddress = dataIsNull(data.fatherAddress);
+		var fatherCardType = dataIsNull(data.fatherCardType);
+		var fatherCard = '';
+		var fatherhz = '';
+//		var fatherOtherType = '';
+		var fatherOther = '';
+		
+		if(motherCardType == '居民身份证'){
+			motherCard = '√';
+		}else if(motherCardType == '护照'){
+			motherhz = '√';
+		}else if(motherCardType == '其他'){
+//			motherOtherType = '√';
+			motherOther = data.motherCardTypeOther;
+		}
+		if(fatherCardType == '居民身份证'){
+			fatherCard = '√';
+		}else if(fatherCardType == '护照'){
+			fatherhz = '√';
+		}else if(fatherCardType == '其他'){
+//			fatherOtherType = '√';
+			fatherOther = data.motherCardTypeOther;
 		}
 		
 		//签发日期
@@ -109,47 +121,59 @@
 		
 		//打印的json串
 		var jsonPrint = {
-			fullNamfOfbaby : data.name,//新生儿姓名
-			male : male,
-			female : female,
-			sex : sex,
-			years : years,
-			months : month,
-			day : day,			
-			hour : hour,
-			minute : minute,
-			province :province.replace("省",""),
-			city : city.replace("市",""),
-			county : county.replace("县",""),
-			township : township,
-			birthPlace : county + township,
-			weeks :data.borthWeekly,//孕周
-			well : well,
-			normal : normal,
-			weak : weak,
-			weight : data.weight,//体重
-			height : data.height,//身长
-			motherName : data.motherName,//母亲姓名
-			motherAge : data.motherAge,//母亲年龄
-			motherNationality : data.motherNationality,//母亲国籍
-			motherNation : data.motherNation,//母亲民族
-			motherIdCard : data.motherIdCard,//母亲身份证号
-			fatherName : data.fatherName,//父亲姓名
-			fatherAge : data.fatherAge,//父亲年龄
-			fatherNationality : data.fatherNationality,//父亲国籍
-			fatherNation : data.fatherNation,//父亲民族
-			fatherIdCard : data.fatherIdCard,//父亲身份证号
-			generalHospital : generalHospital,
-			MCHhospital : MCHhospital,
-			home : home,
-			otherRemark : otherRemark,
-			other : other,
-			nameOfFacility : data.borthOrganization,//接生机构
-			issueYear :issueYear,
-			issueMonth : issueMonth,
-			issueDay : issueDay,
-			familyAddress : data.familyAddress,//家庭住址
-			widwife : data.widwife// 接生人员
+			fullNamfOfbaby : dataIsNull(data.name),//新生儿姓名
+//			male : male,
+//			female : female,
+			sex : sex,//性别
+			years : years,//出生年
+			months : month,//出生月
+			day : day,//出生日			
+			hour : hour,//出生小时
+			minute : minute,//出生分
+			province :province.replace("省",""),//出生地省
+			city : city.replace("市",""),//出生地市
+			county : county.replace("县",""),//出生地县
+//			township : township,
+//			birthPlace : county + township,
+			weeks :dataIsNull(data.borthWeekly),//孕周
+//			well : well,
+//			normal : normal,
+//			weak : weak,
+			weight : dataIsNull(data.weight),//体重
+			height : dataIsNull(data.height),//身长
+			motherName : dataIsNull(data.motherName),//母亲姓名
+			motherAge : dataIsNull(data.motherAge),//母亲年龄
+			motherNationality : dataIsNull(data.motherNationality),//母亲国籍
+			motherNation : dataIsNull(data.motherNation),//母亲民族
+			motherIdCard : dataIsNull(data.motherIdCard),//母亲身份证号
+			fatherName : dataIsNull(data.fatherName),//父亲姓名
+			fatherAge : dataIsNull(data.fatherAge),//父亲年龄
+			fatherNationality : dataIsNull(data.fatherNationality),//父亲国籍
+			fatherNation : dataIsNull(data.fatherNation),//父亲民族
+			fatherIdCard : dataIsNull(data.fatherIdCard),//父亲身份证号
+			borthAddressCategory : dataIsNull(borthAddressCategory),//医疗机构名称
+			motherAddress : dataIsNull(motherAddress),//母亲住址
+			fatherAddress : dataIsNull(fatherAddress),//父亲住址
+			motherCard : dataIsNull(motherCard),//母亲有效身份证
+			motherhz : dataIsNull(motherhz),//母亲护照
+			motherOther : dataIsNull(motherOther),//母亲有效身份证件其他
+			fatherCard : dataIsNull(fatherCard),//父亲有效身份证
+			fatherhz : dataIsNull(fatherhz),//父亲护照
+			fatherOther : dataIsNull(fatherOther),//父亲有效身份证件其他
+			issuingOrganization : dataIsNull(data.issuingOrganization),//签发机构
+			certifiId : dataIsNull(data.certifiId),//出生医学证明编号
+//			generalHospital : generalHospital,
+//			MCHhospital : MCHhospital,
+//			home : home,
+//			otherRemark : otherRemark,
+//			other : other,
+//			nameOfFacility : data.borthOrganization,//接生机构
+			issueYear :issueYear,//签发日期年
+			issueMonth : issueMonth,//签发日期月
+			issueDay : issueDay,//签发日期日
+//			familyAddress : data.familyAddress,//家庭住址
+			widwife : dataIsNull(data.widWife),// 接生人员
+			issuingUsers : dataIsNull(data.issuingUsers)//签发人员
 		}
 		return jsonPrint;
 	}

@@ -340,7 +340,7 @@ var cfg = [
 			required : [ true, "接生单位" ]
 		},
 		{
-			id : "widwife",
+			id : "widWife",
 			xtype : "input",
 			setting : {
 				maxlen : 20,
@@ -899,5 +899,61 @@ var cfg = [
 				// caption : "其他既往病史描述",
 				maxlen : 50,
 				size : 50
+			}
+		}, {
+			id : "motherAddress",
+			xtype : "input",
+			setting : {
+				size : 104
+			}
+		}, {
+			id : "motherCardType",
+			xtype : "list",
+			setting : {
+				ds : "2016",
+				isDefaultVal : true,
+				defaultVal : 0
+			},
+			requires : {
+				valEq : "3",
+				fields : [ "motherCardTypeOther" ]
+			}
+		}, {
+			id : "motherCardTypeOther",
+			xtype : "input",
+			setting : {
+				disabled : true,
+				size : 9
+			}
+		}, {
+			id : "fatherAddress",
+			xtype : "input",
+			setting : {
+				size : 104
+			}
+		}, {
+			id : "fatherCardType",
+			xtype : "list",
+			setting : {
+				ds : "2016",
+				isDefaultVal : true,
+				defaultVal : 0
+			},
+			requires : {
+				valEq : "3",
+				fields : [ "fatherCardTypeOther" ]
+			}
+		}, {
+			id : "fatherCardTypeOther",
+			xtype : "input",
+			setting : {
+				disabled : true,
+				size : 9
+			}
+		}, {
+			id : "issuingUsers",
+			xtype : "input",
+			setting : {
+				size : 20
 			}
 		} ];
