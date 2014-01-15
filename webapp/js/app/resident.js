@@ -48,6 +48,9 @@ app.residentPanel = new Ext.tf.HealthPanel({
 		name : 'personalInfo_tel',
 		mapping : 'personalInfo.tel'
 	}, {
+		name : 'doctor',
+		mapping : 'doctor'
+	}, {
 		name : 'inputPersonId',
 		mapping : 'inputPersonId'
 	} ],
@@ -87,7 +90,7 @@ app.residentPanel = new Ext.tf.HealthPanel({
 		"dataIndex" : "personalInfo_tel"
 	}, {
 		"header" : "建档医生",
-		"dataIndex" : "personalInfo_tel"
+		"dataIndex" : "doctor"
 	}, {
 		"header" : "录入人",
 		"dataIndex" : "inputPersonId"
