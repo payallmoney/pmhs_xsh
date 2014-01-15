@@ -332,10 +332,12 @@ function queryOrgans(){
 	var organName = document.getElementById("organNameId").value;
 	var sContent = "<table border=0 cellpadding=2 cellspacing=0><tr><td>选择</td><td>组织机构代码</td><td>组织机构名称</td></tr>";
 	MapService.getOrganData(organName,function(data){
-	$.each(data, function(i, n){
-		sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "_" + n.name + "'/></td><td>"+n.id+"</td><td>" + n.name + "</td></tr>"
+		if(data != null){
+			$.each(data, function(i, n){
+				sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "_" + n.name + "'/></td><td>"+n.id+"</td><td>" + n.name + "</td></tr>"
 
-	});
+			});
+		}
 	sContent = sContent + "</table>"
 		//alert(JSON.stringify(d));
 	document.getElementById("payerInfoId").innerHTML = sContent;

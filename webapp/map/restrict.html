@@ -86,7 +86,7 @@ $(function(){
 
 		$('#organizationTree').tree({   
 			 checkbox: false,   
-			 url: '/OrganizationTreeServlet?type=1&pid=0&levels=top',   
+			 url: '/OrganizationTreeServlet?type=1&pid=0&levels=init',   
 			 onBeforeExpand:function(node,param){  
 				 $('#organizationTree').tree('options').url = "/OrganizationTreeServlet?type=1&pid="+node.id+"&levels=" + node.attributes.levels;
 				 //alert(node.id);
@@ -433,10 +433,12 @@ var centerCityName = "";
 		var organName = document.getElementById("organNameId").value;
 		var sContent = "<table border=0 cellpadding=2 cellspacing=0><tr><td>选择</td><td>组织机构代码</td><td>组织机构名称</td></tr>";
 		MapService.queryPointerByName(organName,function(data){
-		$.each(data, function(i, n){
-			sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "'/></td><td>"+n.organId+"</td><td>" + n.organName + "</td></tr>"
+			if(data != null){
+				$.each(data, function(i, n){
+					sContent = sContent + "<tr><td><input type=radio name='organName' value='" + n.id + "'/></td><td>"+n.organId+"</td><td>" + n.organName + "</td></tr>"
 
-		});
+				});			
+			}
 		sContent = sContent + "</table>"
 			//alert(JSON.stringify(d));
 		document.getElementById("payerInfoId").innerHTML = sContent;
