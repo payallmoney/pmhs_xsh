@@ -43,19 +43,22 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 //			query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '是' Where fileNo = ? ");
 			query = getSession().createQuery(" From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.fileNo = ? ");
 			query.setParameter(0, fileNo);
-			if(query.list().size() == 1){
-				List list = query.list();
+			List list = query.list();
+			if(list.size() == 1){
 				Object[] objs = (Object[])list.get(0);
 				HealthFile file = (HealthFile)objs[0];
 				PersonalInfo person = (PersonalInfo)objs[1];
 				String id = person.getId();
 				Timestamp inputdate = file.getInputDate();
+				String createperson = file.getInputPersonId();
 				BeanUtils.copyProperties(data, file); 
 				BeanUtils.copyProperties(data, person); 
 				person.setId(id);
 				file.setInputDate(inputdate);
+				file.setInputPersonId(createperson);
 				person.setInputDate(inputdate);
 				person.setBornStatus("是");
+				person.setInputPersonId(createperson);
 				String barcode = "";
 				if(file.getBarCode() != null)
 					barcode = file.getBarCode();
