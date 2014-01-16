@@ -573,18 +573,20 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 		var win = new Ext.Window({
 			modal : true,
 			title : '预防接种卡',
-			border : false
+			border : false,
+			layout : 'fit'
 		});
 		if (param != null) {
 			window.other_init_param = param;
 		}
 		win.show();
 		win.maximize();
-
 		win.add({
 			xtype : 'iframepanel',
 			defaultSrc : targetUrl,
-			height: win.getInnerHeight() ,
+			layout : 'fit',
+			width: win.getInnerWidth(),
+			height: win.getInnerHeight() - 10,
 			title : '',
 			loadMask : true,
 			autoScroll : false,

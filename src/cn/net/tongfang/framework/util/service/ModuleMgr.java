@@ -3401,20 +3401,25 @@ public class ModuleMgr extends HibernateDaoSupport {
 		while(district.endsWith("00")){
 			district = district.substring(0,district.length()-2);
 		}
-		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
+		final String fhql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where a.districtNumber like '" + district + "%' " + where.toString();
-		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
+		final String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where a.districtNumber like '" + district + "%' " + where.toString();
-		int totalSize = ((Long)(getHibernateTemplate().find(countsql).get(0))).intValue();
+		List totalSizelist = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createSQLQuery(countsql);
+				return query.list();
+			}
+		});
+		int totalSize = ((Integer)(totalSizelist.get(0)));
 //		int totalSize = 100;
-		final String fhql = hql;
 		final PagingParam fpp = pp;
 		List<Object[]> list = getHibernateTemplate().executeFind(new HibernateCallback(){
 			@Override
 			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
-				Query query = arg0.createQuery(fhql);
-				query.setEntity(0,HealthFile.class);
-				query.setEntity(1,VaccineImmune.class);
+				SQLQuery query = arg0.createSQLQuery(fhql);
+				query.addEntity(HealthFile.class).addEntity(VaccineImmune.class);
 				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
 				return query.list();
 			}
