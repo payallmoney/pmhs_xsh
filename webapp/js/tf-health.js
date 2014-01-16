@@ -328,8 +328,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		    					[ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] , 
 		    					[ 'a.nation', '国籍' ], [ 'b.farmStatus', '是否农业户口' ], 
 		    					[ 'b.townStatus', '是否城镇户口' ], 
-		    					[ 'b.address', '地址' ], 
-		    					[ 'b.residenceAddress', '户籍地址' ]];
+		    					[ 'a.address', '地址' ], 
+		    					[ 'a.residenceAddress', '户籍地址' ]];
 		if(this.isAlreadyMaternal){
 			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], [ 'a.nation', '国籍' ] ];

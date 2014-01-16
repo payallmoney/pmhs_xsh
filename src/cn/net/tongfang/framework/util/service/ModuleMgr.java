@@ -3401,28 +3401,49 @@ public class ModuleMgr extends HibernateDaoSupport {
 		while(district.endsWith("00")){
 			district = district.substring(0,district.length()-2);
 		}
-		String hql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
+		final String fhql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where a.districtNumber like '" + district + "%' " + where.toString();
-		String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
+		final String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where a.districtNumber like '" + district + "%' " + where.toString();
-		int totalSize = ((Long)(getHibernateTemplate().find(countsql).get(0))).intValue();
+		List totalSizelist = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createSQLQuery(countsql);
+				return query.list();
+			}
+		});
+		System.out.println("==========totalSizelist========="+totalSizelist);
+		System.out.println("==========get(0)========="+totalSizelist.get(0).getClass().getName());
+		int totalSize = ((Integer)(totalSizelist.get(0)));
+		System.out.println("==============totalSize====="+totalSize);
 //		int totalSize = 100;
-		final String fhql = hql;
 		final PagingParam fpp = pp;
 		List<Object[]> list = getHibernateTemplate().executeFind(new HibernateCallback(){
 			@Override
 			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
-				Query query = arg0.createQuery(fhql);
-				query.setEntity(0,HealthFile.class);
-				query.setEntity(1,VaccineImmune.class);
+				System.out.println("========111111111111==========="+fhql);
+				SQLQuery query = arg0.createSQLQuery(fhql);
+				System.out.println("========2222222222222===========");
+				try{
+					query.addEntity(HealthFile.class).addEntity(VaccineImmune.class);
+				}catch(RuntimeException ex){
+					ex.printStackTrace();
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+				System.out.println("========33333333333333===========");
 				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				System.out.println("========4444444444444===========");
 				return query.list();
 			}
 		});
 		List<HealthFile> files = new ArrayList<HealthFile>();
 		String tmpFileNo = "";
+		try{
+			System.out.println("========111111111111===========");
 		if(list.size() > 0){
 			for(Object[] obj : list){
+				System.out.println("========222222222222222===========");
 				HealthFile file = (HealthFile) obj[0];
 				getHibernateTemplate().evict(file);
 //				PersonalInfo person = (PersonalInfo) obj[1];
@@ -3435,6 +3456,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					getHibernateTemplate().evict(person);
 				}
 				file.setPersonalInfo(person);
+				System.out.println("========3333333333333===========");
 				VaccineImmune vacc = (VaccineImmune) obj[1];
 				getHibernateTemplate().evict(vacc);
 				file.setVaccineImmune(vacc);
@@ -3445,9 +3467,16 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(personlist.size()>0)
 						person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
 				}
+				System.out.println("========4444444444444===========");
 				files.add(file);
 			}
 		}
+		}catch(java.lang.RuntimeException ex){
+			ex.printStackTrace();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		System.out.println("=====files.size()=============="+files.size());
 		PagingResult<HealthFile> result = new PagingResult<HealthFile>(
 				totalSize, files);
 		return result;

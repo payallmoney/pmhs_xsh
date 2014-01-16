@@ -584,7 +584,8 @@ Ext.tf.VaccineImmnuePanel = Ext.extend(Ext.Panel, {
 		win.add({
 			xtype : 'iframepanel',
 			defaultSrc : targetUrl,
-			height: win.getInnerHeight() ,
+			width: win.getInnerWidth(),
+			height: win.getInnerHeight() - 10,
 			title : '',
 			loadMask : true,
 			autoScroll : false,
