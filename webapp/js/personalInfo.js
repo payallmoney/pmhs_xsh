@@ -84,11 +84,23 @@ function formatdate(date){
 				  window.top.buildPerson = send.buildPerson;
 			  }});
 		  }
-		  if(send.doctor != window.top.doctor && send.buildPerson  && send.doctor.trim()){
+		  if(send.doctor != window.top.doctor && send.doctor  && send.doctor.trim()){
 			  FileNumSearch.saveHealthfileHistoryData("healthfile",'doctor',send.doctor,{ callback :function(data){
 				  window.top.doctor = send.doctor;
 			  }});
 		  }
+		  if(send.address != window.top.address && send.address  && send.address.trim()){
+			  FileNumSearch.saveHealthfileHistoryData("healthfile",'address',send.address,{ callback :function(data){
+				  window.top.address = send.address;
+			  }});
+		  }
+		  if(send.residenceAddress != window.top.residenceAddress && send.residenceAddress  && send.residenceAddress.trim()){
+			  FileNumSearch.saveHealthfileHistoryData("healthfile",'residenceAddress',send.residenceAddress,{ callback :function(data){
+				  window.top.residenceAddress = send.residenceAddress;
+			  }});
+		  }
+		  
+		  
 	  }
   }
   window.getLastData = function(fieldname){
@@ -855,14 +867,16 @@ function formatdate(date){
       xtype: "input",
       setting: {
         maxlen: 40,
-        size: 40
+        size: 40,
+        defaultValFunc:window.getLastData
       }
     }, {
       id: "residenceAddress",
       xtype: "input",
       setting: {
         maxlen: 40,
-        size: 40
+        size: 40,
+        defaultValFunc:window.getLastData
       }
     }, {
       id: "tel0",
