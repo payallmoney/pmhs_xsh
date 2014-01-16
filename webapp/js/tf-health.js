@@ -325,7 +325,11 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 		     					[ 'a.inputDate', '录入日期' ], [ 'a.lastModifyDate', '修改日期' ],
 		    					[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'b.linkman', '联系人' ],
-		    					[ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] , [ 'a.nation', '国籍' ]];
+		    					[ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ] , 
+		    					[ 'a.nation', '国籍' ], [ 'b.farmStatus', '是否农业户口' ], 
+		    					[ 'b.townStatus', '是否城镇户口' ], 
+		    					[ 'b.address', '地址' ], 
+		    					[ 'b.residenceAddress', '户籍地址' ]];
 		if(this.isAlreadyMaternal){
 			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], [ 'a.nation', '国籍' ] ];
@@ -846,7 +850,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 						this.f_add(true);
 				}.createDelegate(this)
 			}
-			// ,
+			// ,
+
             // render:function(){
                 // this.menu.getEl().on(
                     // 'contextmenu' ,function(e,node){
@@ -863,9 +868,12 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
                         // contextmenu.showAt(e.getXY());
                     // }.createDelegate(this)
                 // );
-            // }.createDelegate(this)
+            // }.createDelegate(this)
+
 		});
-		
+		
+
+
 
 		var panel = new Ext.Panel({
 			layout : 'border',

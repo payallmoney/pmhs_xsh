@@ -102,7 +102,7 @@ public class OrganizationTreeServlet extends HttpServlet {
 				content.delete(content.lastIndexOf(","), content.length());
 				content.append("]");
 			}
-			
+
 		} else {
 			String aa = "[{  \"id\": 1,   \"text\": \"Node 1\",   \"state\": \"closed\",   \"children\": [{   \"id\": 11,   \"text\": \"Node 11\"  },{   \"id\": 12,   \"text\": \"Node 12\"  }] }] ";
 			String treeString = getJtree();
@@ -167,17 +167,26 @@ public class OrganizationTreeServlet extends HttpServlet {
 	}
 
 	List getSubList1(String pid, String levels) {
-		 String filtId = "";
-//		if (levels.equals("1")) {
-//			filtId = "530100";
-//		}
-//		if (levels.equals("2")) {
-//			filtId = "530122";
-//		}
+		String filtId = "";
+		// if (levels.equals("1")) {
+		// filtId = "530100";
+		// }
+		// if (levels.equals("2")) {
+		// filtId = "530122";
+		// }
 		// String level = String.valueOf(Integer.parseInt(levels) + 1);
 		List subList = null;
+		TaxempDetail user = SecurityManager.currentOperator();
+		String districtId = user.getDistrictId();
+		String hql = "";
+		if (levels.equals("init")) {
+			hql = "from District where ID = '" + districtId + "'";
+		} else {
+			hql = "from District where parentid = '" + pid + "'";
+		}
 		Session hbtSession = sessionFactory.openSession();
-		 String hql = "from District where parentid = '" + pid + "' and id like '" + filtId + "%'";
+		// hql = "from District where parentid = '" + pid + "' and id like '" +
+		// filtId + "%'";
 		try {
 			Query query = hbtSession.createQuery(hql);
 			subList = query.list();
@@ -229,7 +238,7 @@ public class OrganizationTreeServlet extends HttpServlet {
 			sb.delete(sb.lastIndexOf(","), sb.length());
 			sb.append("]");
 			sb.append("}]");
-//			System.out.println("-----------" + sb.toString());
+			// System.out.println("-----------" + sb.toString());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {

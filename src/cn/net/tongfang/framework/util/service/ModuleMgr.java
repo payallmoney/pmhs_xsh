@@ -971,7 +971,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}else{
 				if (StringUtils.hasText(filterValue)) {
 //					params.add(filterValue);
-					where.append(" and " + filterKey + " like '"+filterValue+"%'");
+					where.append(" and " + filterKey + " like '%"+filterValue+"%'");
 				}
 			}
 		}
