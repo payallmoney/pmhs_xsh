@@ -8,9 +8,9 @@ app.orgPanel = new Ext.tf.OrgTreePanel({
   deleteFn: UserMenuTreeService.removeOrg,
   treeLoaderFn: UserMenuTreeService.getOrgs,
   formItems : [
-     { fieldLabel: '父级ID', name: 'parentId', readOnly: true },
-     { fieldLabel: '层级', name: 'level', readOnly: true},
-     { fieldLabel: 'ID', name: 'id', xtype: 'hidden'},
+     { fieldLabel: '父级ID', name: 'parentId'},
+     { fieldLabel: '层级', name: 'level'},
+     { fieldLabel: 'ID', name: 'id', readOnly: true},
      { fieldLabel: 'flag', name: 'flag',xtype:'hidden',value:'0'},
      { fieldLabel: '名称', name: 'name' },
      { fieldLabel: '地址', name: 'address' },

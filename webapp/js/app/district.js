@@ -9,7 +9,7 @@ app.districtPanel = new Ext.tf.OrgTreePanel({
   treeLoaderFn: UserMenuTreeService.getDistricts,
   
   formItems : [
-     { fieldLabel: '父级ID', name: 'parentId', readOnly: true },
+     { fieldLabel: '父级ID', name: 'parentId' },
      { fieldLabel: '父级名称', name: 'parentName', readOnly: true },
      { fieldLabel: '层级', name: 'level', readOnly: true},
      { fieldLabel: 'ID', name: 'id',allowBlank : false},

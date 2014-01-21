@@ -59,9 +59,14 @@ public class GenDefaultVal extends HibernateDaoSupport{
 	 * @return
 	 */
 	public String getAge(Date birthday,Timestamp visitDate)throws Exception{
-		Calendar cBirthday = CommonConvertUtils.timestampToCalendar(new Timestamp(birthday.getTime()));
-		Calendar vsCalendar = CommonConvertUtils.timestampToCalendar(visitDate);
-		return getBabyAge(vsCalendar,cBirthday);
+		if(birthday !=null && visitDate !=null){
+			Calendar cBirthday = CommonConvertUtils.timestampToCalendar(new Timestamp(birthday.getTime()));
+			Calendar vsCalendar = CommonConvertUtils.timestampToCalendar(visitDate);
+			return getBabyAge(vsCalendar,cBirthday);
+		}else{
+			return "0岁";
+		}
+		
 	}
 	
 	/**

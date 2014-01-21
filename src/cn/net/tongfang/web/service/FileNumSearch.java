@@ -429,6 +429,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 			if (list.size() > 0) {
 				return list;
 			} else {
+				System.out.println("==================="+"select hf.fileno, hf.name, hf.sex "
+						+ " from HealthFileHistory2 hf " + wherestr);
 				list1 = getHibernateTemplate().find(
 						"select hf.fileno, hf.name, hf.sex "
 								+ " from HealthFileHistory2 hf " + wherestr);
