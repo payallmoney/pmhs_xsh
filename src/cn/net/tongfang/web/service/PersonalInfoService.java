@@ -52,8 +52,8 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		//if (fileno.length() == 18){
 		
 		if(fileno != null && !fileno.equals("")){
-			if(!user.getUsername().equals(data.getInputPersonId()) ){
-				throw new Exception("不是本人建立的档案,不允许修改!");
+			if(!cn.net.tongfang.framework.security.SecurityManager.isValidUser(data.getInputPersonId(),this.getSession())){
+				throw new Exception("不是本单位建立的档案,不允许修改!");
 			}
 			return update(data);
 		}
@@ -170,7 +170,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		hf.setTel(data.getTel0());
 		hf.setName(EncryptionUtils.encry(data.getName()));
 		hf.setNamePng("nmpng");
-		hf.setInputPersonId(user.getUsername());
+//		hf.setInputPersonId(user.getUsername());
 		hf.setModifyPerson(user.getUsername());
 		java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
 		
@@ -196,7 +196,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		}
 		hf.setLastModifyDate(ts);
 		
-		info.setInputPersonId(user.getUsername()); //当前登录用户
+		//info.setInputPersonId(user.getUsername()); //当前登录用户
 		info.setIdnumber(EncryptionUtils.encry(data.getIdnumber()));
 		getHibernateTemplate().update(hf);
 		getHibernateTemplate().update(info);
