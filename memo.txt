@@ -1,7 +1,6 @@
 ﻿把原来两个东西，整理到一个项目中来。
 
 
-
 YNGS Init Guide:
 1. Checkout yngs project
   1.1 Add host record (windows: c:\windows\system32\drivers\etc\hosts, linux: /etc/hosts )
