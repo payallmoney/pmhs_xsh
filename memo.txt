@@ -1,4 +1,4 @@
-把原来两个东西，整理到一个项目中来。
+﻿把原来两个东西，整理到一个项目中来。
 
 
 YNGS Init Guide:
@@ -26,6 +26,7 @@ YNGS Init Guide:
   check db connection: username and password
 
 4. Start demo
+
   cd resin
   ./resin.sh
 
