@@ -58,8 +58,25 @@
 <script type="text/javascript" src="js/ext/ext-all-debug.js"></script>
 <script type="text/javascript" src="js/ext/ext-lang-zh_CN.js"></script>
 
+<!-- 打印 -->
+<script language="javascript" src="js/LodopFuncs.js"></script>
+<object id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA"
+	width=0 height=0>
+	<embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0
+		pluginspage="install_lodop.exe"></embed>
+</object>
+<script type="text/javascript" src="js/UrlParse.js"></script>
+<script type='text/javascript' src='/dwr/interface/printerService.js'></script>
+<script type="text/javascript" src="js/printProtectPage.js"></script>
+<script type="text/javascript" src="js/print-healthfile-exam.js"></script>
+<script type="text/javascript" src="js/pi_print_medicalExam.js"></script>
+
 </head>
 <body>
+	<div id="printHealthFile" style="display:none;"></div>
+	<button class="printMedicalExamBtn img1 woman i_print"
+            style="display: none;">
+            <img title="打印" src="../image/print_positive_32_32.png" />打印</button>
 	<div class="outerContainer">
 		<div class="showToolbar"></div>
 		<div class="container">
@@ -321,8 +338,7 @@
 				<table class="form_tbl">
 					<tr>
 						<td class="header" rowspan="24">查体</td>
-						<td>眼底*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td>眼底*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="5"><span id="exam29"></span><span
 							id="exam29other"></span></td>
 					</tr>
@@ -403,8 +419,7 @@
 						<td colspan="5" id="body17"></td>
 					</tr>
 					<tr>
-						<td class="header">肛门指诊*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">肛门指诊*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td colspan="5"><span id="body18"></span><span
 							id="body18other"></span></td>
 					</tr>
@@ -477,8 +492,7 @@
 							id="exam02"></span>mmol/L</td>
 					</tr>
 					<tr>
-						<td class="header">心电图*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">心电图*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="3"><span id="exam30"></span><span
 							id="exam30other"></span></td>
 					</tr>
@@ -487,8 +501,7 @@
 						<td class="header" colspan="3"><span id="exam12"></span></td>
 					</tr>
 					<tr>
-						<td class="header">大便潜血*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">大便潜血*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td colspan="3"><span id="exam13"></span></td>
 					</tr>
 					<tr>
@@ -496,8 +509,7 @@
 						<td class="header" colspan="3"><span id="exam27"></span></td>
 					</tr>
 					<tr>
-						<td>乙型肝炎表面抗原*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td>乙型肝炎表面抗原*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="3"><span id="exam28"></span></td>
 					</tr>
 					<tr>
@@ -544,20 +556,17 @@
 						</td>
 					</tr>
 					<tr>
-						<td class="header">胸片X线片*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">胸片X线片*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="3"><span id="exam31"></span><span
 							id="exam31other"></span></td>
 					</tr>
 					<tr>
-						<td class="header">B超*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">B超*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="3"><span id="exam32"></span><span
 							id="exam32other"></span></td>
 					</tr>
 					<tr>
-						<td class="header">宫颈涂片*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header">宫颈涂片*<br /> <font size="2px" color="red">（空代表未测）</font></td>
 						<td class="header" colspan="3"><span id="exam33"></span><span
 							id="exam33other"></span></td>
 					</tr>
@@ -567,8 +576,8 @@
 							id="exam34other"></span></td>
 					</tr>
 					<tr>
-						<td class="header" rowspan="9">中医体质辨识*<br />
-						<font size="2px" color="red">（空代表未测）</font></td>
+						<td class="header" rowspan="9">中医体质辨识*<br /> <font
+							size="2px" color="red">（空代表未测）</font></td>
 						<td class="header">平和质</td>
 						<td class="header" colspan="5"><span id="chn01"></span></td>
 					</tr>

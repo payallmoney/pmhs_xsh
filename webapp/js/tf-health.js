@@ -24,6 +24,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	maternalText : '建立孕产妇保健手册',
 	isAlreadyMaternal : false,
 	isFinishGestation : false,
+	isPrintHealthFile : false,
+	isPrintMedicalExam : false,
 	isWomanExam : false,
 	// height:700,
 	// 是否需要在最末级才能增加？
@@ -378,7 +380,41 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			iconCls : 'c_edit',
 			handler : this.editFn.createDelegate(this)
 		});
-
+		
+		var printHealthFile = '';
+		//打印档案
+		if(this.isPrintHealthFile){
+			printHealthFile = new Ext.Action({
+				text : '打印',
+				iconCls : 'printbg',
+				handler : function(){
+					var selections = this.grid.getSelections();
+					if(selections.length == 1){
+						var fileNo = selections[0].data.fileNo;
+						PrintHealthFileAndExamClass.printHealthFile(fileNo);
+					}else{
+						showInfoObj.Infor('请选择打印的档案！');
+					}
+				}.createDelegate(this)
+			});
+		}
+		var printMedicalExam = '';
+		//打印健康体检记录
+		if(this.isPrintMedicalExam){
+			printMedicalExam = new Ext.Action({
+				text : '打印',
+				iconCls : 'printbg',
+				handler : function(){
+					var selections = this.grid.getSelections();
+					if(selections.length == 1){
+						var id = selections[0].data.id;
+						PrintHealthFileAndExamClass.printMedicalExam(id);
+					}else{
+						showInfoObj.Infor('请选择打印的健康体检记录！');
+					}
+				}.createDelegate(this)
+			});
+		}
 		var advancedF = null;
 		var dataExport = new Ext.Action({
 			text : '数据导出',
@@ -647,6 +683,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 									}
 								}.createDelegate(this)
 							}));
+			funcAction.push(printHealthFile);
+			funcAction.push(printMedicalExam);
 			funcAction.push('-');
 			funcAction.push(this.combo);
 			funcAction.push(this.filterField);
@@ -658,6 +696,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 								}.createDelegate(this)
 							}));
 			funcAction.push(advancedF);
+			
 		}
 		return funcAction;
 	},

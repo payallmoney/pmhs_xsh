@@ -16,6 +16,17 @@
         <script type='text/javascript'
         src='/dwr/interface/UserMenuTreeService.js'></script>
         <script type="text/javascript" src="js/rx.js"></script>
+        <!-- 打印控件 -->
+        <script language="javascript" src="js/LodopFuncs.js"></script>
+		<object id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA"
+			width=0 height=0>
+			<embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0
+				pluginspage="install_lodop.exe"></embed>
+		</object>
+        
+        <script type='text/javascript' src='/dwr/interface/printerService.js'></script>
+        <script type="text/javascript" src="js/printProtectPage.js"></script>
+        <script type="text/javascript" src="js/print-healthfile-exam.js"></script>
         <script type="text/javascript" src="js/jquery.tools.min.js"></script>
         <script type="text/javascript" src="js/jquery.blockUI.js"></script>
         <script type="text/javascript" src="js/jquery.printElement.min.js"></script>
@@ -84,6 +95,7 @@
         </style>
     </head>
     <body>
+    	<div id="printHealthFile" style="display:none;"></div>
         <div class="outerContainer">
             <div class="showToolbar"></div>
             <div class="container">
@@ -349,128 +361,8 @@
             <br />
             <br />
         </div>
-
-        <!-- 打印 -->
-        <div class="printable side-a ">
-            <div>
-                <button class="print gBtn" id="printa" name="printa">
-                    打印
-                </button>
-                <span class="hint close">按Esc退出</span>
-            </div>
-            <table class="card" id="cardA">
-                <tr>
-                    <td>姓名</td>
-                    <td class="name"></td>
-                    <td>性别</td>
-                    <td class="sex"></td>
-                    <td>出生日期</td>
-                    <td class="birthday"></td>
-                </tr>
-                <tr>
-                    <td colspan="4">健康档案编号</td>
-                    <td colspan="2" class="fileNoSub"></td>
-                </tr>
-                <tr>
-                    <td>ABO血型</td>
-                    <td colspan="2" class="p-list bloodTypeAbo">
-                    <input
-                    type="checkbox" value="A型" />
-                    A
-                    <input type="checkbox" value="B型" />
-                    B
-                    <input type="checkbox" value="O型" />
-                    O
-                    <input type="checkbox"
-                    value="AB型" />
-                    AB</td>
-                    <td>RH血型</td>
-                    <td colspan="2" class="p-list bloodTypeRh">
-                    <input
-                    type="checkbox" value="是" />
-                    Rh阴性
-                    <input type="checkbox" value="否" />
-                    Rh阳性
-                    <input type="checkbox" value="不详" />
-                    不详</td>
-                </tr>
-                <tr>
-                    <td colspan="6" class="p-list diseaseHistory block"
-                    mapcol="diseaseId">慢性病患病情况:
-                    <br />
-                    <input type="checkbox"
-                    value="1" />
-                    无
-                    <input type="checkbox" value="2" />
-                    高血压
-                    <input
-                    type="checkbox" value="3" />
-                    糖尿病
-                    <input type="checkbox" value="7" />
-                    脑卒中
-                    <input type="checkbox" value="4" />
-                    冠心病
-                    <input type="checkbox"
-                    value="-1" />
-                    哮喘
-                    <br />
-                    <input type="checkbox" value="12" />
-                    其他疾病 <span
-                    valEq="12" displayCol="remark"
-                    style="margin-left: 5px; border-bottom: solid 1px gray"></span></td>
-                </tr>
-                <tr>
-                    <td colspan="6" class="hBlock">过敏史:
-                    <br />
-                    <br />
-                    <span class="allergiesHistory p-join" mapcol="allergiesId"
-                    ds="34" dsLabel="name" dsVal="id"></span><span
-                    class="allergiesOther"
-                    style="margin-left: 3px; border-bottom: solid 1px gray"></span></td>
-                </tr>
-            </table>
-        </div>
-        <div class="printable side-b ">
-            <div>
-                <button class="print gBtn" id="printb" name="printb">
-                    打印
-                </button>
-                <span class="hint close">按Esc退出</span>
-            </div>
-            <table class="card" id="cardB">
-                <tr>
-                    <td>家庭住址</td>
-                    <td class="address"></td>
-                    <td>家庭电话</td>
-                    <td class="tel"></td>
-                </tr>
-                <tr>
-                    <td>紧急情况联系人</td>
-                    <td class="linkman"></td>
-                    <td>联系人电话</td>
-                    <td class="linkmanTel"></td>
-                </tr>
-                <tr>
-                    <td>建档机构名称</td>
-                    <td class="buildUnit"></td>
-                    <td>联系电话</td>
-                    <td class=""></td>
-                </tr>
-                <tr>
-                    <td>责任医生或护士</td>
-                    <td class="doctor"></td>
-                    <td>联系电话</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td colspan="4"
-                    style="vertical-align: top; text-align: left; padding-bottom: 2px; padding-left: 2px; height: 150px"> 其他说明:
-                    <br />
-                    <br />
-                    </td>
-                </tr>
-            </table>
-        </div>
+		  
+       
 
     </body>
 </html>

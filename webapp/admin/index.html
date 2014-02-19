@@ -71,6 +71,7 @@
 <script type='text/javascript' src='/dwr/interface/OptionProvider.js'></script>
 <script type='text/javascript' src='/dwr/interface/UserService.js'></script>
 <script type='text/javascript' src='/dwr/interface/summaryService.js'></script>
+<script type='text/javascript' src='/dwr/interface/printerService.js'></script>
 <script type='text/javascript' src='/dwr/interface/loginOffService.js'></script>
 <script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
 <script type='text/javascript' src='/dwr/interface/healthfileMaternalService.js'></script>
@@ -88,6 +89,7 @@
 <script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
 
 <script type="text/javascript" src="../js/ext/dwrproxy.js"></script>
+<script type="text/javascript" src="../js/print-healthfile-exam.js"></script>
 <script type="text/javascript" src="../js/ext/DwrTreeLoader.js"></script>
 <script type="text/javascript" src="../js/jsLoader.js"></script>
 <script type="text/javascript" src="../js/FormSetValues.js"></script>
@@ -100,7 +102,7 @@
 <script type="text/javascript" src="../js/tf-waitingthing-grid.js"></script>
 <script type="text/javascript" src="../js/tf-template-DiseaseAndHearScreen.js"></script>
 <script type="text/javascript" src="../js/tf-PregnancyRecord-health.js"></script>
-
+<script type="text/javascript" src="../js/tf-print-healthfile-exam.js"></script>
 <script type="text/javascript" src="../js/tf-health-books.js"></script>
 <script type="text/javascript" src="../js/ConstantUtils.js"></script>
 <script type="text/javascript" src="../js/tf-statistic-simple-detail.js"></script>
@@ -171,7 +173,6 @@
 <!-- 20121229 -->
 <script type="text/javascript" src="../js/tf-repeatfiles.js"></script>
 <script type='text/javascript' src='/dwr/interface/repeatFileNoService.js'></script>
-
 <!-- 20131105 -->
 <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/js/chart/jquery.simplemodal.js"></script>
@@ -181,7 +182,6 @@
 <script type='text/javascript' src='/dwr/interface/SummaryChartService.js'></script>
 <link rel="stylesheet" type="text/css" href="/themes/sunny/easyui.css">
 <link rel="stylesheet" type="text/css" href="/themes/icon.css">
-
 <style type="text/css">
 html,body {
 	font: normal 12px '宋体';
@@ -428,7 +428,7 @@ table.x-date-inner {
 		Your browser does not support the audio element.
 	</audio> -->
 	<div id="center2"></div>
-	
+	<div id="printHealthFile" style="display:none;"></div>
 	<script type="text/javascript">
 ScoreService.basicInformationMap( {callback:function(data){
     window.meta = data;
@@ -538,7 +538,6 @@ ScoreService.basicInformationMap( {callback:function(data){
 				<div id="queryTypeId" style="display:none"></div>
 			</div>
 		</div>
-
 </body>
 </html>
 
