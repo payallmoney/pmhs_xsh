@@ -7,6 +7,7 @@ app.furiousFilePanel = new Ext.tf.HealthPanel({
 	deleteUrl : UserMenuTreeService.removeHealthFiles,
 	diseaseId : 8,
 	panelId : 'app.furiousFilePanel',
+	dataExportUrl : '重性精神疾病患者档案导出',
 	gridViewConfig : {
 		forceFit : true,
 		getRowClass : function(record, rowIndex, rowParams, store) {

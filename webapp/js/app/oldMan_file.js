@@ -7,6 +7,7 @@ app.oldManFilePanel = new Ext.tf.HealthPanel({
 	deleteUrl : UserMenuTreeService.removeHealthFiles,
 //	diseaseId : 2,
 	panelId : 'app.oldManFilePanel',
+	dataExportUrl : '老年人档案导出',
 	gridViewConfig : {
 		forceFit : true,
 		getRowClass : function(record, rowIndex, rowParams, store) {

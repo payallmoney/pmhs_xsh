@@ -52,8 +52,8 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		//if (fileno.length() == 18){
 		
 		if(fileno != null && !fileno.equals("")){
-			if(!user.getUsername().equals(data.getInputPersonId()) ){
-				throw new Exception("不是本人建立的档案,不允许修改!");
+			if(!SecurityManager.isValidUser(data.getInputPersonId(),getSession()) ){
+				throw new Exception("不是本机构建立的档案,不允许修改!");
 			}
 			return update(data);
 		}
