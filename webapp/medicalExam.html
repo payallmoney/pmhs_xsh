@@ -58,8 +58,25 @@
 <script type="text/javascript" src="js/ext/ext-all-debug.js"></script>
 <script type="text/javascript" src="js/ext/ext-lang-zh_CN.js"></script>
 
+<!-- 打印 -->
+<script language="javascript" src="js/LodopFuncs.js"></script>
+<object id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA"
+	width=0 height=0>
+	<embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0
+		pluginspage="install_lodop.exe"></embed>
+</object>
+<script type="text/javascript" src="js/UrlParse.js"></script>
+<script type='text/javascript' src='/dwr/interface/printerService.js'></script>
+<script type="text/javascript" src="js/printProtectPage.js"></script>
+<script type="text/javascript" src="js/print-healthfile-exam.js"></script>
+<script type="text/javascript" src="js/pi_print_medicalExam.js"></script>
+
 </head>
 <body>
+	<div id="printHealthFile" style="display:none;"></div>
+	<button class="printMedicalExamBtn img1 woman i_print"
+            style="display: none;">
+            <img title="打印" src="../image/print_positive_32_32.png" />打印</button>
 	<div class="outerContainer">
 		<div class="showToolbar"></div>
 		<div class="container">

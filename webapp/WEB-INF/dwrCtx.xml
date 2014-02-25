@@ -550,5 +550,10 @@
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="MapService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
-	</bean>		
+	</bean>
+	<bean id="printerService" class=" cn.net.tongfang.web.service.PrinterService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="printerService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
 </beans>
