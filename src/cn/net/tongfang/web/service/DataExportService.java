@@ -8,12 +8,20 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -23,14 +31,10 @@ import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 import org.apache.commons.csv.CSVFormat;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
@@ -46,6 +50,8 @@ import cn.net.tongfang.framework.security.vo.BirthCertificate;
 import cn.net.tongfang.framework.security.vo.ChildLastMedicalExamRecord;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
+import cn.net.tongfang.framework.security.vo.ExportMain;
+import cn.net.tongfang.framework.security.vo.ExportSub;
 import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
@@ -1571,9 +1577,237 @@ public class DataExportService extends HibernateDaoSupport {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日");
 		return format.format(now);
 	}
-
-	public static void main(String[] args) {
-		System.out.println("======" + CSVFormat.EXCEL.format(new String[] { "a\"bc" }));
+	
+	public Map<String,List> get_Export_Param() throws Exception {
+		Map<String,List> ret = new HashMap<String,List>();
+		List main = getSession().createQuery("select id ,name from ExportMain order by id").list();
+		List sub =  getSession().createQuery("from ExportSub order by mainid , ord").list();
+		ret.put("sub", sub);
+		ret.put("main", main);
+		return ret;
 	}
-
+	
+	public String sqlExport(String disid,String id ,String name ,Map params) throws Exception {
+		
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		String fileName = DateToStr(new Date()) + "_" + user.getUsername()
+				+ "_" + id + ".xls";
+		//
+		HSSFWorkbook wb = new HSSFWorkbook();
+		FileOutputStream fileOut = new FileOutputStream(getWebRootAbsolutePath() + "data/" + fileName);
+		
+		Sheet sheet1 = wb.createSheet(name);
+		// No DataSource so we must handle Connections manually
+		try{
+		Connection conn = getSession().connection();
+		Statement st = conn.createStatement();
+		List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
+		List sublist =  getSession().createQuery("from ExportSub where  mainid = "+ id +" order by mainid , ord").list();
+		Map<Integer,ExportSub> submap = new HashMap();
+		for(int i=0 ;i <sublist.size();i++){
+			ExportSub vo = (ExportSub)sublist.get(i);
+			submap.put(vo.getId(), vo);
+		}
+		ExportMain main = (ExportMain)sqllist.get(0);
+		String sql = main.getSql();
+		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+			Object key = iter.next();
+			Object value = params.get(key);
+			ExportSub vo = submap.get(Integer.parseInt((String)key));
+			sql =  sql +" and " +vo.getColstr();
+		}
+		sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
+		
+		sql = sql.replaceAll("\"", "'");
+		PreparedStatement stmt =  conn.prepareStatement(sql);
+		stmt.setString(1, disid+"%");
+		int paramidx = 2;
+		SimpleDateFormat inputfomart1 = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
+		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+			Object key = iter.next();
+			Object value = params.get(key);
+			ExportSub vo = submap.get(Integer.parseInt((String)key));
+			if(vo.getType().equals("date")) {
+				stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+			}else if( vo.getType().equals("string")){
+				stmt.setString(paramidx++, (String)value);
+			}else{
+				stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+			}
+		}
+		ResultSet rs = stmt.executeQuery();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		int rowidx = 0;
+		Row rowtitle = sheet1.createRow((short)rowidx++);
+		
+		int cellidx = 0;
+		for (int i = 1; i <= numberOfColumns; i++) {
+			Cell cell = rowtitle.createCell(cellidx++);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(rsMetaData.getColumnLabel(i));
+		}
+		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+		int count = 0 ;
+		while (rs.next()) {
+			count ++;
+			Row row = sheet1.createRow((short)rowidx++);
+			cellidx = 0;
+			for (int i = 1; i <= numberOfColumns; i++) {
+				Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+				Cell cell = row.createCell(cellidx++);
+				if (cls.isAssignableFrom(String.class)) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(rs.getString(i));
+				} else if (cls.isAssignableFrom(Float.class)) {
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(rs.getFloat(i));
+				} else if (cls.isAssignableFrom(Integer.class)) {
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(rs.getInt(i));
+				}  else if (cls.isAssignableFrom(Long.class)) {
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(rs.getLong(i));
+				}  else if (cls.isAssignableFrom(Date.class)) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					Date obj = rs.getDate(i);
+					cell.setCellValue(fomart.format(obj));
+				} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					Date obj = rs.getDate(i);
+					cell.setCellValue(fomart.format(obj));
+				}
+			}
+		}
+		st.close();
+		wb.write(fileOut);
+		fileOut.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return getDownloadURL()+fileName;
+	}
+	//String examname, String userdistrict, Map<String, Map> params, Map<String, Map<String, String>> basemap, List<String> collist
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map sqlList(String disid,String id ,Map params) throws Exception {
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		try{
+			Connection conn = getSession().connection();
+			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
+			List sublist =  getSession().createQuery("from ExportSub where  mainid = "+ id +" order by mainid , ord").list();
+			Map<Integer,ExportSub> submap = new HashMap();
+			for(int i=0 ;i <sublist.size();i++){
+				ExportSub vo = (ExportSub)sublist.get(i);
+				submap.put(vo.getId(), vo);
+			}
+			ExportMain main = (ExportMain)sqllist.get(0);
+			String sql = main.getSql();
+			for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+				Object key = iter.next();
+				ExportSub vo = submap.get(Integer.parseInt((String)key));
+				sql =  sql +" and " +vo.getColstr();
+			}
+			sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
+			
+			sql = sql.replaceAll("\"", "'");
+			PreparedStatement stmt =  conn.prepareStatement(sql);
+			stmt.setString(1, disid+"%");
+			int paramidx = 2;
+			SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
+			SimpleDateFormat inputfomarttime = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+			
+			for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+				Object key = iter.next();
+				Object value = params.get(key);
+				ExportSub vo = submap.get(Integer.parseInt((String)key));
+				if(vo.getType().equals("date")) {
+					stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+				}else if(vo.getType().equals("time")) {
+					stmt.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
+				}else if( vo.getType().equals("string")){
+					stmt.setString(paramidx++, (String)value);
+				}else{
+					stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+				}
+			}
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int numberOfColumns = rsMetaData.getColumnCount();
+			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+			List retlist = new ArrayList();
+			while (rs.next()) {
+//				List row = new ArrayList();
+				Map row = new HashMap();
+				for (int i = 1; i <= numberOfColumns; i++) {
+					Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+					if (cls.isAssignableFrom(String.class)) {
+//						row.add(rs.getString(i));
+						row.put("col"+i, rs.getString(i));
+					} else if (cls.isAssignableFrom(Float.class)) {
+//						row.add(rs.getFloat(i));
+						row.put("col"+i, rs.getFloat(i));
+					} else if (cls.isAssignableFrom(Integer.class)) {
+//						row.add(rs.getFloat(i));
+						row.put("col"+i, rs.getInt(i));
+					} else if (cls.isAssignableFrom(Long.class)) {
+//						row.add(rs.getFloat(i));
+						row.put("col"+i, rs.getLong(i));
+					} else if (cls.isAssignableFrom(Date.class)) {
+						Date obj = rs.getDate(i);
+//						row.add(fomart.format(obj));
+						row.put("col"+i, fomart.format(obj));
+					} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						Date obj = rs.getDate(i);
+//						row.add(fomart.format(obj));
+						row.put("col"+i, fomart.format(obj));
+					}
+				}
+				retlist.add(row);
+			}
+			
+			Map ret = new HashMap();
+			ret.put("rows", retlist);
+			ret.put("currentpage", 1);
+			ret.put("total", 1);
+			ret.put("pages", 1);
+			return ret;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
+		
+	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public List sqlListHead(String id) throws Exception {
+		try{
+			Connection conn = getSession().connection();
+			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
+			ExportMain main = (ExportMain)sqllist.get(0);
+			String sql = main.getSql();
+			sql = sql + " and 1=2 ";
+			sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
+			sql = sql.replaceAll("\"", "'");
+			PreparedStatement stmt =  conn.prepareStatement(sql);
+			stmt.setString(1, null);
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int numberOfColumns = rsMetaData.getColumnCount();
+			List retlist = new ArrayList();
+			for (int i = 1; i <= numberOfColumns; i++) {
+				Map colmap = new HashMap();
+				colmap .put("field", "col"+i);
+				colmap .put("title", rsMetaData.getColumnLabel(i));
+				retlist.add(colmap);
+			}
+			return retlist;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
 }
