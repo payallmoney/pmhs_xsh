@@ -8,6 +8,7 @@ app.medicalPanel = new Ext.tf.HealthPanel({
     recordPk : 'id',
     detailUrl: '/medicalExam.html',
     panelId : 'app.medicalPanel',
+    isPrintMedicalExam : true,
 //    Select B.FileNo 编号,B.Name 姓名,C.Sex 性别,C.Birthday 出生日期,A.ExamDate 体检日期,
 //    A.Doctor 责任医生,D.UserName 录入人from MedicalExam A
 //    left join dbo.HealthFile B on A.FileNo = B.FileNo

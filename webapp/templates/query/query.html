@@ -187,6 +187,9 @@
 					fit:true
 				});
 			}
+			function afterload(){
+				$("#select_type + .combo").hide();
+			}
 			function typechange(){
 				var columns = [];
 				DataExportService.sqlListHead($("#select_type").combobox('getValue'),{async:false,callback:function(data){
@@ -211,7 +214,7 @@
 					<ul id="orgtree"></ul>  
 				</div>
 				<div id="query-tools"  data-options="region:'north'" style='height:40px;padding-top:5px;padding-left:5px;border:true;background-color: #E0ECFF;'>
-					<select id='select_type' class="easyui-combobox" name="state" style="width:400px;"  data-options="onSelect:typechange">
+					<select id='select_type' class="easyui-combobox" name="state" style="width:400px;"  data-options="onSelect:typechange,onLoadSuccess:afterload">
 					</select>
 					<a id="btn_remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="javascript:showExport()">查询/导出</a>
 				</div>
@@ -222,22 +225,6 @@
 					<div style='height:26px;padding:5px 0 0 5px;background-color: #E0ECFF;' data-options="region:'north',border:false"><font bold id='orgname'>请选择一个行政区划</font></div>
 					<div data-options = "region:'center',border:false">
 						<table id='querygrid'></table>
-						<!-- <table id='querygrid'  data-options = "fit:true,pagination:true,url:DataExportService.sqlList,singleSelect:true,onDblClickRow:dblclick,pageList :[10000]">
-							<thead>  
-								<tr>  
-									<th data-options="field:'col0',checkbox:true">选择</th>  
-									<th data-options="field:'col1'">男方编号</th>  
-									<th data-options="field:'col2'">男方姓名</th>  
-									<th data-options="field:'col3'">女方编号</th>  
-									<th data-options="field:'col4'">女方姓名</th>  
-									<th data-options="field:'col5'">男方生日</th>  
-									<th data-options="field:'col6'">女方生日</th>  
-									<th data-options="field:'col7'">婚检时间</th> 
-								</tr>  
-							</thead>  
-							<tbody>  
-							</tbody>  
-						</table>  -->
 					</div>
 				</div>
 			</div>
@@ -264,9 +251,7 @@
 						$("#select_type").append(" <option value=\""+g_options.main[i][0]+"\">"+g_options.main[i][1]+"</option>")
 					}
 				}
-				if(g_options.main.length==1){
-					$("#select_type").hide();
-				}
+				
 				var g_subs = {};
 				for(var i=0 ;i <g_options.sub.length;i++){
 					if(!g_subs[g_options.sub[i].mainid]){

@@ -7,6 +7,7 @@ app.t2dmFilePanel = new Ext.tf.HealthPanel({
 	deleteUrl : UserMenuTreeService.removeHealthFiles,
 	diseaseId : 3,
 	panelId : 'app.t2dmFilePanel',
+	dataExportUrl : '2型糖尿病患者档案导出',
 	gridViewConfig : {
 		forceFit : true,
 		getRowClass : function(record, rowIndex, rowParams, store) {

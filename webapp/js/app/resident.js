@@ -23,6 +23,7 @@ app.residentPanel = new Ext.tf.HealthPanel({
 	recordPk : 'fileNo',
 	visitDoctor : 'visitDoctor',
 	advancedFeatures : true,
+	isPrintHealthFile : true,
 	readerConfig : [ {
 		name : 'fileNo'
 	}, {

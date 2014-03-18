@@ -1386,6 +1386,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod exam_02 mod_disable"><img src="../image/menu/exam_02.gif"/><div>老年人健康体检</div><div class="remarks"></div></div>'+
 			'<div class="mod exam_03 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
 			'<div class="mod exam_04 mod_disable"><img src="../image/menu/exam_04.gif"/><div>重复档案管理</div><div class="remarks"></div></div>'+
+			'<div class="mod exam_05 mod_disable"><img src="../image/menu/exam_05.gif"/><div>导入修改档案</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_clinics_template'){
 		flag = true;

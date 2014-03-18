@@ -24,6 +24,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 	maternalText : '建立孕产妇保健手册',
 	isAlreadyMaternal : false,
 	isFinishGestation : false,
+	isPrintHealthFile : false,
+	isPrintMedicalExam : false,
 	isWomanExam : false,
 	// height:700,
 	// 是否需要在最末级才能增加？
@@ -389,7 +391,41 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			iconCls : 'c_edit',
 			handler : this.editFn.createDelegate(this)
 		});
-
+		
+		var printHealthFile = '';
+		//打印档案
+		if(this.isPrintHealthFile){
+			printHealthFile = new Ext.Action({
+				text : '打印',
+				iconCls : 'printbg',
+				handler : function(){
+					var selections = this.grid.getSelections();
+					if(selections.length == 1){
+						var fileNo = selections[0].data.fileNo;
+						PrintHealthFileAndExamClass.printHealthFile(fileNo);
+					}else{
+						showInfoObj.Infor('请选择打印的档案！');
+					}
+				}.createDelegate(this)
+			});
+		}
+		var printMedicalExam = '';
+		//打印健康体检记录
+		if(this.isPrintMedicalExam){
+			printMedicalExam = new Ext.Action({
+				text : '打印',
+				iconCls : 'printbg',
+				handler : function(){
+					var selections = this.grid.getSelections();
+					if(selections.length == 1){
+						var id = selections[0].data.id;
+						PrintHealthFileAndExamClass.printMedicalExam(id);
+					}else{
+						showInfoObj.Infor('请选择打印的健康体检记录！');
+					}
+				}.createDelegate(this)
+			});
+		}
 		var advancedF = null;
 		var dataExport = new Ext.Action({
 			text : '数据导出',
@@ -402,12 +438,20 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 					Ext.getCmp(id).getEl().mask('导出数据加载中...');
 					var filterKey = this.combo.getValue();
 					var filterValue = this.filterField.getValue();
-					this.dataExportUrl(disNo, filterKey, filterValue,
+					if(typeof(this.dataExportUrl)==="function"){
+						this.dataExportUrl(disNo, filterKey, filterValue,
+								function(data) {
+									window.location.href = data;
+									// UserMenuTreeService.removeDataExportFile(data);
+									Ext.getCmp(id).getEl().unmask();
+								});
+					}else if(typeof(this.dataExportUrl)==="string"){
+						DataExportService.sqlExportCsv(disNo,this.dataExportUrl,filterKey, filterValue,
 							function(data) {
 								window.location.href = data;
-								// UserMenuTreeService.removeDataExportFile(data);
 								Ext.getCmp(id).getEl().unmask();
 							});
+					}
 				}
 			}.createDelegate(this)
 		});
@@ -666,6 +710,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 									}
 								}.createDelegate(this)
 							}));
+			funcAction.push(printHealthFile);
+			funcAction.push(printMedicalExam);
 			funcAction.push('-');
 			funcAction.push(this.combo);
 			funcAction.push(this.filterField);
@@ -679,6 +725,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 								}.createDelegate(this)
 							}));
 			funcAction.push(advancedF);
+			
 		}
 		return funcAction;
 	},
@@ -850,8 +897,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 						this.f_add(true);
 				}.createDelegate(this)
 			}
-			// ,
-
+			// ,
             // render:function(){
                 // this.menu.getEl().on(
                     // 'contextmenu' ,function(e,node){
@@ -868,12 +914,9 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
                         // contextmenu.showAt(e.getXY());
                     // }.createDelegate(this)
                 // );
-            // }.createDelegate(this)
-
+            // }.createDelegate(this)
 		});
-		
-
-
+		
 
 		var panel = new Ext.Panel({
 			layout : 'border',
