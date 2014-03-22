@@ -1412,6 +1412,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod health_05 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_06 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_07 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod health_08 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>居民健康档案及健康体检记录打印</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_sms_template'){
 		flag = true;
