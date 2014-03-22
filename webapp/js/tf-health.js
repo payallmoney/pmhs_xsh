@@ -438,12 +438,20 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 					Ext.getCmp(id).getEl().mask('导出数据加载中...');
 					var filterKey = this.combo.getValue();
 					var filterValue = this.filterField.getValue();
-					this.dataExportUrl(disNo, filterKey, filterValue,
+					if(typeof(this.dataExportUrl)==="function"){
+						this.dataExportUrl(disNo, filterKey, filterValue,
+								function(data) {
+									window.location.href = data;
+									// UserMenuTreeService.removeDataExportFile(data);
+									Ext.getCmp(id).getEl().unmask();
+								});
+					}else if(typeof(this.dataExportUrl)==="string"){
+						DataExportService.sqlExportCsv(disNo,this.dataExportUrl,filterKey, filterValue,
 							function(data) {
 								window.location.href = data;
-								// UserMenuTreeService.removeDataExportFile(data);
 								Ext.getCmp(id).getEl().unmask();
 							});
+					}
 				}
 			}.createDelegate(this)
 		});

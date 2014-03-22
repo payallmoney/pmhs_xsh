@@ -6,6 +6,7 @@ app.hypFilePanel = new Ext.tf.HealthPanel({
 	queryUrl : UserMenuTreeService.findHypHealthFiles,
 	deleteUrl : UserMenuTreeService.removeHealthFiles,
 	diseaseId : 2,
+	dataExportUrl : '高血压患者档案导出',
 	gridViewConfig : {
 		forceFit : true,
 		getRowClass : function(record, rowIndex, rowParams, store) {

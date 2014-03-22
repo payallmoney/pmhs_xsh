@@ -57,10 +57,15 @@ public class FileNumSearch extends HibernateDaoSupport {
 				otherparamtype);
 
 	}
+	
+	public static String safeSql(String sql){
+		return sql.replaceAll("'", "");
+	}
 
 	public PagedList listCodePageSize(int pageNo, int newpagesize,
 			String mcode, boolean startWith, String condVal,
 			String otherparamtype) {
+		mcode = safeSql(mcode);
 		System.out.println("=============pageNo======" + pageNo);
 		System.out.println("=============newpagesize======" + newpagesize);
 		System.out.println("=============mcode======" + mcode);
@@ -85,6 +90,7 @@ public class FileNumSearch extends HibernateDaoSupport {
 			otherCond = mcodes[0];
 		}
 		System.out.println("========otherCond===========" + otherCond);
+		otherCond = safeSql(otherCond);
 		if (otherparamtype != null) {
 			if (otherparamtype.equals(OtherParamType_Woman)) {// 孕产妇随访查询
 				otherTables = " ,HealthFileMaternal hm ";
