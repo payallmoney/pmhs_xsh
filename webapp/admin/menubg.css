@@ -676,6 +676,11 @@ div.health_07{
 	margin-left: 620px;
 	width: 150px;
 }
+div.health_08{
+	margin-top: 190px;
+	margin-left: 820px;
+	width: 240px;
+}
 div.menu_second_div{
 	cursor: pointer;
 	border-radius: 10px;
