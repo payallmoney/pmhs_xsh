@@ -1001,13 +1001,19 @@ $(function(){
 			$('.save').remove();
 			$('.cancel').remove();
 			$('.child').remove();
-		}else if(type == '3' || type == '4'){
+		}else if(type == '3' || type == '4' || type == '7'){
 			flag = true;
 			$('.destroyReason').show();
 			$('.child').remove();
 		}else if(type == '5'){
 			allDisabled = true;
 			$('.destroyReason').show();
+			$('.save').remove();
+			$('.cancel').remove();
+			$('.child').remove();
+		}else if(type == '6'){
+			allDisabled = true;
+			$('.changeCertificate').show();
 			$('.save').remove();
 			$('.cancel').remove();
 			$('.child').remove();

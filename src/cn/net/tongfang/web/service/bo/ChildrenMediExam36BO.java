@@ -1,16 +1,17 @@
 package cn.net.tongfang.web.service.bo;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import cn.net.tongfang.framework.security.vo.CheckDirect36;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
+import cn.net.tongfang.framework.security.vo.TcmserviceForChildren36;
 
 public class ChildrenMediExam36BO extends ChildrenMediExam36{
 	/**
 	 * 
 	 */
 	List<CheckDirect36> checkDirect36;
+	List<TcmserviceForChildren36> tcmserviceForChildren36;
 	
 	private String medicalExamId;
 	private String pressure;
@@ -60,6 +61,14 @@ public class ChildrenMediExam36BO extends ChildrenMediExam36{
 	private String lymphNodeRemark;
 	private String pleuraRemark;
 	
+	
+	public List<TcmserviceForChildren36> getTcmserviceForChildren36() {
+		return tcmserviceForChildren36;
+	}
+	public void setTcmserviceForChildren36(
+			List<TcmserviceForChildren36> tcmserviceForChildren36) {
+		this.tcmserviceForChildren36 = tcmserviceForChildren36;
+	}
 	public List<CheckDirect36> getCheckDirect36() {
 		return checkDirect36;
 	}

@@ -303,4 +303,16 @@ var cfg = [ {
 	setting : {
 		size : 20
 	}
+}, {
+	id : "sourceBirthCertifiId",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
+}, {
+	id : "changeReasons",
+	xtype : "input",
+	setting : {
+		size : 104
+	}
 } ];

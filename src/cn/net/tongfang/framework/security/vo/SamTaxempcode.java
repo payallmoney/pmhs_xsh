@@ -25,6 +25,10 @@ public class SamTaxempcode implements java.io.Serializable {
 	private String districtId;
 	private Integer type;
 	private Integer isLookAuthority;
+	private Integer isChangeCertifiAuthority;
+	private Integer isSupplyCertifiAuthority;
+	private Integer isAdvancedCertifiAuthority;
+	
 	private Integer isStasticAuth;
 	private District district;
 	private SamTaxorgcode org;
@@ -45,7 +49,8 @@ public class SamTaxempcode implements java.io.Serializable {
 	public SamTaxempcode(String loginname, String username, String password,
 			Integer orgId, Timestamp createDate, String validFlag,
 			String districtId, Integer type,Integer isLookAuthority,
-			Integer isStasticAuth) {
+			Integer isStasticAuth,Integer isChangeCertifiAuthority,
+			Integer isSupplyCertifiAuthority,Integer isAdvancedCertifiAuthority) {
 		this.loginname = loginname;
 		this.username = username;
 		this.password = password;
@@ -56,6 +61,33 @@ public class SamTaxempcode implements java.io.Serializable {
 		this.type = type;
 		this.isLookAuthority = isLookAuthority;
 		this.isStasticAuth = isStasticAuth;
+		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
+		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
+		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+	}
+
+	public Integer getIsAdvancedCertifiAuthority() {
+		return isAdvancedCertifiAuthority;
+	}
+
+	public void setIsAdvancedCertifiAuthority(Integer isAdvancedCertifiAuthority) {
+		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+	}
+
+	public Integer getIsChangeCertifiAuthority() {
+		return isChangeCertifiAuthority;
+	}
+
+	public void setIsChangeCertifiAuthority(Integer isChangeCertifiAuthority) {
+		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
+	}
+
+	public Integer getIsSupplyCertifiAuthority() {
+		return isSupplyCertifiAuthority;
+	}
+
+	public void setIsSupplyCertifiAuthority(Integer isSupplyCertifiAuthority) {
+		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
 	}
 
 	public String getLoginname() {

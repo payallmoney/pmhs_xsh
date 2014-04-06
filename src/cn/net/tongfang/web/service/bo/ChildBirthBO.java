@@ -48,7 +48,15 @@ public class ChildBirthBO extends ChildBirthRecord {
 	private String fatherCardType;
 	private String fatherCardTypeOther;
 	private String issuingUsers;
+	private String saveType;
 	private List<DiseaseScreening> diseaseScreening;
+	
+	public String getSaveType() {
+		return saveType;
+	}
+	public void setSaveType(String saveType) {
+		this.saveType = saveType;
+	}
 	public String getLinkmanTel() {
 		return linkmanTel;
 	}

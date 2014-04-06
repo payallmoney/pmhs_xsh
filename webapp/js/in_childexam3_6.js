@@ -798,4 +798,31 @@ var cfg = [
 		}, {
 			id : "foreignId",
 			xtype : "input"
+		}, { // 中医药健康管理服务
+			id : "tcmserviceForChildren36",
+			xtype : "list",
+			setting : {
+				ds : "2019",
+				newlineStep : 1,
+				maxlen : 10,
+				size : 10,
+				multi : true,
+				save : 'id',
+				displayCols : [ 'number', 'name' ],
+				displayColNames : [ "编号", "方式" ],
+				mapping : {
+					value : 'manageService36id'
+				}
+			},
+			requires : {
+				valEq : "4",
+				fields : [ "tcmService36Other" ]
+			}
+		}, { // 其它描述
+			id : "tcmService36Other",
+			xtype : "input",
+			setting : {
+				disabled : true,
+				size : 50
+			}
 		} ];

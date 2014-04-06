@@ -119,5 +119,8 @@
 		<property name="foreignId" type="java.lang.String">
 			<column name="ForeignId" length="36" />
 		</property>
+		<property name="tcmService36Other" type="java.lang.String">
+			<column name="TCMService36Other" length="1000" />
+		</property>
 	</class>
 </hibernate-mapping>

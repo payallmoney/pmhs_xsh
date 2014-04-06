@@ -16,6 +16,9 @@ public class TaxempDetail implements UserDetails {
     private boolean credentialsNonExpired;
     private boolean enabled;
     private Integer isLookAuthority;
+    private Integer isChangeCertifiAuthority;
+    private Integer isSupplyCertifiAuthority;
+    private Integer isAdvancedCertifiAuthority;
     //------------扩展业务属性----------
     //用户数据权限
     //暂空
@@ -30,7 +33,9 @@ public class TaxempDetail implements UserDetails {
 	public TaxempDetail(String loginname, String taxempname, String password,
 			District district, SamTaxorgcode org,
 			Integer orgId, String districtId, boolean validFlag,
-			GrantedAuthority[] authorities,Integer isLookAuthority) {
+			GrantedAuthority[] authorities,Integer isLookAuthority,
+			Integer isChangeCertifiAuthority,Integer isSupplyCertifiAuthority,
+			Integer isAdvancedCertifiAuthority) {
 		this.accountNonExpired = true;
 		this.accountNonLocked = true;
 		this.authorities = authorities;
@@ -44,7 +49,35 @@ public class TaxempDetail implements UserDetails {
 		this.district = district;
 		this.org = org;
 		this.isLookAuthority = isLookAuthority;
+		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
+		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
+		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
 	}
+	
+	public Integer getIsAdvancedCertifiAuthority() {
+		return isAdvancedCertifiAuthority;
+	}
+
+	public void setIsAdvancedCertifiAuthority(Integer isAdvancedCertifiAuthority) {
+		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+	}
+
+	public Integer getIsChangeCertifiAuthority() {
+		return isChangeCertifiAuthority;
+	}
+
+	public void setIsChangeCertifiAuthority(Integer isChangeCertifiAuthority) {
+		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
+	}
+
+	public Integer getIsSupplyCertifiAuthority() {
+		return isSupplyCertifiAuthority;
+	}
+
+	public void setIsSupplyCertifiAuthority(Integer isSupplyCertifiAuthority) {
+		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
+	}
+
 	public String getTaxempname() {
 		return taxempname;
 	}

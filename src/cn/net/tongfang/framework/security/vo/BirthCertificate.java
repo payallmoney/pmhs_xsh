@@ -55,6 +55,8 @@ public class BirthCertificate implements java.io.Serializable {
 	private String fatherCardType;
 	private String fatherCardTypeOther;
 	private String issuingUsers;
+	private Integer isChanged;
+	private String saveType;
 	// Constructors
 
 	/** default constructor */
@@ -82,7 +84,8 @@ public class BirthCertificate implements java.io.Serializable {
 			Integer isPrint, Integer isSupply, String motherAddress,
 			String motherCardType, String motherCardTypeOther,
 			String fatherAddress, String fatherCardType,
-			String fatherCardTypeOther,String issuingUsers) {
+			String fatherCardTypeOther,String issuingUsers,Integer isChanged,
+			String saveType) {
 		super();
 		this.certifiId = certifiId;
 		this.name = name;
@@ -128,15 +131,30 @@ public class BirthCertificate implements java.io.Serializable {
 		this.fatherCardType = fatherCardType;
 		this.fatherCardTypeOther = fatherCardTypeOther;
 		this.issuingUsers = issuingUsers;
+		this.isChanged = isChanged;
+		this.saveType = saveType;
 	}
 
 	// Property accessors
-
+	public String getSaveType() {
+		return saveType;
+	}
+	public void setSaveType(String saveType) {
+		this.saveType = saveType;
+	}
 	public String getCertifiId() {
 		return this.certifiId;
 	}
 
 	
+
+	public Integer getIsChanged() {
+		return isChanged;
+	}
+
+	public void setIsChanged(Integer isChanged) {
+		this.isChanged = isChanged;
+	}
 
 	public void setCertifiId(String certifiId) {
 		this.certifiId = certifiId;

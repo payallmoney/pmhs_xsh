@@ -139,5 +139,11 @@
         <property name="issuingUsers" type="java.lang.String">
             <column name="IssuingUsers" />
         </property>
+        <property name="isChanged" type="java.lang.Integer">
+            <column name="IsChanged" />
+        </property>
+         <property name="saveType" type="java.lang.String">
+            <column name="SaveType" />
+        </property>
     </class>
 </hibernate-mapping>

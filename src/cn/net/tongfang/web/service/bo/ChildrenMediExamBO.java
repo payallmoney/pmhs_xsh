@@ -6,12 +6,14 @@ import cn.net.tongfang.framework.security.vo.CheckDirect;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExamExam09;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExamExam10;
+import cn.net.tongfang.framework.security.vo.TcmserviceForChildren;
 
 public class ChildrenMediExamBO extends ChildrenMediExam{
 	List<CheckDirect> checkDirect;
 	List<ChildrenMediExamExam09> childrenMediExamExam09;
 	List<ChildrenMediExamExam10> childrenMediExamExam10;
-
+	List<TcmserviceForChildren> tcmserviceForChildren;
+	
 	private String medicalExamId;
 	private String pressure;
 	private String onlinePhoto;
@@ -52,6 +54,17 @@ public class ChildrenMediExamBO extends ChildrenMediExam{
 	private String lymphNodeRemark;
 	private String pleuraRemark;
 	
+	
+	
+	public List<TcmserviceForChildren> getTcmserviceForChildren() {
+		return tcmserviceForChildren;
+	}
+
+	public void setTcmserviceForChildren(
+			List<TcmserviceForChildren> tcmserviceForChildren) {
+		this.tcmserviceForChildren = tcmserviceForChildren;
+	}
+
 	public List<CheckDirect> getCheckDirect() {
 		return checkDirect;
 	}

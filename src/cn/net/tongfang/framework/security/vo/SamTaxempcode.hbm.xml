@@ -32,6 +32,15 @@
         <property name="isLookAuthority" type="integer">
             <column name="IsLookAuthority" />
         </property>
+        <property name="isChangeCertifiAuthority" type="integer">
+            <column name="IsChangeCertifiAuthority" />
+        </property>
+        <property name="isSupplyCertifiAuthority" type="integer">
+            <column name="IsSupplyCertifiAuthority" />
+        </property>
+         <property name="isAdvancedCertifiAuthority" type="integer">
+            <column name="IsAdvancedCertifiAuthority" />
+        </property>
         <property name="isStasticAuth" type="integer">
             <column name="IsStasticAuth" />
         </property>

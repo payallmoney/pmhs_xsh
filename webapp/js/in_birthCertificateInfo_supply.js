@@ -284,4 +284,10 @@ var cfg = [ {
 	setting : {
 		size : 20
 	}
+}, {
+	id : "saveType",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
 } ];

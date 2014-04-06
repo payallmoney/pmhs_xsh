@@ -341,6 +341,11 @@ div.fun_mod_10{
     margin-left: 1015px;
     width: 150px;
 }
+div.fun_mod_11{
+    margin-top: 335px;
+    margin-left: 1215px;
+    width: 200px;
+}
 div.div_fun_mod_container {
 	width: 800px;
 	height : 500px;
@@ -381,6 +386,7 @@ div.child_business_05{
 	margin-left: 610px;
 	width: 150px;
 }
+
 div.child_manage_01{
 	margin-top: 20px;
 	margin-left: 25px;
@@ -454,6 +460,11 @@ div.child_birth_02{
 	margin-top: 20px;
 	margin-left: 200px;
 	width: 150px;
+}
+div.child_birth_03{
+	margin-top: 20px;
+	margin-left: 380px;
+	width: 200px;
 }
 div.child_ill_01{
 	margin-top: 20px;

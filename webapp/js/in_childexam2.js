@@ -912,4 +912,31 @@ var cfg = [
 		}, {
 			id : "foreignId",
 			xtype : "input"
+		}, { // 中医药健康管理服务
+			id : "tcmserviceForChildren",
+			xtype : "list",
+			setting : {
+				ds : "2020",
+				newlineStep : 1,
+				maxlen : 10,
+				size : 10,
+				multi : true,
+				save : 'id',
+				displayCols : [ 'number', 'name' ],
+				displayColNames : [ "编号", "方式" ],
+				mapping : {
+					value : 'manageServiceId'
+				}
+			},
+			requires : {
+				valEq : "6",
+				fields : [ "tcmServiceOther" ]
+			}
+		}, { // 其它描述
+			id : "tcmServiceOther",
+			xtype : "input",
+			setting : {
+				disabled : true,
+				size : 50
+			}
 		} ];

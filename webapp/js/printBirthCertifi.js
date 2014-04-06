@@ -179,25 +179,42 @@
 	}
 	
 	function print(birthCertifiId){
-		Ext.Msg.show({
-			title:'提示',
-			msg: '保存成功，是否打印出生医学证明？',
-			buttons: Ext.Msg.YESNO,
-			animEl: 'elId',
-			icon: Ext.MessageBox.QUESTION,
-			fn : function(e){
-				if(e == 'yes'){
-					BirthCertificateMsgService.getBirthCertificate(birthCertifiId,function(data){
-						if(data != null){
-							printObj.printPreview(generateJson(data),0);
-							showPromptPrintSuccess(birthCertifiId);
-						}
-					});
-				}else if(e == 'no'){
-					sendMessage('quit');
+		if(birthCertifiId == '0'){
+			Ext.Msg.show({
+				title:'错误',
+				msg: '保存错误，原出生医学证明编号填写不正确或者原出生医学证明还没有归档，请先进行归档操作。',
+				buttons: Ext.Msg.OK,
+				animEl: 'elId',
+				icon: Ext.MessageBox.ERROR
+			});
+		}else if(birthCertifiId == "1"){
+			Ext.Msg.show({
+				title:'错误',
+				msg: '保存错误，您没有权限补发出生医学证明。',
+				buttons: Ext.Msg.OK,
+				animEl: 'elId',
+				icon: Ext.MessageBox.ERROR
+			});
+		}else{
+			Ext.Msg.show({
+				title:'提示',
+				msg: '保存成功，是否打印出生医学证明？',
+				buttons: Ext.Msg.YESNO,
+				animEl: 'elId',
+				icon: Ext.MessageBox.QUESTION,
+				fn : function(e){
+					if(e == 'yes'){
+						BirthCertificateMsgService.getBirthCertificate(birthCertifiId,function(data){
+							if(data != null){
+								printObj.printPreview(generateJson(data),0);
+								showPromptPrintSuccess(birthCertifiId);
+							}
+						});
+					}else if(e == 'no'){
+						sendMessage('quit');
+					}
 				}
-			}
-		});
-		
+			});
+		}
 	}
 })();

@@ -349,6 +349,9 @@ function hideHUD($t, includeError){
             if (setting.readonly) {
                 attr += " disabled='true' style='background-color:WHITESMOKE;border:1px solid WHITESMOKE' ";
             }
+            if (setting.defaultVal){
+            	attr += " value='" + setting.defaultVal + "'";
+            }
             var ele;
             var units = setting.inputUnits ? '<span>' + setting.inputUnits + '</span>' : '';
             if ( setting.asLabel){

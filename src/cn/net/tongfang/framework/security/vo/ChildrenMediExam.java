@@ -74,6 +74,7 @@ public class ChildrenMediExam implements java.io.Serializable {
 	private String highRiskSearch;
 	private String breastMilk;
 	private String foreignId;
+	private String tcmServiceOther;
 	public ChildrenMediExam() {
 	}
 
@@ -107,7 +108,7 @@ public class ChildrenMediExam implements java.io.Serializable {
 			String exam15, String exam15Other, String exam16, String exam16Other,Integer exam17,
 			String highRisk,String highRiskRemark,String execDistrictNum,
 			String evaluateOther,String highRiskSearch,String breastMilk,
-			String foreignId) {
+			String foreignId,String tcmServiceOther) {
 		super();
 		this.id = id;
 		this.fileNo = fileNo;
@@ -172,6 +173,15 @@ public class ChildrenMediExam implements java.io.Serializable {
 		this.highRiskSearch = highRiskSearch;
 		this.breastMilk = breastMilk;
 		this.foreignId = foreignId;
+		this.tcmServiceOther = tcmServiceOther;
+	}
+
+	public String getTcmServiceOther() {
+		return tcmServiceOther;
+	}
+
+	public void setTcmServiceOther(String tcmServiceOther) {
+		this.tcmServiceOther = tcmServiceOther;
 	}
 
 	public String getId() {

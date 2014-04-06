@@ -16,6 +16,7 @@
 			/WEB-INF/hbt.xml
 			/WEB-INF/dwrCtx.xml
 			/WEB-INF/app.xml
+			/WEB-INF/quartz.xml
 		</param-value>
 	</context-param>
 

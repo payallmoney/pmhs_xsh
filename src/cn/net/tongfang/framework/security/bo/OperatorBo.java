@@ -14,12 +14,39 @@ public class OperatorBo {
 	private Integer orgId;
 	private String districtId;
 	private Integer isLookAuthority;
+	private Integer isChangeCertifiAuthority;
+	private Integer isSupplyCertifiAuthority;
+	private Integer isAdvancedCertifiAuthority;
 	//private String roleName; //role name
 	private List<ModuleBo> modules;
 	private List<CategoryBo> categories;
 	//add by Daved 2009-03-16
 	
 	private District district;
+	public Integer getIsChangeCertifiAuthority() {
+		return isChangeCertifiAuthority;
+	}
+
+	public Integer getIsAdvancedCertifiAuthority() {
+		return isAdvancedCertifiAuthority;
+	}
+
+	public void setIsAdvancedCertifiAuthority(Integer isAdvancedCertifiAuthority) {
+		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+	}
+
+	public void setIsChangeCertifiAuthority(Integer isChangeCertifiAuthority) {
+		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
+	}
+
+	public Integer getIsSupplyCertifiAuthority() {
+		return isSupplyCertifiAuthority;
+	}
+
+	public void setIsSupplyCertifiAuthority(Integer isSupplyCertifiAuthority) {
+		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
+	}
+
 	private SamTaxorgcode org;
 	
 	

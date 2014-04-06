@@ -42,7 +42,22 @@ var addUser = function() {
 			formBean.isLookAuthority = 1;
 		else
 			formBean.isLookAuthority = 0;
-
+		
+		if (formBean.isChangeCertifiAuthority)
+			formBean.isChangeCertifiAuthority = 1;
+		else
+			formBean.isChangeCertifiAuthority = 0;
+		
+		if (formBean.isSupplyCertifiAuthority)
+			formBean.isSupplyCertifiAuthority = 1;
+		else
+			formBean.isSupplyCertifiAuthority = 0;
+		
+		if (formBean.isAdvancedCertifiAuthority)
+			formBean.isAdvancedCertifiAuthority = 1;
+		else
+			formBean.isAdvancedCertifiAuthority = 0;
+		
 		formBean.user = {};
 		formBean.user = formBean;
 		if (!Ext.isEmpty(formBean.typeList) && !Ext.isArray(formBean.typeList)) {
@@ -63,39 +78,84 @@ var addUser = function() {
 		// width:auto,
 		title : '',
 		defaultType : 'textfield',
-		autoHeight : true,
+//		autoHeight : true,
+		height : 500,
+		width : 740,
 		border : false,
 		hidden : false,
 		frame : true,
 		monitorValid : true,
+		layout : 'absolute',
 		items : [ {
-			fieldLabel : '用户ID',
+			xtype : 'label',
+			text : '用户ID',
+			x : 0,
+			y : 3
+		},{
+//			fieldLabel : '用户ID',
 			name : 'loginname',
-			allowBlank : false
+			allowBlank : false,
+			x : 80,
+			y : 0
+		},{
+			xtype : 'label',
+			text : '用户名称',
+			x : 0,
+			y : 33
 		}, {
-			fieldLabel : '用户名称',
+//			fieldLabel : '用户名称',
 			name : 'username',
-			allowBlank : false
+			allowBlank : false,
+			x : 80,
+			y : 30
+		},{
+			xtype : 'label',
+			text : '密码',
+			x : 0,
+			y : 63
 		}, {
-			fieldLabel : '密码',
+//			fieldLabel : '密码',
 			name : 'password',
 			id : 'password',
 			inputType : 'password',
-			allowBlank : false
+			allowBlank : false,
+			x : 80,
+			y : 60
+		},{
+			xtype : 'label',
+			text : '重复密码',
+			x : 0,
+			y : 93
 		}, {
-			fieldLabel : '重复密码',
+//			fieldLabel : '重复密码',
 			name : 'dupPassword',
 			id : 'DupPassword',
 			inputType : 'password',
-			allowBlank : false
+			allowBlank : false,
+			x : 80,
+			y : 90
+		},{
+			xtype : 'label',
+			text : '是否有效',
+			x : 0,
+			y : 123
 		}, {
-			fieldLabel : '是否有效',
+//			fieldLabel : '是否有效',
 			name : 'validFlag',
-			xtype : 'checkbox'
+			xtype : 'checkbox',
+			x : 80,
+			y : 120
+		},{
+			xtype : 'label',
+			text : '人员属性',
+			x : 0,
+			y : 153
 		}, {
-			fieldLabel : '人员属性',
+//			fieldLabel : '人员属性',
 			xtype : 'checkboxgroup',
 			columns : [ 200, 150, 150, 200 ],
+			x : 80,
+			y : 150,
 			items : [ {
 				boxLabel : '一般操作人员',
 				name : 'typeList',
@@ -113,11 +173,18 @@ var addUser = function() {
 				name : 'typeList',
 				inputValue : 8
 			} ]
+		},{
+			xtype : 'label',
+			text : '所属组织机构',
+			x : 0,
+			y : 183
 		}, {
 			fieldLabel : '所属组织机构',
 			xtype : 'popselect',
 			allowBlank : false,
 			refName : 'orgId',
+			x : 80,
+			y : 180,
 			queryUrl : UserMenuTreeService.findOrgs.createDelegate(this),
 			queryConfig : [ {
 				fieldLabel : '组织机构名称',
@@ -157,11 +224,18 @@ var addUser = function() {
 		}, {
 			name : 'orgId',
 			xtype : 'hidden'
+		},{
+			xtype : 'label',
+			text : '行政区域',
+			x : 0,
+			y : 213
 		}, {
 			fieldLabel : '行政区域',
 			name : 'district.name',
 			refName : 'districtId',
 			xtype : 'popselect',
+			x : 80,
+			y : 210,
 			queryUrl : UserMenuTreeService.findDistricts.createDelegate(this),
 			queryConfig : [ {
 				fieldLabel : '行政区域名称',
@@ -186,17 +260,14 @@ var addUser = function() {
 			name : 'districtId',
 			xtype : 'hidden'
 		}, {
-			fieldLabel : '特殊权限',
-			name : 'isLookAuthority',
-			xtype : 'checkbox',
-			boxLabel : '查看下级机构统计数据'
-		}, {
+			x : 0,
+			y : 240,
 			xtype : "itemselector",
 			name : "roles",
 			fieldLabel : "用户角色",
 			dataFields : [ "code", "desc" ],
 			toData : [],
-			msWidth : 250,
+			msWidth : 350,
 			msHeight : 200,
 			valueField : "code",
 			displayField : "desc",
@@ -215,7 +286,40 @@ var addUser = function() {
 					i.reset.call(i);
 				}
 			} ]
-		} ],
+		},{
+			xtype : 'fieldset',
+			x : 220,
+			y : 0,
+			title : '特殊权限',
+			width : 500,
+			height : 130,
+			layout : 'absolute',
+			items : [{
+				x : 0,
+				y : 0,
+				name : 'isLookAuthority',
+				xtype : 'checkbox',
+				boxLabel : '查看下级机构统计数据'
+			},{
+				x : 0,
+				y : 30,
+				name : 'isChangeCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明换发权限'
+			},{
+				x : 0,
+				y : 60,
+				name : 'isSupplyCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明补发权限'
+			},{
+				x : 150,
+				y : 0,
+				name : 'isAdvancedCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明高级功能权限'
+			}]
+		}],
 		buttons : [ {
 			text : '保存',
 			formBind : true,
@@ -322,6 +426,18 @@ var reader = new Ext.data.JsonReader({
 	name : 'isLookAuthority',
 	mapping : 'user.isLookAuthority',
 	type : 'int'
+},{
+	name : 'isChangeCertifiAuthority',
+	mapping : 'user.isChangeCertifiAuthority',
+	type : 'int'
+},{
+	name : 'isSupplyCertifiAuthority',
+	mapping : 'user.isSupplyCertifiAuthority',
+	type : 'int'
+},{
+	name : 'isAdvancedCertifiAuthority',
+	mapping : 'user.isAdvancedCertifiAuthority',
+	type : 'int'
 } ]));
 
 var store = new Ext.data.Store({
@@ -385,7 +501,9 @@ function edit(rec) {
 		title : '',
 		// defaults: {width: 140}, // Default config options for child items
 		defaultType : 'textfield',
-		autoHeight : true,
+//		autoHeight : true,
+		height : 500,
+		width : 740,
 		// bodyStyle: Ext.isIE ? 'padding:0 0 5px 15px;' : 'padding:10px
 		// 15px;',
 		border : false,
@@ -397,26 +515,62 @@ function edit(rec) {
 		// "margin-right": Ext.isIE6 ? (Ext.isStrict ? "-10px" : "-13px") :
 		// "0" // you have to adjust for it somewhere else
 		// },
+		layout : 'absolute',
 		items : [ {
-			fieldLabel : '用户ID',
+			xtype : 'label',
+			text : '用户ID',
+			x : 0,
+			y : 3
+		}, {
+//			fieldLabel : '用户ID',
 			name : 'loginname',
 			style : 'border:0; background: #DFE8F6 none repeat scroll 0 0;',
-			readOnly : true
+			readOnly : true,
+			x : 80,
+			y : 0
+		},{
+			xtype : 'label',
+			text : '用户名称',
+			x : 0,
+			y : 43
 		}, {
-			fieldLabel : '用户名称',
+//			fieldLabel : '用户名称',
 			name : 'username',
-			allowBlank : false
+			allowBlank : false,
+			x : 80,
+			y : 40
+		},{
+			xtype : 'label',
+			text : '密码',
+			x : 0,
+			y : 83
 		}, {
-			fieldLabel : '密码',
+//			fieldLabel : '密码',
 			name : 'password',
 			value : '',
-			inputType : 'password'
+			inputType : 'password',
+			x : 80,
+			y : 80
+		},{
+			xtype : 'label',
+			text : '是否有效',
+			x : 0,
+			y : 123
 		}, {
-			fieldLabel : '是否有效',
+//			fieldLabel : '是否有效',
 			name : 'validFlag',
-			xtype : 'checkbox'
+			xtype : 'checkbox',
+			x : 80,
+			y : 120
+		},{
+			xtype : 'label',
+			text : '人员属性',
+			x : 0,
+			y : 153
 		}, {
-			fieldLabel : '人员属性',
+			x : 80,
+			y : 150,
+//			fieldLabel : '人员属性',
 			xtype : 'checkboxgroup',
 			id : 'typeList',
 			columns : [ 200, 150, 150, 200 ],
@@ -437,8 +591,15 @@ function edit(rec) {
 				name : 'typeList',
 				inputValue : 8
 			} ]
+		},{
+			xtype : 'label',
+			text : '所属组织机构',
+			x : 0,
+			y : 183
 		}, {
-			fieldLabel : '所属组织机构',
+			x : 80,
+			y : 180,
+//			fieldLabel : '所属组织机构',
 			xtype : 'popselect',
 			allowBlank : false,
 			refName : 'orgId',
@@ -481,8 +642,15 @@ function edit(rec) {
 		}, {
 			name : 'orgId',
 			xtype : 'hidden'
+		},{
+			xtype : 'label',
+			text : '行政区域',
+			x : 0,
+			y : 213
 		}, {
-			fieldLabel : '行政区域',
+			x : 80,
+			y : 210,
+//			fieldLabel : '行政区域',
 			name : 'district.name',
 			refName : 'districtId',
 			xtype : 'popselect',
@@ -510,18 +678,15 @@ function edit(rec) {
 			name : 'districtId',
 			xtype : 'hidden'
 		}, {
-			fieldLabel : '特殊权限',
-			name : 'isLookAuthority',
-			xtype : 'checkbox',
-			boxLabel : '查看下级机构统计数据'
-		}, {
+			x : 0,
+			y : 240,
 			xtype : "itemselector",
 			name : "roles",
 			fieldLabel : "用户角色",
 			dataFields : [ "code", "desc" ],
 			toData : [],
 			toStore : toStore,
-			msWidth : 250,
+			msWidth : 350,
 			msHeight : 200,
 			valueField : "code",
 			displayField : "desc",
@@ -541,6 +706,39 @@ function edit(rec) {
 					i.reset.call(i);
 				}
 			} ]
+		},{
+			xtype : 'fieldset',
+			x : 220,
+			y : 0,
+			title : '特殊权限',
+			width : 500,
+			height : 130,
+			layout : 'absolute',
+			items : [{
+				x : 0,
+				y : 0,
+				name : 'isLookAuthority',
+				xtype : 'checkbox',
+				boxLabel : '查看下级机构统计数据'
+			},{
+				x : 0,
+				y : 30,
+				name : 'isChangeCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明换发权限'
+			},{
+				x : 0,
+				y : 60,
+				name : 'isSupplyCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明补发权限'
+			},{
+				x : 150,
+				y : 0,
+				name : 'isAdvancedCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '出生医学证明高级功能权限'
+			}]
 		} ],
 		buttons : [
 				{
@@ -560,6 +758,21 @@ function edit(rec) {
 							formBean.isLookAuthority = 1;
 						else
 							formBean.isLookAuthority = 0;
+						
+						if (formBean.isChangeCertifiAuthority)
+							formBean.isChangeCertifiAuthority = 1;
+						else
+							formBean.isChangeCertifiAuthority = 0;
+						
+						if (formBean.isSupplyCertifiAuthority)
+							formBean.isSupplyCertifiAuthority = 1;
+						else
+							formBean.isSupplyCertifiAuthority = 0;
+						
+						if (formBean.isAdvancedCertifiAuthority)
+							formBean.isAdvancedCertifiAuthority = 1;
+						else
+							formBean.isAdvancedCertifiAuthority = 0;
 						
 						formBean.user = formBean;
 						if (!Ext.isEmpty(formBean.typeList)
@@ -600,7 +813,7 @@ function edit(rec) {
 		closeAction : 'hide',
 		modal : true,
 		autoHeight : true,
-		width : 700,
+		width : 750,
 		items : [ editForm ]
 	})
 
@@ -658,6 +871,7 @@ var userGrid = new Ext.grid.GridPanel({
 	listeners : {
 		'rowdblclick' : function(g, rowIndex, e) {
 			var rec = g.getStore().getAt(rowIndex);
+			//console.log(rec);
 			edit(rec);
 		}
 	},

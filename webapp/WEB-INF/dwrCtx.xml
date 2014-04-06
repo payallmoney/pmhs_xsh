@@ -555,4 +555,17 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="MapService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>		
+		
+	
+	<bean id="BirthReportWithMonthService" class="cn.net.tongfang.web.service.BirthReportWithMonthService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sysInfos" ref="systemInformationUtils" />
+		<dwr:remote javascript="BirthReportWithMonthService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>	
+	<bean id="GenerateBirthReportWithMonthJob" class="cn.net.tongfang.web.service.job.GenerateBirthReportWithMonthJob">
+		<aop:scoped-proxy />
+		<property name="birthReportWithMonthService" ref="BirthReportWithMonthService" />
+	</bean>	
+	
 </beans>

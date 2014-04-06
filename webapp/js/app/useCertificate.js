@@ -98,13 +98,30 @@ function checked(){
 }
 
 function getCertifiId(){
+	var activeTab = Ext.getCmp('tabOrg').getActiveTab();
+	var activeTabId = activeTab.id;
+//	var testCertificateId = '';
 	var certifiId = '';
-	$('.checkable').each(function(){
-		var check = $(this).attr('checked');
-		if(check){
-			certifiId = $(this).parent('td').next().html();
-		}
-	});
+	var selections = [];
+	if(activeTabId == 'tabUsed'){
+		selections = Ext.getCmp('tabUsedGrid').getSelections();
+	}else if(activeTabId == 'tabDestroyed'){
+		selections = Ext.getCmp('tabDestroyedGrid').getSelections();
+	}else if(activeTabId == 'tabPigeonholed'){
+		selections = Ext.getCmp('tabPigeonholedGrid').getSelections();
+	}else if(activeTabId == 'tabChanged'){
+		selections = Ext.getCmp('tabChangedGrid').getSelections();
+	}
+	if (selections.length == 1) {
+		certifiId = selections[0].get('certifiId');
+	}
+//	var certifiId = '';
+//	$('.checkable').each(function(){
+//		var check = $(this).attr('checked');
+//		if(check){
+//			certifiId = $(this).parent('td').next().html();
+//		}
+//	});
 	return certifiId;
 }
 
@@ -203,21 +220,22 @@ function showMsg(msg){
 	});
 }
 
-BirthCertificateMsgService.getAuthority(function(data){
-	if(data != null){
-		var isAdmin = data[0];
-		if(!isAdmin){
-			Ext.getCmp('restore').setVisible(false);
-			Ext.getCmp('restorePigeonhole').setVisible(false);
-			Ext.getCmp('cancelUsed').setVisible(false);
-			
-			var isOrgDepart = data[1]
-			if(isOrgDepart != 1){
-				Ext.getCmp('supply').setVisible(false);
-			}
-		}
-	}
-});
+//BirthCertificateMsgService.getAuthority(function(data){
+//	console.log(Ext.tf.currentUser);
+//	if(data != null){
+//		var isAdmin = data[0];
+//		if(!isAdmin){
+//			Ext.getCmp('restore').setVisible(false);
+//			Ext.getCmp('restorePigeonhole').setVisible(false);
+//			Ext.getCmp('cancelUsed').setVisible(false);
+//			
+//			var isOrgDepart = data[1]
+//			if(isOrgDepart != 1){
+//				Ext.getCmp('supply').setVisible(false);
+//			}
+//		}
+//	}
+//});
 
 
 
@@ -275,9 +293,14 @@ function selectRow(){
 var con = 2;
 var currentNode = null;
 
-function services(params){
+function services(params,cerId){
 	if(currentNode != null){
-		var certifiId = getCertifiId();		
+		var certifiId = '';
+		if(arguments[1] != undefined) 
+			certifiId = cerId;
+		else
+			certifiId = getCertifiId();		
+		console.log(":::" + certifiId)
 		if(certifiId != ''){
 			openWin('/birthCertificateInfo_show.html?certifiId=' + certifiId + "&type=" + params);
 		}else{
@@ -288,7 +311,11 @@ function services(params){
 	}
 }
 
-function useCertifiService(url){
+function useCertifiService(url,saveType){
+	var sType = null;
+	if(arguments[1] != undefined){
+		sType = '&saveType=' + saveType;
+	}
 	BirthCertificateMsgService.getBirthAdress(function(data){
 		if(data.length != 0){
 			var certifiId = $('.selected').html();
@@ -309,8 +336,12 @@ function useCertifiService(url){
 			var params = '?certifiId=' + certifiId + '&borthOrganization=' + orgName +
 			'&issuingOrganization=' + orgName + '&motherNationality=' + nationality +
 			'&fatherNationality=' + nationality + '&province=' + province + 
-			'&city=' + city + '&county=' + county + 
-			'&districtNumber=';
+			'&city=' + city + '&county=' + county;
+			if(sType != null){
+				params = params + sType;
+			}
+			params = params + '&districtNumber=';
+			console.log(url + params);
 			openWin(url + params);
 		}
 	});
@@ -319,6 +350,7 @@ function useCertifiService(url){
 var handleDistributed = function(tab){
 	if(currentNode != null){
 		Ext.getCmp('save').setDisabled(false);
+		Ext.getCmp('change').setDisabled(false);
 		Ext.getCmp('supply').setDisabled(false);
 		Ext.getCmp('modify').setDisabled(true);
 		Ext.getCmp('lookup').setDisabled(true);
@@ -327,6 +359,7 @@ var handleDistributed = function(tab){
 		Ext.getCmp('restore').setDisabled(true);
 		Ext.getCmp('restorePigeonhole').setDisabled(true);
 		Ext.getCmp('cancelUsed').setDisabled(true);
+		Ext.getCmp('cancelChanged').setDisabled(true);
 		var id = currentNode.id;
 		var resTxt = Ext.getCmp('certifiId').getValue();
 		BirthCertificateMsgService.getDistributedCertiId(id,resTxt,function(data){
@@ -397,9 +430,418 @@ var handleDistributed = function(tab){
 	}
 }
 
+//显示列
+this.tabUsedreaderConfig = [ {
+	name : 'certifiId'
+}, {
+	name : 'name'
+}, {
+	name : 'motherName'
+}, {
+	name : 'fatherName'
+}, {
+	name : 'borthOrganization'
+}, {
+	name : 'linkmanTel'
+}];
+this.tabUsedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "certifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "borthOrganization",
+	"width" : 300
+}, {
+	"header" : "<center>联系电话</center>",
+	"dataIndex" : "linkmanTel"
+} ];
+var tabUsedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "certifiId"
+}, Ext.data.Record.create(this.tabUsedreaderConfig));
+var tabUsedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.getUsedCertificate,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = Ext.getCmp('certifiId').getValue();
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				if (!params.limit)
+					params.limit = 15;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tabUsedreader
+});
+this.tabUsedpagingBar = new Ext.PagingToolbar({
+	pageSize : 15,
+	store : tabUsedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var sm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tabUsedgridCmConfig.unshift(sm);
+this.tabUsedGrid = new Ext.grid.GridPanel({
+	id : 'tabUsedGrid',
+	bbar : this.tabUsedpagingBar,
+	layout : 'fit',
+	store : tabUsedstore,
+	cm : new Ext.grid.ColumnModel(this.tabUsedgridCmConfig),
+	sm : sm
+});
+
+this.tabDestroyedreaderConfig = [ {
+	name : 'certifiId'
+}, {
+	name : 'name'
+}, {
+	name : 'motherName'
+}, {
+	name : 'fatherName'
+}, {
+	name : 'borthOrganization'
+}, {
+	name : 'linkmanTel'
+}];
+this.tabDestroyedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "certifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "borthOrganization",
+	"width" : 300
+}, {
+	"header" : "<center>联系电话</center>",
+	"dataIndex" : "linkmanTel"
+} ];
+var tabDestroyedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "certifiId"
+}, Ext.data.Record.create(this.tabDestroyedreaderConfig));
+var tabDestroyedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.getDestroyedCertiId,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = Ext.getCmp('certifiId').getValue();
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				if (!params.limit)
+					params.limit = 15;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tabDestroyedreader
+});
+this.tabDestroyedpagingBar = new Ext.PagingToolbar({
+	pageSize : 15,
+	store : tabDestroyedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var tabDestroyedsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tabDestroyedgridCmConfig.unshift(tabDestroyedsm);
+this.tabDestroyedGrid = new Ext.grid.GridPanel({
+	id : 'tabDestroyedGrid',
+	bbar : this.tabDestroyedpagingBar,
+	layout : 'fit',
+	store : tabDestroyedstore,
+	cm : new Ext.grid.ColumnModel(this.tabDestroyedgridCmConfig),
+	sm : tabDestroyedsm
+});
+
+this.tabPigeonholedreaderConfig = [ {
+	name : 'certifiId'
+}, {
+	name : 'name'
+}, {
+	name : 'motherName'
+}, {
+	name : 'fatherName'
+}, {
+	name : 'borthOrganization'
+}, {
+	name : 'linkmanTel'
+}];
+this.tabPigeonholedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "certifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "borthOrganization",
+	"width" : 300
+}, {
+	"header" : "<center>联系电话</center>",
+	"dataIndex" : "linkmanTel"
+} ];
+var tabPigeonholedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "certifiId"
+}, Ext.data.Record.create(this.tabPigeonholedreaderConfig));
+var tabPigeonholedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.getPigeonholedCertiId,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = Ext.getCmp('certifiId').getValue();
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				if (!params.limit)
+					params.limit = 15;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tabPigeonholedreader
+});
+this.tabPigeonholedpagingBar = new Ext.PagingToolbar({
+	pageSize : 15,
+	store : tabPigeonholedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var tabPigeonholedsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tabPigeonholedgridCmConfig.unshift(tabPigeonholedsm);
+this.tabPigeonholedGrid = new Ext.grid.GridPanel({
+	id : 'tabPigeonholedGrid',
+	bbar : this.tabPigeonholedpagingBar,
+	layout : 'fit',
+	store : tabPigeonholedstore,
+	cm : new Ext.grid.ColumnModel(this.tabPigeonholedgridCmConfig),
+	sm : tabPigeonholedsm
+});
+
+this.tabChangedreaderConfig = [ {
+	name : 'certifiId'
+}, {
+	name : 'name'
+}, {
+	name : 'motherName'
+}, {
+	name : 'fatherName'
+}, {
+	name : 'borthOrganization'
+}, {
+	name : 'linkmanTel'
+}];
+this.tabChangedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "certifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "borthOrganization",
+	"width" : 300
+}, {
+	"header" : "<center>联系电话</center>",
+	"dataIndex" : "linkmanTel"
+} ];
+var tabChangedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "certifiId"
+}, Ext.data.Record.create(this.tabChangedreaderConfig));
+var tabChangedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.getChangedCertiId,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = Ext.getCmp('certifiId').getValue();
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				if (!params.limit)
+					params.limit = 10;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tabChangedreader
+});
+this.tabChangedpagingBar = new Ext.PagingToolbar({
+	pageSize : 10,
+	store : tabChangedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var tabChangedsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tabChangedgridCmConfig.unshift(tabChangedsm);
+this.tabChangedGrid = new Ext.grid.GridPanel({
+//	height : 300,
+	id : 'tabChangedGrid',
+	bbar : this.tabChangedpagingBar,
+	layout : 'fit',
+	store : tabChangedstore,
+	cm : new Ext.grid.ColumnModel(this.tabChangedgridCmConfig),
+	sm : tabChangedsm
+});
+this.tabChangedGrid.getView().on('refresh', function() {
+	var model = this.tabChangedGrid.getSelectionModel();
+	if (model.getCount() == 0) {
+		model.selectFirstRow();
+		Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+	}
+}.createDelegate(this));
+this.tabChangedGrid.on('rowclick', function(){
+	Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+}.createDelegate(this), this);
+this.tabBeforeChangedreaderConfig = [ {
+	name : 'certifiId'
+}, {
+	name : 'name'
+}, {
+	name : 'motherName'
+}, {
+	name : 'fatherName'
+}, {
+	name : 'borthOrganization'
+}, {
+	name : 'linkmanTel'
+}];
+this.tabBeforeChangedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "certifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "borthOrganization",
+	"width" : 300
+}, {
+	"header" : "<center>联系电话</center>",
+	"dataIndex" : "linkmanTel"
+} ];
+var tabBeforeChangedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "certifiId"
+}, Ext.data.Record.create(this.tabBeforeChangedreaderConfig));
+var tabBeforeChangedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.getBeforeChangedCertiId,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = '';
+				var selections = Ext.getCmp('tabChangedGrid').getSelections();
+				if (selections.length == 1) {
+					resTxt = selections[0].get('certifiId');
+				}
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				if (!params.limit)
+					params.limit = 5;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tabBeforeChangedreader
+});
+this.tabBeforeChangedpagingBar = new Ext.PagingToolbar({
+	pageSize : 5,
+	store : tabBeforeChangedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var tabBeforeChangedsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tabBeforeChangedgridCmConfig.unshift(tabBeforeChangedsm);
+this.tabBeforeChangedGrid = new Ext.grid.GridPanel({
+	tbar : [{
+		text : '查看',
+		iconCls : 'c_msg',
+		handler : function(){
+			var selections = Ext.getCmp('tabBeforeChangedGrid').getSelections();
+			if (selections.length == 1) {
+				var certifiId = selections[0].get('certifiId');
+				services(2,certifiId);
+			}else{
+				showMsg('请选择出生证明信息');
+			}
+		}.createDelegate(this)
+	}],
+	id : 'tabBeforeChangedGrid',
+	bbar : this.tabBeforeChangedpagingBar,
+	layout : 'fit',
+	store : tabBeforeChangedstore,
+	cm : new Ext.grid.ColumnModel(this.tabBeforeChangedgridCmConfig),
+	sm : tabBeforeChangedsm
+});
+
 function handleUsed(tab){
 	if(currentNode != null){
 		Ext.getCmp('save').setDisabled(true);
+		Ext.getCmp('change').setDisabled(true);
 		Ext.getCmp('supply').setDisabled(true);
 		Ext.getCmp('modify').setDisabled(false);
 		Ext.getCmp('lookup').setDisabled(false);
@@ -408,59 +850,19 @@ function handleUsed(tab){
 		Ext.getCmp('restore').setDisabled(true);
 		Ext.getCmp('restorePigeonhole').setDisabled(true);
 		Ext.getCmp('cancelUsed').setDisabled(false);
+		Ext.getCmp('cancelChanged').setDisabled(true);
 		var orgId = currentNode.id;
 		var resTxt = Ext.getCmp('certifiId').getValue();
-		BirthCertificateMsgService.getUsedCertificate(orgId,resTxt,function(data){
-			var result = '<table class="certifiTable" id="tableContainer2" cellpadding="0" cellspacing="0"><thead>'+
-				'<td style="width:20px">&nbsp;</td><td>出生医学证明编号</td><td>姓名</td><td>母亲姓名</td><td>父亲姓名</td><td>接生机构</td>'+
-				'<td>联系电话</td></thead>';
-			var currentPage = 1;
-			result = result + paginationUsed(currentPage,data);
-			var page = Math.ceil(data.length / 10);
-			result = result + '<tfoot><tr><td colspan="5"><span>共有' + data.length + '条记录&nbsp;&nbsp;共有' + page + '页&nbsp;&nbsp;当前为第'+
-				'<span id="curPage2"></span>页&nbsp;&nbsp;</span><span id="firstPage2" class="paging">首页</span>' +
-			 	'&nbsp;<span id="prevPage2" class="paging">上一页</span>&nbsp;<span id="nextPage2" class="paging">下一页</span>'+
-			 	'&nbsp;<span id="lastPage2" class="paging">尾页</span></td></tr></tfoot></table>';
-			$('#used').html(result);
-			$('#curPage2').html(currentPage);
-			controlShow2(currentPage,page);
-			selectRow();
-			checked();
-			$('.paging').click(function(){
-				var id = $(this).attr('id');
-				if(id == 'firstPage2'){
-					currentPage = 1;
-					tbodyAppend('tableContainer2',currentPage,data);
-				}else if(id == 'nextPage2'){
-					currentPage = currentPage + 1;
-					if(currentPage <= page){
-						tbodyAppend('tableContainer2',currentPage,data);
-					}else{
-						currentPage = currentPage - 1;
-					}
-				}else if(id == 'prevPage2'){
-					currentPage = currentPage - 1;
-					if(currentPage >= 1){
-						tbodyAppend('tableContainer2',currentPage,data);
-					}else{
-						currentPage = currentPage + 1;
-					}
-				}else if(id == 'lastPage2'){
-					currentPage = page;
-					tbodyAppend('tableContainer2',currentPage,data);
-				}
-				controlShow2(currentPage,page);
-				selectRow();
-				checked();
-				$('#curPage2').html(currentPage);
-			});
-		});			
+		//在此处做优化
+		Ext.getCmp('tabUsedGrid').getStore().reload();
+//		this.doLayout(true);
 	}
 }
 
 function handleDestroyed(tab){
 	if(currentNode != null){
 		Ext.getCmp('save').setDisabled(true);
+		Ext.getCmp('change').setDisabled(true);
 		Ext.getCmp('supply').setDisabled(true);
 		Ext.getCmp('modify').setDisabled(true);
 		Ext.getCmp('lookup').setDisabled(false);
@@ -469,64 +871,17 @@ function handleDestroyed(tab){
 		Ext.getCmp('restore').setDisabled(false);
 		Ext.getCmp('restorePigeonhole').setDisabled(true);
 		Ext.getCmp('cancelUsed').setDisabled(true);
-		var orgId = currentNode.id;
-		var resTxt = Ext.getCmp('certifiId').getValue();
-		BirthCertificateMsgService.getDestroyedCertiId(orgId,resTxt,function(data){
-			if(data == null){
-				$('#destroyed').html('<font color="red" size="2">暂无作废</font>');
-			}else{
-				var currentPage = 1;
-				var result = '<table class="certifiTable" id="tableContainer3" cellpadding="0" cellspacing="0"><thead>' +
-					'<td style="width:20px">&nbsp;</td><td>出生医学证明编号</td><td>姓名</td><td>母亲姓名</td><td>父亲姓名</td>'+
-					'<td>接生机构</td><td>联系电话</td></thead>';
-				result = result + paginationUsed(currentPage,data);
-				var page = Math.ceil(data.length / 10);
-				result = result + '<tfoot><tr><td colspan="7"><span>共有' + data.length + '条记录&nbsp;&nbsp;共有' + page + '页&nbsp;&nbsp;当前为第'+
-					'<span id="curPage3"></span>页&nbsp;&nbsp;</span><span id="firstPage3" class="paging">首页</span>' +
-				 	'&nbsp;<span id="prevPage3" class="paging">上一页</span>&nbsp;<span id="nextPage3" class="paging">下一页</span>'+
-				 	'&nbsp;<span id="lastPage3" class="paging">尾页</span></td></tr></tfoot></table>';
-				
-				$('#destroyed').html(result);
-				$('#curPage3').html(currentPage);
-				controlShow3(currentPage,page);
-				selectRow();
-				checked();
-				$('.paging').click(function(){
-					var id = $(this).attr('id');
-					if(id == 'firstPage3'){
-						currentPage = 1;
-						tbodyAppend('tableContainer3',currentPage,data);
-					}else if(id == 'nextPage3'){
-						currentPage = currentPage + 1;
-						if(currentPage <= page){
-							tbodyAppend('tableContainer3',currentPage,data);
-						}else{
-							currentPage = currentPage - 1;
-						}
-					}else if(id == 'prevPage3'){
-						currentPage = currentPage - 1;
-						if(currentPage >= 1){
-							tbodyAppend('tableContainer3',currentPage,data);
-						}else{
-							currentPage = currentPage + 1;
-						}
-					}else if(id == 'lastPage3'){
-						currentPage = page;
-						tbodyAppend('tableContainer3',currentPage,data);
-					}
-					controlShow3(currentPage,page);
-					selectRow();
-					checked();
-					$('#curPage3').html(currentPage);
-				});
-			}
-		});
+		Ext.getCmp('cancelChanged').setDisabled(true);
+		//在此处做优化
+		Ext.getCmp('tabDestroyedGrid').getStore().reload();
+//		this.doLayout(true);
 	}
 }
 
 function handlePigeonholed(tab){
 	if(currentNode != null){
 		Ext.getCmp('save').setDisabled(true);
+		Ext.getCmp('change').setDisabled(true);
 		Ext.getCmp('supply').setDisabled(true);
 		Ext.getCmp('modify').setDisabled(true);
 		Ext.getCmp('lookup').setDisabled(false);
@@ -535,58 +890,32 @@ function handlePigeonholed(tab){
 		Ext.getCmp('restore').setDisabled(true);
 		Ext.getCmp('restorePigeonhole').setDisabled(false);
 		Ext.getCmp('cancelUsed').setDisabled(true);
-		var orgId = currentNode.id;
-		var resTxt = Ext.getCmp('certifiId').getValue();
-		BirthCertificateMsgService.getPigeonholedCertiId(orgId,resTxt,function(data){
-			if(data.length == null){
-				$('#pigeonholed').html('<font color="red" size="2">暂无归档</font>');
-			}else{
-				var currentPage = 1;
-				var result = '<table class="certifiTable" id="tableContainer4" cellpadding="0" cellspacing="0"><thead>' +
-					'<td style="width:20px">&nbsp;</td><td>出生医学证明编号</td><td>姓名</td><td>母亲姓名</td><td>父亲姓名</td>'+
-					'<td>接生机构</td><td>联系电话</td></thead>';
-				result = result + paginationUsed(currentPage,data);
-				var page = Math.ceil(data.length / 10);
-				result = result + '<tfoot><tr><td colspan="7"><span>共有' + data.length + '条记录&nbsp;&nbsp;共有' + page + '页&nbsp;&nbsp;当前为第'+
-					'<span id="curPage4"></span>页&nbsp;&nbsp;</span><span id="firstPage4" class="paging">首页</span>' +
-				 	'&nbsp;<span id="prevPage4" class="paging">上一页</span>&nbsp;<span id="nextPage4" class="paging">下一页</span>'+
-				 	'&nbsp;<span id="lastPage4" class="paging">尾页</span></td></tr></tfoot></table>';
-				
-				$('#pigeonholed').html(result);
-				$('#curPage4').html(currentPage);
-				controlShow4(currentPage,page);
-				selectRow();
-				checked();
-				$('.paging').click(function(){
-					var id = $(this).attr('id');
-					if(id == 'firstPage4'){
-						currentPage = 1;
-						tbodyAppend('tableContainer4',currentPage,data);
-					}else if(id == 'nextPage4'){
-						currentPage = currentPage + 1;
-						if(currentPage <= page){
-							tbodyAppend('tableContainer4',currentPage,data);
-						}else{
-							currentPage = currentPage - 1;
-						}
-					}else if(id == 'prevPage4'){
-						currentPage = currentPage - 1;
-						if(currentPage >= 1){
-							tbodyAppend('tableContainer4',currentPage,data);
-						}else{
-							currentPage = currentPage + 1;
-						}
-					}else if(id == 'lastPage4'){
-						currentPage = page;
-						tbodyAppend('tableContainer4',currentPage,data);
-					}
-					controlShow4(currentPage,page);
-					selectRow();
-					checked();
-					$('#curPage4').html(currentPage);
-				});
-			}
-		});
+		Ext.getCmp('cancelChanged').setDisabled(true);
+		//在此处做优化
+		Ext.getCmp('tabPigeonholedGrid').getStore().reload();
+//		this.doLayout(true);
+	}
+}
+
+function handleChanged(tab){
+	if(currentNode != null){
+		Ext.getCmp('save').setDisabled(true);
+		Ext.getCmp('change').setDisabled(true);
+		Ext.getCmp('supply').setDisabled(true);
+		Ext.getCmp('modify').setDisabled(true);
+		Ext.getCmp('lookup').setDisabled(false);
+		Ext.getCmp('destroy').setDisabled(true);
+		Ext.getCmp('pigeonhole').setDisabled(true);
+		Ext.getCmp('restore').setDisabled(true);
+		Ext.getCmp('restorePigeonhole').setDisabled(true);
+		Ext.getCmp('cancelUsed').setDisabled(true);
+		Ext.getCmp('cancelChanged').setDisabled(false);
+		//在此处做优化
+		Ext.getCmp('tabChangedGrid').getStore().reload();
+//		this.doLayout(true);
+		Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+//		this.doLayout(true);
+		
 	}
 }
 
@@ -601,6 +930,8 @@ var runTabPanel = function(){
 		handleDestroyed(activeTab);
 	}else if(activeTabId == 'tabPigeonholed'){
 		handlePigeonholed(activeTab);
+	}else if(activeTabId == 'tabChanged'){
+		handleChanged(activeTab);
 	}
 }
 
@@ -608,225 +939,259 @@ var researchPanel = new Ext.FormPanel({
 	region : 'north',
 	height : 35,
 	frame : true,
-	layout : "absolute",
+//	layout : "absolute",
 	items : [{
-		xtype : 'panel',
-		layout : 'form',
-		x : 0,
-		y : 0,
-		items : [{
-			xtype : 'textfield',
-			fieldLabel : '出生医学证明编号',
-			name : 'certifiId',
-			id : 'certifiId',
-			width : 100,
-			listeners :{
-                specialKey :function(field,e){
-                    if (e.getKey() == Ext.EventObject.ENTER){
-                    	if(currentNode != null){
-    						runTabPanel();
-    					}else{
-    						Ext.Msg.alert('提示','请选择组织机构');
-    					}
-                    }
-                }
-            }
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 210,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'research',
-			id : 'research',
-			text : '查询',
-			width : 40,
-			handler : function(){
-				if(currentNode != null){
+		text : 'text'
+	}]
+});
+//功能按键
+this.queryCertifiCardTxt = new Ext.form.Label({
+	text : '出生医学证明编号：',
+	style : 'font-weight:border;'
+});
+this.filterField = new Ext.form.TextField({
+	fieldLabel : '',
+	name : 'certifiId',
+	id : 'certifiId',
+	width : 100,
+	listeners : {
+		specialKey :function(field,e){
+            if (e.getKey() == Ext.EventObject.ENTER){
+            	if(currentNode != null){
 					runTabPanel();
 				}else{
 					Ext.Msg.alert('提示','请选择组织机构');
 				}
+            }
+        }
+	}
+});
+this.researchBtn = new Ext.Button({
+	text : '查询',
+	name : 'research',
+	id : 'research',
+	iconCls : 'c_query',
+	handler : function(){
+		if(currentNode != null){
+			runTabPanel();
+		}else{
+			Ext.Msg.alert('提示','请选择组织机构');
+		}
+	}
+});
+this.saveBtn = new Ext.Button({
+	name : 'save',
+	text : '首次签发',
+	id : 'save',
+	iconCls : 'c_add',
+	handler : function(){
+		if(currentNode != null){
+			var flag = false;
+			$('.selected').each(function(){
+				flag = true;
+			});
+			if(flag){
+				var win = new Ext.Window({
+
+					title : '首次签发',
+					width : 190, 
+					height : 120,
+					modal : true,	
+//					frame : true,
+					items : [{
+						xtype : 'panel',
+						border : false,
+						height : 100,
+						layout : 'absolute',
+						tbar : [{
+							text : '确认',
+							iconCls : 'c_edit',
+							handler : function(){
+								var val = Ext.getCmp('birthCertifiRadio').getGroupValue();
+								if(val == '0'){
+									useCertifiService('/birthCertificateInfo.html',2);
+									win.close();
+									win.destroy();
+								}else if(val == '1'){
+									useCertifiService('/birthCertificateInfo_firstIssue.html',1);
+									win.close();
+									win.destroy();
+								}else{
+									showMsg('请选择首次签发类别');
+								}
+							}.createDelegate(this)
+						},{
+							text : '取消',
+							iconCls : 'c_del',
+							handler : function(){
+								win.close();
+								win.destroy();
+							}.createDelegate(this)
+						}],
+						items : [{
+							xtype : 'radio',
+							boxLabel : '医疗机构<span style="color:red;font-weight: bolder;font-size:13px;">内部</span>出生的新生儿',
+							inputValue : '0',
+							checked: true,
+							x : 5,
+							y : 5,
+							id : 'birthCertifiRadio',
+							name : 'birthCertifiRadio'
+						},{
+							xtype : 'radio',
+							boxLabel : '医疗机构<span style="color:red;font-weight: bolder;font-size:13px;">外部</span>出生的新生儿',
+							inputValue : '1',
+							x : 5,
+							y : 30,
+							name : 'birthCertifiRadio'
+						}]
+					}]
+				});
+				win.show();
+				//useCertifiService('/birthCertificateInfo.html');
+			}else{
+				showMsg('请选择出生证明编号');
 			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 260,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'save',
-			text : '使用',
-			width : 40,
-			id : 'save',
-			handler : function(){
-				if(currentNode != null){
-					var flag = false;
-					$('.selected').each(function(){
-						flag = true;
-					});
-					if(flag){
-						useCertifiService('/birthCertificateInfo.html');
-					}else{
-						showMsg('请选择出生证明编号');
+			
+		}else{
+			showMsg('请选择组织机构');
+		}
+	}
+});
+this.changeBtn = new Ext.Button({
+	name : 'change',
+	text : '换发',
+	id : 'change',
+	iconCls : 'c_change',
+	handler : function(){
+		if(currentNode != null){
+			var flag = false;
+			$('.selected').each(function(){
+				flag = true;
+			});
+			if(flag){
+				useCertifiService('/birthCertificateInfo_change.html');
+			}else{
+				showMsg('请选择出生证明编号');
+			}
+			
+		}else{
+			showMsg('请选择组织机构');
+		}
+	}
+});
+
+this.modifyBtn = new Ext.Button({
+	name : 'modify',
+	text : '修改',
+	id : 'modify',
+	iconCls : 'c_edit',
+	disabled : true,
+	handler : function(){
+		services(1);
+	}
+});
+this.destroyBtn = new Ext.Button({
+	name : 'destroy',
+	text : '作废',
+	id : 'destroy',
+	iconCls : 'c_del',
+	disabled : true,
+	handler : function(){
+		services(3);
+	}
+});
+this.pigeonholeBtn = new Ext.Button({
+	name : 'pigeonhole',
+	text : '归档',
+	iconCls : 'addBusinessData',
+	id : 'pigeonhole',
+	disabled : true,
+	handler : function(){
+		if(currentNode != null){
+			var certifiId = getCertifiId();
+			if(certifiId != ''){
+				BirthCertificateMsgService.setPigeonhole(certifiId,0,function(data){
+					if(data){
+						showMsg('归档成功');
+						runTabPanel();
 					}
-					
+				});
+			}else{
+				showMsg('请选择出生证明信息');
+			}
+		}else{
+			showMsg('请选择组织机构');
+		}
+	}
+});
+this.supplyBtn = new Ext.Button({
+	name : 'supply',
+	text : '补发',
+	id : 'supply',
+	iconCls : 'c_addsupply',
+	handler : function(){
+		if(currentNode != null){
+			var flag = false;
+			$('.selected').each(function(){
+				flag = true;
+			});
+			if(flag){
+				useCertifiService('/birthCertificateInfo_supply.html',0);
+			}else{
+				showMsg('请选择出生证明编号');
+			}
+			
+		}else{
+			showMsg('请选择组织机构');
+		}
+	}
+});
+this.lookupBtn = new Ext.Button({
+	name : 'lookup',
+	text : '查看',
+	id : 'lookup',
+	iconCls : 'c_msg',
+	disabled : true,
+	handler : function(){
+		if(currentNode != null){
+			var certifiId = getCertifiId();
+			console.log(certifiId);
+			if(certifiId != ''){
+				var activeTabId = Ext.getCmp('tabOrg').getActiveTab().id;
+				var type;
+				if(activeTabId == 'tabDestroyed'){
+					type = 5;
+				}else if(activeTabId == 'tabChanged'){
+					type = 6;
 				}else{
-					showMsg('请选择组织机构');
+					type = 2;
 				}
+				services(type,certifiId);
+			}else{
+				showMsg('请选择出生证明信息');
 			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 310,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'modify',
-			text : '修改',
-			width : 40,
-			id : 'modify',
-			disabled : true,
-			handler : function(){
-				services(1);
-			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 360,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'lookup',
-			text : '查看',
-			width : 40,
-			id : 'lookup',
-			disabled : true,
-			handler : function(){
-				if(currentNode != null){
-					var certifiId = getCertifiId();
-					if(certifiId != ''){
-						var activeTabId = Ext.getCmp('tabOrg').getActiveTab().id;
-						var type;
-						if(activeTabId == 'tabDestroyed'){
-							type = 5;
-						}else{
-							type = 2;
-						}
-						services(type);
-					}else{
-						showMsg('请选择出生证明信息');
-					}
-				}else{
-					showMsg('请选择组织机构');
-				}
-			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 410,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'destroy',
-			text : '作废',
-			width : 40,
-			id : 'destroy',
-			disabled : true,
-			handler : function(){
-				services(3);
-			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 460,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'pigeonhole',
-			text : '归档',
-			width : 40,
-			id : 'pigeonhole',
-			disabled : true,
-			handler : function(){
-				if(currentNode != null){
-					var certifiId = getCertifiId();
-					if(certifiId != ''){
-						BirthCertificateMsgService.setPigeonhole(certifiId,0,function(data){
-							if(data){
-								showMsg('归档成功');
-								runTabPanel();
-							}
-						});
-					}else{
-						showMsg('请选择出生证明信息');
-					}
-				}else{
-					showMsg('请选择组织机构');
-				}
-			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 510,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'supply',
-			text : '补发',
-			width : 40,
-			id : 'supply',
-			handler : function(){
-				if(currentNode != null){
-					var flag = false;
-					$('.selected').each(function(){
-						flag = true;
-					});
-					if(flag){
-						useCertifiService('/birthCertificateInfo_supply.html');
-					}else{
-						showMsg('请选择出生证明编号');
-					}
-					
-				}else{
-					showMsg('请选择组织机构');
-				}
-			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 560,
-		y : 0,
-		items : [{
-			xtype : 'button',
-			name : 'restore',
+		}else{
+			showMsg('请选择组织机构');
+		}
+	}
+});
+this.advancedF = new Ext.Button({
+	id : 'advancedFBtn',
+	text: '高级功能',
+	iconCls: 'c_advancedF',
+	menu: new Ext.menu.Menu({
+        items: [new Ext.Action({
+        	name : 'restore',
 			text : '作废还原',
-			width : 70,
 			id : 'restore',
 			disabled : true,
 			handler : function(){
 				services(4);
 			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 635,
-		y : 0,
-		items : [{
-			xtype : 'button',
+		}),new Ext.Action({
 			name : 'restore',
 			text : '归档还原',
-			width : 70,
 			id : 'restorePigeonhole',
 			disabled : true,
 			handler : function(){
@@ -846,14 +1211,7 @@ var researchPanel = new Ext.FormPanel({
 					showMsg('请选择组织机构');
 				}
 			}
-		}]
-	},{
-		xtype : 'panel',
-		layout : 'form',
-		x : 710,
-		y : 0,
-		items : [{
-			xtype : 'button',
+		}),new Ext.Action({
 			name : 'cancel',
 			text : '撤消使用',
 			width : 70,
@@ -876,37 +1234,162 @@ var researchPanel = new Ext.FormPanel({
 					showMsg('请选择组织机构');
 				}
 			}
-		}]
-	}]
+		}),new Ext.Action({
+			name : 'cancelChanged',
+			text : '撤消换发',
+			width : 70,
+			id : 'cancelChanged',
+			disabled : true,
+			handler : function(){
+				if(currentNode != null){
+					var selections = Ext.getCmp('tabChangedGrid').getSelections();
+					if (selections.length == 1) {
+						var certifiId = selections[0].get('certifiId');
+						console.log('certifiId:' + certifiId);
+						var totalSize = Ext.getCmp('tabBeforeChangedGrid').getStore().reader.jsonData.totalSize;
+						var beforeCertifiId = '';
+						if(totalSize == 1){
+							beforeCertifiId = Ext.getCmp('tabBeforeChangedGrid').getStore().reader.jsonData.data[0].certifiId;
+						}else if(totalSize > 1){
+							showMsg('请选择原始出生证明信息');
+							return;
+						}
+						var win = new Ext.Window({
+							title : '换发出生医学证明还原',
+							width : 190, 
+							height : 120,
+							modal : true,	
+//							frame : true,
+							items : [{
+								xtype : 'panel',
+								border : false,
+								height : 100,
+								layout : 'absolute',
+								tbar : [{
+									text : '确认',
+									iconCls : 'c_edit',
+									handler : function(){
+										var val = Ext.getCmp('restoreToUnUsed').getGroupValue();
+										if(val == '0'){
+											var json = {
+												certifiId : certifiId,
+												beforeCertifiId : beforeCertifiId,
+												type : '0'
+											}
+											BirthCertificateMsgService.setCancelChanged(json,function(data){
+												showMsg('撤销换发成未使用状态成功');
+												runTabPanel();
+											});
+										}else if(val == '1'){
+											services(7);
+										}
+										win.close();
+										win.destroy();
+									}.createDelegate(this)
+								},{
+									text : '取消',
+									iconCls : 'c_del',
+									handler : function(){
+										win.close();
+										win.destroy();
+									}.createDelegate(this)
+								}],
+								items : [{
+									xtype : 'radio',
+									boxLabel : '换发后出生医学证明<span style="color:red;font-weight: bolder;font-size:13px;">未使用</span>',
+									inputValue : '0',
+									checked: true,
+									x : 5,
+									y : 5,
+									id : 'restoreToUnUsed',
+									name : 'restoreToUnUsed'
+								},{
+									xtype : 'radio',
+									boxLabel : '换发后出生医学证明<span style="color:red;font-weight: bolder;font-size:13px;">已作废</span>',
+									inputValue : '1',
+									x : 5,
+									y : 30,
+									name : 'restoreToUnUsed'
+								}]
+							}]
+						});
+						win.show();
+					}else{
+						showMsg('请选择出生证明信息');
+					}
+				}else{
+					showMsg('请选择组织机构');
+				}
+			}
+		})]
+   	})
+});
+
+this.menu = new Ext.tree.TreePanel({
+	// height : 465,
+	region: 'west',
+    title: '组织机构',
+    width: 200,
+	layout : 'fit',
+	lines: true,
+	id : 'orgTree',
+    name : 'orgTree',
+	animate : true,
+	enableDD : false,
+	loader : new Ext.ux.DWRTreeLoader({
+		dwrCall : UserMenuTreeService.getOrganizationNodes
+	}),
+	autoScroll : true,
+	border : false,
+	root : new Ext.tree.AsyncTreeNode({
+		text : 'root',
+		draggable : false,
+		id : 'org'
+	}),
+	rootVisible : false
+});
+this.menu.getRootNode().on({
+	append : {
+		stopEvent : true,
+		fn : function(t, me, n, index) {
+			// 自动展开根节点的第一个孩子
+			if (index == 0) {
+				if (!n.leaf)
+					n.expand();
+			}
+		}.createDelegate(this)
+	}
 });
 app.useCertifi = new Ext.Panel({
 	layout : 'border',
-	items : [{
-		region : 'north',
-		xtype : 'panel',
-		frame : true,
-		height : 50,
-		items : [researchPanel]
-	},{
-		region: 'west',
-        title: '组织机构',
-        xtype: 'treepanel',
-        width: 200,
-        layout: 'fit',
-        autoScroll: true,
-        lines: true,
-        id : 'orgTree',
-        name : 'orgTree',
-        loader: new Ext.ux.DWRTreeLoader({
-            dwrCall: UserMenuTreeService.getOrganizationNodes
-        }),
-        root : new Ext.tree.AsyncTreeNode( {
-            text : 'root',
-            draggable : false,
-            id : 'org'
-        }),
-        rootVisible: false
-	},{
+	tbar : ['-',this.queryCertifiCardTxt,this.filterField,this.researchBtn,'-',this.saveBtn,this.changeBtn,this.supplyBtn,'-',this.modifyBtn,
+	        this.destroyBtn,this.pigeonholeBtn,'-',this.lookupBtn,this.advancedF],
+	items : [this.menu
+//		region : 'north',
+//		xtype : 'panel',
+//		frame : true,
+//		height : 50,
+//		items : [researchPanel]
+//	},{
+//		region: 'west',
+//        title: '组织机构',
+//        xtype: 'treepanel',
+//        width: 200,
+//        layout: 'fit',
+//        autoScroll: true,
+//        lines: true,
+//        id : 'orgTree',
+//        name : 'orgTree',
+//        loader: new Ext.ux.DWRTreeLoader({
+//            dwrCall: UserMenuTreeService.getOrganizationNodes
+//        }),
+//        root : new Ext.tree.AsyncTreeNode( {
+//            text : 'root',
+//            draggable : false,
+//            id : 'org'
+//        }),
+//        rootVisible: false
+	,{
 		region: 'center',
         xtype: 'tabpanel',
         id : 'tabOrg',
@@ -921,23 +1404,53 @@ app.useCertifi = new Ext.Panel({
             name : 'tabUnused'
         },{
             title: '已使用',
-            html: '<div id="used"></div>',
+//            html: '<div id="used"></div>',
             listeners: {activate: handleUsed},
             id : 'tabUsed',
-            name : 'tabUsed'
+            name : 'tabUsed',
+            layout : 'fit',
+            items : [this.tabUsedGrid]
         },{
             title: '已作废',
-            html: '<div id="destroyed"></div>',
+//            html: '<div id="destroyed"></div>',
             listeners: {activate: handleDestroyed},
             id : 'tabDestroyed',
-            name : 'tabDestroyed'
+            name : 'tabDestroyed',
+            layout : 'fit',
+            items : [this.tabDestroyedGrid]
         },{
             title: '已归档',
-            html: '<div id="pigeonholed"></div>',
+//            html: '<div id="pigeonholed"></div>',
             listeners: {activate: handlePigeonholed},
             id : 'tabPigeonholed',
-            name : 'tabPigeonholed'
-        }]
+            layout : 'fit',
+            name : 'tabPigeonholed',
+            items : [this.tabPigeonholedGrid]
+        },{
+            title: '换发档案',
+//          html: '<div id="pigeonholed"></div>',
+            listeners: {activate: handleChanged},
+            id : 'tabChanged',
+//          layout : 'fit',
+            name : 'tabChanged',
+            layout : 'border',
+			frame : false,
+			border : false,
+			items : [ {
+				region : 'center',
+				layout : 'fit',
+				title : '换发出生医学证明（后）',
+				items : [ this.tabChangedGrid ]
+			},{
+				region : 'south',
+				layout : 'fit',
+				title : '原始出生医学证明',
+				height : 300,
+				items : [ this.tabBeforeChangedGrid ]
+			} ]
+//			items : [this.tabChangedGrid]
+//          }]
+      }]
 	}]
 });
 Ext.getCmp('orgTree').on({
@@ -951,3 +1464,16 @@ Ext.getCmp('orgTree').on({
 	}
 });
 ModuleMgr.register(app.useCertifi);
+
+function initAuthority(){
+	if(Ext.tf.currentUser.isSupplyCertifiAuthority != 1){
+		Ext.getCmp('supply').setVisible(false);
+	}
+	if(Ext.tf.currentUser.isChangeCertifiAuthority != 1){
+		Ext.getCmp('change').setVisible(false);
+	}
+	if(Ext.tf.currentUser.isAdvancedCertifiAuthority != 1){
+		Ext.getCmp('advancedFBtn').setVisible(false);
+	}
+} 
+initAuthority();

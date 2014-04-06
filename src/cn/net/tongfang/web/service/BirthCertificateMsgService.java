@@ -2,6 +2,7 @@ package cn.net.tongfang.web.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,8 +15,11 @@ import java.util.regex.Pattern;
 
 import net.sf.json.JSONObject;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.beans.BeanUtils;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +29,7 @@ import cn.net.tongfang.framework.security.vo.BarCodeHistory;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.BirthCertifiDestroyReason;
 import cn.net.tongfang.framework.security.vo.BirthCertificate;
+import cn.net.tongfang.framework.security.vo.BirthCertificateChange;
 import cn.net.tongfang.framework.security.vo.BirthCertificateCondition;
 import cn.net.tongfang.framework.security.vo.BirthCertificateOrg;
 import cn.net.tongfang.framework.security.vo.BirthCertificateRemarks;
@@ -36,9 +41,13 @@ import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
+import cn.net.tongfang.framework.util.service.vo.PagingParam;
+import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.BarCodeBo;
 import cn.net.tongfang.web.service.bo.BirthCertificateBO;
 import cn.net.tongfang.web.service.bo.CertificateBO;
+import cn.net.tongfang.web.service.bo.CertificateChangedParams;
+import cn.net.tongfang.web.service.bo.QueryCertificateBO;
 import cn.net.tongfang.web.util.FileNoGen;
 
 /**
@@ -247,10 +256,10 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param orgId
 	 * @return
 	 */
-	public List<BirthCertificate> getDestroyedCertiId(int orgId,String resTxt) {
+	public PagingResult<BirthCertificate> getDestroyedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And isEffectived = 3 "
 				+ "And B.orgId = ?";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
 	}
 
 	/**
@@ -393,37 +402,91 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertificateId + ",";
 	}
 
-	public List<BirthCertificate> getUsedCertificate(int orgId, String resTxt) {
+	public PagingResult<BirthCertificate> getUsedCertificate(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
 				+ "B.orgId = ? And A.isEffectived = 2";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
 	}
 	
-	public List<BirthCertificate> getPigeonholedCertiId(int orgId, String resTxt) {
+	public PagingResult<BirthCertificate> getPigeonholedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
 				+ "B.orgId = ? And A.isEffectived = 4";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
+	}
+	public PagingResult<BirthCertificate> getChangedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
+		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
+				+ "B.orgId = ? And A.isChanged = 1";
+		return getBirthCertificates(hql,qryCerti,pp);
+	}
+	public PagingResult<BirthCertificate> getBeforeChangedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
+		if (StringUtils.hasText(qryCerti.getResTxt())) {
+			String sourceHql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+			Query query = getSession().createQuery(sourceHql);
+			query.setParameter(0, qryCerti.getResTxt());
+			List list = query.list();
+			if(list.size() > 0){
+				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+				qryCerti.setResTxt(change.getSourceBirthCertifiId());
+			}
+		}
+		
+		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
+				+ "B.orgId = ? And A.isEffectived = 5";
+		return getBirthCertificates(hql,qryCerti,pp);
+	}
+	
+	private PagingResult<BirthCertificate> getBirthCertificates(String hql,QueryCertificateBO qryCerti,PagingParam pp) {
+		List params = new ArrayList();
+		params.add(qryCerti.getOrgId());
+		if (StringUtils.hasText(qryCerti.getResTxt())) {
+			hql =  hql + " And A.certifiId Like ?";
+			params.add(qryCerti.getResTxt() + "%");
+		}
+		String countSql = "Select Count(*) " + hql;
+		int totalSize = ((Long)(getHibernateTemplate().find(countSql,params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString();
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
+		List<BirthCertificate> birthCertificates = new ArrayList<BirthCertificate>();
+		for (Object object : list) {
+			Object[] objs = (Object[]) object;
+			BirthCertificate birthcertifi = (BirthCertificate) objs[0];
+			getHibernateTemplate().evict(birthcertifi);
+			birthCertificates.add(birthcertifi);
+		}
+		return new PagingResult<BirthCertificate>(totalSize, birthCertificates);
 	}
 
-	private List<BirthCertificate> getBirthCertificates(int orgId,
-			String resTxt, String hql) {
-		boolean flag = false;
-		if (StringUtils.hasText(resTxt)) {
-			hql =  hql + " And A.certifiId Like ?";
-			flag = true;
-		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter(0, orgId);
-		if (flag)
-			query.setParameter(1, resTxt + "%");
-		List list = query.list();
-		List<BirthCertificate> listCert = new ArrayList<BirthCertificate>();
-		for(Object obj : list){
-			Object[] objs = (Object[])obj;
-			listCert.add((BirthCertificate)objs[0]);
-		}
-		return listCert;
-	}
+//	private List<BirthCertificate> getBirthCertificates(int orgId,
+//			String resTxt, String hql) {
+//		boolean flag = false;
+//		if (StringUtils.hasText(resTxt)) {
+//			hql =  hql + " And A.certifiId Like ?";
+//			flag = true;
+//		}
+//		Query query = getSession().createQuery(hql);
+//		query.setParameter(0, orgId);
+//		if (flag)
+//			query.setParameter(1, resTxt + "%");
+//		List list = query.list();
+//		List<BirthCertificate> listCert = new ArrayList<BirthCertificate>();
+//		for(Object obj : list){
+//			Object[] objs = (Object[])obj;
+//			listCert.add((BirthCertificate)objs[0]);
+//		}
+//		return listCert;
+//	}
 	
 	/**
 	 * @param d
@@ -923,6 +986,15 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		}else if(tmpType.equals(4)){
 			flag = true;
 			type = UNDESTROY_REASON_TYPE;
+		}else if(tmpType.equals(6)){
+			String hql = "From BirthCertificateChange Where destBirthCertifiId = ?";
+			Query query = getSession().createQuery(hql);
+			query.setParameter(0, birthCertificate.getCertifiId());
+			List list = query.list();
+			if(list.size() > 0){
+				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+				BeanUtils.copyProperties(change,birthCertificate);
+			}
 		}
 		if(flag){
 			String hql = "From BirthCertifiDestroyReason Where certifiId = ? And type = ? Order By reasonDate DESC";
@@ -941,7 +1013,7 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertificate;
 	}
 	
-	public BirthCertificate getUnUsed(BirthCertificate birthCertificate){
+	public BirthCertificateBO getUnUsed(BirthCertificateBO birthCertificate){
 		birthCertificate.setMotherNation("汉");
 		birthCertificate.setFatherNation("汉");
 		BirthCertificate birthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificate.getCertifiId());		
@@ -954,23 +1026,78 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		BirthCertificate birthCertifi = new BirthCertificate();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		BeanUtils.copyProperties(birthCertificate,birthCertifi);
-		birthCertifi.setIsSupply(1);
+		if(birthCertificate.getSaveType() != null && birthCertificate.getSaveType().equals("0"))
+			birthCertifi.setIsSupply(1);
 		birthCertifi.setInputPersonId(user.getUsername());
 		birthCertifi.setInputDate(new Timestamp(System.currentTimeMillis()));
 		birthCertifi.setIsEffectived(2);
 		getHibernateTemplate().update(birthCertifi);
 		return birthCertifi.getCertifiId();
 	}
-	
+	public String saveChange(BirthCertificateBO birthCertificate){
+		BirthCertificate sourceBirthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificate.getSourceBirthCertifiId());
+		BirthCertificate birthCertifi = new BirthCertificate();
+		if(sourceBirthCertifi != null && sourceBirthCertifi.getIsEffectived().equals(4)){
+
+			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+			BeanUtils.copyProperties(birthCertificate,birthCertifi);
+			
+			birthCertifi.setInputPersonId(user.getUsername());
+			birthCertifi.setInputDate(new Timestamp(System.currentTimeMillis()));
+			birthCertifi.setIsEffectived(2);
+			birthCertifi.setIsChanged(1);
+			
+			sourceBirthCertifi.setIsEffectived(5);
+			getHibernateTemplate().update(birthCertifi);
+			getHibernateTemplate().update(sourceBirthCertifi);
+			String hql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+			Query query = getSession().createQuery(hql);
+			query.setParameter(0, birthCertificate.getCertifiId());
+			List list = query.list();
+			if(list.size() > 0){
+				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+				BeanUtils.copyProperties(birthCertificate,change);
+				getHibernateTemplate().update(change);
+			}else{
+				BirthCertificateChange birthCertifiChange = new BirthCertificateChange();
+				BeanUtils.copyProperties(birthCertificate,birthCertifiChange);
+				birthCertifiChange.setDestBirthCertifiId(birthCertifi.getCertifiId());
+				getHibernateTemplate().save(birthCertifiChange);
+			}
+			
+		}else{
+			return "0";
+//			throw new RuntimeException("原出生医学证明编号填写不正确！");
+		}
+		return birthCertifi.getCertifiId();
+	}
+	public BirthCertificateBO getChangeInfo(BirthCertificateBO birthCertificate){
+		birthCertificate.setMotherNation("汉");
+		birthCertificate.setFatherNation("汉");
+		BirthCertificate birthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificate.getCertifiId());
+		if(!birthCertifi.getIsEffectived().equals(1))
+			BeanUtils.copyProperties(birthCertifi,birthCertificate);
+		BirthCertificateBO retVal = new BirthCertificateBO();
+		BeanUtils.copyProperties(birthCertificate,retVal);
+		String hql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, birthCertificate.getCertifiId());
+		List list = query.list();
+		if(list.size() > 0){
+			BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+			BeanUtils.copyProperties(change,retVal);
+		}
+		return retVal;
+	}
 	public String save(BirthCertificateBO birthCertificate)throws Exception{	
 		Integer tmpType = birthCertificate.getType();
 		birthCertificate.setInputDate(new Timestamp(System.currentTimeMillis()));
 		BirthCertificate birthCertifi01 = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class,birthCertificate.getCertifiId());		
-		if(birthCertifi01.getIsSupply().equals(1)){
+		if(birthCertifi01.getIsSupply() != null && birthCertifi01.getIsSupply().equals(1)){
 			BeanUtils.copyProperties(birthCertificate,birthCertifi01);
 			birthCertifi01.setIsSupply(1);
 			//处理补发作废的情况
-			if(tmpType.equals(3)){
+			if(tmpType.equals(3) || tmpType.equals(7)){
 				birthCertifi01.setIsEffectived(EFFECTIVED_DESTROIED);
 				birthCertifi01.setFileNo("");
 			}
@@ -978,7 +1105,8 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 			return birthCertifi01.getCertifiId();
 		}
 		if(CommonConvertUtils.birthCertifiIsSupply(birthCertificate.getBirthday(),birthCertificate.getIssuingDate()))
-			throw new Exception("您没有权限补发出生医学证明！");
+			return "1";
+//			throw new Exception("您没有权限补发出生医学证明！");
 		BirthCertificate birthCertifi = new BirthCertificate();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		boolean flag = false;
@@ -1028,13 +1156,16 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 			
 			getHibernateTemplate().save(hf);
 			getHibernateTemplate().save(info);
-		}else if(tmpType.equals(3)){
+		}else if(tmpType.equals(3) || tmpType.equals(7)){
 			flag = true;
 			type = DESTROY_REASON_TYPE;
 			birthCertifi.setIsEffectived(EFFECTIVED_DESTROIED);
+			birthCertifi.setIsChanged(0);
 			String fileNo = birthCertifi.getFileNo();
-			moduleMgr.removeHealthFile(fileNo,1);
-			birthCertifi.setFileNo("");
+			if(fileNo != null && !fileNo.equals("")){
+				moduleMgr.removeHealthFile(fileNo,1);
+				birthCertifi.setFileNo("");
+			}
 		}else if(tmpType.equals(4)){
 			flag = true;
 			type = UNDESTROY_REASON_TYPE;
@@ -1083,6 +1214,13 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 			reason.setReasonDate(new Timestamp(System.currentTimeMillis()));
 			getHibernateTemplate().save(reason);
 		}		
+		
+		if(tmpType.equals(7)){
+			CertificateChangedParams changedParams = new CertificateChangedParams();
+			changedParams.setCertifiId(birthCertifi.getCertifiId());
+			changedParams.setType("1");
+			setCancelChanged(changedParams);
+		}
 		getHibernateTemplate().merge(birthCertifi);
 		return birthCertificate.getCertifiId();
 	}
@@ -1122,6 +1260,38 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		}
 		birthCertifi.setIsEffectived(BIRTH_UNUSED);
 		getHibernateTemplate().update(birthCertifi);
+		return true;
+	}
+	
+	
+	public boolean setCancelChanged(CertificateChangedParams changedParams){
+		String certifiId = "";
+		if(changedParams.getType() != null && changedParams.getType().equals("0")){
+			try {
+				setCancelUsed(changedParams.getCertifiId());
+				certifiId = changedParams.getBeforeCertifiId();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else if(changedParams.getType() != null && changedParams.getType().equals("1")){
+			String hql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+			Query q = getSession().createQuery(hql);
+			q.setParameter(0, changedParams.getCertifiId());
+			List list = q.list();
+			if(list.size() > 0){
+				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+				certifiId = change.getSourceBirthCertifiId();
+			}
+		}
+		BirthCertificate birthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, certifiId);
+		if(birthCertifi != null){
+			birthCertifi.setIsEffectived(4);
+			getHibernateTemplate().update(birthCertifi);
+		}
+		String deleteHql = " Delete From BirthCertificateChange Where destBirthCertifiId = ?";
+		Query query = getSession().createQuery(deleteHql);
+		query.setParameter(0, changedParams.getCertifiId());
+		query.executeUpdate();
 		return true;
 	}
 }

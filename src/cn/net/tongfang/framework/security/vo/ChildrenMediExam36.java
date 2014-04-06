@@ -51,6 +51,7 @@ public class ChildrenMediExam36 implements java.io.Serializable {
 	private String execDistrictNum;
 	private String highRiskSearch;
 	private String foreignId;
+	private String tcmService36Other;
 	// Constructors
 
 	/** default constructor */
@@ -79,7 +80,7 @@ public class ChildrenMediExam36 implements java.io.Serializable {
 			String transReason, String transUnit, String directOther,
 			Timestamp nextVisitDate, String visitDoctor,String highRisk,
 			String highRiskRemark,String execDistrictNum,String highRiskSearch,
-			String foreignId) {
+			String foreignId,String tcmService36Other) {
 		this.id = id;
 		this.fileNo = fileNo;
 		this.inputPersonId = inputPersonId;
@@ -117,12 +118,21 @@ public class ChildrenMediExam36 implements java.io.Serializable {
 		this.execDistrictNum = execDistrictNum;
 		this.highRiskSearch = highRiskSearch;
 		this.foreignId = foreignId;
+		this.tcmService36Other = tcmService36Other;
 	}
 
 	// Property accessors
 
 	public String getId() {
 		return this.id;
+	}
+
+	public String getTcmService36Other() {
+		return tcmService36Other;
+	}
+
+	public void setTcmService36Other(String tcmService36Other) {
+		this.tcmService36Other = tcmService36Other;
 	}
 
 	public void setId(String id) {

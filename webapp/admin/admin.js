@@ -1282,6 +1282,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod fun_mod_08 mod_disable"><img src="../image/menu/60.gif"/><div>出生医学证明分配</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_09 mod_disable"><img src="../image/menu/score.png"/><div>在线考核</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_10 mod_disable"><img src="../image/menu/cache.png"/><div>缓存管理</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_11 mod_disable"><img src="../image/menu/cache.png"/><div>出生医学证明月统计报表设置</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_business_child_template'){
 		flag = true;
@@ -1291,6 +1292,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod child_business_03 mod_disable"><img src="../image/menu/child_business_03.gif"/><div>1岁以内儿童健康体检</div><div class="remarks"></div></div>'+
 			'<div class="mod child_business_04 mod_disable"><img src="../image/menu/child_business_04.gif"/><div>1~2岁儿童健康体检</div><div class="remarks"></div></div>'+
 			'<div class="mod child_business_05 mod_disable"><img src="../image/menu/child_business_05.gif"/><div>3~6岁儿童健康体检</div><div class="remarks"></div></div>'+
+
 		'</div>';
 	}else if($templateId == 'fun_manage_child_template'){
 		flag = true;
@@ -1321,6 +1323,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		modItems = '<div class="div_container">'+
 			'<div class="mod child_birth_01 mod_disable"><img src="../image/menu/child_birth_01.gif"/><div>出生医学证明使用</div><div class="remarks"></div></div>'+
 			'<div class="mod child_birth_02 mod_disable"><img src="../image/menu/child_birth_02.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
+			'<div class="mod child_birth_03 mod_disable"><img src="../image/menu/child_birth_02.gif"/><div>出生医学证明月统计表</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_ill_template'){
 		flag = true;

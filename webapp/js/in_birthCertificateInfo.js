@@ -522,28 +522,32 @@ var cfg = [
 		},
 		{
 			id : "borthAddressCategory",
-			xtype : "list",
-			setting : {
-				ds : "1442",
-				isDefaultVal : true,
-				defaultVal : 0
-			},
-			required : [ true, "出生地分类" ],
-			requires : {
-				valEq : "4",
-				fields : [ "otherBorthAddressCategory" ]
-			}
-		// 
-		},
-		{
-			id : "otherBorthAddressCategory",
 			xtype : "input",
 			setting : {
-				disabled : true,
-				maxlen : 20,
-				size : 20
+				size : 104
 			}
+//			xtype : "list",
+//			setting : {
+//				ds : "1442",
+//				isDefaultVal : true,
+//				defaultVal : 0
+//			},
+//			required : [ true, "出生地分类" ],
+//			requires : {
+//				valEq : "4",
+//				fields : [ "otherBorthAddressCategory" ]
+//			}
+		// 
 		},
+//		{
+//			id : "otherBorthAddressCategory",
+//			xtype : "input",
+//			setting : {
+//				disabled : true,
+//				maxlen : 20,
+//				size : 20
+//			}
+//		},
 		{
 			id : "certifiId",
 			xtype : "input",
@@ -952,6 +956,12 @@ var cfg = [
 			}
 		}, {
 			id : "issuingUsers",
+			xtype : "input",
+			setting : {
+				size : 20
+			}
+		}, {
+			id : "saveType",
 			xtype : "input",
 			setting : {
 				size : 20
