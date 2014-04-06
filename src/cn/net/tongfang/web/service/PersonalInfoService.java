@@ -52,9 +52,9 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		//if (fileno.length() == 18){
 		
 		if(fileno != null && !fileno.equals("")){
-			if(!cn.net.tongfang.framework.security.SecurityManager.isValidUser(data.getInputPersonId(),this.getSession())){
-				throw new Exception("不是本单位建立的档案,不允许修改!");
-			}
+//			if(!cn.net.tongfang.framework.security.SecurityManager.isValidUser(data.getInputPersonId(),this.getSession())){
+//				throw new Exception("不是本单位建立的档案,不允许修改!");
+//			}
 			return update(data);
 		}
 		// save routine

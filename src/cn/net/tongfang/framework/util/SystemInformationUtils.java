@@ -190,7 +190,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	}
 	public String childExamInfo(String fileNo,Integer dataType){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From ChildrenMediExam Where fileNo = ? And dataType = :dataType Order By checkItem ASC ";
+		String hql = "From ChildrenMediExam Where fileNo = ? And dataType = ? Order By checkItem ASC ";
 		List list = getHibernateTemplate().find(hql,new Object[]{fileNo,dataType});
 		if(list.size() > 0){
 			String result = "";
