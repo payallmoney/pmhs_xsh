@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -402,27 +403,32 @@ public class JsonServer extends HibernateDaoSupport {
 			throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		// No DataSource so we must handle Connections manually
+		System.out.println("=====insert to ===============");
 		try {
 			Connection conn = getSession().connection();
 			List<ServiceInsert> insertvos = getSession().createQuery(
 					"from ServiceInsert where  mainid = " + main.getId()
 							+ " order by ord").list();
 			Map<String, String> hasOthertablevalue = new HashMap();
+			Map<String,Object> othertablevalue = new HashMap();
 			Map<Integer, Map> submaps = new HashMap();
+			Map defaultMap = new HashMap();
 			for (int i = 0; i < insertvos.size(); i++) {
 				ServiceInsert insert = insertvos.get(i);
 				List subvos = getSession().createQuery(
 						"from ServiceInsertSub where insertid  = "
 								+ insert.getId()).list();
 				Map<String, ServiceInsertSub> insertMap = new HashMap();
-				for (int j = 0; j < subvos.size(); i++) {
+				for (int j = 0; j < subvos.size(); j++) {
 					ServiceInsertSub sub = (ServiceInsertSub) subvos.get(j);
 					insertMap.put(sub.getName(), sub);
 					if ("othertable".equals(sub.getColgen())) {
 						hasOthertablevalue.put(insert.getTablename() + "."
 								+ sub.getName(), insert.getTablename() + "."
 								+ sub.getName());
+					}
+					if (sub.getColgen() !=null && sub.getColgen().trim().length()>0) {
+						defaultMap.put(sub.getName(), sub);
 					}
 				}
 				submaps.put(insertvos.get(i).getId(), insertMap);
@@ -439,10 +445,18 @@ public class JsonServer extends HibernateDaoSupport {
 				String valuessql = "";
 				List updatelist = new ArrayList();
 				List whereList = new ArrayList();
-				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null) {
+						insertsql = insertsql + "," + vo.getColname();
+						valuessql = valuessql + ",?";
+					}
+				}
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					ServiceInsertSub vo = insertMap.get(key);
+					if (vo != null && !defaultMap.containsKey(key)) {
 						insertsql = insertsql + "," + vo.getColname();
 						valuessql = valuessql + ",?";
 					}
@@ -466,26 +480,42 @@ public class JsonServer extends HibernateDaoSupport {
 						"yyyy-MM-dd hh:mm:ss");
 				updatelist.addAll(whereList);
 				System.out.println("55555555555555555");
-				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
-					Object value = params.get(key);
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null) {
-						Object realvalue = value;
+						String realvalue="";
 						if ("fileno".equals(vo.getColgen())) {
-							realvalue = fileNoGen.getNextFileNo("districtNumber");
+							if(!params.containsKey("districtNumber")){
+								throw new Exception("新增必须包含行政区划编码districtNumber!请与系统管理员联系!");
+							}else{
+								realvalue = fileNoGen.getNextFileNo((String)params.get("districtNumber"));
+							}
+							params.put(vo.getName(), realvalue);
 						}else if ("othertable".equals(vo.getColgen())) {
-							
+							realvalue = (String)othertablevalue.get(insert.getTablename() + "."	+ vo.getName());
+						}else if ("uuid".equals(vo.getColgen())) {
+							realvalue = UUID.randomUUID().toString();
+						}else if ("default".equals(vo.getColgen())) {
+							realvalue = vo.getVal();
 						}
+						System.out.println( vo.getColname()+"==="+realvalue);
 						paramidx = setparam(vo.getType(), paramidx, stmt,
 								realvalue, inputfomart2, inputfomarttime);
 					}
 				}
-				int count = stmt.executeUpdate();
-				if (count == 0) {
-					throw new Exception("未更新任何数据!请检查查询条件是否正确!");
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					Object value = params.get(key);
+					ServiceInsertSub vo = insertMap.get(key);
+					if (vo != null && !defaultMap.containsKey(key)) {
+							paramidx = setparam(vo.getType(), paramidx, stmt,
+									value, inputfomart2, inputfomarttime);
+							System.out.println( vo.getColname()+"==="+value);
+					}
 				}
 				System.out.println("666666666666666");
+				stmt.execute();
 			}
 			params.put("success", "true");
 			return params;
