@@ -136,7 +136,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			if (vacciInfo.getId() != null) {
 				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 						.currentOperator();
-				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),vacciInfo.getInputPersonId())) {
+				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(vacciInfo.getInputPersonId(),getSession())) {
 					VaccineImmuneInfo info = new VaccineImmuneInfo();
 					BeanUtils.copyProperties(vacciInfo, info);
 					getHibernateTemplate().update(info);
@@ -186,7 +186,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 			if (vacciInfo.getId() != null && !vacciInfo.getId().equals("")) {
 				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 						.currentOperator();
-				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),vacciInfo.getInputPersonId())) {
+				if (cn.net.tongfang.framework.security.SecurityManager.isValidUser(vacciInfo.getInputPersonId(),getSession())) {
 					VaccineImmuneInfo info = new VaccineImmuneInfo();
 					BeanUtils.copyProperties(vacciInfo, info);
 					info.setFileNo(info.getFileNo());
@@ -283,7 +283,7 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		String hql = " From VaccineImmuneHistoryStaticData Where fileNo = ? And colNum = ? And rowNum = ? ";
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		for(VaccineImmuneInfo info : vacciInfos){
-			if(cn.net.tongfang.framework.security.SecurityManager.isValidUser(user.getUsername(),info.getInputPersonId())){
+			if(cn.net.tongfang.framework.security.SecurityManager.isValidUser(info.getInputPersonId(),getSession())){
 				Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 				query.setParameter(0, info.getFileNo());
 				query.setParameter(1, info.getColNum());
