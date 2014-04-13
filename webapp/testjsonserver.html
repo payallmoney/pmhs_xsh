@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>jsonServiceTest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript"
+	src="/js/angularjs/jquery/jquery-1.9.1.min.js"></script>
+<script src="/js/angularjs/angular.min.js"></script>
+<script>
+	angular.module('test', []);
+	function TestJson($scope, $window,$http) {
+		$scope.tests = {
+			'queryHealthfile' : {
+				'key' : 11,
+				'idcard' : "429004198311041730"
+			},
+			'updateHealthfile' : {
+				'key' : 11,
+				'fileno' : "530102001001000006",
+				'sex':'女',
+				'name':'2222222',
+				"birthday": "2012-01-01",
+				'address':'22222222'
+			},
+			'insertHealthfile' : {
+				'key' : 11,
+				'districtNumber':'530102001001',
+				'sex':'女',
+				'name':'tttttttt',
+				"birthday": "2012-01-01",
+				'address':'tttttttttttttt'
+			}
+		};
+
+		$scope.query = function(type,key) {
+			console.log(type);
+			var url = '/jsonserver.do?type='+type+'&key='+key;
+			$http({
+				method : 'POST',
+				url : url,
+				data : $scope.tests[type],
+				headers: {'Content-Type': 'text/json'}
+			}).success(function(data, status, headers, config) {
+				console.log("success",data, status, headers, config);
+				$scope.html = data;
+			}).error(function(data, status, headers, config) {
+				console.log("error",data, status, headers, config);
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+			});
+		}
+	}
+</script>
+</head>
+<body ng-app="test" ng-controller="TestJson">
+	<input ng-repeat=' (k,v) in tests ' type='button' value='测试{{k}}'
+		ng-click="query(k,v.key)">
+	<div>{{html|json}}</div>
+
+</body>
+</html>

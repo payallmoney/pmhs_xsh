@@ -593,6 +593,11 @@ div.exam_04{
     margin-left: 550px;
     width: 150px;
 }
+div.exam_05{
+    margin-top: 20px;
+    margin-left: 725px;
+    width: 150px;
+}
 div.clinics_01{
 	margin-top: 20px;
 	margin-left: 25px;
@@ -670,6 +675,11 @@ div.health_07{
 	margin-top: 300px;
 	margin-left: 620px;
 	width: 150px;
+}
+div.health_08{
+	margin-top: 190px;
+	margin-left: 820px;
+	width: 240px;
 }
 div.menu_second_div{
 	cursor: pointer;
