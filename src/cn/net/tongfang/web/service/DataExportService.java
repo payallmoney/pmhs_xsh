@@ -1744,11 +1744,10 @@ public class DataExportService extends HibernateDaoSupport {
 			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
 			ExportMain main = (ExportMain)sqllist.get(0);
 			String sql = main.getSql();
-			sql = sql + " and 1=2 ";
 			sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
 			sql = sql.replaceAll("\"", "'");
 			PreparedStatement stmt =  conn.prepareStatement(sql);
-			stmt.setString(1, null);
+			stmt.setString(1, "9999999999");
 			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			int numberOfColumns = rsMetaData.getColumnCount();
