@@ -484,6 +484,7 @@ public class DataExportService extends HibernateDaoSupport {
 		// }
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b ").append(where);
+		System.out.println("hql=="+hql);
 		List list = query(hql);
 
 		List dataList = new ArrayList();
@@ -1098,7 +1099,15 @@ public class DataExportService extends HibernateDaoSupport {
 	 */
 	private String DateToStr(Date date) {
 		if (date != null) {
-			SimpleDateFormat fomart = new SimpleDateFormat("yyyyMMddhhmmss");
+			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+			return fomart.format(date);
+		}
+		return "";
+	}
+	
+	private String DateToStr(Date date,String format) {
+		if (date != null) {
+			SimpleDateFormat fomart = new SimpleDateFormat(format);
 			return fomart.format(date);
 		}
 		return "";
@@ -1126,7 +1135,7 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 		if (StringUtils.hasText(disNo)) {
 			// params.add(disNo + '%');
-			where.append(appendVal.replaceAll("?", "'" + disNo + "%'"));
+			where.append(appendVal.replaceAll("\\?", "'" + disNo + "%'"));
 		}
 		if (StringUtils.hasText(filterKey)) {
 
