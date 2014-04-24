@@ -65,7 +65,6 @@ public class JsonServer extends HibernateDaoSupport {
 			String json = IOUtils.toString(request.getInputStream(), "UTF-8");
 			System.out.println(json);
 			Map params = mapper.readValue(json, Map.class);
-			ret = processSql(type, params);
 			try {
 				ret = processSql(type, params);
 			} catch (RuntimeException e) {
@@ -319,8 +318,9 @@ public class JsonServer extends HibernateDaoSupport {
 				.currentOperator();
 		System.out.println("11111111111");
 		// No DataSource so we must handle Connections manually
+		Connection conn = getSession().connection();
 		try {
-			Connection conn = getSession().connection();
+			conn.setAutoCommit(false);
 			List updatevos = getSession().createQuery(
 					"from ServiceUpdate where  mainid = " + main.getId())
 					.list();
@@ -398,6 +398,7 @@ public class JsonServer extends HibernateDaoSupport {
 					}
 				}
 				int count = stmt.executeUpdate();
+				stmt.close();
 				updatecount += count;
 				System.out.println("666666666666666");
 			}
@@ -405,6 +406,7 @@ public class JsonServer extends HibernateDaoSupport {
 			if (updatecount == 0) {
 				throw new RuntimeException("未更新任何数据!请检查查询条件是否正确!");
 			}
+			conn.commit();
 			Map ret = new HashMap();
 			ret.put("success", true);
 			ret.put("updatecols", updatecols);
@@ -412,11 +414,13 @@ public class JsonServer extends HibernateDaoSupport {
 			return ret;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			conn.rollback();
 			throw e;
+		} finally{
+			conn.setAutoCommit(true);
 		}
 	}
 
-	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
 	private int setparam(String type, int paramidx, PreparedStatement stmt,
 			Object value, SimpleDateFormat inputfomart2,
 			SimpleDateFormat inputfomarttime)  throws ParseException,SQLException {
@@ -439,14 +443,14 @@ public class JsonServer extends HibernateDaoSupport {
 		return paramidx + 1;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED,rollbackFor=Exception.class)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Map sqlInsert(ServiceMain main, Map params)
 			 throws ParseException,SQLException {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		System.out.println("=====insert to ===============");
+		Connection conn = getSession().connection();
 		try {
-			Connection conn = getSession().connection();
+			conn.setAutoCommit(false);
 			List<ServiceInsert> insertvos = getSession().createQuery(
 					"from ServiceInsert where  mainid = " + main.getId()
 							+ " order by ord").list();
@@ -472,14 +476,11 @@ public class JsonServer extends HibernateDaoSupport {
 				}
 				submaps.put(insertvos.get(i).getId(), insertMap);
 			}
-			System.out.println("====="+submaps);
-			System.out.println("2222222222222222222");
 			Map<String, Object> oldvalue = new HashMap();
 			for (int i = 0; i < insertvos.size(); i++) {
 				ServiceInsert insert = insertvos.get(i);
 				Map<String, ServiceInsertSub> insertMap = submaps.get(insert
 						.getId());
-				System.out.println("33333333333333333");
 				String insertsql = "";
 				int updatecount = 0;
 				String valuessql = "";
@@ -506,7 +507,6 @@ public class JsonServer extends HibernateDaoSupport {
 				} else {
 					continue;
 				}
-				System.out.println("4444444444444444");
 				String sql = insertsql;
 				sql = sql.replaceAll("\"", "'");
 				System.out.println(sql);
@@ -516,7 +516,6 @@ public class JsonServer extends HibernateDaoSupport {
 						"yyyy-MM-dd");
 				SimpleDateFormat inputfomarttime = new SimpleDateFormat(
 						"yyyy-MM-dd hh:mm:ss");
-				System.out.println("55555555555555555");
 				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
 					ServiceInsertSub vo = insertMap.get(key);
@@ -554,7 +553,6 @@ public class JsonServer extends HibernateDaoSupport {
 							}
 						}
 						params.put(vo.getName(), realvalue);
-						System.out.println("hasOthertablevalue=="+hasOthertablevalue);
 						if(hasOthertablevalue.containsKey(insert.getTablename() + "."
 								+ vo.getName())){
 							othertablevalue.put(insert.getTablename() + "."
@@ -578,12 +576,18 @@ public class JsonServer extends HibernateDaoSupport {
 				}
 				System.out.println("666666666666666");
 				stmt.execute();
+				stmt.close();
+				System.out.println("77777777777777777777");
 			}
+			conn.commit();
 			params.put("success", "true");
 			return params;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			conn.rollback();
 			throw e;
+		}finally{
+			conn.setAutoCommit(true);
 		}
 	}
 
