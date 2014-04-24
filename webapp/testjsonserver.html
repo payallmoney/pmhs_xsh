@@ -9,25 +9,48 @@
 	angular.module('test', []);
 	function TestJson($scope, $window,$http) {
 		$scope.tests = {
-			'queryHealthfile' : {
+			'QueryHealthFile' : {
 				'key' : 11,
-				'idcard' : "429004198311041730"
+				'IDNumber':"123456789012345678"
 			},
-			'updateHealthfile' : {
+			'UpdateHealthFile' : {
 				'key' : 11,
-				'fileno' : "530102001001000006",
+				'WeChat':'123',
+				'FileNo' : "530102001001000006",
+				'name':'3333',
 				'sex':'女',
-				'name':'2222222',
-				"birthday": "2012-01-01",
-				'address':'22222222'
+				"Birthday": "2012-01-01",
+				'IDNumber':"123456789012345678",
+				'mobile':'111111111',
+				'WeChat':'22222222',
+				'Address':'33333333333',
+				'ResidenceAddress':'444444',
+				'ResideType':'户籍',
+				'OrgID':'1',
+				'Relation':'户主',
+				'WeOrgID':'1'
 			},
-			'insertHealthfile' : {
+			'AddHealthFile' : {
 				'key' : 11,
+				'WeChat':'123',
+				'name':'0000000000000',
+				'sex':'女',
+				"Birthday": "2012-01-01",
 				'districtNumber':'530102001001',
-				'sex':'女',
-				'name':'测试',
-				"birthday": "2012-01-01",
-				'address':'测试'
+				'IDNumber':"123456789012345678",
+				'mobile':'111111111',
+				'WeChat':'22222222',
+				'Address':'33333333333',
+				'ResidenceAddress':'444444',
+				'ResideType':'户籍111',
+				'OrgID':'1',
+				'Relation':'户主',
+				'WeOrgID':'1',
+				'OrgWeChat1':'aaaaaaa'
+			},
+			'QueryOrg' : {
+				'key' : 11,
+				'OrgID':'1'
 			}
 		};
 

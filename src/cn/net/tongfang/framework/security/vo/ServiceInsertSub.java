@@ -15,6 +15,7 @@ public class ServiceInsertSub implements java.io.Serializable {
 	private String type;
 	private String colgen;
 	private String val;
+	private Boolean district;
 
 	// Constructors
 
@@ -33,7 +34,8 @@ public class ServiceInsertSub implements java.io.Serializable {
 
 	/** full constructor */
 	public ServiceInsertSub(Integer id, Integer insertid, String name,
-			String colname, String type, String colgen, String val) {
+			String colname, String type, String colgen, String val,
+			Boolean district) {
 		this.id = id;
 		this.insertid = insertid;
 		this.name = name;
@@ -41,6 +43,7 @@ public class ServiceInsertSub implements java.io.Serializable {
 		this.type = type;
 		this.colgen = colgen;
 		this.val = val;
+		this.district = district;
 	}
 
 	// Property accessors
@@ -99,6 +102,14 @@ public class ServiceInsertSub implements java.io.Serializable {
 
 	public void setVal(String val) {
 		this.val = val;
+	}
+
+	public Boolean getDistrict() {
+		return this.district;
+	}
+
+	public void setDistrict(Boolean district) {
+		this.district = district;
 	}
 
 }

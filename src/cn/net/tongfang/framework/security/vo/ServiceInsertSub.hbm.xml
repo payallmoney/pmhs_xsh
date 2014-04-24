@@ -28,5 +28,8 @@
         <property name="val" type="java.lang.String">
             <column name="val" />
         </property>
+        <property name="district" type="java.lang.Boolean">
+            <column name="district" />
+        </property>
     </class>
 </hibernate-mapping>

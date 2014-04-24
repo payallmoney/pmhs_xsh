@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,11 +65,18 @@ public class JsonServer extends HibernateDaoSupport {
 			String json = IOUtils.toString(request.getInputStream(), "UTF-8");
 			System.out.println(json);
 			Map params = mapper.readValue(json, Map.class);
+			ret = processSql(type, params);
 			try {
 				ret = processSql(type, params);
-			} catch (Exception e) {
+			} catch (RuntimeException e) {
 				ret.put("success", false);
 				ret.put("msg", e.getMessage());
+				res.setContentType("application/json; charset=utf8");
+				byte[] bytes = mapper.writeValueAsBytes(ret);
+				res.getOutputStream().write(bytes);
+				res.getOutputStream().flush();
+				res.getOutputStream().close();
+				throw e;
 			}
 		}
 		System.out.println(mapper.writeValueAsString(ret));
@@ -80,28 +89,35 @@ public class JsonServer extends HibernateDaoSupport {
 
 	}
 
-	private Map processSql(String name, Map params) throws Exception {
-		Connection conn = getSession().connection();
-		Statement st = conn.createStatement();
-		List sqllist = getSession().createQuery(
-				"from ServiceMain where name = '" + name + "' order by id")
-				.list();
-		if (sqllist.size() == 0) {
-			throw new Exception("接口不存在!");
-		}
-		ServiceMain main = (ServiceMain) sqllist.get(0);
-		if ("query".equals(main.getSvrtype())) {
-			if (main.getIslist()) {
-				return sqlList(main, params);
-			} else {
-				return sqlObject(main, params);
+	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
+	private Map processSql(String name, Map params) throws SQLException,ParseException {
+		try{
+			Connection conn = getSession().connection();
+			Statement st = conn.createStatement();
+			List sqllist = getSession().createQuery(
+					"from ServiceMain where name = '" + name + "' order by id")
+					.list();
+			if (sqllist.size() == 0) {
+				throw new RuntimeException("接口不存在!");
 			}
-		} else if ("update".equals(main.getSvrtype())) {
-			return sqlUpdate(main, params);
-		} else if ("insert".equals(main.getSvrtype())) {
-			return sqlInsert(main, params);
-		} else {
-			throw new Exception("接口配置不正确!请与系统管理员联系!");
+			ServiceMain main = (ServiceMain) sqllist.get(0);
+			if ("query".equals(main.getSvrtype())) {
+				if (main.getIslist()) {
+					return sqlList(main, params);
+				} else {
+					return sqlObject(main, params);
+				}
+			} else if ("update".equals(main.getSvrtype())) {
+				return sqlUpdate(main, params);
+			} else if ("insert".equals(main.getSvrtype())) {
+				return sqlInsert(main, params);
+			} else {
+				throw new RuntimeException("接口配置不正确!请与系统管理员联系!");
+			}
+		}
+		catch (SQLException ex){
+			ex.printStackTrace();
+			throw ex;
 		}
 	}
 
@@ -127,7 +143,7 @@ public class JsonServer extends HibernateDaoSupport {
 	}
 
 	@Transactional(readOnly = true)
-	public Map sqlList(ServiceMain main, Map params) throws Exception {
+	public Map sqlList(ServiceMain main, Map params) throws SQLException,ParseException {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
@@ -173,7 +189,12 @@ public class JsonServer extends HibernateDaoSupport {
 			while (rs.next()) {
 				Map row = new HashMap();
 				for (int i = 1; i <= numberOfColumns; i++) {
-					Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+					Class cls=null;
+					try{
+						cls = Class.forName(rsMetaData.getColumnClassName(i));
+					}catch(Exception e){
+						
+					}
 					if (cls.isAssignableFrom(String.class)) {
 						row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
 					} else if (cls.isAssignableFrom(Float.class)) {
@@ -201,7 +222,7 @@ public class JsonServer extends HibernateDaoSupport {
 			ret.put("pages", 1);
 			ret.put("success", true);
 			return ret;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
 		}
@@ -209,7 +230,7 @@ public class JsonServer extends HibernateDaoSupport {
 	}
 
 	@Transactional(readOnly = true)
-	public Map sqlObject(ServiceMain main, Map params) throws Exception {
+	public Map sqlObject(ServiceMain main, Map params) throws ParseException,SQLException {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
@@ -256,7 +277,12 @@ public class JsonServer extends HibernateDaoSupport {
 			Map row = new HashMap();
 			if (rs.next()) {
 				for (int i = 1; i <= numberOfColumns; i++) {
-					Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+					Class cls=null;
+					try{
+						cls = Class.forName(rsMetaData.getColumnClassName(i));
+					}catch(Exception e){
+						
+					}
 					if (cls.isAssignableFrom(String.class)) {
 						row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
 					} else if (cls.isAssignableFrom(Float.class)) {
@@ -275,18 +301,20 @@ public class JsonServer extends HibernateDaoSupport {
 								fomart.format(obj));
 					}
 				}
+			}else{
+				throw new RuntimeException("没有数据!");
 			}
 			row.put("success", true);
 			return row;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
 		}
 
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
-	public Map sqlUpdate(ServiceMain main, Map params) throws Exception {
+	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
+	public Map sqlUpdate(ServiceMain main, Map params)  throws ParseException,SQLException {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		System.out.println("11111111111");
@@ -297,6 +325,8 @@ public class JsonServer extends HibernateDaoSupport {
 					"from ServiceUpdate where  mainid = " + main.getId())
 					.list();
 			System.out.println("2222222222222222222");
+			String updatecols = "";
+			int updatecount = 0 ;
 			for (int i = 0; i < updatevos.size(); i++) {
 				ServiceUpdate updatevo = (ServiceUpdate) updatevos.get(i);
 				Map wherecols = new HashMap();
@@ -313,16 +343,15 @@ public class JsonServer extends HibernateDaoSupport {
 				Map<String, ServiceUpdateSub> submap = new HashMap();
 				for (int j = 0; j < sublist.size(); j++) {
 					ServiceUpdateSub vo = (ServiceUpdateSub) sublist.get(j);
-					submap.put(vo.getName(), vo);
+					submap.put(vo.getName().trim(), vo);
 				}
 				System.out.println("33333333333333333");
 				String update = "";
-				int updatecount = 0;
-				String wherestr = " where 1=1 ";
+				String wherestr = " ";
 				List updatelist = new ArrayList();
 				List whereList = new ArrayList();
 				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-					Object key = iter.next();
+					String key = ((String)iter.next()).trim();
 					ServiceUpdateSub vo = submap.get(key);
 					if (vo != null) {
 						if (wherecols.containsKey(key)) {
@@ -333,6 +362,11 @@ public class JsonServer extends HibernateDaoSupport {
 							updatelist.add(key);
 						}
 					}
+				}
+				if(wherestr.trim().length()>0 && whereList.size() == wherecol.length){
+					wherestr = "  where 1=1 "+wherestr;
+				}else{
+					throw new RuntimeException("更新条件不足!");
 				}
 				if (update.length() > 0) {
 					update = "update " + updatevo.getTablename() + " set "
@@ -353,8 +387,10 @@ public class JsonServer extends HibernateDaoSupport {
 				updatelist.addAll(whereList);
 				System.out.println("55555555555555555");
 				for (int n = 0; n < updatelist.size(); n++) {
-					String key = (String) updatelist.get(n);
+					String key = ((String) updatelist.get(n) );
 					String value = (String) params.get(key);
+					System.out.println("key=="+key+",value=="+value);
+					updatecols = updatecols+","+key;
 					ServiceUpdateSub vo = submap.get(key);
 					if (vo != null) {
 						paramidx = setparam(vo.getType(), paramidx, stmt,
@@ -362,23 +398,28 @@ public class JsonServer extends HibernateDaoSupport {
 					}
 				}
 				int count = stmt.executeUpdate();
-				if (count == 0) {
-					throw new Exception("未更新任何数据!请检查查询条件是否正确!");
-				}
+				updatecount += count;
 				System.out.println("666666666666666");
+			}
+			
+			if (updatecount == 0) {
+				throw new RuntimeException("未更新任何数据!请检查查询条件是否正确!");
 			}
 			Map ret = new HashMap();
 			ret.put("success", true);
+			ret.put("updatecols", updatecols);
+			ret.put("updatecount",updatecount);
 			return ret;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
 
+	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
 	private int setparam(String type, int paramidx, PreparedStatement stmt,
 			Object value, SimpleDateFormat inputfomart2,
-			SimpleDateFormat inputfomarttime) throws Exception {
+			SimpleDateFormat inputfomarttime)  throws ParseException,SQLException {
 		if (type.equals("date")) {
 			stmt.setDate(paramidx,
 					new java.sql.Date(inputfomart2.parse((String) value)
@@ -398,9 +439,9 @@ public class JsonServer extends HibernateDaoSupport {
 		return paramidx + 1;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED,rollbackFor=Exception.class)
 	public Map sqlInsert(ServiceMain main, Map params)
-			throws Exception {
+			 throws ParseException,SQLException {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		System.out.println("=====insert to ===============");
@@ -409,7 +450,7 @@ public class JsonServer extends HibernateDaoSupport {
 			List<ServiceInsert> insertvos = getSession().createQuery(
 					"from ServiceInsert where  mainid = " + main.getId()
 							+ " order by ord").list();
-			Map<String, String> hasOthertablevalue = new HashMap();
+			Map<String, Boolean> hasOthertablevalue = new HashMap();
 			Map<String,Object> othertablevalue = new HashMap();
 			Map<Integer, Map> submaps = new HashMap();
 			Map defaultMap = new HashMap();
@@ -423,9 +464,7 @@ public class JsonServer extends HibernateDaoSupport {
 					ServiceInsertSub sub = (ServiceInsertSub) subvos.get(j);
 					insertMap.put(sub.getName(), sub);
 					if ("othertable".equals(sub.getColgen())) {
-						hasOthertablevalue.put(insert.getTablename() + "."
-								+ sub.getName(), insert.getTablename() + "."
-								+ sub.getName());
+						hasOthertablevalue.put(sub.getVal(), true);
 					}
 					if (sub.getColgen() !=null && sub.getColgen().trim().length()>0) {
 						defaultMap.put(sub.getName(), sub);
@@ -433,6 +472,7 @@ public class JsonServer extends HibernateDaoSupport {
 				}
 				submaps.put(insertvos.get(i).getId(), insertMap);
 			}
+			System.out.println("====="+submaps);
 			System.out.println("2222222222222222222");
 			Map<String, Object> oldvalue = new HashMap();
 			for (int i = 0; i < insertvos.size(); i++) {
@@ -443,8 +483,6 @@ public class JsonServer extends HibernateDaoSupport {
 				String insertsql = "";
 				int updatecount = 0;
 				String valuessql = "";
-				List updatelist = new ArrayList();
-				List whereList = new ArrayList();
 				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
 					ServiceInsertSub vo = insertMap.get(key);
@@ -478,7 +516,6 @@ public class JsonServer extends HibernateDaoSupport {
 						"yyyy-MM-dd");
 				SimpleDateFormat inputfomarttime = new SimpleDateFormat(
 						"yyyy-MM-dd hh:mm:ss");
-				updatelist.addAll(whereList);
 				System.out.println("55555555555555555");
 				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
@@ -487,19 +524,43 @@ public class JsonServer extends HibernateDaoSupport {
 						String realvalue="";
 						if ("fileno".equals(vo.getColgen())) {
 							if(!params.containsKey("districtNumber")){
-								throw new Exception("新增必须包含行政区划编码districtNumber!请与系统管理员联系!");
+								throw new RuntimeException("新增必须包含行政区划编码districtNumber!请与系统管理员联系!");
 							}else{
-								realvalue = fileNoGen.getNextFileNo((String)params.get("districtNumber"));
+								try{
+									realvalue = fileNoGen.getNextFileNo((String)params.get("districtNumber"));
+								}catch(Exception ex){
+									throw new RuntimeException(ex.getMessage());
+								}
 							}
-							params.put(vo.getName(), realvalue);
 						}else if ("othertable".equals(vo.getColgen())) {
-							realvalue = (String)othertablevalue.get(insert.getTablename() + "."	+ vo.getName());
+							if(!vo.getDistrict() && params.containsKey(vo.getName())){
+								realvalue = (String)params.get(vo.getName());
+							}else{
+								System.out.println(othertablevalue);
+								realvalue = (String)othertablevalue.get(vo.getVal());
+							}
 						}else if ("uuid".equals(vo.getColgen())) {
-							realvalue = UUID.randomUUID().toString();
+							if(!vo.getDistrict() && params.containsKey(vo.getName())){
+								realvalue = (String)params.get(vo.getName());
+							}else{
+								realvalue = UUID.randomUUID().toString();
+							}
+							
 						}else if ("default".equals(vo.getColgen())) {
-							realvalue = vo.getVal();
+							if(!vo.getDistrict() && params.containsKey(vo.getName())){
+								realvalue = (String)params.get(vo.getName());
+							}else{
+								realvalue = vo.getVal();
+							}
 						}
-						System.out.println( vo.getColname()+"==="+realvalue);
+						params.put(vo.getName(), realvalue);
+						System.out.println("hasOthertablevalue=="+hasOthertablevalue);
+						if(hasOthertablevalue.containsKey(insert.getTablename() + "."
+								+ vo.getName())){
+							othertablevalue.put(insert.getTablename() + "."
+									+ vo.getName(), realvalue);
+						}
+						System.out.println( vo.getName()+"==="+realvalue);
 						paramidx = setparam(vo.getType(), paramidx, stmt,
 								realvalue, inputfomart2, inputfomarttime);
 					}
@@ -507,11 +568,12 @@ public class JsonServer extends HibernateDaoSupport {
 				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
 					Object value = params.get(key);
+					
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null && !defaultMap.containsKey(key)) {
 							paramidx = setparam(vo.getType(), paramidx, stmt,
 									value, inputfomart2, inputfomarttime);
-							System.out.println( vo.getColname()+"==="+value);
+							System.out.println(key+"=="+value);
 					}
 				}
 				System.out.println("666666666666666");
@@ -519,7 +581,7 @@ public class JsonServer extends HibernateDaoSupport {
 			}
 			params.put("success", "true");
 			return params;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
 		}
