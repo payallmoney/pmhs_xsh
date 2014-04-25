@@ -985,6 +985,7 @@ this.saveBtn = new Ext.Button({
 	id : 'save',
 	iconCls : 'c_add',
 	handler : function(){
+		//console.log(Ext.tf.currentUser);
 		if(currentNode != null){
 			var flag = false;
 			$('.selected').each(function(){
@@ -992,16 +993,15 @@ this.saveBtn = new Ext.Button({
 			});
 			if(flag){
 				var win = new Ext.Window({
-
 					title : '首次签发',
-					width : 190, 
-					height : 120,
+					width : 260, 
+					height : 140,
 					modal : true,	
 //					frame : true,
 					items : [{
 						xtype : 'panel',
 						border : false,
-						height : 100,
+						height : 130,
 						layout : 'absolute',
 						tbar : [{
 							text : '确认',
@@ -1014,6 +1014,10 @@ this.saveBtn = new Ext.Button({
 									win.destroy();
 								}else if(val == '1'){
 									useCertifiService('/birthCertificateInfo_firstIssue.html',1);
+									win.close();
+									win.destroy();
+								}else if(val == '2'){
+									useCertifiService('/birthCertificateInfo_supply.html',10);
 									win.close();
 									win.destroy();
 								}else{
@@ -1044,10 +1048,23 @@ this.saveBtn = new Ext.Button({
 							x : 5,
 							y : 30,
 							name : 'birthCertifiRadio'
+						},{
+							xtype : 'radio',
+							boxLabel : '医疗机构<span style="color:red;font-weight: bolder;font-size:13px;">内部</span>出生超过' +
+								'<span style="color:red;font-weight: bolder;font-size:13px;">2个月</span>的新生儿',
+							inputValue : '2',
+							x : 5,
+							y : 55,
+							disabled : true,
+							name : 'birthCertifiRadio',
+							id : 'over2MonthbirthCertifiRadio'
 						}]
 					}]
 				});
 				win.show();
+				if(Ext.tf.currentUser.isOver2MonthCertifiAuthority == 1){
+					Ext.getCmp('over2MonthbirthCertifiRadio').setDisabled(false);
+				}
 				//useCertifiService('/birthCertificateInfo.html');
 			}else{
 				showMsg('请选择出生证明编号');
