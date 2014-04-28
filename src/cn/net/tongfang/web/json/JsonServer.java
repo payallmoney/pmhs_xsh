@@ -67,15 +67,9 @@ public class JsonServer extends HibernateDaoSupport {
 			Map params = mapper.readValue(json, Map.class);
 			try {
 				ret = processSql(type, params);
-			} catch (RuntimeException e) {
+			} catch (Exception e) {
 				ret.put("success", false);
 				ret.put("msg", e.getMessage());
-				res.setContentType("application/json; charset=utf8");
-				byte[] bytes = mapper.writeValueAsBytes(ret);
-				res.getOutputStream().write(bytes);
-				res.getOutputStream().flush();
-				res.getOutputStream().close();
-				throw e;
 			}
 		}
 		System.out.println(mapper.writeValueAsString(ret));
@@ -88,35 +82,29 @@ public class JsonServer extends HibernateDaoSupport {
 
 	}
 
-	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
-	private Map processSql(String name, Map params) throws SQLException,ParseException {
-		try{
-			Connection conn = getSession().connection();
-			Statement st = conn.createStatement();
-			List sqllist = getSession().createQuery(
-					"from ServiceMain where name = '" + name + "' order by id")
-					.list();
-			if (sqllist.size() == 0) {
-				throw new RuntimeException("接口不存在!");
-			}
-			ServiceMain main = (ServiceMain) sqllist.get(0);
-			if ("query".equals(main.getSvrtype())) {
-				if (main.getIslist()) {
-					return sqlList(main, params);
-				} else {
-					return sqlObject(main, params);
-				}
-			} else if ("update".equals(main.getSvrtype())) {
-				return sqlUpdate(main, params);
-			} else if ("insert".equals(main.getSvrtype())) {
-				return sqlInsert(main, params);
-			} else {
-				throw new RuntimeException("接口配置不正确!请与系统管理员联系!");
-			}
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+	private Map processSql(String name, Map params) throws Exception {
+		Connection conn = getSession().connection();
+		Statement st = conn.createStatement();
+		List sqllist = getSession().createQuery(
+				"from ServiceMain where name = '" + name + "' order by id")
+				.list();
+		if (sqllist.size() == 0) {
+			throw new Exception("接口不存在!");
 		}
-		catch (SQLException ex){
-			ex.printStackTrace();
-			throw ex;
+		ServiceMain main = (ServiceMain) sqllist.get(0);
+		if ("query".equals(main.getSvrtype())) {
+			if (main.getIslist()) {
+				return sqlList(main, params);
+			} else {
+				return sqlObject(main, params);
+			}
+		} else if ("update".equals(main.getSvrtype())) {
+			return sqlUpdate(main, params);
+		} else if ("insert".equals(main.getSvrtype())) {
+			return sqlInsert(main, params);
+		} else {
+			throw new Exception("接口参数不正确!请与系统管理员联系!");
 		}
 	}
 
@@ -142,7 +130,7 @@ public class JsonServer extends HibernateDaoSupport {
 	}
 
 	@Transactional(readOnly = true)
-	public Map sqlList(ServiceMain main, Map params) throws SQLException,ParseException {
+	public Map sqlList(ServiceMain main, Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
@@ -175,9 +163,9 @@ public class JsonServer extends HibernateDaoSupport {
 				Object key = iter.next();
 				Object value = params.get(key);
 				ServiceSub vo = submap.get(key);
-				if(vo != null){
-					paramidx = setparam(vo.getType(), paramidx, stmt,
-							value, inputfomart2, inputfomarttime);
+				if (vo != null) {
+					paramidx = setparam(vo.getType(), paramidx, stmt, value,
+							inputfomart2, inputfomarttime);
 				}
 			}
 			ResultSet rs = stmt.executeQuery();
@@ -188,11 +176,11 @@ public class JsonServer extends HibernateDaoSupport {
 			while (rs.next()) {
 				Map row = new HashMap();
 				for (int i = 1; i <= numberOfColumns; i++) {
-					Class cls=null;
-					try{
+					Class cls = null;
+					try {
 						cls = Class.forName(rsMetaData.getColumnClassName(i));
-					}catch(Exception e){
-						
+					} catch (Exception e) {
+
 					}
 					if (cls.isAssignableFrom(String.class)) {
 						row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
@@ -229,91 +217,87 @@ public class JsonServer extends HibernateDaoSupport {
 	}
 
 	@Transactional(readOnly = true)
-	public Map sqlObject(ServiceMain main, Map params) throws ParseException,SQLException {
+	public Map sqlObject(ServiceMain main, Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
-		try {
-			Connection conn = getSession().connection();
-			List sublist = getSession().createQuery(
-					"from ServiceSub where  mainid = " + main.getId()
-							+ " order by mainid , ord").list();
-			Map<String, ServiceSub> submap = new HashMap();
-			for (int i = 0; i < sublist.size(); i++) {
-				ServiceSub vo = (ServiceSub) sublist.get(i);
-				submap.put(vo.getName(), vo);
-			}
-			String sql = main.getSql();
-			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				ServiceSub vo = submap.get(key);
-				if (vo != null)
-					sql = sql + " and " + vo.getColstr();
-			}
-			sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
-
-			sql = sql.replaceAll("\"", "'");
-			System.out.println(sql);
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			int paramidx = 1;
-			SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyy-MM-dd");
-			SimpleDateFormat inputfomarttime = new SimpleDateFormat(
-					"yyyy-MM-dd hh:mm:ss");
-
-			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				Object value = params.get(key);
-				ServiceSub vo = submap.get(key);
-				if (vo != null) {
-					paramidx = setparam(vo.getType(), paramidx, stmt,
-							value, inputfomart2, inputfomarttime);
-				}
-			}
-			ResultSet rs = stmt.executeQuery();
-			ResultSetMetaData rsMetaData = rs.getMetaData();
-			int numberOfColumns = rsMetaData.getColumnCount();
-			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
-			Map row = new HashMap();
-			if (rs.next()) {
-				for (int i = 1; i <= numberOfColumns; i++) {
-					Class cls=null;
-					try{
-						cls = Class.forName(rsMetaData.getColumnClassName(i));
-					}catch(Exception e){
-						
-					}
-					if (cls.isAssignableFrom(String.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
-					} else if (cls.isAssignableFrom(Float.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getFloat(i));
-					} else if (cls.isAssignableFrom(Integer.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getInt(i));
-					} else if (cls.isAssignableFrom(Long.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getLong(i));
-					} else if (cls.isAssignableFrom(Date.class)) {
-						Date obj = rs.getDate(i);
-						row.put(rsMetaData.getColumnLabel(i),
-								fomart.format(obj));
-					} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
-						Date obj = rs.getDate(i);
-						row.put(rsMetaData.getColumnLabel(i),
-								fomart.format(obj));
-					}
-				}
-			}else{
-				throw new RuntimeException("没有数据!");
-			}
-			row.put("success", true);
-			return row;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw e;
+		Connection conn = getSession().connection();
+		List sublist = getSession().createQuery(
+				"from ServiceSub where  mainid = " + main.getId()
+						+ " order by mainid , ord").list();
+		Map<String, ServiceSub> submap = new HashMap();
+		for (int i = 0; i < sublist.size(); i++) {
+			ServiceSub vo = (ServiceSub) sublist.get(i);
+			submap.put(vo.getName(), vo);
 		}
+		String sql = main.getSql();
+		if (!sql.toLowerCase().contains("where")) {
+			sql = sql + " where 1=1 ";
+		}
+		for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+			Object key = iter.next();
+			ServiceSub vo = submap.get(key);
+			if (vo != null)
+				sql = sql + " and " + vo.getColstr();
+		}
+		sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
+
+		sql = sql.replaceAll("\"", "'");
+		System.out.println(sql);
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		int paramidx = 1;
+		SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat inputfomarttime = new SimpleDateFormat(
+				"yyyy-MM-dd hh:mm:ss");
+
+		for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+			Object key = iter.next();
+			Object value = params.get(key);
+			ServiceSub vo = submap.get(key);
+			if (vo != null) {
+				paramidx = setparam(vo.getType(), paramidx, stmt, value,
+						inputfomart2, inputfomarttime);
+			}
+		}
+		ResultSet rs = stmt.executeQuery();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+		Map row = new HashMap();
+		if (rs.next()) {
+			for (int i = 1; i <= numberOfColumns; i++) {
+				Class cls = null;
+				try {
+					cls = Class.forName(rsMetaData.getColumnClassName(i));
+				} catch (Exception e) {
+
+				}
+				if (cls.isAssignableFrom(String.class)) {
+					row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
+				} else if (cls.isAssignableFrom(Float.class)) {
+					row.put(rsMetaData.getColumnLabel(i), rs.getFloat(i));
+				} else if (cls.isAssignableFrom(Integer.class)) {
+					row.put(rsMetaData.getColumnLabel(i), rs.getInt(i));
+				} else if (cls.isAssignableFrom(Long.class)) {
+					row.put(rsMetaData.getColumnLabel(i), rs.getLong(i));
+				} else if (cls.isAssignableFrom(Date.class)) {
+					Date obj = rs.getDate(i);
+					row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
+				} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+					Date obj = rs.getDate(i);
+					row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
+				}
+			}
+		} else {
+			throw new Exception("没有数据!");
+		}
+		row.put("success", true);
+		return row;
 
 	}
 
-	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED)
-	public Map sqlUpdate(ServiceMain main, Map params)  throws ParseException,SQLException {
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+	public Map sqlUpdate(ServiceMain main, Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		System.out.println("11111111111");
@@ -326,7 +310,7 @@ public class JsonServer extends HibernateDaoSupport {
 					.list();
 			System.out.println("2222222222222222222");
 			String updatecols = "";
-			int updatecount = 0 ;
+			int updatecount = 0;
 			for (int i = 0; i < updatevos.size(); i++) {
 				ServiceUpdate updatevo = (ServiceUpdate) updatevos.get(i);
 				Map wherecols = new HashMap();
@@ -351,7 +335,7 @@ public class JsonServer extends HibernateDaoSupport {
 				List updatelist = new ArrayList();
 				List whereList = new ArrayList();
 				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-					String key = ((String)iter.next()).trim();
+					String key = ((String) iter.next()).trim();
 					ServiceUpdateSub vo = submap.get(key);
 					if (vo != null) {
 						if (wherecols.containsKey(key)) {
@@ -363,10 +347,11 @@ public class JsonServer extends HibernateDaoSupport {
 						}
 					}
 				}
-				if(wherestr.trim().length()>0 && whereList.size() == wherecol.length){
-					wherestr = "  where 1=1 "+wherestr;
-				}else{
-					throw new RuntimeException("更新条件不足!");
+				if (wherestr.trim().length() > 0
+						&& whereList.size() == wherecol.length) {
+					wherestr = "  where 1=1 " + wherestr;
+				} else {
+					throw new Exception("更新条件不足!");
 				}
 				if (update.length() > 0) {
 					update = "update " + updatevo.getTablename() + " set "
@@ -387,10 +372,10 @@ public class JsonServer extends HibernateDaoSupport {
 				updatelist.addAll(whereList);
 				System.out.println("55555555555555555");
 				for (int n = 0; n < updatelist.size(); n++) {
-					String key = ((String) updatelist.get(n) );
+					String key = ((String) updatelist.get(n));
 					String value = (String) params.get(key);
-					System.out.println("key=="+key+",value=="+value);
-					updatecols = updatecols+","+key;
+					System.out.println("key==" + key + ",value==" + value);
+					updatecols = updatecols + "," + key;
 					ServiceUpdateSub vo = submap.get(key);
 					if (vo != null) {
 						paramidx = setparam(vo.getType(), paramidx, stmt,
@@ -402,28 +387,28 @@ public class JsonServer extends HibernateDaoSupport {
 				updatecount += count;
 				System.out.println("666666666666666");
 			}
-			
+
 			if (updatecount == 0) {
-				throw new RuntimeException("未更新任何数据!请检查查询条件是否正确!");
+				throw new Exception("未更新任何数据!请检查查询条件是否正确!");
 			}
 			conn.commit();
 			Map ret = new HashMap();
 			ret.put("success", true);
 			ret.put("updatecols", updatecols);
-			ret.put("updatecount",updatecount);
+			ret.put("updatecount", updatecount);
 			return ret;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			conn.rollback();
 			throw e;
-		} finally{
+		} finally {
 			conn.setAutoCommit(true);
 		}
 	}
 
 	private int setparam(String type, int paramidx, PreparedStatement stmt,
 			Object value, SimpleDateFormat inputfomart2,
-			SimpleDateFormat inputfomarttime)  throws ParseException,SQLException {
+			SimpleDateFormat inputfomarttime) throws Exception {
 		if (type.equals("date")) {
 			stmt.setDate(paramidx,
 					new java.sql.Date(inputfomart2.parse((String) value)
@@ -444,8 +429,7 @@ public class JsonServer extends HibernateDaoSupport {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Map sqlInsert(ServiceMain main, Map params)
-			 throws ParseException,SQLException {
+	public Map sqlInsert(ServiceMain main, Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		Connection conn = getSession().connection();
@@ -455,7 +439,7 @@ public class JsonServer extends HibernateDaoSupport {
 					"from ServiceInsert where  mainid = " + main.getId()
 							+ " order by ord").list();
 			Map<String, Boolean> hasOthertablevalue = new HashMap();
-			Map<String,Object> othertablevalue = new HashMap();
+			Map<String, Object> othertablevalue = new HashMap();
 			Map<Integer, Map> submaps = new HashMap();
 			Map defaultMap = new HashMap();
 			for (int i = 0; i < insertvos.size(); i++) {
@@ -470,7 +454,8 @@ public class JsonServer extends HibernateDaoSupport {
 					if ("othertable".equals(sub.getColgen())) {
 						hasOthertablevalue.put(sub.getVal(), true);
 					}
-					if (sub.getColgen() !=null && sub.getColgen().trim().length()>0) {
+					if (sub.getColgen() != null
+							&& sub.getColgen().trim().length() > 0) {
 						defaultMap.put(sub.getName(), sub);
 					}
 				}
@@ -484,7 +469,8 @@ public class JsonServer extends HibernateDaoSupport {
 				String insertsql = "";
 				int updatecount = 0;
 				String valuessql = "";
-				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
+				for (Iterator iter = defaultMap.keySet().iterator(); iter
+						.hasNext();) {
 					Object key = iter.next();
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null) {
@@ -516,49 +502,57 @@ public class JsonServer extends HibernateDaoSupport {
 						"yyyy-MM-dd");
 				SimpleDateFormat inputfomarttime = new SimpleDateFormat(
 						"yyyy-MM-dd hh:mm:ss");
-				for (Iterator iter = defaultMap.keySet().iterator(); iter.hasNext();) {
+				for (Iterator iter = defaultMap.keySet().iterator(); iter
+						.hasNext();) {
 					Object key = iter.next();
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null) {
-						String realvalue="";
+						String realvalue = "";
 						if ("fileno".equals(vo.getColgen())) {
-							if(!params.containsKey("districtNumber")){
-								throw new RuntimeException("新增必须包含行政区划编码districtNumber!请与系统管理员联系!");
-							}else{
-								try{
-									realvalue = fileNoGen.getNextFileNo((String)params.get("districtNumber"));
-								}catch(Exception ex){
-									throw new RuntimeException(ex.getMessage());
+							if (!params.containsKey("districtNumber")) {
+								throw new Exception(
+										"新增必须包含行政区划编码districtNumber!请与系统管理员联系!");
+							} else {
+								try {
+									realvalue = fileNoGen
+											.getNextFileNo((String) params
+													.get("districtNumber"));
+								} catch (Exception ex) {
+									throw new Exception(ex.getMessage());
 								}
 							}
-						}else if ("othertable".equals(vo.getColgen())) {
-							if(!vo.getDistrict() && params.containsKey(vo.getName())){
-								realvalue = (String)params.get(vo.getName());
-							}else{
+						} else if ("othertable".equals(vo.getColgen())) {
+							if (!vo.getDistrict()
+									&& params.containsKey(vo.getName())) {
+								realvalue = (String) params.get(vo.getName());
+							} else {
 								System.out.println(othertablevalue);
-								realvalue = (String)othertablevalue.get(vo.getVal());
+								realvalue = (String) othertablevalue.get(vo
+										.getVal());
 							}
-						}else if ("uuid".equals(vo.getColgen())) {
-							if(!vo.getDistrict() && params.containsKey(vo.getName())){
-								realvalue = (String)params.get(vo.getName());
-							}else{
+						} else if ("uuid".equals(vo.getColgen())) {
+							if (!vo.getDistrict()
+									&& params.containsKey(vo.getName())) {
+								realvalue = (String) params.get(vo.getName());
+							} else {
 								realvalue = UUID.randomUUID().toString();
 							}
-							
-						}else if ("default".equals(vo.getColgen())) {
-							if(!vo.getDistrict() && params.containsKey(vo.getName())){
-								realvalue = (String)params.get(vo.getName());
-							}else{
+
+						} else if ("default".equals(vo.getColgen())) {
+							if (!vo.getDistrict()
+									&& params.containsKey(vo.getName())) {
+								realvalue = (String) params.get(vo.getName());
+							} else {
 								realvalue = vo.getVal();
 							}
 						}
 						params.put(vo.getName(), realvalue);
-						if(hasOthertablevalue.containsKey(insert.getTablename() + "."
-								+ vo.getName())){
+						if (hasOthertablevalue.containsKey(insert
+								.getTablename() + "." + vo.getName())) {
 							othertablevalue.put(insert.getTablename() + "."
 									+ vo.getName(), realvalue);
 						}
-						System.out.println( vo.getName()+"==="+realvalue);
+						System.out.println(vo.getName() + "===" + realvalue);
 						paramidx = setparam(vo.getType(), paramidx, stmt,
 								realvalue, inputfomart2, inputfomarttime);
 					}
@@ -566,12 +560,12 @@ public class JsonServer extends HibernateDaoSupport {
 				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
 					Object value = params.get(key);
-					
+
 					ServiceInsertSub vo = insertMap.get(key);
 					if (vo != null && !defaultMap.containsKey(key)) {
-							paramidx = setparam(vo.getType(), paramidx, stmt,
-									value, inputfomart2, inputfomarttime);
-							System.out.println(key+"=="+value);
+						paramidx = setparam(vo.getType(), paramidx, stmt,
+								value, inputfomart2, inputfomarttime);
+						System.out.println(key + "==" + value);
 					}
 				}
 				System.out.println("666666666666666");
@@ -586,7 +580,7 @@ public class JsonServer extends HibernateDaoSupport {
 			e.printStackTrace();
 			conn.rollback();
 			throw e;
-		}finally{
+		} finally {
 			conn.setAutoCommit(true);
 		}
 	}
