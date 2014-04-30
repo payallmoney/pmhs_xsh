@@ -146,14 +146,20 @@ public class JsonServer extends HibernateDaoSupport {
 			}
 
 			String sql = main.getSql();
+			if (!sql.toLowerCase().contains("where")) {
+				sql = sql + " where 1=1 ";
+			}
 			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
 				Object key = iter.next();
 				ServiceSub vo = submap.get(key);
-				sql = sql + " and " + vo.getColstr();
+				if(vo !=null)
+					sql = sql + " and " + vo.getColstr();
 			}
-			sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
+			
+			sql = sql + " " + (main.getGroupby() == null ? "":main.getGroupby()) + " " + (main.getOrderby()== null ? "":main.getOrderby());
 
 			sql = sql.replaceAll("\"", "'");
+			System.out.println("sql==="+sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			int paramidx = 1;
 			SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyy-MM-dd");
@@ -204,12 +210,9 @@ public class JsonServer extends HibernateDaoSupport {
 			}
 			Map ret = new HashMap();
 			ret.put("rows", retlist);
-			ret.put("currentpage", 1);
-			ret.put("total", 1);
-			ret.put("pages", 1);
 			ret.put("success", true);
 			return ret;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
