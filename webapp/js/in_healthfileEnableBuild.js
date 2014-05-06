@@ -1,4 +1,4 @@
-﻿var services = {
+var services = {
 	get : healthfileMaternalService.get,
 	save : healthfileMaternalService.save,
 	propValidate : healthfileMaternalService.hasAllThese,
@@ -218,7 +218,11 @@ var cfg = [ {
 	}
 }, {
 	id : "highRiskCode",
-	xtype : "input"
+	xtype : "input",
+	setting : {
+		size : 50,
+		maxlen : 30
+	}
 }, {
 	id : "buildUnit",
 	xtype : "input",

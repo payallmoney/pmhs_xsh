@@ -672,7 +672,7 @@ function data_writeback(_s,setting){
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
 //				console.log(_s);
-				data_writeback(s,setting)
+				data_writeback(_s,setting)
 //				$.each(setting.writeback, function(i, v) {
 //					var ctrl = setting.ctx.getCtrl(v.id);
 //					if (ctrl && ctrl['val']) {
