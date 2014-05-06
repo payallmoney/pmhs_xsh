@@ -17,6 +17,7 @@ public class OperatorBo {
 	private Integer isChangeCertifiAuthority;
 	private Integer isSupplyCertifiAuthority;
 	private Integer isAdvancedCertifiAuthority;
+	private Integer isOver2MonthCertifiAuthority;
 	//private String roleName; //role name
 	private List<ModuleBo> modules;
 	private List<CategoryBo> categories;
@@ -25,6 +26,14 @@ public class OperatorBo {
 	private District district;
 	public Integer getIsChangeCertifiAuthority() {
 		return isChangeCertifiAuthority;
+	}
+
+	public Integer getIsOver2MonthCertifiAuthority() {
+		return isOver2MonthCertifiAuthority;
+	}
+
+	public void setIsOver2MonthCertifiAuthority(Integer isOver2MonthCertifiAuthority) {
+		this.isOver2MonthCertifiAuthority = isOver2MonthCertifiAuthority;
 	}
 
 	public Integer getIsAdvancedCertifiAuthority() {

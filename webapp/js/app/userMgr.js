@@ -58,6 +58,11 @@ var addUser = function() {
 		else
 			formBean.isAdvancedCertifiAuthority = 0;
 		
+		if (formBean.isOver2MonthCertifiAuthority)
+			formBean.isOver2MonthCertifiAuthority = 1;
+		else
+			formBean.isOver2MonthCertifiAuthority = 0;
+		
 		formBean.user = {};
 		formBean.user = formBean;
 		if (!Ext.isEmpty(formBean.typeList) && !Ext.isArray(formBean.typeList)) {
@@ -318,6 +323,12 @@ var addUser = function() {
 				name : 'isAdvancedCertifiAuthority',
 				xtype : 'checkbox',
 				boxLabel : '出生医学证明高级功能权限'
+			},{
+				x : 150,
+				y : 30,
+				name : 'isOver2MonthCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '超过2个月的出生医学证明签发'
 			}]
 		}],
 		buttons : [ {
@@ -438,7 +449,11 @@ var reader = new Ext.data.JsonReader({
 	name : 'isAdvancedCertifiAuthority',
 	mapping : 'user.isAdvancedCertifiAuthority',
 	type : 'int'
-} ]));
+},{
+	name : 'isOver2MonthCertifiAuthority',
+	mapping : 'user.isOver2MonthCertifiAuthority',
+	type : 'int'
+}  ]));
 
 var store = new Ext.data.Store({
 	proxy : new Ext.ux.data.DWRProxy({
@@ -738,6 +753,12 @@ function edit(rec) {
 				name : 'isAdvancedCertifiAuthority',
 				xtype : 'checkbox',
 				boxLabel : '出生医学证明高级功能权限'
+			},{
+				x : 150,
+				y : 30,
+				name : 'isOver2MonthCertifiAuthority',
+				xtype : 'checkbox',
+				boxLabel : '超过2个月的出生医学证明签发'
 			}]
 		} ],
 		buttons : [
@@ -774,6 +795,10 @@ function edit(rec) {
 						else
 							formBean.isAdvancedCertifiAuthority = 0;
 						
+						if (formBean.isOver2MonthCertifiAuthority)
+							formBean.isOver2MonthCertifiAuthority = 1;
+						else
+							formBean.isOver2MonthCertifiAuthority = 0;
 						formBean.user = formBean;
 						if (!Ext.isEmpty(formBean.typeList)
 								&& !Ext.isArray(formBean.typeList)) {

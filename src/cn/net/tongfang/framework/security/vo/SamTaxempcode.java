@@ -28,7 +28,7 @@ public class SamTaxempcode implements java.io.Serializable {
 	private Integer isChangeCertifiAuthority;
 	private Integer isSupplyCertifiAuthority;
 	private Integer isAdvancedCertifiAuthority;
-	
+	private Integer isOver2MonthCertifiAuthority;
 	private Integer isStasticAuth;
 	private District district;
 	private SamTaxorgcode org;
@@ -50,7 +50,8 @@ public class SamTaxempcode implements java.io.Serializable {
 			Integer orgId, Timestamp createDate, String validFlag,
 			String districtId, Integer type,Integer isLookAuthority,
 			Integer isStasticAuth,Integer isChangeCertifiAuthority,
-			Integer isSupplyCertifiAuthority,Integer isAdvancedCertifiAuthority) {
+			Integer isSupplyCertifiAuthority,Integer isAdvancedCertifiAuthority,
+			Integer isOver2MonthCertifiAuthority) {
 		this.loginname = loginname;
 		this.username = username;
 		this.password = password;
@@ -64,6 +65,15 @@ public class SamTaxempcode implements java.io.Serializable {
 		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
 		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
 		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+		this.isOver2MonthCertifiAuthority = isOver2MonthCertifiAuthority;
+	}
+
+	public Integer getIsOver2MonthCertifiAuthority() {
+		return isOver2MonthCertifiAuthority;
+	}
+
+	public void setIsOver2MonthCertifiAuthority(Integer isOver2MonthCertifiAuthority) {
+		this.isOver2MonthCertifiAuthority = isOver2MonthCertifiAuthority;
 	}
 
 	public Integer getIsAdvancedCertifiAuthority() {

@@ -38,8 +38,11 @@
         <property name="isSupplyCertifiAuthority" type="integer">
             <column name="IsSupplyCertifiAuthority" />
         </property>
-         <property name="isAdvancedCertifiAuthority" type="integer">
+        <property name="isAdvancedCertifiAuthority" type="integer">
             <column name="IsAdvancedCertifiAuthority" />
+        </property>
+        <property name="isOver2MonthCertifiAuthority" type="integer">
+            <column name="IsOver2MonthCertifiAuthority" />
         </property>
         <property name="isStasticAuth" type="integer">
             <column name="IsStasticAuth" />

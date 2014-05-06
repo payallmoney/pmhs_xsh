@@ -1028,6 +1028,8 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		BeanUtils.copyProperties(birthCertificate,birthCertifi);
 		if(birthCertificate.getSaveType() != null && birthCertificate.getSaveType().equals("0"))
 			birthCertifi.setIsSupply(1);
+		else if(birthCertificate.getSaveType() != null && birthCertificate.getSaveType().equals("10"))
+			birthCertifi.setIsSupply(10);
 		birthCertifi.setInputPersonId(user.getUsername());
 		birthCertifi.setInputDate(new Timestamp(System.currentTimeMillis()));
 		birthCertifi.setIsEffectived(2);

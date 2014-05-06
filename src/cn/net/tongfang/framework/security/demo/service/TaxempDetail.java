@@ -19,6 +19,7 @@ public class TaxempDetail implements UserDetails {
     private Integer isChangeCertifiAuthority;
     private Integer isSupplyCertifiAuthority;
     private Integer isAdvancedCertifiAuthority;
+    private Integer isOver2MonthCertifiAuthority;
     //------------扩展业务属性----------
     //用户数据权限
     //暂空
@@ -35,7 +36,7 @@ public class TaxempDetail implements UserDetails {
 			Integer orgId, String districtId, boolean validFlag,
 			GrantedAuthority[] authorities,Integer isLookAuthority,
 			Integer isChangeCertifiAuthority,Integer isSupplyCertifiAuthority,
-			Integer isAdvancedCertifiAuthority) {
+			Integer isAdvancedCertifiAuthority,Integer isOver2MonthCertifiAuthority) {
 		this.accountNonExpired = true;
 		this.accountNonLocked = true;
 		this.authorities = authorities;
@@ -52,6 +53,7 @@ public class TaxempDetail implements UserDetails {
 		this.isChangeCertifiAuthority = isChangeCertifiAuthority;
 		this.isSupplyCertifiAuthority = isSupplyCertifiAuthority;
 		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+		this.isOver2MonthCertifiAuthority = isOver2MonthCertifiAuthority;
 	}
 	
 	public Integer getIsAdvancedCertifiAuthority() {
@@ -60,6 +62,14 @@ public class TaxempDetail implements UserDetails {
 
 	public void setIsAdvancedCertifiAuthority(Integer isAdvancedCertifiAuthority) {
 		this.isAdvancedCertifiAuthority = isAdvancedCertifiAuthority;
+	}
+
+	public Integer getIsOver2MonthCertifiAuthority() {
+		return isOver2MonthCertifiAuthority;
+	}
+
+	public void setIsOver2MonthCertifiAuthority(Integer isOver2MonthCertifiAuthority) {
+		this.isOver2MonthCertifiAuthority = isOver2MonthCertifiAuthority;
 	}
 
 	public Integer getIsChangeCertifiAuthority() {
