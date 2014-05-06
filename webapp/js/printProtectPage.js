@@ -324,6 +324,8 @@
 	function CreateFullBill(jsonPrint) {	
 		LODOP.PRINT_INITA("0.82cm","0.66cm","21.0cm","29.7cm","出生证明打印");
 		LODOP.SET_PRINT_STYLE("FontColor","#0000FF");
+		var address_max = 15;
+		var address_max1 = 20;
 		//出生医学证明
 		LODOP.ADD_PRINT_TEXT("2.86cm","3.74cm","2.22cm","0.53cm",jsonPrint.fullNamfOfbaby);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -366,7 +368,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("5.78cm","11.84cm","0.98cm","0.53cm",jsonPrint.motherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-		LODOP.ADD_PRINT_TEXT("5.78cm","13.52cm","5cm","0.53cm",jsonPrint.motherAddress);
+		var ad1 = '5.78cm';
+		if(jsonPrint.motherAddress && jsonPrint.motherAddress.length>address_max){
+			ad1 = '5.38cm';
+		}
+		LODOP.ADD_PRINT_TEXT(ad1,"13.52cm","5cm","0.53cm",jsonPrint.motherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("6.66cm","5.41cm","0.95cm","0.53cm",jsonPrint.motherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -389,7 +395,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("7.86cm","11.84cm","1.06cm","0.53cm",jsonPrint.fatherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-        LODOP.ADD_PRINT_TEXT("7.86cm","13.52cm","5cm","0.53cm",jsonPrint.fatherAddress);
+		var ad2 = "7.86cm";
+		if(jsonPrint.fatherAddress && jsonPrint.fatherAddress.length>address_max){
+			ad2 = "7.46cm";
+		}
+        LODOP.ADD_PRINT_TEXT(ad2,"13.52cm","5cm","0.53cm",jsonPrint.fatherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("8.66cm","5.41cm","0.95cm","0.53cm",jsonPrint.fatherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -452,7 +462,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("16.90cm","9.55cm","0.98cm","0.53cm",jsonPrint.motherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-		LODOP.ADD_PRINT_TEXT("16.90cm","11.72cm","5cm","0.53cm",jsonPrint.motherAddress);
+		var ad3 = "16.90cm";
+		if(jsonPrint.motherAddress && jsonPrint.motherAddress.length>address_max1){
+			ad3 = "16.50cm";
+		}
+		LODOP.ADD_PRINT_TEXT(ad3,"11.72cm","7cm","0.53cm",jsonPrint.motherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("17.34cm","5.29cm","0.95cm","0.53cm",jsonPrint.motherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -475,7 +489,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("18.18cm","9.55cm","1.06cm","0.53cm",jsonPrint.fatherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-        LODOP.ADD_PRINT_TEXT("18.18cm","11.72cm","5cm","0.53cm",jsonPrint.fatherAddress);
+		var ad4 = "18.18cm";
+		if(jsonPrint.fatherAddress && jsonPrint.fatherAddress.length>address_max){
+			ad4 = "18.18cm";
+		}
+        LODOP.ADD_PRINT_TEXT(ad4,"11.72cm","7cm","0.53cm",jsonPrint.fatherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("18.68cm","5.29cm","0.95cm","0.53cm",jsonPrint.fatherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -539,7 +557,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("24.18cm","9.55cm","0.98cm","0.53cm",jsonPrint.motherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-		LODOP.ADD_PRINT_TEXT("24.18cm","11.72cm","5cm","0.53cm",jsonPrint.motherAddress);
+		var ad5 = "24.18cm";
+		if(jsonPrint.motherAddress && jsonPrint.motherAddress.length>address_max){
+			ad5 = "23.78cm";
+		}
+		LODOP.ADD_PRINT_TEXT(ad5,"11.72cm","7cm","0.53cm",jsonPrint.motherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
 		LODOP.ADD_PRINT_TEXT("24.68cm","5.29cm","0.95cm","0.53cm",jsonPrint.motherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
@@ -562,7 +584,11 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("25.38cm","9.55cm","1.06cm","0.53cm",jsonPrint.fatherNation);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
-        LODOP.ADD_PRINT_TEXT("25.38cm","11.72cm","5cm","0.53cm",jsonPrint.fatherAddress);
+		var ad6 = "25.38cm";
+		if(jsonPrint.fatherAddress && jsonPrint.fatherAddress.length>address_max){
+			ad6 = "24.98cm";
+		}
+        LODOP.ADD_PRINT_TEXT(ad6,"11.72cm","7cm","0.53cm",jsonPrint.fatherAddress);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);
         LODOP.ADD_PRINT_TEXT("25.88cm","5.29cm","0.95cm","0.53cm",jsonPrint.fatherCard);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",9);

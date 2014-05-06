@@ -59,11 +59,6 @@ public class VaccinationService extends HealthMainService<VaccinationBO> {
 		return data;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<VaccineImmuneRules> getVaccineImmuneRules() {
-		return getHibernateTemplate().find(" From VaccineImmuneRules ");
-
-	}
 
 	public List getBirthCertificateInfo(String fileNo) {
 		fileNo = EncryptionUtils.encry(fileNo);
