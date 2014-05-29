@@ -66,13 +66,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 			String mcode, boolean startWith, String condVal,
 			String otherparamtype) {
 		mcode = safeSql(mcode);
-		System.out.println("=============pageNo======" + pageNo);
-		System.out.println("=============newpagesize======" + newpagesize);
-		System.out.println("=============mcode======" + mcode);
-		System.out.println("=============startWith======" + startWith);
-		System.out.println("=============condVal======" + condVal);
-		System.out
-				.println("=============otherparamtype======" + otherparamtype);
 
 		String likePrefix = startWith ? "" : "%";
 		PagedList res = new PagedList();
@@ -89,7 +82,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 		} else {
 			otherCond = mcodes[0];
 		}
-		System.out.println("========otherCond===========" + otherCond);
 		otherCond = safeSql(otherCond);
 		if (otherparamtype != null) {
 			if (otherparamtype.equals(OtherParamType_Woman)) {// 孕产妇随访查询
@@ -154,7 +146,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ "where  p.fileNo = hf.fileNo "
 					+ "and hf.fileNo like '"+fileNo+"' and hf.status = 0 " + hsqlparam;
 			List list = getList(sql, newpagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_Name)) {
@@ -168,7 +159,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
 			}
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = newpagesize;
 			res.totalPages = (int) (count / newpagesize)
@@ -182,7 +172,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ "where p.fileNo = hf.fileNo and hf.districtNumber like '"+districtNumber + "%' "
 					+ "And hf.name like  '"+EncryptionUtils.encry(otherCond) + "%'  and hf.status = 0 " + hsqlparam;
 			List list = getList(sql, newpagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_LinkMan)) {
@@ -195,21 +184,19 @@ public class FileNumSearch extends HibernateDaoSupport {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
 			}
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = newpagesize;
 			res.totalPages = (int) (count / newpagesize)
 					+ ((count % newpagesize > 0) ? 1 : 0);
 			int from = pageNo * newpagesize;
 			String sql = ("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
-					+ " p.idnumber,hf.barCode,hf.address,p.linkman "
+					+ " p.idnumber,hf.barCode,hf.address "
 					+ extendCols
 					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
 					+ "where p.fileNo = hf.fileNo and hf.districtNumber like '"+districtNumber + "%' "
 					+ "And p.linkman like '%" + otherCond + "%'  and hf.status = 0 " + hsqlparam);
 			List list = getList(sql, newpagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_CardId)) {
@@ -221,19 +208,19 @@ public class FileNumSearch extends HibernateDaoSupport {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
 			}
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = newpagesize;
 			res.totalPages = (int) (count / newpagesize)
 					+ ((count % newpagesize > 0) ? 1 : 0);
 			int from = pageNo * newpagesize;
 			String sql = ("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age,"
-					+ " p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p "
+					+ " p.idnumber,hf.barCode,hf.address  "
+					+ extendCols
+					+ " from HealthFile as hf, PersonalInfo as p "
 					+ otherTables
 					+ "where hf.districtNumber like '"+districtNumber + "%' "
 					+ "And p.idnumber like '"+EncryptionUtils.encry(otherCond) + "%'  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
 			List list = getList(sql, newpagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_Barcode)) {
@@ -246,7 +233,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 				newpagesize = (int) count;
 				newpagesize = (newpagesize == 0 ? pagesize : newpagesize);
 			}
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = newpagesize;
 			res.totalPages = (int) (count / newpagesize)
@@ -261,7 +247,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ "And hf.barCode like '" + otherCond + "%'  and hf.status = 0 " + hsqlparam);
 			// qry.setParameter(0, districtNumber + "%");
 			List list = getList(sql, newpagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = parseResult(list);
 			res.currentPage = pageNo + 1;
 		}
@@ -435,8 +420,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 			if (list.size() > 0) {
 				return list;
 			} else {
-				System.out.println("==================="+"select hf.fileno, hf.name, hf.sex "
-						+ " from HealthFileHistory2 hf " + wherestr);
 				list1 = getHibernateTemplate().find(
 						"select hf.fileno, hf.name, hf.sex "
 								+ " from HealthFileHistory2 hf " + wherestr);
@@ -459,7 +442,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 		// System.out.println("=============condVal======"+condVal);
 		// System.out.println("=============otherparamtype======"+otherparamtype);
 		PagedList res = new PagedList();
-		System.out.println("===start===" + (new java.util.Date().getTime()));
 		String[] mcodes = mcode.split("%");
 		String otherCond = "";
 		if (mcodes.length > 1) {
@@ -469,12 +451,10 @@ public class FileNumSearch extends HibernateDaoSupport {
 		}
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		System.out.println("==user.getDistrictId()====" + user.getDistrictId());
 		String disid = user.getDistrictId();
 		while (disid.endsWith("00")) {
 			disid = disid.substring(0, disid.length() - 2);
 		}
-		System.out.println("====disid==" + disid);
 		String wherestr;
 		if (disid.length() >= 6) {
 			disid = disid.substring(0, 6);
@@ -484,7 +464,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 			wherestr = "where ( linkFileno = '' or linkFileno is null ) and (districtId is null or districtId = '' or  districtId = '"
 					+ disid + "' ) ";
 		}
-		System.out.println("==wherestr====" + wherestr);
 		// 改为like ,like 可以用索引 substring 不能用
 		if (condVal.equals(CondVal_History_Name)) {
 			wherestr += " and  name like  '" + otherCond + "%' ";
@@ -494,7 +473,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 				pagesize = (int) count;
 				pagesize = (pagesize == 0 ? pagesize : pagesize);
 			}
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = pagesize;
 			res.totalPages = (int) (count / pagesize)
@@ -504,12 +482,9 @@ public class FileNumSearch extends HibernateDaoSupport {
 					+ "address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq"
 					+ " from HealthFileHistory2 " + wherestr);
 			List list = getList(sql, pagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = list;
 			res.currentPage = pageNo + 1;
 		} else if (condVal.equals(CondVal_History_CardId)) {
-			System.out.println("===1111111111==="
-					+ (new java.util.Date().getTime()));
 			wherestr += " and  idcard  like  '" + otherCond + "%' ";
 			String countsql = ("select count(*) from HealthFileHistory2 " + wherestr);
 			long count = getcount(countsql);
@@ -517,9 +492,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 				pagesize = (int) count;
 				pagesize = (pagesize == 0 ? pagesize : pagesize);
 			}
-			System.out.println("===2222222222222==="
-					+ (new java.util.Date().getTime()));
-			System.out.println("total line is : " + count);
 			res.totalLines = count;
 			res.pageSize = pagesize;
 			res.totalPages = (int) (count / pagesize)
@@ -528,13 +500,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 			String sql = ("select id, name, sex, idcard, birthday,(year(getDate()) - year(birthday)) as age,"
 					+ "address,raddress,tel,xz,cwh,jddw,jdr,zrys,jdrq"
 					+ " from HealthFileHistory2 " + wherestr);
-			System.out.println("===3333333333333==="
-					+ (new java.util.Date().getTime()));
 			List list = getList(sql, pagesize, from);
-			System.out.println("res line is : " + list.size());
 			res.res = list;
-			System.out.println("===44444444444==="
-					+ (new java.util.Date().getTime()));
 			res.currentPage = pageNo + 1;
 		}
 		return res;
@@ -566,7 +533,6 @@ public class FileNumSearch extends HibernateDaoSupport {
 	}
 
 	public List getHistoryItem(String code) {
-		System.out.println("==code====" + code);
 		if (code == null) {
 			return null;
 		} else {
@@ -592,10 +558,8 @@ public class FileNumSearch extends HibernateDaoSupport {
 				String sql = " delete his_values where inputpersonid='"
 								+ user.getUsername() + "' and modulename='"
 								+ modulename + "' and name = '" + name + "'";
-				System.out.println("==delete=="+sql);
 				arg0.createSQLQuery(sql).executeUpdate();
 				sql = " insert into his_values values('"+user.getUsername()+"','"+modulename+"','"+name+"','"+value+"')";
-				System.out.println("==insert=="+sql);
 				arg0.createSQLQuery(sql).executeUpdate();
 				return null;
 			}
