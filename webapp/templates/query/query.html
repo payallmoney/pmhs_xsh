@@ -156,6 +156,7 @@
 			
 			$(function(){
 				var nodedata = window.top.earyuitreedata;
+				console.log(nodedata);
 				$('#orgtree').tree({   
 					data:nodedata,
 					onSelect:function(node){
@@ -244,10 +245,9 @@
 			
 			<script>
 				var g_options = null;
-				DataExportService.get_Export_Param({
+				DataExportService.get_Export_Param("0",{
 					callback:function(data){
 						g_options = data;
-						
 					},
 					async:false
 				});
