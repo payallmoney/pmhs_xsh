@@ -6,8 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,11 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -31,6 +26,7 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.SecurityManager;
+import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
 import cn.net.tongfang.framework.security.vo.ExamCrud;
@@ -41,6 +37,7 @@ import cn.net.tongfang.framework.security.vo.ExamItems;
 import cn.net.tongfang.framework.security.vo.ExamItemsId;
 import cn.net.tongfang.framework.security.vo.ExamQueryCfg;
 import cn.net.tongfang.framework.security.vo.ExamQuerySql;
+import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.util.FileNoGen;
 
@@ -128,7 +125,6 @@ public class CommonExamService extends HibernateDaoSupport {
 			froms += ", exam_items it"+filenovo.getOrd()+", healthfile hf"+filenovo.getOrd()+" , PersonalInfo pf"+filenovo.getOrd();
 			where += " and info.id = it"+filenovo.getOrd()+".id and it"+filenovo.getOrd()+".item='配偶_编号' and it"+filenovo.getOrd()+".value = hf"+filenovo.getOrd()+".fileno  and hf"+filenovo.getOrd()+".fileno = pf"+filenovo.getOrd()+".fileno  ";
 		}
-		
 		// params.getBase();
 		Field[] fields = ExamBaseinfo.class.getDeclaredFields();
 		List sqlparams = new ArrayList();
@@ -1409,6 +1405,49 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 	
+	
+	public List getOrgMap() throws Exception {
+		// params.getBase();
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		SamTaxorgcode org = user.getOrg();
+		Map rootnode = new HashMap();
+		rootnode.put("id", org.getId());
+		rootnode.put("text", org.getName());
+		rootnode.put("attributes", org);
+		List data = getOrgSub( org.getId());
+		rootnode.put("leaf", (data == null || data.size() ==0) ?"true":"false");
+		rootnode.put("children", data);
+		rootnode.put("cls", (data == null || data.size() ==0)?"file":"folder");
+		System.out.println("============"+org.getIsDetail());
+		
+		System.out.println("============"+rootnode);
+		List retlist =new ArrayList();
+		retlist.add(rootnode);
+		return retlist;
+	}
+	
+	private List getOrgSub(int orgid){
+		List<SamTaxorgcode> orglist = getHibernateTemplate().find("from SamTaxorgcode  where parentId = "+orgid);
+		if(orglist.size()<=0){
+			return null;
+		}else{
+			List retlist = new ArrayList();
+			for(int i = 0 ;  i<orglist.size();i++){
+				SamTaxorgcode org = orglist.get(i);
+				Map rootnode = new HashMap();
+				rootnode.put("id", org.getId());
+				rootnode.put("text", org.getName());
+				rootnode.put("attributes", org);
+				List data = getOrgSub( org.getId());
+				rootnode.put("leaf", (data == null || data.size() ==0) ?"true":"false");
+				rootnode.put("data", data);
+				rootnode.put("cls", (data == null || data.size() ==0)?"file":"folder");
+				retlist.add(rootnode);
+			}
+			return retlist;
+		}
+		
+	}
 	
 
 	public Map getDistrictMap() {

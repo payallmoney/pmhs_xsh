@@ -47,9 +47,9 @@
 			for ( var key in g_subs[id]) {
 				html += ("<tr><td>" + g_subs[id][key].name + "：</td>");
 				if (values && values[key]) {
-					html += ("<td><input id='"+key+"' value='"+values[key]+"'></td></tr>");
+					html += ("<td><input id='"+g_subs[id][key].code+"' value='"+values[key]+"'></td></tr>");
 				} else {
-					html += ("<td><input id='"+key+"'></td></tr>");
+					html += ("<td><input id='"+g_subs[id][key].code+"'></td></tr>");
 				}
 			}
 		}
@@ -97,9 +97,7 @@
 		var inputs = $("#params_panel").find("input");
 		var params = {};
 		$.each(inputs, function(i, v) {
-			console.log(i, v);
 			var obj = $(v);
-			console.log(obj);
 			if (obj.val()) {
 				params[obj.attr('id')] = obj.val();
 			}
@@ -112,7 +110,6 @@
 			var node = $('#orgtree').tree('getChecked');
 			var orgs = "";
 			for (var i = 0; i < node.length; i++) {
-				console.log(node[i]);
 				orgs += "," + node[i].id;
 			}
 			return orgs.substr(1);
@@ -172,13 +169,11 @@
 				params[obj.attr('id')] = obj.val();
 			}
 		});
-		console.log(param);
 		var pageable = g_main[$("#select_type").combobox('getValue')][3];
 		var pagesize = g_main[$("#select_type").combobox('getValue')][4];
 		var pagenumber = param.page;
 		var pager = { 'pagesize':(pagesize ? pagesize:1000),'pagenumber':(pagenumber?pagenumber:1)};
 		var dwrparams = [gettreevalue(),$("#select_type").combobox('getValue'), params,pager ];
-		console.log(dwrparams);
 		return dwrparams;
 	}
 
@@ -209,7 +204,6 @@
 	function initColumn(data){
 		for(var i = 0 ; i<data.length ;i ++){
 			if(data[i].format){
-				console.log(data[i].format);
 				data[i].formatter = eval(data[i].format);
 			}
 		}
@@ -217,22 +211,21 @@
 	}
 	
 	function buttonColumn(value,row,index){
-		var buttons = eval(value.replace(/#/g,"'"));
+		var buttons = eval(value.replace(/\#/g,"'"));
+		var retstr="";
 		for(var i = 0 ; i<buttons.length;i++){
-			retstr+="<button onclick=\"openwindow("+$.JSON(buttons[i])+")\">"+buttons[i].name+"</button>"
+			retstr+="<button onclick='openwindow("+JSON.stringify(buttons[i])+")'>"+buttons[i].name+"</button>"
 		}
 		return retstr;
 	}
 	function openwindow(args){
-		console.log(args);
 		$("#window_panel").html('');
-		$("#window_panel").attr("title",args[0]);
-		DataExportService.getDiv(args[1],function(data){
+		$("#window_panel").attr("title",args.name);
+		DataExportService.getDiv(args.id,function(data){
 			var html = data.html.replace(/\\\"/g,"'");
-			console.log(html);
-			$("#window_panel").attr("panelArgs",jQuery.toJSON(args));
+			$("#window_panel").attr("panelArgs",JSON.stringify(args));
 			$("#window_panel").append(html);
-			$('#window_panel').dialog({width:500,title:args[0]});
+			$('#window_panel').dialog({width:500,title:args.name});
 			$('#window_panel').dialog("open");
 			initEasyui('#window_panel');
 			$('#window_panel').dialog("refresh");
@@ -311,41 +304,58 @@
 		$("#querygrid").datagrid("reload");
 		$(".query_button").linkbutton('enable');
 	}
-	function windowListLoader() {
-		console.log("windowListLoader==");
-		return function(param, success, error) {
-			var opts = $(this)['datagrid']('options');
-			if (!opts.url)
-				return false;
-			var args = eval($("#window_panel").attr("panelArgs"));
-			var param.args = args;
-			var inputs = $("#params_panel").find("input");
-			var params = {};
-			$.each(inputs, function(i, v) {
-				var obj = $(v);
-				if (obj.val()) {
-					params[obj.attr('id')] = obj.val();
-				}
-			});
-			console.log(params,args);
-			$.extend(params,args);
-			console.log(params,args);
-			var pageable = g_main[$("#window_examid").val()][3];
-			var pagesize = g_main[$("#window_examid").val()][4];
-			var pagenumber = param.page;
-			var pager = { 'pagesize':(pagesize ? pagesize:1000),'pagenumber':(pagenumber?pagenumber:1)};
-			var dwrparams = [gettreevalue(),$("#select_type").combobox('getValue'), params,pager ];
-			var dwrFunc = eval(opts.url);
-			console.log(null,$("#window_examid").val(),params,pager);
-			dwrFunc(null,$("#window_examid").val(),params,pager, {
-				callback : function(data) {
-					success(data);
-				},
-				exceptionHandler : function() {
-					error.apply(this, arguments);
-				}
-			});
-		}
+	
+	function initWindowGrid() {
+		var columns = [];
+		DataExportService.sqlListHead($("#select_type").combobox('getValue'), {
+			async : false,
+			callback : function(data) {
+				columns = initColumn(data);
+			}
+		});
+		var id = $("#select_type").combobox('getValue');
+		var pageable = g_main[$("#select_type").combobox('getValue')][3];
+		var pagesize = g_main[$("#select_type").combobox('getValue')][4];
+		$("#querygrid").datagrid({
+			url : 'DataExportService.sqlListnew',
+			columns : [ columns ],
+			rowStyler : gridStyle,
+			singleSelect : true,
+			pageSize :pagesize,
+			pageList : [ pagesize ],
+			pagination : pageable,
+			fit : true
+		});
+	}
+	function windowListLoader(param, success, error) {
+		var opts = $(this)['datagrid']('options');
+		if (!opts.url)
+			return false;
+		eval("var args = "+$("#window_panel").attr("panelArgs"));
+		var inputs = $("#window_panel").find("input");
+		var params = {};
+		$.each(inputs, function(i, v) {
+			var obj = $(v);
+			if (obj.val()) {
+				params[obj.attr('id')] = obj.val();
+			}
+		});
+		$.extend(params,args);
+		var pageable = g_main[$("#window_examid").val()][3];
+		var pagesize = g_main[$("#window_examid").val()][4];
+		var pagenumber = param.page;
+		var pager = { 'pagesize':(pagesize ? pagesize:1000),'pagenumber':(pagenumber?pagenumber:1)};
+		var dwrparams = [gettreevalue(),$("#select_type").combobox('getValue'), params,pager ];
+		var dwrFunc = eval(opts.url);
+		dwrFunc(null,$("#window_examid").val(),params,pager, {
+			callback : function(data) {
+				console.log(data);
+				success(data);
+			},
+			exceptionHandler : function() {
+				error.apply(this, arguments);
+			}
+		});
 	}
 </script>
 <body>
@@ -365,8 +375,8 @@
 			style="width: 280px;"
 			data-options="iconCls:'icon-save',resizable:false,modal:false,closed:true,onClose:dialogClose">
 		</div>
-		<div id="window_panel" class="easyui-dialog" title='窗口'  data-options="modal:true,closed:true">
-		</div>
+		<div id="window_panel" class="easyui-dialog" title='窗口'
+			data-options="modal:true,closed:true"></div>
 		<div class="easyui-layout" data-options="region:'center'">
 			<!-- <div style='height:26px;padding:5px 0 0 5px;background-color: #E0ECFF;' data-options="region:'north',border:false"><font bold id='orgname'>请选择机构</font></div> -->
 			<div data-options="region:'center',border:false">
@@ -376,7 +386,7 @@
 	</div>
 	<script>
 		var g_options = null;
-		DataExportService.get_Export_Param("1", {
+		DataExportService.get_Export_Param(null, {
 			callback : function(data) {
 				g_options = data;
 			},
@@ -392,7 +402,6 @@
 					$("#select_type").append(
 							" <option value=\""+g_options.main[i][0]+"\">"
 									+ g_options.main[i][1] + "</option>")
-					break;
 				}
 			}
 		} else {

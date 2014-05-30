@@ -1679,7 +1679,6 @@ function getTreeData(orgid,name){
 				}
 				nodes = nodes.concat(subret.nodes);
 				treenode.children = subret.treenodes;
-				treenode.attributes
 			}else{
 				var node = {
 					"value": data[i].id,   

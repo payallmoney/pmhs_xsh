@@ -182,7 +182,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
         	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address,p.linkman " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + " from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where p.fileNo = hf.fileNo and hf.districtNumber like ? " +
         			"And p.linkman like ?  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
@@ -209,7 +209,7 @@ public class FileNumSearch extends HibernateDaoSupport{
         	res.totalPages = (int) (count / newpagesize) + ((count % newpagesize > 0) ? 1 : 0);
         	int from = pageNo * newpagesize;
         	qry = getSession().createQuery("select hf.fileNo, hf.name, p.sex, p.birthday,(year(getDate()) - year(p.birthday)) as age," +
-        			" p.idnumber,hf.barCode,hf.address  from HealthFile as hf, PersonalInfo as p " + otherTables +
+        			" p.idnumber,hf.barCode,hf.address " + extendCols + "  from HealthFile as hf, PersonalInfo as p " + otherTables +
         			"where hf.districtNumber like ? " +
         			"And p.idnumber like ?  And hf.fileNo = p.fileNo  and hf.status = 0 " + hsqlparam);
         	qry.setParameter(0, districtNumber+"%");
