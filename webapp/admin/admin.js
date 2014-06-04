@@ -839,6 +839,14 @@ function redderToPage(){
     	tabPanel.activate(p);
     }
 }
+
+
+function openhelp(){
+	window.open(
+			"http://app.xt800.cn/chat/index.html?c=ADE6BF39373506DA",
+			"XT800",
+			"height=480, width=605, top=100, left=300, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+}
 var tabPanel;
 
 Ext.onReady(function() {
