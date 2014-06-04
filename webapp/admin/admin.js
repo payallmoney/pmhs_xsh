@@ -1336,12 +1336,12 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		flag = true;
 		modItems = '<div class="div_mxb_container div_container">'+
 			'<div class="mod mxb_101 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_102 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_103 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_102 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_103 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_201 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_201 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod mxb_202 mod_disable"><img src="../image/menu/mxb_05.gif"/><div>2型糖尿病患者随访</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_203 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_203 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_06 mod_disable"><img src="../image/menu/mxb_06.gif"/><div>重性精神病患者随访</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_07 mod_disable"><img src="../image/menu/mxb_07.gif"/><div>重性精神病个人信息补充</div><div class="remarks"></div></div>'+
 		'</div>';
@@ -1451,6 +1451,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 	if(flag){
 		for(var i=0;i<$ArrayContent.length;i++){
 			var str = $ArrayContent[i];
+			console.log(str);
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
 				$('.' + arrayStr[3]).removeClass('mod_disable');
