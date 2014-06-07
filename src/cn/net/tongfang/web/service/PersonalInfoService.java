@@ -20,6 +20,7 @@ import cn.net.tongfang.framework.security.vo.CodExamlist;
 import cn.net.tongfang.framework.security.vo.Doctors;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
@@ -176,30 +177,32 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		hf.setModifyPerson(user.getUsername());
 		java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		String sql = "Select hf.inputDate ,info.inputDate From HealthFile hf,PersonalInfo info Where" +
-					" hf.fileNo = info.fileNo And hf.fileNo = '" + hf.getFileNo() + "'";
-		Query query = getSession().createQuery(sql);
-		List list = query.list();
-		if(list.size() > 0){
-			for(Object objs : list){
-				Object[] obj = (Object[])objs;
-				if(obj[0] == null){
-					hf.setInputDate(ts);
-				}else{
-					Timestamp hfTimestamp = (Timestamp)obj[0];
-					hf.setInputDate(hfTimestamp);
-				}
-				if(obj[1] == null){
-					info.setInputDate(ts);
-				}else{
-					Timestamp hfTimestamp = (Timestamp)obj[1];
-					info.setInputDate(hfTimestamp);
-				}
+		HealthFile oldfile = (HealthFile)getHibernateTemplate().get(HealthFile.class, hf.getFileNo());
+		if(oldfile !=null){
+			if(oldfile.getInputDate() == null){
+				hf.setInputDate(ts);
+			}else{
+				hf.setInputDate(oldfile.getInputDate());
 			}
+			if(oldfile.getPersonalInfo().getInputDate() == null){
+				info.setInputDate(ts);
+			}else{
+				info.setInputDate(oldfile.getPersonalInfo().getInputDate());
+			}
+			if(oldfile.getInputPersonId() == null){
+				hf.setInputPersonId(user.getUsername());
+				info.setInputPersonId(user.getUsername());
+			}else{
+				hf.setInputPersonId(oldfile.getInputPersonId());
+				info.setInputPersonId(oldfile.getInputPersonId());
+			}
+			getHibernateTemplate().evict(oldfile);
+			getHibernateTemplate().evict(oldfile.getPersonalInfo());
 		}
 		
 		hf.setLastModifyDate(ts);
-		
+		BusiUtils.insertLog(this,hf.getFileNo(),"update","healthfile",user.getUsername(),oldfile,hf);
+		BusiUtils.insertLog(this,hf.getFileNo(),"update","personalinfo",user.getUsername(),oldfile.getPersonalInfo(),info);
 //		info.setInputPersonId(user.getUsername()); //当前登录用户
 		info.setIdnumber(EncryptionUtils.encry(data.getIdnumber()));
 		getHibernateTemplate().update(hf);

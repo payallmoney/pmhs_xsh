@@ -1301,6 +1301,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 			if(type.equals(0)){
 				if(SecurityManager.isValidUser(user.getUsername(),(file.getInputPersonId()))){
+					BusiUtils.insertLog(this,file.getFileNo(),"delete","healthfile",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file,null);
+					BusiUtils.insertLog(this,file.getFileNo(),"delete","personalinfo",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file.getPersonalInfo(),null);
 					getHibernateTemplate().deleteAll(personList);
 					getHibernateTemplate().delete(file);
 				}else{
@@ -1308,6 +1310,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 
 			}else if(type.equals(1)){
+				BusiUtils.insertLog(this,file.getFileNo(),"delete","healthfile",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file,null);
+				BusiUtils.insertLog(this,file.getFileNo(),"delete","personalinfo",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file.getPersonalInfo(),null);
 				getHibernateTemplate().deleteAll(personList);
 				getHibernateTemplate().delete(file);
 			}
@@ -4192,6 +4196,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		for(String id : recordIdList){
 			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, id);
 			if(SecurityManager.isValidUser(user.getUsername(),maternal.getInputPersonId())){
+				BusiUtils.insertLog(this,maternal.getFileNo(),"delete","HealthFileMaternal",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),maternal,null);
 				String fileNo = maternal.getFileNo();
 				query = getSession().createQuery(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ");
 				query.setParameter(0, fileNo);
@@ -4290,6 +4295,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		for(String id : recordIdList){
 			HealthFileChildren child = (HealthFileChildren)getHibernateTemplate().get(HealthFileChildren.class, id);
 			if(SecurityManager.isValidUser(user.getUsername(),child.getInputPersonId())){
+				BusiUtils.insertLog(this,child.getFileNo(),"delete","HealthFileChildren",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),child,null);
 				String fileNo = child.getFileNo();
 				query = getSession().createQuery(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ");
 				query.setParameter(0, fileNo);
