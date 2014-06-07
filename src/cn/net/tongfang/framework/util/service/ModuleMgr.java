@@ -1318,6 +1318,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 					"from PersonalInfo where fileNo = ?", fileNo);
 			if(type.equals(0)){
 				if(SecurityManager.isValidUser(file.getInputPersonId(),getSession())){
+					BusiUtils.insertLog(this,file.getFileNo(),"delete","healthfile",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file,null);
+					BusiUtils.insertLog(this,file.getFileNo(),"delete","personalinfo",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file.getPersonalInfo(),null);
 					getHibernateTemplate().deleteAll(personList);
 					getHibernateTemplate().delete(file);
 					getHibernateTemplate().bulkUpdate(" update HealthFileHistory2 "+
@@ -1328,6 +1330,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 					throw new Exception("不是本机构的档案,不允许删除!");
 				}
 			}else if(type.equals(1)){
+				BusiUtils.insertLog(this,file.getFileNo(),"delete","healthfile",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file,null);
+				BusiUtils.insertLog(this,file.getFileNo(),"delete","personalinfo",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),file.getPersonalInfo(),null);
 				getHibernateTemplate().deleteAll(personList);
 				getHibernateTemplate().delete(file);
 				getHibernateTemplate().bulkUpdate(" update HealthFileHistory2 "+
@@ -4200,6 +4204,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileMaternal maternal = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, id);
 			if(SecurityManager.isValidUser(maternal.getInputPersonId(),getSession())){
 				String fileNo = maternal.getFileNo();
+				BusiUtils.insertLog(this,maternal.getFileNo(),"delete","HealthFileMaternal",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),maternal,null);
 				getHibernateTemplate().bulkUpdate(" Update PersonalInfo Set bornStatus = '否' Where fileNo = ? ", fileNo);
 				getHibernateTemplate().bulkUpdate(" Delete From PregnancyRecord Where healthFileMaternalId = ? ", maternal.getId());
 				getHibernateTemplate().delete(maternal);
@@ -4293,10 +4298,13 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void removeHealthfilesAlreadyBuildChild(final List<String> recordIdList) throws Exception{
+		System.out.println("==========22222222=="+recordIdList);
 		for(String id : recordIdList){
 			HealthFileChildren child = (HealthFileChildren)getHibernateTemplate().get(HealthFileChildren.class, id);
 			if(SecurityManager.isValidUser(child.getInputPersonId(),getSession())){
 				String fileNo = child.getFileNo();
+				System.out.println("==========1111111111111==");
+				BusiUtils.insertLog(this,child.getFileNo(),"delete","HealthFileChildren",cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),child,null);
 				getHibernateTemplate().bulkUpdate(" Update HealthFile Set isOverCount = NULL Where fileNo = ? ", fileNo);
 				getHibernateTemplate().bulkUpdate(" Delete From PregnancyRecordChild Where healthFileChildrenId = ? ", child.getId());
 				getHibernateTemplate().delete(child);
