@@ -2,11 +2,14 @@ package cn.net.tongfang.web.service;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +20,9 @@ import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.PregnancyRecord;
-import cn.net.tongfang.framework.security.vo.SamTaxempcode;
-import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
+import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.HealthFileMaternalBO;
-import cn.net.tongfang.web.service.bo.VisitAfterBornBO;
 
 public class HealthfileMaternalBuildService extends HealthMainService<HealthFileMaternalBO>{
 
@@ -42,16 +43,13 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 			if(data.getIsClosed() == null || data.getIsClosed().equals(""))
 				data.setIsClosed("0");
 //			query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(" Update PersonalInfo Set bornStatus = '是' Where fileNo = ? ");
-			query = getHibernateTemplate().find(" From HealthFile A,PersonalInfo B Where A.fileNo = B.fileNo And A.fileNo = ? ",fileNo);
-			if(query.size() == 1){
-				List list = query;
-				Object[] objs = (Object[])list.get(0);
-				HealthFile file = (HealthFile)objs[0];
-				PersonalInfo person = (PersonalInfo)objs[1];
+			HealthFile file = (HealthFile)getHibernateTemplate().get(HealthFile.class, fileNo);
+			if( file!=null){
+				PersonalInfo person = file.getPersonalInfo();
 				String id = person.getId();
 				Timestamp inputdate = file.getInputDate();
-				BeanUtils.copyProperties(data, file); 
-				BeanUtils.copyProperties(data, person); 
+				BusiUtils.copyProperties(data, file); 
+				BusiUtils.copyProperties(data, person); 
 				person.setId(id);
 				file.setInputDate(inputdate);
 				person.setInputDate(inputdate);

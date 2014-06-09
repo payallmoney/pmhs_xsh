@@ -783,9 +783,9 @@ public class DataExportService extends HibernateDaoSupport {
 			StringBuilder where = new StringBuilder(" where 1=1 ");
 			buildExportHealthfileWhere(disNo, filterKey, filterVal, params,
 					where, null);
-			where.append(" and d.org_id = e.id ");
+			where.append(" and emp.org_id = e.id ");
 			where.append(" and a.inputPersonId = d.loginname ");
-			where.append(" and a.inputPersonId = '" + user.getUsername() + "' ");
+			where.append(" and emp.org_id = " + user.getOrgId() + " ");
 			// if (params.size() != 0) {
 			// where.replace(0, 4, " where ");
 			// }
@@ -1985,7 +1985,7 @@ public class DataExportService extends HibernateDaoSupport {
 			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
 			sql = sql + getFilterSql(filterKey,filterVal);
-			sql += " and a.inputPersonId = '" + user.getUsername() + "' ";
+			sql += " and emp.org_id = " + user.getOrgId() + " ";
 			sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
 
 			sql = sql.replaceAll("\"", "'");
