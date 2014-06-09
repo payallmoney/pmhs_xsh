@@ -17,6 +17,7 @@ import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.PregnancyRecord;
 import cn.net.tongfang.framework.security.vo.SamTaxempcode;
 import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
+import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.HealthFileMaternalBO;
 import cn.net.tongfang.web.service.bo.VisitAfterBornBO;
@@ -51,8 +52,8 @@ public class HealthfileMaternalBuildService extends HealthMainService<HealthFile
 				String id = person.getId();
 				Timestamp inputdate = file.getInputDate();
 				String createperson = file.getInputPersonId();
-				BeanUtils.copyProperties(data, file); 
-				BeanUtils.copyProperties(data, person); 
+				BusiUtils.copyProperties(data, file); 
+				BusiUtils.copyProperties(data, person); 
 				person.setId(id);
 				file.setInputDate(inputdate);
 				file.setInputPersonId(createperson);
