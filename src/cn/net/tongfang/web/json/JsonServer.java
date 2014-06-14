@@ -425,8 +425,10 @@ public class JsonServer extends HibernateDaoSupport {
 			stmt.setString(paramidx, (String) value);
 		} else if (type.equals("int")) {
 			stmt.setInt(paramidx, Integer.parseInt((String) value));
-		} else {
+		} else if (type.equals("float")) {
 			stmt.setFloat(paramidx, Float.parseFloat((String) value));
+		}else{
+			stmt.setObject(paramidx, value);
 		}
 		return paramidx + 1;
 	}
