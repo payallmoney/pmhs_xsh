@@ -1521,11 +1521,13 @@ public class DataExportService extends HibernateDaoSupport {
 	
 	public Map<String,List> get_Export_Param(String type) throws Exception {
 		Map<String,List> ret = new HashMap<String,List>();
-		String where = "type="+type;
+		String where = "";
 		if(type == null){
 			where = " 1=1 ";
+		}else{
+			where = " type="+type;
 		}
-		List main = getSession().createQuery("select id ,name,orgparamtype,pageable,pagesize from ExportMain where"+where+" order by id").list();
+		List main = getSession().createQuery("select id ,name,orgparamtype,pageable,pagesize from ExportMain where "+where+" order by id").list();
 		List sub =  getSession().createQuery("from ExportSub order by mainid , ord").list();
 		ret.put("sub", sub);
 		ret.put("main", main);
@@ -1952,7 +1954,6 @@ public class DataExportService extends HibernateDaoSupport {
 					Map row = new HashMap();
 					for (int i = 1; i <= numberOfColumns; i++) {
 						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
-						System.out.println("============"+cls.getClass().getName());
 						if (cls.isAssignableFrom(String.class)) {
 							row.put("col"+i, rs.getString(i));
 						} else if (cls.isAssignableFrom(Float.class)) {
@@ -1984,7 +1985,6 @@ public class DataExportService extends HibernateDaoSupport {
 					Map row = new HashMap();
 					for (int i = 1; i <= numberOfColumns; i++) {
 						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
-						System.out.println("============"+cls.getClass().getName());
 						if (cls.isAssignableFrom(String.class)) {
 							row.put("col"+i, rs.getString(i));
 						} else if (cls.isAssignableFrom(Float.class)) {

@@ -225,7 +225,7 @@
 			var html = data.html.replace(/\\\"/g,"'");
 			$("#window_panel").attr("panelArgs",JSON.stringify(args));
 			$("#window_panel").append(html);
-			$('#window_panel').dialog({width:500,title:args.name});
+			$('#window_panel').dialog({width:700,title:args.name});
 			$('#window_panel').dialog("open");
 			initEasyui('#window_panel');
 			$('#window_panel').dialog("refresh");
