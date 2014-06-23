@@ -987,7 +987,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				filterValue = EncryptionUtils.encry(filterValue);
 				params.add(filterValue);
 				where.append(" and substring(" + filterKey + ",1," + filterValue.trim().length() + ") = ?");
-			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate")){
+			}else if(filterKey.equals("a.inputDate") || filterKey.equals("b.birthday") || filterKey.equals("a.lastModifyDate") || filterKey.equals("c.visitDate") || filterKey.equals("c.examDate")){
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 				try {
 					String startDate = null;

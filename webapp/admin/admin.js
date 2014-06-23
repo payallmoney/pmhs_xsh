@@ -1374,17 +1374,6 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod personInfo_01 mod_disable"><img src="../image/menu/personInfo_01.gif"/><div>个人健康记录索引</div><div class="remarks"></div></div>'+
 		'</div>';
 	}
-	else if($templateId == 'fun_complex_template'){
-		flag = true;
-		modItems = '<div class="div_container">'+
-			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_02 mod_disable"><img src="../image/menu/complex_02.gif"/><div>高危儿童档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_03 mod_disable"><img src="../image/menu/complex_03.gif"/><div>高危孕产妇档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_05 mod_disable"><img src="../image/menu/complex_05.gif"/><div>免费检查统计</div><div class="remarks"></div></div>'+
-		'</div>';
-	}
-	
 	else if($templateId == 'fun_exam_template'){
 		flag = true;
 		modItems = '<div class="div_container">'+

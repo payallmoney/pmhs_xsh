@@ -1897,6 +1897,7 @@ public class DataExportService extends HibernateDaoSupport {
 			sql = sql.replaceAll("\"", "'");
 			int paramidx = 1;
 			PreparedStatement stmt =  conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			System.out.println("============"+orgs);
 			System.out.println("============"+sql);
 			if("like".equals(main.getOrgparamtype())){
 				stmt.setString(1, orgs+"%");
