@@ -410,8 +410,9 @@ public class DataExportService extends HibernateDaoSupport {
 				.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_"
 				+ user.getUsername() + "_" + type + ".csv";
+		PrintWriter out = null;
 		try {
-			PrintWriter out = new PrintWriter(getWebRootAbsolutePath()
+			out = new PrintWriter(getWebRootAbsolutePath()
 					+ "data/" + fileName);
 			for (Object object : list) {
 				if (object instanceof Object[]) {
@@ -449,12 +450,15 @@ public class DataExportService extends HibernateDaoSupport {
 				}
 				out.write("\r\n");
 			}
-			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 			throw e;
+		}finally{
+			if(out!=null){
+				out.close();
+			}
 		}
 		return fileName;
 	}
@@ -784,7 +788,7 @@ public class DataExportService extends HibernateDaoSupport {
 			buildExportHealthfileWhere(disNo, filterKey, filterVal, params,
 					where, null);
 			where.append(" and emp.org_id = e.id ");
-			where.append(" and a.inputPersonId = d.loginname ");
+			where.append(" and a.inputPersonId = emp.loginname ");
 			where.append(" and emp.org_id = " + user.getOrgId() + " ");
 			// if (params.size() != 0) {
 			// where.replace(0, 4, " where ");
@@ -799,7 +803,7 @@ public class DataExportService extends HibernateDaoSupport {
 							+ "a.address,"
 							+ "b.linkman,"
 							+ "a.tel "
-							+ "from HealthFile a, PersonalInfo b,  Sam_Taxempcode d , Organization e")
+							+ "from HealthFile a, PersonalInfo b,  Sam_Taxempcode emp , Organization e")
 					.append(where);
 			System.out.println("=========hql==========" + hql);
 			List dataList = new ArrayList();
@@ -1972,8 +1976,9 @@ public class DataExportService extends HibernateDaoSupport {
 				.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disid + "_"
 				+ user.getUsername() + "_" + name + ".csv";
+		PrintWriter out = null;
 		try {
-			PrintWriter out = new PrintWriter(getWebRootAbsolutePath()
+			out = new PrintWriter(getWebRootAbsolutePath()
 					+ "data/" + fileName);
 			Connection conn = getSession().connection();
 			Statement st = conn.createStatement();
@@ -2052,13 +2057,16 @@ public class DataExportService extends HibernateDaoSupport {
 				}
 				out.write("\r\n");
 			}
-			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 			throw e;
+		} finally{
+			if(out!=null){
+				out.close();
+			}
 		}
 		return getDownloadURL() + fileName;
 	}

@@ -964,6 +964,11 @@ public class ModuleMgr extends HibernateDaoSupport {
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}				
+			}else if(filterKey.equals("b.idnumber")){
+				if (StringUtils.hasText(filterValue)) {
+//					params.add(filterValue);
+					where.append(" and " + filterKey + " like '"+filterValue+"%'");
+				}
 			}else{
 				if (StringUtils.hasText(filterValue)) {
 //					params.add(filterValue);

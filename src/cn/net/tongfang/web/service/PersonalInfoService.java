@@ -157,6 +157,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	
 	@Transactional
 	public String update(PersonalInfoFBO data) throws Exception{
+		try{
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 
 		PersonalInfo info = new PersonalInfo();
@@ -207,6 +208,13 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		boHelper.setFK(data, info.getId(), "personalInfoId");
 		boHelper.saveDetails(data, getHibernateTemplate());
 		return EncryptionUtils.decipher(info.getFileNo());
+		}catch (RuntimeException ex){
+			ex.printStackTrace();
+			throw ex;
+		}catch (Exception ex){
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 
 	/**
