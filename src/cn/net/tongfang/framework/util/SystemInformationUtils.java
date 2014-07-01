@@ -264,7 +264,12 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	}
 	
 	public Object getSimgleHistoryExamRecord(String  foreignId,String tableName){
-		String hql = " From " + tableName + " Where foreignId = ? Order By visitDate ";
+		String where = "";
+		if(tableName.equals("VisitAfterBorn")){
+			where = " And recordType = 1 ";
+		}
+		String hql = " From " + tableName + " Where foreignId = ? "+where+"  Order By visitDate ";
+		
 		Query query = getSession().createQuery(hql);
 		query.setParameter(0, foreignId);
 		List list = query.list();
