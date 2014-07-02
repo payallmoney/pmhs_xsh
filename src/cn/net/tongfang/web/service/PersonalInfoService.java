@@ -45,6 +45,8 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	}
 	@Transactional
 	public synchronized String save(PersonalInfoFBO data) throws Exception{
+		//保证身份证号为大写
+		data.setIdnumber(data.getIdnumber().toUpperCase());
 		// update switch
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileno = data.getFileNo();
@@ -158,6 +160,7 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	@Transactional
 	public String update(PersonalInfoFBO data) throws Exception{
 		try{
+			
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 
 		PersonalInfo info = new PersonalInfo();
