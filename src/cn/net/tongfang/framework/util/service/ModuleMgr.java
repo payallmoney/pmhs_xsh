@@ -985,13 +985,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if("onlyself".equals(key) && "true".equals(value)){
 					System.out.println("====user.getTaxempname()=="+user.getTaxempname());
 					System.out.println("====getUsername=="+user.getUsername());
-					where.append(" and a.inputPersonId = '"+ user.getUsername()+"' ");
+					where.append(" and a.inputPersonId = convert(nvarchar,'"+ user.getUsername()+"') ");
 				}
 				if("onlyorg".equals(key) && "true".equals(value)){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
 				}
 			}
 		}
+		System.out.println("============"+where);
 	}
 
 	private void buildGeneralWhere(HealthFileQry qryCond, List params,
