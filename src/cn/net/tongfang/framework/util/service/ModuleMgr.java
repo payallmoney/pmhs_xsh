@@ -1047,6 +1047,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 			}
 		}
+		
+		if(qryCond.getParams() !=null && qryCond.getParams().size()>0){
+			for(Iterator iter = qryCond.getParams().keySet().iterator();iter.hasNext();){
+				String key = (String)iter.next();
+				String value = (String)qryCond.getParams().get(key);
+				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+				System.out.println(key+"======"+value);
+				if("onlyself".equals(key) && "true".equals(value)){
+					System.out.println("====user.getTaxempname()=="+user.getTaxempname());
+					System.out.println("====getUsername=="+user.getUsername());
+					where.append(" and a.inputPersonId = convert(nvarchar,'"+ user.getUsername()+"') ");
+				}
+				if("onlyorg".equals(key) && "true".equals(value)){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
+				}
+			}
+		}
 
 		where.append(" and a.fileNo = b.fileNo and a.status = 0 ");
 	}
