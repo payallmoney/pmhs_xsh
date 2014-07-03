@@ -997,7 +997,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	private void buildGeneralWhere(HealthFileQry qryCond, List params,
 			StringBuilder where)throws Exception {
-		String districtId = qryCond.getDistrict();
+		String districtId = makeDistrict(qryCond.getDistrict());
 		if (StringUtils.hasText(districtId)) {
 //			params.add(districtId + '%');
 //			params.add(districtId + '%');
@@ -2951,10 +2951,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 */
 	private void buildWhereByHome(HealthFileQry qryCond, List params,
 			StringBuilder where) {
-		String districtId = qryCond.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
+		String districtId = makeDistrict(qryCond.getDistrict());
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId + '%');
 			where.append(" and a.districtNumber like ?");
@@ -2967,6 +2964,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 				where.append(" and " + filterKey + " like ?");
 			}
 		}
+	}
+	
+	private String makeDistrict(String dist){
+		String ret = dist;
+		while(ret.endsWith("00")){
+			ret = ret.substring(0,ret.length()-2);
+		}
+		return ret;
 	}
 
 	/**
@@ -3047,10 +3052,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	 */
 	private void buildQueryHomeWhere(HealthFileQry qryCond, List params,
 			StringBuilder where) {
-		String districtId = qryCond.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
+		String districtId = makeDistrict(qryCond.getDistrict());
 		// if (StringUtils.hasText(districtId)) {
 		params.add(districtId);
 		where.append(" and b.homeId = ?");
@@ -3132,10 +3134,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			PagingParam pp) throws Exception{
 		List params = new ArrayList();
 		StringBuffer where = new StringBuffer(" where 1=1 ");
-		String districtId = qryCond.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
+		String districtId = makeDistrict(qryCond.getDistrict());
 		if (StringUtils.hasText(districtId)) {
 //			params.add(EncryptionUtils.encry(districtId));
 			where.append(" and a.fileNo like  '"+EncryptionUtils.encry(districtId)+"%' ");
@@ -3395,10 +3394,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<HealthFile> findVaccineImmune(QryCondition qryCond, PagingParam pp)throws Exception{
 		StringBuilder where = new StringBuilder();
 		genVaccineImmuneWhere(qryCond,where);
-		String district = qryCond.getDistrict();
-		while(district.endsWith("00")){
-			district = district.substring(0,district.length()-2);
-		}
+		String district = makeDistrict(qryCond.getDistrict());
 		final String fhql = " select a.*,c.* From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
 				" Where a.districtNumber like '" + district + "%' " + where.toString();
 		final String countsql = " select count(*)  From HealthFile a left join PersonalInfo b on a.fileNo=b.fileNo left join VaccineImmune c on a.fileNo=c.vfileNo " +
@@ -3644,10 +3640,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}else{//11 || 00查询所有人员
 			//不需要加条件
 		}
-		String districtId = qryCond.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
+		String districtId = makeDistrict(qryCond.getDistrict());
 		where = " Where " +
 				" a.districtNumber like '"+districtId+"%' And a.fileNo = b.fileNo " +
 				" And a.fileNo = c.fileNo " + where;
@@ -4092,10 +4085,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 			where.append(" And isSure = '"+qry.getType()+"' ");
 //			params.add(qry.getType());
 		}
-		String districtId = qry.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
+		String districtId = makeDistrict(qry.getDistrict());
 		if(qry.getFlowType().equals("0")){
 			where.append(" And toDistrictNumber like '"+districtId+"%' ");
 //			params.add(qry.getDistrict());
