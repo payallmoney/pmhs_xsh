@@ -723,7 +723,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<HealthFile> findHealthFilesEnableBuild(HealthFileQry qryCond,
 			PagingParam pp) throws Exception{
 		List params = new ArrayList();
-		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder().append(" and b.sex = '女' and DateDiff(Year,b.birthday,GETDATE()) >= 10 And a.fileNo not in(Select Distinct fileNo From HealthFileMaternal Where isClosed = '0' )"));
+		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder().append(" and b.sex = '女' and b.birthday < convert(datetime,convert(nvarchar,(YEAR(getdate())-9))+'-01-01') And a.fileNo not in(Select Distinct fileNo From HealthFileMaternal Where isClosed = '0' )"));
 		return queryHealthFiles(pp, params, hql);
 	}
 	
@@ -3173,8 +3173,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
-		where.append(" and (year(getDate()) - year(b.birthday)) >= 65  ");
-
+		where.append(" and b.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-65))+'-01-01')  ");
 //		if (params.size() != 0) {
 //			where.replace(0, 4, " where ");
 //		}

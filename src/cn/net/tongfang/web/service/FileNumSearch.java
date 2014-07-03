@@ -102,14 +102,14 @@ public class FileNumSearch extends HibernateDaoSupport {
 				extendCols = " ,hf.tel,p.workUnit,p.education,p.occupation ";
 			} else if (otherparamtype.equals(OtherParamType_Child)) {// 儿童建册查询
 																		// 条件<=7岁
-				hsqlparam = " And (year(getdate()) -  year(p.birthday)) <=7  and  NOT EXISTS (select 1 from HealthFileChildren hfchild where hfchild.fileNo = hf.fileNo ) ";
+				hsqlparam = " And p.birthday >=  convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  and  NOT EXISTS (select 1 from HealthFileChildren hfchild where hfchild.fileNo = hf.fileNo ) ";
 				extendCols = " ,hf.township,hf.village,p.bloodTypeAbo,p.bloodTypeRh ";
 			} else if (otherparamtype.equals(OtherParamType_ChildOther)) {//
 				otherTables = " ,HealthFileChildren hc ";
 				hsqlparam = " And hc.fileNo = hf.fileNo ";
 				extendCols = " ,hc.id ";
 			} else if (otherparamtype.equals(OtherParamType_Old)) {
-				hsqlparam = " And (year(getDate()) - year(p.birthday)) >= 65 ";
+				hsqlparam = " And p.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-65))+'-01-01') ";
 			} else if (otherparamtype.equals(OtherParamType_MarryWoman)) {// 女性婚检
 				hsqlparam = " And p.sex = '女'  ";
 				extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
