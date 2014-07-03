@@ -129,6 +129,10 @@ div#ballisticForm_new td{
 	background-image: url(../image/print_16_16.png) !important;
 	background-repeat: no-repeat;
 }
+.linkbg{
+	background-image: url(../image/arrow_switch.png) !important;
+	background-repeat: no-repeat;
+}
 .dataExportbg{
 	background-image: url(../image/dataExport_16_16.png) !important;
 	background-repeat: no-repeat;
