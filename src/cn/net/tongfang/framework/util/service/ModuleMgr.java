@@ -2952,6 +2952,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 	private void buildWhereByHome(HealthFileQry qryCond, List params,
 			StringBuilder where) {
 		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		if (StringUtils.hasText(districtId)) {
 			params.add(districtId + '%');
 			where.append(" and a.districtNumber like ?");
@@ -3045,6 +3048,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 	private void buildQueryHomeWhere(HealthFileQry qryCond, List params,
 			StringBuilder where) {
 		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		// if (StringUtils.hasText(districtId)) {
 		params.add(districtId);
 		where.append(" and b.homeId = ?");
@@ -3127,6 +3133,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 		List params = new ArrayList();
 		StringBuffer where = new StringBuffer(" where 1=1 ");
 		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		if (StringUtils.hasText(districtId)) {
 //			params.add(EncryptionUtils.encry(districtId));
 			where.append(" and a.fileNo like  '"+EncryptionUtils.encry(districtId)+"%' ");
@@ -3492,12 +3501,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			QryCondition qryCond, PagingParam pp) throws Exception{
 		String where = genQryCondition(qryCond);
 		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
-		
-		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,qryCond.getDistrict()).get(0)).intValue();
+		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
+		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,districtId).get(0)).intValue();
 		
 		final String fhql = hql + " order by c.lastExamDate ASC";
 		final PagingParam fpp = pp;
-		final String fdistrict = qryCond.getDistrict();
+		final String fdistrict = districtId;
 		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
 			@Override
 			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
@@ -3539,13 +3551,17 @@ public class ModuleMgr extends HibernateDaoSupport {
 	public PagingResult<Map<String, Object>> findChildHighRiskRecords(
 			QryCondition qryCond, PagingParam pp) throws Exception{
 		String where = genQryCondition(qryCond);
+		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		String hql = " From HealthFile a,PersonalInfo b,ChildLastMedicalExamRecord c " + where;
 		
-		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,qryCond.getDistrict()).get(0)).intValue();
+		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,districtId).get(0)).intValue();
 		
 		final String fhql = hql + "  order by c.lastExamDate ASC";
 		final PagingParam fpp = pp;
-		final String fdistrict = qryCond.getDistrict();
+		final String fdistrict = districtId;
 		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
 			@Override
 			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
@@ -3628,9 +3644,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}else{//11 || 00查询所有人员
 			//不需要加条件
 		}
-		
+		String districtId = qryCond.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		where = " Where " +
-				" a.districtNumber like '"+qryCond.getDistrict()+"%' And a.fileNo = b.fileNo " +
+				" a.districtNumber like '"+districtId+"%' And a.fileNo = b.fileNo " +
 				" And a.fileNo = c.fileNo " + where;
 		return where;
 	}
@@ -4073,11 +4092,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 			where.append(" And isSure = '"+qry.getType()+"' ");
 //			params.add(qry.getType());
 		}
+		String districtId = qry.getDistrict();
+		while(districtId.endsWith("00")){
+			districtId = districtId.substring(0,districtId.length()-2);
+		}
 		if(qry.getFlowType().equals("0")){
-			where.append(" And toDistrictNumber like '"+qry.getDistrict()+"%' ");
+			where.append(" And toDistrictNumber like '"+districtId+"%' ");
 //			params.add(qry.getDistrict());
 		}else if(qry.getFlowType().equals("1")){
-			where.append(" And fromDistrictNumber like '"+qry.getDistrict()+"%' ");
+			where.append(" And fromDistrictNumber like '"+districtId+"%' ");
 //			params.add(qry.getDistrict());
 		}
 		
