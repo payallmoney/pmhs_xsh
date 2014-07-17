@@ -3228,6 +3228,19 @@ public class ModuleMgr extends HibernateDaoSupport {
 //		if (params.size() != 0) {
 //			where.replace(0, 4, " where ");
 //		}
+		if(qryCond.getParams() !=null && qryCond.getParams().size()>0){
+			for(Iterator iter = qryCond.getParams().keySet().iterator();iter.hasNext();){
+				String key = (String)iter.next();
+				String value = (String)qryCond.getParams().get(key);
+				TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+				if("onlyself".equals(key) && "true".equals(value)){
+					where.append(" and a.inputPersonId = convert(nvarchar,'"+ user.getUsername()+"') ");
+				}
+				if("onlyorg".equals(key) && "true".equals(value)){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
+				}
+			}
+		}
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b, MedicalExam c, SamTaxempcode d")
 				.append(where).append(" order by a.fileNo");

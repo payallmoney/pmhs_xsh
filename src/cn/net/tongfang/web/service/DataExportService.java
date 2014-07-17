@@ -1,9 +1,12 @@
 package cn.net.tongfang.web.service;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -32,14 +35,9 @@ import jxl.write.biff.RowsExceededException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
@@ -209,6 +207,7 @@ public class DataExportService extends HibernateDaoSupport {
 	}
 
 	private void delOldFile(String path) {
+		System.out.println("=======path====="+path);
 		File[] files = new File(path).listFiles();
 		// long day = 1000* 60*60*24;
 		long day = 1000 * 60 * 60;// delete file before an hour
@@ -216,6 +215,7 @@ public class DataExportService extends HibernateDaoSupport {
 			for (File f : files) {
 				try {
 					String fpath = f.getAbsolutePath();
+					System.out.println("=====fpath======="+fpath);
 					if (fpath.endsWith(".xls") || fpath.endsWith(".csv")
 							|| fpath.endsWith(".xlsx")) {
 						BasicFileAttributes attributes = Files.readAttributes(
@@ -224,8 +224,8 @@ public class DataExportService extends HibernateDaoSupport {
 						if (new Date().getTime() - creationTime.toMillis() > day)
 							f.delete();
 					}
-				} catch (Exception e) {
-
+				} catch (Throwable e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -358,7 +358,7 @@ public class DataExportService extends HibernateDaoSupport {
 	}
 
 	private String writeCsvFile(String disNo, List list, String type,
-			String title) {
+			String title) throws Throwable {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_"
@@ -367,8 +367,10 @@ public class DataExportService extends HibernateDaoSupport {
 		CsvWriter fw = null;
 		// CSVFormat csfformat = CSVFormat.EXCEL;
 		try {
+			System.out.println("====export========"+getWebRootAbsolutePath() + "data/" + fileName);
 			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName,
 					',', Charset.forName("GBK"));
+			System.out.println("====export========"+getWebRootAbsolutePath() + "data/" + fileName);
 			fw.setForceQualifier(true);
 			for (Object object : list) {
 				if (object instanceof Object[]) {
@@ -394,8 +396,9 @@ public class DataExportService extends HibernateDaoSupport {
 			}
 
 			fw.flush();
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
+			throw e;
 		} finally {
 			if (fw != null) {
 				fw.close();
@@ -405,15 +408,16 @@ public class DataExportService extends HibernateDaoSupport {
 	}
 
 	private String writeCsvFileNew(String disNo, List list, String type,
-			String title) {
+			String title) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		String fileName = DateToStr(new Date()) + "_" + disNo + "_"
 				+ user.getUsername() + "_" + type + ".csv";
-		PrintWriter out = null;
+		Writer out = null;
 		try {
-			out = new PrintWriter(getWebRootAbsolutePath()
-					+ "data/" + fileName);
+			out = new BufferedWriter(new OutputStreamWriter(
+				    new FileOutputStream(getWebRootAbsolutePath()
+							+ "data/" + fileName), "GBK"));
 			for (Object object : list) {
 				if (object instanceof Object[]) {
 					Object[] l = (Object[]) object;
@@ -450,12 +454,12 @@ public class DataExportService extends HibernateDaoSupport {
 				}
 				out.write("\r\n");
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (OutOfMemoryError e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
-		}finally{
+		} catch (Throwable e) {
+			e.printStackTrace();
+		} finally{
 			if(out!=null){
 				out.close();
 			}
@@ -1088,10 +1092,12 @@ public class DataExportService extends HibernateDaoSupport {
 		String path = null;
 		String folderPath = ModuleMgr.class.getProtectionDomain()
 				.getCodeSource().getLocation().getPath();
+		System.out.println("========folderPath===="+folderPath);
 		if (folderPath.indexOf("WEB-INF") > 0) {
 			path = folderPath.substring(0,
 					folderPath.indexOf("WEB-INF/classes"));
 		}
+		System.out.println("========path===="+path);
 		return path;
 	}
 
