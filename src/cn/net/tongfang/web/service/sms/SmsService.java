@@ -24,6 +24,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.Type;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,6 +59,8 @@ public class SmsService extends HibernateDaoSupport {
 	public static final String Send_Status_Sended = "1";
 	public static final String Send_Status_Sending = "2";
 	public static Map<String , Integer> typemap= new HashMap();
+	@Autowired
+	private String districtnumber;
 	static{
 		typemap.put("y", GregorianCalendar.YEAR);
 		typemap.put("m", GregorianCalendar.MONTH);
@@ -642,7 +645,7 @@ public class SmsService extends HibernateDaoSupport {
 	
 	//返回下拉列表数据
 	public List getOtherSendTargetOption() throws Exception {
-		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
+		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '"+districtnumber+"%'");
 		List<List<String>> list =  getHibernateTemplate().find(hql.toString());
 		for(List<String> item : list){
 			if(item.get(0).length() == 9){
@@ -659,7 +662,7 @@ public class SmsService extends HibernateDaoSupport {
 	}
 	
 	public List getDistrictOption() throws Exception {
-		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '5301%'");
+		StringBuilder hql = new StringBuilder("select new list(id,name) from District where id like '"+districtnumber+"%'");
 		List<List<String>> list = getHibernateTemplate().find(hql.toString());
 		for(List<String> item : list){
 			if(item.get(0).length() == 9){

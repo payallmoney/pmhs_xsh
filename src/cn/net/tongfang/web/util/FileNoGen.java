@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,9 @@ import cn.net.tongfang.framework.security.vo.HealthFileKey;
 
 public class FileNoGen extends HibernateDaoSupport{
 	private static final Logger log = Logger.getLogger(FileNoGen.class);
+	
+	@Autowired
+	private String districtnumber;
 	
 	@Transactional(propagation = Propagation.REQUIRED)
 	public String getNextFileNo(String districtNumber) throws Exception{
@@ -77,6 +81,6 @@ public class FileNoGen extends HibernateDaoSupport{
 		for(int i = 0; i < spaces; i++) {
 			strKey = "0" + strKey;
 		}
-		return "5301"+year + strKey;
+		return districtnumber.substring(0,4)+year + strKey;
 	}
 }
