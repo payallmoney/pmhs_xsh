@@ -373,13 +373,13 @@ function hideHUD($t, includeError){
             		var input = setting.calculateBirthdayByIDNumber[0];
             		$birthday = $('#' + input + ' input');
             		if(setting.calculateBirthday != undefined && setting.calculateBirthday){
-            			if($birthday.val() == ''){
+//            			if($birthday.val() == ''){
                 			if(val.length == 15){
                 				$birthday.val('19' + val.substring(6,12));
                     		}else if(val.length == 18){
                     			$birthday.val(val.substring(6,14));
                     		}
-                		}
+//                		}
             		}else if(setting.calculateAge != undefined && setting.calculateAge){
             			var now = new Date();
             			var year = now.getFullYear();
