@@ -1720,4 +1720,7 @@ $(function(){
 		window.districtdata = getTreeData(currentid);
 	},async:false});
 	window.earyuitreedata = window.districtdata.treenodes;
+	CommonExamService.getCurrentOrgList({callback:function(data){
+		window.orgList = data;
+	},async:false});
 });
