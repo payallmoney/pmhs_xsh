@@ -352,6 +352,24 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			width : 100,
 			value : 'a.name'
 		});
+		
+		var orgCondition =  window.orgList;
+		var orgstore = new Ext.data.SimpleStore({
+			fields : [ 'type', 'display' ],
+			data : orgCondition
+		});
+		this.orgcombo = new Ext.form.ComboBox({
+			store : orgstore,
+			displayField : 'display',
+			valueField : 'type',
+			typeAhead : true,
+			mode : 'local',
+			triggerAction : 'all',
+			selectOnFocus : true,
+			editable : false,
+			minListWidth  : 250,
+			value : ''
+		});
 		this.onlySelfField = new Ext.form.Checkbox({
 			boxLabel  : '仅查询自己'
 		});
@@ -537,7 +555,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 							this.combo,
 							this.filterField,
 							this.onlyOrgField,
-							this.onlySelfField,
+							this.orgcombo,
 							new Ext.Action({
 								text : '查询',
 								iconCls : 'c_query',
@@ -749,6 +767,9 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			funcAction.push(this.filterField);
 			funcAction.push(this.onlyOrgField);
 			funcAction.push(this.onlySelfField);
+			funcAction.push('-');
+			funcAction.push(new Ext.form.Label({xtype:'lable',text:'选择机构'}));
+			funcAction.push(this.orgcombo);
 			funcAction.push(new Ext.Action({
 								text : '查询',
 								iconCls : 'c_query',
@@ -783,6 +804,9 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			console.log("onlyorg ==" +this.onlyOrgField && this.onlyOrgField.getValue())
 			if(this.onlyOrgField && this.onlyOrgField.getValue()){
 				params['onlyorg'] = this.onlyOrgField.getValue();
+			}
+			if(this.orgcombo){
+				params['org_id'] = this.orgcombo.getValue();
 			}
 			var cond = {
 				district : selNode.id,
