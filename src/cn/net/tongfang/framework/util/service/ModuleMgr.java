@@ -959,7 +959,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					if(filterKey.equals("c.edc")){
 						where.append(" and exists( select 1 from FirstVistBeforeBorn c where c.foreignId = b.id and  c.edc >= ? and c.edc <= ? )");
 					}else{
-						where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + " <= '"+format.parse(endDate)+"' ");
+						where.append(" and " + filterKey + " >= '"+(startDate)+"' and " + filterKey + " <= '"+(endDate)+"' ");
 					}
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
@@ -989,6 +989,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 				if("onlyorg".equals(key) && "true".equals(value)){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
+				}
+				if("org_id".equals(key) && !"".equals(value.trim())){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ value +") ");
 				}
 			}
 		}
@@ -1031,7 +1034,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 //					params.add(format.parse(endDate));
 					if(filterKey.equals("a.inputDate"))
 						filterKey = "c.inputDate";
-					where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + "<= '"+format.parse(endDate)+"' ");
+					where.append(" and " + filterKey + " >= '"+(startDate)+"' and " + filterKey + "<= '"+(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
@@ -1061,6 +1064,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 				if("onlyorg".equals(key) && "true".equals(value)){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
+				}
+				if("org_id".equals(key) && !"".equals(value.trim())){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ value +") ");
 				}
 			}
 		}
@@ -3239,6 +3245,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if("onlyorg".equals(key) && "true".equals(value)){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ user.getOrgId() +") ");
 				}
+				if("org_id".equals(key) && !"".equals(value.trim())){
+					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ value +") ");
+				}
 			}
 		}
 		StringBuilder hql = new StringBuilder(
@@ -4102,7 +4111,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 					}
 //					params.add(format.parse(startDate));
 //					params.add(format.parse(endDate));
-					where.append(" and " + filterKey + " >= '"+format.parse(startDate)+"' and " + filterKey + " <= '"+format.parse(endDate)+"' ");
+					where.append(" and " + filterKey + " >= '"+(startDate)+"' and " + filterKey + " <= '"+(endDate)+"' ");
 				} catch (ParseException e) {
 					throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
 				}
