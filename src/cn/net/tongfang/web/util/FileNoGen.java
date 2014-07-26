@@ -37,7 +37,7 @@ public class FileNoGen extends HibernateDaoSupport{
 		
 		String strKey = key + "";
 		
-		int spaces = 6 - strKey.length();
+		int spaces = 5 - strKey.length();
 		
 		if (spaces < 0) {
 			String msg = "流水号超长！！！！！";
