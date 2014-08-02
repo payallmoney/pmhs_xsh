@@ -129,8 +129,6 @@
 	function export_data() {
 		var inputs = $("#params_panel").find("input");
 		var params = {};
-		
-		params['orgs'] = orgs.substr(1);
 		$.each(inputs, function(i, v) {
 			var obj = $(v);
 			if (obj.val()) {
@@ -138,7 +136,7 @@
 			}
 		});
 		$('.export_button').linkbutton('disable');
-		DataExportService.sqlExportOrg(gettreevalue(),
+		DataExportService.sqlExport(gettreevalue(),$("#select_type").combobox('getValue'),
 				$("#select_type").combobox('getText'), params, function(data) {
 					$('.export_button').linkbutton('enable');
 					window.location.href = data;
@@ -403,6 +401,7 @@
 			}
 		} else {
 			for (var i = 0; i < g_options.main.length; i++) {
+				g_main["" + g_options.main[i][0]] = g_options.main[i];
 				$("#select_type").append(
 						" <option value=\""+g_options.main[i][0]+"\">"
 								+ g_options.main[i][1] + "</option>")
