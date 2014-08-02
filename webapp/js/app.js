@@ -1,5 +1,12 @@
 //todo remove these global dependencies
 //window.meta = {};
+function trim(x) {
+	if(x && x.replace){
+		return x.replace(/^\s+|\s+$/gm,'');
+	}else{
+		return x;
+	}
+}
 /** 增加dwr统一的异常处理**/
 function dwrExceptionHandler(errorString, error){
 	if (error) {
