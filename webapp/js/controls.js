@@ -1618,7 +1618,7 @@ function hideHUD($t, includeError){
                 if (!matchCol) matchCol = setting.value; //default match col
 
                 var res = $.map(data, function(v,i){
-                    if (v[matchCol] == newval){
+                    if (trim(v[matchCol]) == trim(newval)){
                         return i;
                     } else return null;
                 });
