@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-	$('#onlineTakePhoto img,.onlineTakePhoto').click(function(){
+	$('.onlineTakePhoto').click(function(){
 		var onlineTakePhotoPanel = new Ext.Panel({			
 			html : '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+
 					'id="onlineTakePhoto" width="356" height="340"'+
