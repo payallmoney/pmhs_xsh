@@ -207,7 +207,7 @@ public class DataExportService extends HibernateDaoSupport {
 	}
 
 	private void delOldFile(String path) {
-		System.out.println("=======path====="+path);
+		System.out.println("=======path=====" + path);
 		File[] files = new File(path).listFiles();
 		// long day = 1000* 60*60*24;
 		long day = 1000 * 60 * 60;// delete file before an hour
@@ -215,7 +215,7 @@ public class DataExportService extends HibernateDaoSupport {
 			for (File f : files) {
 				try {
 					String fpath = f.getAbsolutePath();
-					System.out.println("=====fpath======="+fpath);
+					System.out.println("=====fpath=======" + fpath);
 					if (fpath.endsWith(".xls") || fpath.endsWith(".csv")
 							|| fpath.endsWith(".xlsx")) {
 						BasicFileAttributes attributes = Files.readAttributes(
@@ -367,10 +367,12 @@ public class DataExportService extends HibernateDaoSupport {
 		CsvWriter fw = null;
 		// CSVFormat csfformat = CSVFormat.EXCEL;
 		try {
-			System.out.println("====export========"+getWebRootAbsolutePath() + "data/" + fileName);
+			System.out.println("====export========" + getWebRootAbsolutePath()
+					+ "data/" + fileName);
 			fw = new CsvWriter(getWebRootAbsolutePath() + "data/" + fileName,
 					',', Charset.forName("GBK"));
-			System.out.println("====export========"+getWebRootAbsolutePath() + "data/" + fileName);
+			System.out.println("====export========" + getWebRootAbsolutePath()
+					+ "data/" + fileName);
 			fw.setForceQualifier(true);
 			for (Object object : list) {
 				if (object instanceof Object[]) {
@@ -416,8 +418,8 @@ public class DataExportService extends HibernateDaoSupport {
 		Writer out = null;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(
-				    new FileOutputStream(getWebRootAbsolutePath()
-							+ "data/" + fileName), "GBK"));
+					new FileOutputStream(getWebRootAbsolutePath() + "data/"
+							+ fileName), "GBK"));
 			for (Object object : list) {
 				if (object instanceof Object[]) {
 					Object[] l = (Object[]) object;
@@ -459,8 +461,8 @@ public class DataExportService extends HibernateDaoSupport {
 			throw e;
 		} catch (Throwable e) {
 			e.printStackTrace();
-		} finally{
-			if(out!=null){
+		} finally {
+			if (out != null) {
 				out.close();
 			}
 		}
@@ -492,7 +494,7 @@ public class DataExportService extends HibernateDaoSupport {
 		// }
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b ").append(where);
-		System.out.println("hql=="+hql);
+		System.out.println("hql==" + hql);
 		List list = query(hql);
 
 		List dataList = new ArrayList();
@@ -1092,12 +1094,12 @@ public class DataExportService extends HibernateDaoSupport {
 		String path = null;
 		String folderPath = ModuleMgr.class.getProtectionDomain()
 				.getCodeSource().getLocation().getPath();
-		System.out.println("========folderPath===="+folderPath);
+		System.out.println("========folderPath====" + folderPath);
 		if (folderPath.indexOf("WEB-INF") > 0) {
 			path = folderPath.substring(0,
 					folderPath.indexOf("WEB-INF/classes"));
 		}
-		System.out.println("========path===="+path);
+		System.out.println("========path====" + path);
 		return path;
 	}
 
@@ -1114,8 +1116,8 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 		return "";
 	}
-	
-	private String DateToStr(Date date,String format) {
+
+	private String DateToStr(Date date, String format) {
 		if (date != null) {
 			SimpleDateFormat fomart = new SimpleDateFormat(format);
 			return fomart.format(date);
@@ -1912,8 +1914,8 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 		return getDownloadURL() + fileName;
 	}
-	
-	private String getFilterSql(String filterKey,	String filterVal)
+
+	private String getFilterSql(String filterKey, String filterVal)
 			throws Exception {
 		String ret = "";
 		if (StringUtils.hasText(filterKey)) {
@@ -1949,7 +1951,7 @@ public class DataExportService extends HibernateDaoSupport {
 					}
 					// params.add(startDate);
 					// params.add(endDate);
-					ret +=(" and " + filterKey + " between '"
+					ret += (" and " + filterKey + " between '"
 							+ format.format(startDate) + "' and  '"
 							+ format.format(endDate) + "' ");
 				} catch (ParseException e) {
@@ -1959,22 +1961,21 @@ public class DataExportService extends HibernateDaoSupport {
 			} else if (filterKey.equals("c.highRisk")) {
 				if (StringUtils.hasText(filterVal)) {
 					// params.add(filterVal);
-					ret +=(" and " + filterKey + " = '" + filterVal + "'");
+					ret += (" and " + filterKey + " = '" + filterVal + "'");
 				}
 			} else {
 				if (StringUtils.hasText(filterVal)) {
 					// params.add('%' + filterVal + '%');
-					ret +=(" and " + filterKey + " like '%" + filterVal
-							+ "%'");
+					ret += (" and " + filterKey + " like '%" + filterVal + "%'");
 				}
 			}
 		}
 		return ret;
 
 	}
+
 	public String sqlExportCsv(String disid, String name, String filterKey,
-			String filterVal)
-			throws Exception {
+			String filterVal) throws Exception {
 		while (disid.endsWith("00")) {
 			disid = disid.substring(0, disid.length() - 2);
 		}
@@ -1984,23 +1985,23 @@ public class DataExportService extends HibernateDaoSupport {
 				+ user.getUsername() + "_" + name + ".csv";
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter(getWebRootAbsolutePath()
-					+ "data/" + fileName);
+			out = new PrintWriter(getWebRootAbsolutePath() + "data/" + fileName);
 			Connection conn = getSession().connection();
 			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
-					"from ExportMain where name = '" + name + "' order by id").list();
-			if(sqllist.size()==0){
-				throw new Exception(name+"-导出功能未配置,请与系统管理员联系!");
+					"from ExportMain where name = '" + name + "' order by id")
+					.list();
+			if (sqllist.size() == 0) {
+				throw new Exception(name + "-导出功能未配置,请与系统管理员联系!");
 			}
 			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
-			sql = sql + getFilterSql(filterKey,filterVal);
+			sql = sql + getFilterSql(filterKey, filterVal);
 			sql += " and emp.org_id = " + user.getOrgId() + " ";
 			sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
 
 			sql = sql.replaceAll("\"", "'");
-			System.out.println("==sql=="+sql);
+			System.out.println("==sql==" + sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, disid + "%");
 			int paramidx = 2;
@@ -2011,14 +2012,14 @@ public class DataExportService extends HibernateDaoSupport {
 
 			int cellidx = 0;
 			for (int i = 1; i <= numberOfColumns; i++) {
-				if(i==1){
+				if (i == 1) {
 					out.write(rsMetaData.getColumnLabel(i));
-				}else{
-					out.write(","+rsMetaData.getColumnLabel(i));
+				} else {
+					out.write("," + rsMetaData.getColumnLabel(i));
 				}
 			}
 			out.write("\r\n");
-			System.out.println("==disid=="+disid);
+			System.out.println("==disid==" + disid);
 			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
 			int count = 0;
 			while (rs.next()) {
@@ -2039,23 +2040,28 @@ public class DataExportService extends HibernateDaoSupport {
 						} else if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
 							out.write(format(fomart.format(obj)));
-						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
 							out.write(format(fomart.format(obj)));
 						}
-					}else{
+					} else {
 						if (cls.isAssignableFrom(String.class)) {
 							out.write("," + format(rs.getString(i)));
 						} else if (cls.isAssignableFrom(Float.class)) {
-							out.write("," + format(String.valueOf(rs.getFloat(i))));
+							out.write(","
+									+ format(String.valueOf(rs.getFloat(i))));
 						} else if (cls.isAssignableFrom(Integer.class)) {
-							out.write("," + format(String.valueOf(rs.getInt(i))));
+							out.write(","
+									+ format(String.valueOf(rs.getInt(i))));
 						} else if (cls.isAssignableFrom(Long.class)) {
-							out.write("," + format(String.valueOf(rs.getLong(i))));
+							out.write(","
+									+ format(String.valueOf(rs.getLong(i))));
 						} else if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
 							out.write("," + format(fomart.format(obj)));
-						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
 							out.write("," + format(fomart.format(obj)));
 						}
@@ -2069,15 +2075,13 @@ public class DataExportService extends HibernateDaoSupport {
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 			throw e;
-		} finally{
-			if(out!=null){
+		} finally {
+			if (out != null) {
 				out.close();
 			}
 		}
 		return getDownloadURL() + fileName;
 	}
-	
-	
 
 	// String examname, String userdistrict, Map<String, Map> params,
 	// Map<String, Map<String, String>> basemap, List<String> collist
@@ -2207,6 +2211,41 @@ public class DataExportService extends HibernateDaoSupport {
 			throw e;
 		}
 
+	}
+
+	public Map getQuestionsByOrg() {
+		Map ret = new HashMap();
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		if (getSession()
+				.createSQLQuery(
+						"select 1  from net_quests where orgid = "
+								+ user.getOrgId() + " ").list().size() > 0) {
+			ret.put("needquest", false);
+		} else {
+			ret.put("needquest", true);
+		}
+		return ret;
+	}
+
+	public Map saveQuestion(Map params) {
+		Map ret = new HashMap();
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		String nettype = (String) params.get("nettype");
+		String netspeed = (String) params.get("netspeed");
+		String usespeed = (String) params.get("usespeed");
+		String usernum = (String) params.get("usernum");
+		String sql = " insert into net_quests(loginname,nettype,netspeed,usespeed,usernum,orgid)values('"
+				+ user.getUsername()
+				+ "','"
+				+ nettype
+				+ "',"
+				+ netspeed
+				+ ",'" + usespeed + "'," + usernum + "," + user.getOrgId() + ")";
+		getSession().createSQLQuery(sql).executeUpdate();
+		ret.put("saved", true);
+		return ret;
 	}
 
 }
