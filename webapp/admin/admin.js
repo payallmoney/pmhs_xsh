@@ -1804,6 +1804,12 @@ $(function(){
 												    	questionswin.close();
 												    }
 												});
+											}else{
+												if(!data.saved && data.msg){
+													Ext.Msg.alert('问卷调查', '保存失败!'+data.msg);
+												}else{
+													Ext.Msg.alert('问卷调查', '保存失败!系统错误,请与系统管理员联系!');
+												}
 											}
 										},async:false});
 									}

@@ -2236,15 +2236,23 @@ public class DataExportService extends HibernateDaoSupport {
 		String netspeed = (String) params.get("netspeed");
 		String usespeed = (String) params.get("usespeed");
 		String usernum = (String) params.get("usernum");
-		String sql = " insert into net_quests(loginname,nettype,netspeed,usespeed,usernum,orgid)values('"
-				+ user.getUsername()
-				+ "','"
-				+ nettype
-				+ "',"
-				+ netspeed
-				+ ",'" + usespeed + "'," + usernum + "," + user.getOrgId() + ")";
-		getSession().createSQLQuery(sql).executeUpdate();
-		ret.put("saved", true);
+		if (getSession()
+				.createSQLQuery(
+						"select 1  from net_quests where loginname = '"
+								+ user.getUsername() + "' ").list().size() > 0) {
+			ret.put("saved", false);
+			ret.put("msg", "此用户已完成调查!(请刷新页面或重新登录来关闭调查页面)");
+		}else{
+			String sql = " insert into net_quests(loginname,nettype,netspeed,usespeed,usernum,orgid)values('"
+					+ user.getUsername()
+					+ "','"
+					+ nettype
+					+ "',"
+					+ netspeed
+					+ ",'" + usespeed + "'," + usernum + "," + user.getOrgId() + ")";
+			getSession().createSQLQuery(sql).executeUpdate();
+			ret.put("saved", true);
+		}
 		return ret;
 	}
 
