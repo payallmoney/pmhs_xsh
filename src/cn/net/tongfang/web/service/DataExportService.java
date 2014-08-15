@@ -1819,8 +1819,9 @@ public class DataExportService extends HibernateDaoSupport {
 
 		Sheet sheet1 = wb.createSheet(name);
 		// No DataSource so we must handle Connections manually
+		Connection conn = null;
 		try {
-			Connection conn = getSession().connection();
+			conn = getSession().connection();
 			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
@@ -1909,8 +1910,15 @@ public class DataExportService extends HibernateDaoSupport {
 			wb.write(fileOut);
 			fileOut.close();
 		} catch (Exception e) {
+			
 			e.printStackTrace();
 			throw e;
+		}finally{
+			try{
+				conn.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		return getDownloadURL() + fileName;
 	}
@@ -1984,9 +1992,10 @@ public class DataExportService extends HibernateDaoSupport {
 		String fileName = DateToStr(new Date()) + "_" + disid + "_"
 				+ user.getUsername() + "_" + name + ".csv";
 		PrintWriter out = null;
+		Connection conn = null;
 		try {
 			out = new PrintWriter(getWebRootAbsolutePath() + "data/" + fileName);
-			Connection conn = getSession().connection();
+			conn = getSession().connection();
 			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where name = '" + name + "' order by id")
@@ -2079,6 +2088,11 @@ public class DataExportService extends HibernateDaoSupport {
 			if (out != null) {
 				out.close();
 			}
+			try{
+				conn.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		return getDownloadURL() + fileName;
 	}
@@ -2089,8 +2103,9 @@ public class DataExportService extends HibernateDaoSupport {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
+		Connection conn  = null;
 		try {
-			Connection conn = getSession().connection();
+			conn = getSession().connection();
 			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
@@ -2179,13 +2194,20 @@ public class DataExportService extends HibernateDaoSupport {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
+		}finally{
+			try{
+				conn.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 
 	}
 
 	public List sqlListHead(String id) throws Exception {
+		Connection conn = null;
 		try {
-			Connection conn = getSession().connection();
+			conn = getSession().connection();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
 			ExportMain main = (ExportMain) sqllist.get(0);
@@ -2209,6 +2231,12 @@ public class DataExportService extends HibernateDaoSupport {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
+		} finally{
+			try{
+				conn.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 
 	}
