@@ -251,9 +251,9 @@ div.modother a {
 */
 div.navigateContainerOther {
 	width: 100%;
-	margin-top:10px;
-	margin-left:10px;
-	margin-right:10px;
+	margin-top:20px;
+	margin-left:20px;
+	margin-right:20px;
 }
 
 div.navigateContainer {
@@ -477,7 +477,7 @@ div.child_ill_02{
 	width: 150px;
 }
 div.div_mxb_container{
-	background-image: url(../image/menu/fun_mxb_bg.png) !important;
+	background-image: url(../image/menu/fun_mxb_bg01.png) !important;
 	background-repeat: no-repeat;
 }
 div.mxb_01{
@@ -515,6 +515,43 @@ div.mxb_07{
 	margin-left: 610px;
 	width: 190px;
 }
+
+div.mxb_101{
+	margin-top: 30px;
+	margin-left: 130px;
+	width: 150px;
+}
+
+div.mxb_102{
+	margin-top: 230px;
+	margin-left: 40px;
+	width: 150px;
+}
+
+div.mxb_103{
+	margin-top: 230px;
+	margin-left: 220px;
+	width: 150px;
+}
+
+div.mxb_201{
+	margin-top: 30px;
+	margin-left: 530px;
+	width: 150px;
+}
+
+div.mxb_202{
+	margin-top: 230px;
+	margin-left: 440px;
+	width: 150px;
+}
+
+div.mxb_203{
+	margin-top: 230px;
+	margin-left: 620px;
+	width: 150px;
+}
+
 div.crb_01{
 	margin-top: 20px;
 	margin-left: 25px;

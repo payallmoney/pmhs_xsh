@@ -332,6 +332,12 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			searchCondition = [ [ 'a.name', '姓名' ],[ 'b.birthday', '出生日期' ], [ 'a.fileNo', '档案编码' ],
 		    					[ 'b.idnumber', '身份证号' ], [ 'a.paperFileNo', '纸质档案号' ], [ 'b.workUnit', '工作单位' ], [ 'a.nation', '国籍' ] ];
 		}
+		if(this.title == '高血压患者随访' || this.title == '2型糖尿病患者随访'){
+			searchCondition.push(['c.visitDate','随访日期']);
+		}
+		if(this.title =='健康体检记录'){
+			searchCondition.push(['c.examDate','体检日期']);
+		}
 		var store = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
 			data : searchCondition

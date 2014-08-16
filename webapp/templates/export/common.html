@@ -212,9 +212,10 @@
 				function showExport(){
 					var id = $("#select_type").combobox('getValue');
 					$("#params_panel").html('');
+					
+					var values = g_params[id]; 
+					var html = "<table>";
 					if(g_subs[id]){
-						var values = g_params[id]; 
-						var html = "<table>";
 						for(var key in g_subs[id]){
 							html+=("<tr><td>"+g_subs[id][key].name+"：</td>");
 							if(values && values[key]){
@@ -223,14 +224,14 @@
 								html+=("<td><input id='"+key+"'></td></tr>");
 							}
 						}
-						html+=("<tr><td colspan=2 ><a id='export_button' href='#' onclick='javascript:export_data()'>导出</a></td></tr>");
-						html+=("</table>");
-						$("#params_panel").append(html);
-						$('#export_button').linkbutton({
-						    iconCls: 'icon-redo'
-						});
-						$('#params_panel').dialog('open');
 					}
+					html+=("<tr><td colspan=2 ><a id='export_button' href='#' onclick='javascript:export_data()'>导出</a></td></tr>");
+					html+=("</table>");
+					$("#params_panel").append(html);
+					$('#export_button').linkbutton({
+					    iconCls: 'icon-redo'
+					});
+					$('#params_panel').dialog('open');
 				}
 				/*
 				for(var i=0 ;i <g_colist.length;i++){

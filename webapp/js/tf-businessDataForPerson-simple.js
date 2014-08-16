@@ -88,6 +88,7 @@ function openWin(targetUrl,gridId) {
 	var win = new Ext.Window({
 		modal : true,
 		title : '录入记录',
+		layout : 'fit',
 		border : false
 	});
 
@@ -100,6 +101,8 @@ function openWin(targetUrl,gridId) {
 		title : '',
 		loadMask : true,
 		autoScroll : false,
+		layout : 'fit',
+		height: win.getInnerHeight() - 10,
 		listeners : {
 			message : function(f, data) {
 				console.log("receive message...");

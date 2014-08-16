@@ -1335,11 +1335,13 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 	}else if($templateId == 'fun_mxb_template'){
 		flag = true;
 		modItems = '<div class="div_mxb_container div_container">'+
-			'<div class="mod mxb_01 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_02 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_101 mod_disable"><img src="../image/menu/mxb_01.gif"/><div>高血压档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_102 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_103 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_03 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_04 mod_disable"><img src="../image/menu/mxb_04.gif"/><div>高血压患者随访</div><div class="remarks"></div></div>'+
-			'<div class="mod mxb_05 mod_disable"><img src="../image/menu/mxb_05.gif"/><div>2型糖尿病患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_201 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_202 mod_disable"><img src="../image/menu/mxb_05.gif"/><div>2型糖尿病患者随访</div><div class="remarks"></div></div>'+
+			'<div class="mod mxb_203 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_06 mod_disable"><img src="../image/menu/mxb_06.gif"/><div>重性精神病患者随访</div><div class="remarks"></div></div>'+
 //			'<div class="mod mxb_07 mod_disable"><img src="../image/menu/mxb_07.gif"/><div>重性精神病个人信息补充</div><div class="remarks"></div></div>'+
 		'</div>';
@@ -1372,17 +1374,6 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod personInfo_01 mod_disable"><img src="../image/menu/personInfo_01.gif"/><div>个人健康记录索引</div><div class="remarks"></div></div>'+
 		'</div>';
 	}
-	else if($templateId == 'fun_complex_template'){
-		flag = true;
-		modItems = '<div class="div_container">'+
-			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_02 mod_disable"><img src="../image/menu/complex_02.gif"/><div>高危儿童档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_03 mod_disable"><img src="../image/menu/complex_03.gif"/><div>高危孕产妇档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_05 mod_disable"><img src="../image/menu/complex_05.gif"/><div>免费检查统计</div><div class="remarks"></div></div>'+
-		'</div>';
-	}
-	
 	else if($templateId == 'fun_exam_template'){
 		flag = true;
 		modItems = '<div class="div_container">'+
@@ -1437,7 +1428,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			//console.log(str)
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
-				modItems = modItems + '<div class="modContainer"><div class="modother" onclick="toUrl(\'' + arrayStr[1] 
+				modItems = modItems + '<div class="modContainer "><div class="mod" onclick="toUrl(\'' + arrayStr[1] 
 			  		+ '\',\'' + arrayStr[0] + '\',\'' + arrayStr[2] + '\')" id="\'' + arrayStr[2] + 
 			  		'\'"><img src="../image/menu/' + arrayStr[3] + '" width="100px" height="100px"/><br/><a>' + arrayStr[0] + '</a></div></div>';
 			}
@@ -1449,6 +1440,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 	if(flag){
 		for(var i=0;i<$ArrayContent.length;i++){
 			var str = $ArrayContent[i];
+			console.log(str);
 			if(str.trim() != ''){
 				var arrayStr = str.split(',');	
 				$('.' + arrayStr[3]).removeClass('mod_disable');
@@ -1679,7 +1671,6 @@ function getTreeData(orgid,name){
 				}
 				nodes = nodes.concat(subret.nodes);
 				treenode.children = subret.treenodes;
-				treenode.attributes
 			}else{
 				var node = {
 					"value": data[i].id,   
