@@ -20,6 +20,8 @@ public class FileNumSearch extends HibernateDaoSupport{
 	//OtherParamType 类型
 	public static String OtherParamType_Woman = "1";//妇女
 	
+	public static String OtherParamType_BirthCert = "101";//妇女已经结案和未结案的,不包括终止妊娠的
+	
 	public static String OtherParamType_Hyp = "2";//高血压
 	
 	public static String OtherParamType_T2dm = "3";//2型糠尿病
@@ -76,6 +78,10 @@ public class FileNumSearch extends HibernateDaoSupport{
     		if(otherparamtype.equals(OtherParamType_Woman)){//孕产妇随访查询
     			otherTables = " ,HealthFileMaternal hm ";
     			hsqlparam = " And p.sex = '女' And hm.fileNo = hf.fileNo And (hm.isClosed = '0' or p.bornStatus = '是') ";
+    			extendCols = " ,hm.id ";
+    		}else if(otherparamtype.equals(OtherParamType_BirthCert)){//打印出生医学证明,已结案的也可以打印,已结案的控制在结案时间60天内
+    			otherTables = " ,HealthFileMaternal hm ";
+    			hsqlparam = " And p.sex = '女' And hm.fileNo = hf.fileNo And (hm.isClosed = '0' or (hm.isClosed =  '1' and hm.closedDate >= convert(varchar,year(dateadd(day,-60,getdate())))+'-'+convert(varchar,month(dateadd(day,-60,getdate())))+'-'+convert(varchar,day(dateadd(day,-60,getdate()))) )) ";
     			extendCols = " ,hm.id ";
     		}else if(otherparamtype.equals(OtherParamType_Hyp) || otherparamtype.equals(OtherParamType_T2dm) || otherparamtype.equals(OtherParamType_Furious)){//慢病随访查询
     			otherTables = " ,DiseaseHistory d ";

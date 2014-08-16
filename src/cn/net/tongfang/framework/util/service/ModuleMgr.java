@@ -2424,8 +2424,26 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVisitAfterBornRecords(List ids)throws Exception {
+	public void removeVisitAfterBornRecords(List<String> ids)throws Exception {
+		List<VisitAfterBorn> list = new ArrayList();
+		for (String id : ids) {
+			VisitAfterBorn vab = (VisitAfterBorn)getHibernateTemplate().get(VisitAfterBorn.class, id);
+			getHibernateTemplate().evict(vab);
+			if("1".equals(vab.getRecordType())){
+				list.add(vab);
+			}
+		}
+		getHibernateTemplate().flush();
 		removeRecords(ids, VisitAfterBorn.class);
+		//在执行完后进行处理,如果抛出异常(表明未执行成功),则不执行
+		for (VisitAfterBorn vb : list) {
+			//为产后42天 , 则恢复妇保手册为未结案
+			System.out.println("=====vb.getForeignId()======="+vb.getForeignId());
+			HealthFileMaternal hfm = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, vb.getForeignId());
+			hfm.setIsClosed("0");
+			getHibernateTemplate().save(hfm);
+		}
+		getHibernateTemplate().flush();
 	}
 
 	public PagingResult<Map<String, Object>> findReceptionRecords(
