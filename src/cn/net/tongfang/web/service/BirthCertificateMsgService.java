@@ -29,6 +29,7 @@ import cn.net.tongfang.framework.security.vo.BarCodeHistory;
 import cn.net.tongfang.framework.security.vo.BasicInformation;
 import cn.net.tongfang.framework.security.vo.BirthCertifiDestroyReason;
 import cn.net.tongfang.framework.security.vo.BirthCertificate;
+import cn.net.tongfang.framework.security.vo.BirthCertificateBefore2012;
 import cn.net.tongfang.framework.security.vo.BirthCertificateChange;
 import cn.net.tongfang.framework.security.vo.BirthCertificateCondition;
 import cn.net.tongfang.framework.security.vo.BirthCertificateOrg;
@@ -995,6 +996,17 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
 				BeanUtils.copyProperties(change,birthCertificate);
 			}
+			hql = " From BirthCertificateBefore2012 Where birthCertifiId = ? ";
+			query = getSession().createQuery(hql);
+			query.setParameter(0, birthCertificate.getSourceBirthCertifiId());
+			list = query.list();
+			if(list.size() > 0 ){
+				BirthCertificateBefore2012 before = (BirthCertificateBefore2012)list.get(0);
+				birthCertificate.setOriginalBirthAddress(before.getOriginalBirthAddress());
+				birthCertificate.setName2012(before.getName2012());
+				birthCertificate.setFatherName2012(before.getFatherName2012());
+				birthCertificate.setMotherName2012(before.getMotherName2012());
+			}
 		}
 		if(flag){
 			String hql = "From BirthCertifiDestroyReason Where certifiId = ? And type = ? Order By reasonDate DESC";
@@ -1037,21 +1049,24 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertifi.getCertifiId();
 	}
 	public String saveChange(BirthCertificateBO birthCertificate){
-		BirthCertificate sourceBirthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificate.getSourceBirthCertifiId());
+		String checkhql = " From BirthCertificateChange Where sourceBirthCertifiId = ?";
+		Query checkquery = getSession().createQuery(checkhql);
+		checkquery.setParameter(0, birthCertificate.getSourceBirthCertifiId());
+		List checklist = checkquery.list();
+		if(checklist.size() > 0){
+			return "0";
+		}
+		
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		BirthCertificate birthCertifi = new BirthCertificate();
-		if(sourceBirthCertifi != null && sourceBirthCertifi.getIsEffectived().equals(4)){
-
-			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+		if(birthCertificate.getBirthCertificateYears() != null && birthCertificate.getBirthCertificateYears().equals("2012年以前的出生医学证明")){
 			BeanUtils.copyProperties(birthCertificate,birthCertifi);
-			
 			birthCertifi.setInputPersonId(user.getUsername());
 			birthCertifi.setInputDate(new Timestamp(System.currentTimeMillis()));
 			birthCertifi.setIsEffectived(2);
 			birthCertifi.setIsChanged(1);
-			
-			sourceBirthCertifi.setIsEffectived(5);
 			getHibernateTemplate().update(birthCertifi);
-			getHibernateTemplate().update(sourceBirthCertifi);
+			
 			String hql = " From BirthCertificateChange Where destBirthCertifiId = ?";
 			Query query = getSession().createQuery(hql);
 			query.setParameter(0, birthCertificate.getCertifiId());
@@ -1067,10 +1082,67 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 				getHibernateTemplate().save(birthCertifiChange);
 			}
 			
+			String h = " From BirthCertificateBefore2012 Where birthCertifiId = ?";
+			Query q = getSession().createQuery(h);
+			q.setParameter(0, birthCertificate.getSourceBirthCertifiId());
+			List l = q.list();
+			if(l.size() > 0 ){
+				BirthCertificateBefore2012 before = new BirthCertificateBefore2012();
+				BeanUtils.copyProperties(birthCertificate,before);
+				before.setBirthCertifiId(birthCertificate.getSourceBirthCertifiId());
+				before.setInputDate(new Timestamp(System.currentTimeMillis()));
+				getHibernateTemplate().save(before);
+			}else{
+				BirthCertificateBefore2012 before = new BirthCertificateBefore2012();
+				BeanUtils.copyProperties(birthCertificate,before);
+				before.setBirthCertifiId(birthCertificate.getSourceBirthCertifiId());
+				before.setOrgId(user.getOrgId());
+				before.setInputPersonId(user.getUsername());
+				before.setInputDate(new Timestamp(System.currentTimeMillis()));
+				getHibernateTemplate().save(before);
+			}
 		}else{
-			return "0";
-//			throw new RuntimeException("原出生医学证明编号填写不正确！");
+			BirthCertificate sourceBirthCertifi = (BirthCertificate)getHibernateTemplate().get(BirthCertificate.class, birthCertificate.getSourceBirthCertifiId());
+			if(sourceBirthCertifi != null && sourceBirthCertifi.getIsEffectived().equals(4)){
+				BeanUtils.copyProperties(birthCertificate,birthCertifi);
+				birthCertifi.setInputPersonId(user.getUsername());
+				birthCertifi.setInputDate(new Timestamp(System.currentTimeMillis()));
+				birthCertifi.setIsEffectived(2);
+				birthCertifi.setIsChanged(1);
+				
+				sourceBirthCertifi.setIsEffectived(5);
+				getHibernateTemplate().update(birthCertifi);
+				getHibernateTemplate().update(sourceBirthCertifi);
+				String hql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+				Query query = getSession().createQuery(hql);
+				query.setParameter(0, birthCertificate.getCertifiId());
+				List list = query.list();
+				if(list.size() > 0){
+					BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+					BeanUtils.copyProperties(birthCertificate,change);
+					getHibernateTemplate().update(change);
+				}else{
+					BirthCertificateChange birthCertifiChange = new BirthCertificateChange();
+					BeanUtils.copyProperties(birthCertificate,birthCertifiChange);
+					birthCertifiChange.setDestBirthCertifiId(birthCertifi.getCertifiId());
+					getHibernateTemplate().save(birthCertifiChange);
+				}
+				
+				String h = " From BirthCertificateBefore2012 Where birthCertifiId = ?";
+				Query q = getSession().createQuery(h);
+				q.setParameter(0, birthCertificate.getSourceBirthCertifiId());
+				List l = q.list();
+				if(l.size() > 0){
+					BirthCertificateBefore2012 before = (BirthCertificateBefore2012)l.get(0);
+					getHibernateTemplate().delete(before);
+				}
+				
+			}else{
+				return "0";
+//				throw new RuntimeException("原出生医学证明编号填写不正确！");
+			}
 		}
+		
 		return birthCertifi.getCertifiId();
 	}
 	public BirthCertificateBO getChangeInfo(BirthCertificateBO birthCertificate){
@@ -1088,7 +1160,18 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		if(list.size() > 0){
 			BirthCertificateChange change = (BirthCertificateChange)list.get(0);
 			BeanUtils.copyProperties(change,retVal);
+			if(change.getBirthCertificateYears() != null && change.getBirthCertificateYears().equals("2012年以前的出生医学证明")){
+				hql = "From BirthCertificateBefore2012 Where birthCertifiId = ?";
+				query = getSession().createQuery(hql);
+				query.setParameter(0, birthCertificate.getCertifiId());
+				list = query.list();
+				if(list.size() > 0){
+					BirthCertificateBefore2012 before = (BirthCertificateBefore2012)list.get(0);
+					retVal.setOriginalBirthAddress(before.getOriginalBirthAddress());
+				}
+			}
 		}
+		
 		return retVal;
 	}
 	public String save(BirthCertificateBO birthCertificate)throws Exception{	
@@ -1295,5 +1378,55 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		query.setParameter(0, changedParams.getCertifiId());
 		query.executeUpdate();
 		return true;
+	}
+	
+	public PagingResult<BirthCertificateBefore2012> get2012BeforeChangedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
+		String sourceCertiBirth = "";
+		if (StringUtils.hasText(qryCerti.getResTxt())) {
+			String sourceHql = " From BirthCertificateChange Where destBirthCertifiId = ?";
+			Query query = getSession().createQuery(sourceHql);
+			query.setParameter(0, qryCerti.getResTxt());
+			List list = query.list();
+			if(list.size() > 0){
+				BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+				sourceCertiBirth = change.getSourceBirthCertifiId();
+			}
+		}
+		System.out.println(sourceCertiBirth);
+		String sourceHql = " From BirthCertificateBefore2012 Where birthCertifiId = ?";
+		String countHql = "Select Count(*) " + sourceHql;
+		Query q = getSession().createQuery(countHql);
+		q.setParameter(0, sourceCertiBirth);
+		int totalSize = ((Long)(q.list()).get(0)).intValue();
+		
+		Query query = getSession().createQuery(sourceHql);
+		query.setParameter(0, sourceCertiBirth);
+		query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+		List list = query.list();
+		List<BirthCertificateBefore2012> birthCertificates = new ArrayList<BirthCertificateBefore2012>();
+		for (Object object : list) {
+//			Object[] objs = (Object[]) object;
+			BirthCertificateBefore2012 birthcertifi = (BirthCertificateBefore2012) object;
+			getHibernateTemplate().evict(birthcertifi);
+			birthCertificates.add(birthcertifi);
+		}
+		return new PagingResult<BirthCertificateBefore2012>(totalSize, birthCertificates);
+	}
+	public BirthCertificateBefore2012 getBirthCertificateBefore2012(BirthCertificateBefore2012 bean){
+		BirthCertificateBefore2012 before = (BirthCertificateBefore2012)getHibernateTemplate().get(BirthCertificateBefore2012.class, bean.getId());
+		return before;
+	}
+	public void saveBirthCertificateBefore2012(BirthCertificateBefore2012 bean){
+		String sourceHql = " From BirthCertificateChange Where sourceBirthCertifiId = ?";
+		Query q = getSession().createQuery(sourceHql);
+		q.setParameter(0, bean.getBirthCertifiId());
+		List list = q.list();
+		if(list.size() > 0){
+			BirthCertificateChange change = (BirthCertificateChange)list.get(0);
+			change.setSourceBirthCertifiId(bean.getBirthCertifiId());
+			getHibernateTemplate().update(change);
+		}
+		bean.setInputDate(new Timestamp(System.currentTimeMillis()));
+		getHibernateTemplate().update(bean);
 	}
 }

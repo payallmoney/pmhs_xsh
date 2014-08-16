@@ -888,12 +888,21 @@ var cfg = [
 				size : 30
 			}
 		}, {// 新生儿疾病筛查
-			id : "exam28",
+			id : "babyIllnessScreen",
 			xtype : "list",
 			setting : {
 				ds : "1286",
-				maxlen : 10,
-				size : 10
+				multi : true,
+				maxlen : 50,
+				size : 50,
+				displayCols : [ 'number', 'name' ],
+				displayColNames : [ "编号", "方式" ],
+				save : 'id',
+				mapping : {
+					value : 'babyIllnessScreenId'
+				},
+				isDefaultVal : true,
+				defaultVal : 0
 			},
 			requires : {
 				valEq : "3",

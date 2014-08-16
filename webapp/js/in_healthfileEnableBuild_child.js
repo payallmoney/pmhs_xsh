@@ -1,50 +1,40 @@
-﻿var childOtherValJson = {};
+﻿
 (function(){
-	var json = Utils.parseParams(window.location.search);
-	var fileNo = unescape(json.fileNo);
-	HealthFileChildrenService.getChildrenOtherInfo(fileNo,function(data){
-		console.log(data);
-		var fatherName = '';
-		var motherName = '';
-		var weight = '';
-		var height = '';
-		var weekly = '';
-		var bormWays = '';
-		var birthOrgName = '';
-		var fatherAge = '';
-		var fatherNation = '';
-		var motherAge = '';
-		var motherNation = '';
-		if(data != null){
-			fatherName = data[0].fatherName;
-			motherName = data[0].motherName;
-			weight = data[0].weight;
-			height = data[0].height;
-			weekly = data[0].borthWeekly;
-			birthOrgName = data[0].borthOrganization;
-			fatherAge = data[0].fatherAge;
-			fatherNation = data[0].fatherNation;
-			motherAge = data[0].motherAge;
-			motherNation = data[0].motherNation;
-			if(data.length == 2){
-				bormWays = data[1].childbirthWay;
+	RelatedInfoForChild = {
+		get : getInfo
+	}
+	function getInfo(fileNo){
+		//console.log(setting);
+		//console.log(med.getCtrl(1));
+		HealthFileChildrenService.getChildrenOtherInfo(fileNo,function(data){
+			if(data != null){
+				var borthWays = data[0][0];
+				if(borthWays != null && borthWays != ''){
+					$('div #bormWays').children('span').each(function(i,n){
+						var obj = $(n)
+						var htmls = obj.html();
+						if(htmls.indexOf(borthWays) > 0){
+							obj.addClass('list-selected');
+							$('div #bormWays').children('input').val(i + 1);
+						}else{
+							obj.removeClass('list-selected');
+						}
+					});
+				}
+				var inputVals = data[1];
+				var fieldsList = ['motherName','fatherName','weight','height','weekly','motherNation',
+				                  'fatherNation','motherAge','fatherAge','birthOrgName','apgarOneMinuts',
+				                  'apgarFiveMinuts','motherEducational','motherOccupation']
+				//console.log(data);
+				if(inputVals.length == fieldsList.length){
+					for(var i = 0;i<inputVals.length;i++){
+						$('#' + fieldsList[i] + ' input').val(inputVals[i]);
+					}
+				}
+				
 			}
-		}
-
-		childOtherValJson = {
-			'fatherName' : fatherName,
-			'motherName' : motherName,
-			'weight' : weight,
-			'height' : height,
-			'weekly' : weekly,
-			'bormWays' : bormWays,
-			'birthOrgName' : birthOrgName,
-			'fatherAge' : fatherAge,
-			'fatherNation' : fatherNation,
-			'motherAge' : motherAge,
-			'motherNation' : motherNation			
-		};
-	});
+		});
+	}
 })();
 
 var services = {
@@ -349,7 +339,9 @@ var cfg = [ {
 	setting : {
 		ds : "151",
 		isDefaultVal : true,
-		defaultVal : 0
+		defaultVal : 0,
+		controlList : true,
+		controlListId : ['montherException']
 	},
 	requires : {
 		valEq : "2",
@@ -360,7 +352,7 @@ var cfg = [ {
 	id : "montherException",
 	xtype : "list",
 	setting : {
-		disabled : true,
+		noneDisplay : true,
 		ds : "2014",
 		newlineStep : 4,
 		multi: true,
@@ -386,7 +378,9 @@ var cfg = [ {
 	setting : {
 		ds : "151",
 		isDefaultVal : true,
-		defaultVal : 0
+		defaultVal : 0,
+		controlList : true,
+		controlListId : ['childrenException']
 	},
 	requires : {
 		valEq : "2",
@@ -397,9 +391,12 @@ var cfg = [ {
 	xtype : "list",
 	setting : {
 		ds : "2015",
-		disabled : true,
+		noneDisplay : true,
+		//disabled : true,
 		multi: true,
         save: "id",
+        controlList : true,
+		controlListId : ['childrenException1'],
         mapping: {
           value: "childrenExceptionId"
         }
@@ -416,7 +413,8 @@ var cfg = [ {
 	xtype : "list",
 	setting : {
 		ds : "2009",
-		disabled : true
+		noneDisplay : true
+		//disabled : true
 	}
 }, {
 	id : "childrenExceptionOhter",

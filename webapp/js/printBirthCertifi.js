@@ -83,6 +83,10 @@
 		
 		//出生机构
 		var borthAddressCategory = dataIsNull(data.borthAddressCategory);
+		var otherBorthAddressCategory = dataIsNull(data.otherBorthAddressCategory);
+		if (otherBorthAddressCategory != ''){
+			borthAddressCategory = borthAddressCategory + ':' + otherBorthAddressCategory;
+		}
 		var motherAddress = dataIsNull(data.motherAddress);
 		var motherCardType = dataIsNull(data.motherCardType);
 		var motherCard = '';

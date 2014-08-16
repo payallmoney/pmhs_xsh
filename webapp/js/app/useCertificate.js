@@ -740,10 +740,16 @@ this.tabChangedGrid.getView().on('refresh', function() {
 	if (model.getCount() == 0) {
 		model.selectFirstRow();
 		Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+		Ext.getCmp('tab2012BeforeChangedGrid').getStore().reload();
 	}
 }.createDelegate(this));
 this.tabChangedGrid.on('rowclick', function(){
 	Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+	Ext.getCmp('tab2012BeforeChangedGrid').getStore().reload();
+	console.dir(Ext.getCmp('tabBeforeChangedGrid').getStore());
+	console.dir(Ext.getCmp('tab2012BeforeChangedGrid').getStore());
+	console.log(Ext.getCmp('tabBeforeChangedGrid').getStore().totalLength);
+	console.log(Ext.getCmp('tab2012BeforeChangedGrid').getStore().getTotalCount());
 }.createDelegate(this), this);
 this.tabBeforeChangedreaderConfig = [ {
 	name : 'certifiId'
@@ -830,6 +836,7 @@ this.tabBeforeChangedGrid = new Ext.grid.GridPanel({
 			}
 		}.createDelegate(this)
 	}],
+	title : '2012以后原始出生医学证明',
 	id : 'tabBeforeChangedGrid',
 	bbar : this.tabBeforeChangedpagingBar,
 	layout : 'fit',
@@ -837,6 +844,100 @@ this.tabBeforeChangedGrid = new Ext.grid.GridPanel({
 	cm : new Ext.grid.ColumnModel(this.tabBeforeChangedgridCmConfig),
 	sm : tabBeforeChangedsm
 });
+
+//2012年以前的出生医学证明
+this.tab2012BeforeChangedreaderConfig = [ {
+	name : 'id'
+},{
+	name : 'birthCertifiId'
+}, {
+	name : 'name2012'
+}, {
+	name : 'motherName2012'
+}, {
+	name : 'fatherName2012'
+}, {
+	name : 'originalBirthAddress'
+}];
+this.tab2012BeforeChangedgridCmConfig = [ {
+	"header" : "<center>出生医学证明编号</center>",
+	"dataIndex" : "birthCertifiId",
+	"width" : 200
+}, {
+	"header" : "<center>姓名</center>",
+	"dataIndex" : "name2012"
+}, {
+	"header" : "<center>母亲姓名</center>",
+	"dataIndex" : "motherName2012"
+}, {
+	"header" : "<center>父亲姓名</center>",
+	"dataIndex" : "fatherName2012"
+}, {
+	"header" : "<center>接生机构</center>",
+	"dataIndex" : "originalBirthAddress",
+	"width" : 300
+} ];
+var tab2012BeforeChangedreader = new Ext.data.JsonReader({
+	totalProperty : "totalSize",
+	root : "data",
+	id : "birthCertifiId"
+}, Ext.data.Record.create(this.tab2012BeforeChangedreaderConfig));
+var tab2012BeforeChangedstore = new Ext.data.Store({
+	proxy : new Ext.ux.data.DWRProxy({
+		dwrFunction : BirthCertificateMsgService.get2012BeforeChangedCertiId,
+		listeners : {
+			'beforeload' : function(dataProxy, params) {
+				var orgId = currentNode.id;
+				var resTxt = '';
+				var selections = Ext.getCmp('tabChangedGrid').getSelections();
+				if (selections.length == 1) {
+					resTxt = selections[0].get('certifiId');
+				}
+				var o = {
+					orgId : orgId,
+					resTxt : resTxt
+				};
+				console.log(o);
+				if (!params.limit)
+					params.limit = 5;
+				params[dataProxy.loadArgsKey] = [ o, params ];
+			}.createDelegate(this)
+		}
+	}),
+	reader : tab2012BeforeChangedreader
+});
+this.tab2012BeforeChangedpagingBar = new Ext.PagingToolbar({
+	pageSize : 5,
+	store : tab2012BeforeChangedstore,
+	displayInfo : true,
+	displayMsg : '{0} - {1} of {2}',
+	emptyMsg : "没有记录"
+});
+var tab2012BeforeChangedsm = new Ext.grid.CheckboxSelectionModel({singleSelect:true});
+this.tab2012BeforeChangedgridCmConfig.unshift(tab2012BeforeChangedsm);
+this.tab2012BeforeChangedGrid = new Ext.grid.GridPanel({
+	tbar : [{
+		text : '修改',
+		iconCls : 'c_edit',
+		handler : function(){
+			var selections = Ext.getCmp('tab2012BeforeChangedGrid').getSelections();
+			if (selections.length == 1) {
+				var id = selections[0].get('id');
+				openWin('/birthCertificateChange2012.html?id=' + id);
+			}else{
+				showMsg('请选择出生证明信息');
+			}
+		}.createDelegate(this)
+	}],
+	title : '2012以前原始出生医学证明',
+	id : 'tab2012BeforeChangedGrid',
+	bbar : this.tab2012BeforeChangedpagingBar,
+	layout : 'fit',
+	store : tab2012BeforeChangedstore,
+	cm : new Ext.grid.ColumnModel(this.tab2012BeforeChangedgridCmConfig),
+	sm : tab2012BeforeChangedsm
+});
+
 
 function handleUsed(tab){
 	if(currentNode != null){
@@ -914,6 +1015,7 @@ function handleChanged(tab){
 		Ext.getCmp('tabChangedGrid').getStore().reload();
 //		this.doLayout(true);
 		Ext.getCmp('tabBeforeChangedGrid').getStore().reload();
+		Ext.getCmp('tab2012BeforeChangedGrid').getStore().reload();
 //		this.doLayout(true);
 		
 	}
@@ -1459,11 +1561,21 @@ app.useCertifi = new Ext.Panel({
 				title : '换发出生医学证明（后）',
 				items : [ this.tabChangedGrid ]
 			},{
+				
+				//xtype: 'tabpanel',
+		        //activeTab : 0,
+		        //defaults: {autoScroll:true},
 				region : 'south',
 				layout : 'fit',
-				title : '原始出生医学证明',
+				//title : '原始出生医学证明',
 				height : 300,
-				items : [ this.tabBeforeChangedGrid ]
+				items : [{
+					xtype: 'tabpanel',
+					activeTab : 0,
+					defaults: {autoScroll:true},
+					items : [this.tabBeforeChangedGrid ,this.tab2012BeforeChangedGrid]
+				}]
+				//items : [ this.tabBeforeChangedGrid ]
 			} ]
 //			items : [this.tabChangedGrid]
 //          }]

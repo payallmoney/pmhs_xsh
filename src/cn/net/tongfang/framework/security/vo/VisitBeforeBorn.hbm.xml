@@ -109,16 +109,16 @@
         <property name="bornBirthAddressPlan" type="java.lang.String">
             <column name="BornBirthAddressPlan" />
         </property>
-        <property name="pelvis01" type="java.lang.Integer">
+        <property name="pelvis01" type="java.lang.Double">
             <column name="Pelvis01" />
         </property>
-        <property name="pelvis02" type="java.lang.Integer">
+        <property name="pelvis02" type="java.lang.Double">
             <column name="Pelvis02" />
         </property>
-        <property name="pelvis03" type="java.lang.Integer">
+        <property name="pelvis03" type="java.lang.Double">
             <column name="Pelvis03" />
         </property>
-        <property name="pelvis04" type="java.lang.Integer">
+        <property name="pelvis04" type="java.lang.Double">
             <column name="Pelvis04" />
         </property>
         <property name="foreignId" type="java.lang.String">

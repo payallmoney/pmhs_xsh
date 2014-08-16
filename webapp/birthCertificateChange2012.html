@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+
+<!-- Framework CSS -->
+<link rel="stylesheet" href="css/screen.css" type="text/css"
+	media="screen, projection"></link>
+<!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+
+<!-- Import fancy-type plugin for the sample page. -->
+<link rel="stylesheet" href="css/plugins/fancy-type/screen.css"
+	type="text/css" media="screen, projection"></link>
+
+<link rel="stylesheet" href="css/hud.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/main.css" type="text/css"
+	media="screen" />
+<link rel="stylesheet" href="css/tabs.css" type="text/css"
+	media="screen" />
+<link rel="stylesheet" href="css/card.css" type="text/css"
+	media="screen, print" />
+
+<script type='text/javascript' src='/dwr/engine.js'></script>
+<script type='text/javascript' src='/dwr/util.js'></script>
+
+<!-- ExtJS -->
+<link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
+<script type="text/javascript" src="js/ext/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="js/ext/ext-all-debug.js"></script>
+<script type="text/javascript" src="js/ext/ext-lang-zh_CN.js"></script>
+<script type='text/javascript' src='/dwr/interface/OptionProvider.js'></script>
+<script type="text/javascript" src="js/ext/dwrproxy.js"></script>
+<script type="text/javascript" src="js/ext/DwrTreeLoader.js"></script>
+<script type="text/javascript" src="js/jsLoader.js"></script>
+
+<script type='text/javascript' src='/dwr/interface/MetaProvider.js'></script>
+<script type='text/javascript'
+	src='/dwr/interface/PersonalInfoService.js'></script>
+<script type='text/javascript'
+	src='/dwr/interface/UserMenuTreeService.js'></script>
+<script type='text/javascript'
+	src='/dwr/interface/BirthCertificateMsgService.js'></script>
+
+<script type="text/javascript" src="js/rx.js"></script>
+<script type="text/javascript" src="js/jquery.tools.min.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/jquery.printElement.min.js"></script>
+<script type="text/javascript" src="js/rx.jQuery.js"></script>
+<script type="text/javascript" src="js/controls.js"></script>
+<script type="text/javascript" src="js/med.js"></script>
+<script type="text/javascript" src="js/validate.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript"
+	src="js/in_birthCertificateChange2012.js"></script>
+
+<style type="text/css">
+.del_btn {
+	background-image: url(image/delete.png) !important;
+	background-repeat: no-repeat;
+}
+
+.add_btn {
+	background-image: url(image/add.png) !important;
+	background-repeat: no-repeat;
+}
+</style>
+</head>
+<body>
+	<div class="outerContainer">
+		<div class="showToolbar"></div>
+		<div class="container">
+			<table class="form_tbl">
+				<tr>
+					<td class="header">原出生证明编号</td>
+					<td colspan="3" id="birthCertifiId"></td>
+					<td class="header">原出生证明姓名</td>
+					<td colspan="3" id="name2012"></td>
+				</tr>
+				<tr>
+					<td class="header">原出生证明母亲<br/>&nbsp;姓名</td>
+					<td colspan="3" id="motherName2012"></td>
+					<td class="header">原出生证明父亲<br/>&nbsp;姓名</td>
+					<td colspan="3" id="fatherName2012"></td>
+				</tr>
+				<tr>
+					<td class="header">原出生医疗机构</td>
+					<td colspan="7" id="originalBirthAddress"></td>
+				</tr>
+			</table>
+		</div>
+		<div class="showToolbar"></div>
+		<br /> <br />
+	</div>
+</body>
+</html>

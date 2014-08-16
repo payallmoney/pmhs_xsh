@@ -17,5 +17,8 @@
         <property name="changeReasons" type="java.lang.String">
             <column name="ChangeReasons" />
         </property>
+         <property name="birthCertificateYears" type="java.lang.String">
+            <column name="BirthCertificateYears" />
+        </property>
     </class>
 </hibernate-mapping>

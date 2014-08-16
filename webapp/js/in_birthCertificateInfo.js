@@ -575,15 +575,15 @@ var cfg = [
 			},
 			required : [ true, "签证机构" ]
 		},
-		{
-			id : "familyAddress",
-			xtype : "input",
-			setting : {
-				maxlen : 30,
-				size : 30
-			},
-			required : [ true, "家庭住址" ]
-		},
+//		{
+//			id : "familyAddress",
+//			xtype : "input",
+//			setting : {
+//				maxlen : 30,
+//				size : 30
+//			},
+//			required : [ true, "家庭住址" ]
+//		},
 		{
 			id : "districtNum",
 			xtype : "input",

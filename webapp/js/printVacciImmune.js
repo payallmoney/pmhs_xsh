@@ -22,7 +22,7 @@
 	
 	//打印数据获取
 	function generateJson(data){
-		var fileNo = data.fileNo;
+		var fileNo = '';
 		var name = data.vname;
 		var sex = data.vsex;
 		var male = '';

@@ -190,20 +190,9 @@ var cfg = [ {
 	required : [ true, "身份证号" ]
 }, {
 	id : "borthAddressCategory",
-	xtype : "list",
-	setting : {
-		ds : "2021"
-	},
-	requires : {
-		valEq : "2",
-		fields : [ "otherBorthAddressCategory" ]
-	}
-}, {
-	id : "otherBorthAddressCategory",
 	xtype : "input",
 	setting : {
-		disabled : true,
-		size : 15
+		size : 103.5
 	}
 }, {
 	id : "certifiId",

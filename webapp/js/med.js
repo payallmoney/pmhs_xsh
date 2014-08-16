@@ -89,7 +89,10 @@ function isOldMan(date) {
 				if(typeof(saveBeforeObj) != 'undefined'){
 					saveBeforeObj.IsAbortionFn(d[0],d[1]);
                 }
-				
+				if(typeof(RelatedInfoForChild) != 'undefined'){
+					RelatedInfoForChild.get(d[0]);
+                }
+				console.dir(d);
 				selections.push(d);
 				// alert(d[2]);
 				setDisabledBySex(d[2]);

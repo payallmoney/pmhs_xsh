@@ -1,14 +1,13 @@
 package cn.net.tongfang.web.service.bo;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import cn.net.tongfang.framework.security.vo.BabyDirect;
+import cn.net.tongfang.framework.security.vo.BabyIllnessScreen;
 import cn.net.tongfang.framework.security.vo.BabySkin;
 import cn.net.tongfang.framework.security.vo.BabyVisit;
 import cn.net.tongfang.framework.security.vo.BornStatus;
 import cn.net.tongfang.framework.security.vo.FaceColor;
-import cn.net.tongfang.framework.security.vo.HighRiskStatus;
 import cn.net.tongfang.framework.security.vo.PregnantSick;
 
 public class BabyVisitBO extends BabyVisit{
@@ -17,6 +16,7 @@ public class BabyVisitBO extends BabyVisit{
 	List<FaceColor> faceColor;
 	List<BabySkin> babySkin;
 	List<BabyDirect> babyDirect;
+	List<BabyIllnessScreen> babyIllnessScreen;
 	
 	private String medicalExamId;
 	private String pressure;
@@ -279,6 +279,12 @@ public class BabyVisitBO extends BabyVisit{
 	}
 	public void setPleuraRemark(String pleuraRemark) {
 		this.pleuraRemark = pleuraRemark;
+	}
+	public List<BabyIllnessScreen> getBabyIllnessScreen() {
+		return babyIllnessScreen;
+	}
+	public void setBabyIllnessScreen(List<BabyIllnessScreen> babyIllnessScreen) {
+		this.babyIllnessScreen = babyIllnessScreen;
 	}
 	
 }

@@ -285,7 +285,41 @@ var cfg = [ {
 		size : 20
 	}
 }, {
+	id : "birthCertificateYears",
+	xtype : "list",
+	setting : {
+		ds : "2024",
+		isDefaultVal : true,
+		defaultVal : 0,
+		controlShow : 1,
+		controlShowVal : 'originalBirthAddress,name2012,motherName2012,fatherName2012'
+	}
+}, {
 	id : "sourceBirthCertifiId",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
+}, {
+	id : "name2012",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
+}, {
+	id : "motherName2012",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
+}, {
+	id : "fatherName2012",
+	xtype : "input",
+	setting : {
+		size : 20
+	}
+}, {
+	id : "originalBirthAddress",
 	xtype : "input",
 	setting : {
 		size : 20

@@ -105,7 +105,7 @@
 				</tr>
 				<tr>
 					<td class="header">医疗机构名称</td>
-					<td id="borthAddressCategory" colspan="7"></td>
+					<td colspan="7"><span style="margin-left: 5px;" id="borthAddressCategory"></span><span id="otherBorthAddressCategory"></span></td>
 				</tr>
 				<tr>
 					<td class="header">母亲姓名</td>
@@ -180,8 +180,24 @@
 						id="type" style="display: none;">${name}</span></td>
 				</tr>
 				<tr class="changeCertificate" style="display: none;">
+					<td class="header">原出生医学证明<br/>&nbsp;发放年份</td>
+					<td colspan="7" id="birthCertificateYears"></td>
+				</tr>
+				<tr class="changeCertificate" style="display: none;">
 					<td class="header">原出生证明编号</td>
-					<td colspan="7" id="sourceBirthCertifiId"></td>
+					<td colspan="3" id="sourceBirthCertifiId"></td>
+					<td class="header">原出生证明姓名</td>
+					<td colspan="3" id="name2012"></td>
+				</tr>
+				<tr class="changeCertificate" style="display: none;">
+					<td class="header">原出生证明母亲<br/>&nbsp;姓名</td>
+					<td colspan="3" id="motherName2012"></td>
+					<td class="header">原出生证明父亲<br/>&nbsp;姓名</td>
+					<td colspan="3" id="fatherName2012"></td>
+				</tr>
+				<tr class="changeCertificate" style="display: none;">
+					<td class="header">原出生医疗机构</td>
+					<td colspan="3" id="originalBirthAddress"></td>
 				</tr>
 				<tr class="changeCertificate" style="display: none;">
 					<td class="header">换发原因</td>

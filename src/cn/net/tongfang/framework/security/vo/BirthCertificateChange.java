@@ -12,6 +12,7 @@ public class BirthCertificateChange implements java.io.Serializable {
 	private String sourceBirthCertifiId;
 	private String destBirthCertifiId;
 	private String changeReasons;
+	private String birthCertificateYears;
 	// Constructors
 
 	/** default constructor */
@@ -20,12 +21,13 @@ public class BirthCertificateChange implements java.io.Serializable {
 
 	/** full constructor */
 	public BirthCertificateChange(String id, String sourceBirthCertifiId,
-			String destBirthCertifiId, String changeReasons) {
+			String destBirthCertifiId, String changeReasons,String birthCertificateYears) {
 		super();
 		this.id = id;
 		this.sourceBirthCertifiId = sourceBirthCertifiId;
 		this.destBirthCertifiId = destBirthCertifiId;
 		this.changeReasons = changeReasons;
+		this.birthCertificateYears = birthCertificateYears;
 	}
 	// Property accessors
 
@@ -59,6 +61,14 @@ public class BirthCertificateChange implements java.io.Serializable {
 
 	public void setChangeReasons(String changeReasons) {
 		this.changeReasons = changeReasons;
+	}
+
+	public String getBirthCertificateYears() {
+		return birthCertificateYears;
+	}
+
+	public void setBirthCertificateYears(String birthCertificateYears) {
+		this.birthCertificateYears = birthCertificateYears;
 	}
 
 }

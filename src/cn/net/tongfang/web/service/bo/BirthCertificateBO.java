@@ -11,7 +11,36 @@ public class BirthCertificateBO extends BirthCertificate {
 	private String sourceBirthCertifiId;
 	private String destBirthCertifiId;
 	private String changeReasons;
+	private String birthCertificateYears;
+	private String originalBirthAddress;
+	private String name2012;
+	private String motherName2012;
+	private String fatherName2012;
 	
+	public String getName2012() {
+		return name2012;
+	}
+	public void setName2012(String name2012) {
+		this.name2012 = name2012;
+	}
+	public String getMotherName2012() {
+		return motherName2012;
+	}
+	public void setMotherName2012(String motherName2012) {
+		this.motherName2012 = motherName2012;
+	}
+	public String getFatherName2012() {
+		return fatherName2012;
+	}
+	public void setFatherName2012(String fatherName2012) {
+		this.fatherName2012 = fatherName2012;
+	}
+	public String getOriginalBirthAddress() {
+		return originalBirthAddress;
+	}
+	public void setOriginalBirthAddress(String originalBirthAddress) {
+		this.originalBirthAddress = originalBirthAddress;
+	}
 	public String getSaveType() {
 		return saveType;
 	}
@@ -54,6 +83,12 @@ public class BirthCertificateBO extends BirthCertificate {
 	}
 	public void setChangeReasons(String changeReasons) {
 		this.changeReasons = changeReasons;
+	}
+	public String getBirthCertificateYears() {
+		return birthCertificateYears;
+	}
+	public void setBirthCertificateYears(String birthCertificateYears) {
+		this.birthCertificateYears = birthCertificateYears;
 	}
 	
 }

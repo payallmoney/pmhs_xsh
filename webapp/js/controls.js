@@ -1189,8 +1189,9 @@ function hideHUD($t, includeError){
             if(setting.scoredisable)
             	disable = false;
             var displayCss = setting.disabled && disable ? "display:none;" : "";
+            var displayCss1 = setting.noneDisplay ? "display:none;" : "";
             var caption = setting.caption ? ("<label class='caption' for=" + fieldName + ">" + setting.caption + ":" + "</label>") : "";
-            c.html("<div class='list' id='" + fieldName  + "' style='" + displayCss + "'>" + caption + spans + newLine +  "<input class='list-input' type='text' size='1'></div>");
+            c.html("<div class='list' id='" + fieldName  + "' style='" + displayCss + displayCss1 + "'>" + caption + spans + newLine +  "<input class='list-input' type='text' size='1'></div>");
             $(c).find(".list-input").keyup(parseVal);
             var ele = $("div", c);
             var input = $(":input", ele); //first
@@ -1198,6 +1199,16 @@ function hideHUD($t, includeError){
             var $spans = $("span", c);
             
             function fillInput(self,selfId){
+            	if(setting.controlList){
+            		var controlListIds = setting.controlListId;
+            		for(var i=0;i<controlListIds.length;i++){
+            			var inputs = $('div #' + controlListIds[i]).children('input');
+            			for(var j=0;j<inputs.length - 1;j++){
+            				$(inputs[j]).remove();
+            			}
+            		}
+            	}
+            	
             	if (self.hasClass('list-selected')) {
                     //remove
                         removeSelectionByMetaIdx(selfId);
@@ -1269,6 +1280,7 @@ function hideHUD($t, includeError){
                 .removeClass('match');
             }).click(function(){
                 var self = $(this);
+                console.dir(self);
                 var selfId = $spans.index(this);
                 if(controlShow == undefined){
                 	var parentTd = $(this).parent('div');

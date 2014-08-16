@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -196,4 +197,36 @@ public class BabyVisitService extends HibernateDaoSupport {
 		}
 		return res;
 	}
+	
+	/**
+	 * 从出生医学证明中获得相关信息
+	 * @param fileNo
+	 * @return
+	 */
+	public List<String> getRelatedInfoForChild(String fileNo){
+		fileNo = EncryptionUtils.encry(fileNo);
+		String hql ="Select motherName,fatherName,borthWeekly,familyAddress,motherIdCard,fatherIdCard From BirthCertificate Where fileNo = ?";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, fileNo);
+		List list = query.list();
+		List<String> retVal = new ArrayList<String>();
+		if(list.size() > 0){
+			Object[] objs = (Object[])list.get(0);
+			for(int i=0;i<objs.length;i++){
+				String val = (String)objs[i];
+				if (i == 4 || i == 5){
+					if(val.length() == 15){
+						val = "19" + val.substring(6, 12);
+					}else if(val.length() == 18){
+						val = val.substring(6, 14);
+					}else{
+						val = "";
+					}
+				}
+				retVal.add(val);
+			}
+		}
+		return retVal;
+	}
+	
 }
