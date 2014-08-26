@@ -377,6 +377,9 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			boxLabel  : '仅查询所在机构',
 			checked : true
 		});
+		this.noExamField = new Ext.form.Checkbox({
+			boxLabel  : '无体检'
+		});
 		this.filterField = new Ext.form.TextField({
 			fieldLabel : '',
 			enableKeyEvents : true,
@@ -767,6 +770,7 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			funcAction.push(this.filterField);
 			funcAction.push(this.onlyOrgField);
 			funcAction.push(this.onlySelfField);
+			funcAction.push(this.noExamField);
 			funcAction.push('-');
 			funcAction.push(new Ext.form.Label({xtype:'lable',text:'选择机构'}));
 			funcAction.push(this.orgcombo);
@@ -800,6 +804,9 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 			console.log("onlyself ==" +this.onlySelfField && this.onlySelfField.getValue())
 			if(this.onlySelfField && this.onlySelfField.getValue()){
 				params['onlyself'] = this.onlySelfField.getValue();
+			}
+			if(this.noExamField && this.noExamField.getValue()){
+				params['noexam'] = this.noExamField.getValue();
 			}
 			console.log("onlyorg ==" +this.onlyOrgField && this.onlyOrgField.getValue())
 			if(this.onlyOrgField && this.onlyOrgField.getValue()){

@@ -714,10 +714,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	public PagingResult<HealthFile> findHealthFiles(HealthFileQry qryCond,
 			PagingParam pp)throws Exception {
+		try{
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder());
-		System.out.println("==findHealthFiles====");
+		System.out.println("==findHealthFiles===="+hql);
 		return queryHealthFiles(pp, params, hql);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 
 	public PagingResult<HealthFile> findHealthFilesEnableBuild(HealthFileQry qryCond,
@@ -992,6 +997,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 				if("org_id".equals(key) && !"".equals(value.trim())){
 					where.append(" and a.inputPersonId in ( select loginname from SamTaxempcode where orgId = "+ value +") ");
+				}
+				if("noexam".equals(key) && "true".equals(value.trim())){
+					where.append(" and not exists ( select 1 from MedicalExam where fileNo = a.fileNo  ) ");
 				}
 			}
 		}
@@ -2430,8 +2438,25 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	}
 
-	public void removeVisitAfterBornRecords(List ids)throws Exception {
+	public void removeVisitAfterBornRecords(List<String> ids)throws Exception {
+		List<VisitAfterBorn> list = new ArrayList();
+		for (String id : ids) {
+			VisitAfterBorn vab = (VisitAfterBorn)getHibernateTemplate().get(VisitAfterBorn.class, id);
+			getHibernateTemplate().evict(vab);
+			if("1".equals(vab.getRecordType())){
+				list.add(vab);
+			}
+		}
+		getHibernateTemplate().flush();
 		removeRecords(ids, VisitAfterBorn.class);
+		//在执行完后进行处理,如果抛出异常(表明未执行成功),则不执行
+		for (VisitAfterBorn vb : list) {
+			//为产后42天 , 则恢复妇保手册为未结案
+			HealthFileMaternal hfm = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, vb.getForeignId());
+			hfm.setIsClosed("0");
+			getHibernateTemplate().save(hfm);
+		}
+		getHibernateTemplate().flush();
 	}
 
 	public PagingResult<Map<String, Object>> findReceptionRecords(
