@@ -1362,18 +1362,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 		'</div>';
 	}
 	
-	else if($templateId == 'fun_exam_template'){
-		flag = true;
-		modItems = '<div class="div_container">'+
-			'<div class="mod exam_01 mod_disable"><img src="../image/menu/exam_01.gif"/><div>健康体检记录</div><div class="remarks"></div></div>'+
-			'<div class="mod exam_02 mod_disable"><img src="../image/menu/exam_02.gif"/><div>老年人健康体检</div><div class="remarks"></div></div>'+
-			'<div class="mod exam_03 mod_disable"><img src="../image/menu/exam_03.gif"/><div>健康教育活动记录</div><div class="remarks"></div></div>'+
-			'<div class="mod exam_04 mod_disable"><img src="../image/menu/exam_04.gif"/><div>重复档案管理</div><div class="remarks"></div></div>'+
-			// '<div class="mod exam_05 mod_disable"><img
-			// src="../image/menu/exam_05.gif"/><div>导入修改档案</div><div
-			// class="remarks"></div></div>'+
-		'</div>';
-	}else if($templateId == 'fun_clinics_template'){
+	else if($templateId == 'fun_clinics_template'){
 		flag = true;
 		modItems = '<div class="div_container">'+
 			'<div class="mod clinics_01 mod_disable"><img src="../image/menu/clinics_01.gif"/><div>接诊记录</div><div class="remarks"></div></div>'+
@@ -1761,7 +1750,12 @@ $(function(){
 					    	        '<input type="radio" id="netspeed04" name="netspeed" value="6"><label for="netspeed04">6M</label>  '+
 					    	        '<input type="radio" id="netspeed05" name="netspeed" value="8"><label for="netspeed05">8M</label>  '+
 			    	        		'<input type="radio" id="netspeed06" name="netspeed" value="10"><label for="netspeed06">10M</label>  '+
-			    	        		'<input type="radio" id="netspeed07" name="netspeed" value="100"><label for="netspeed07">大于10兆</label>  '
+			    	        		'<input type="radio" id="netspeed07" name="netspeed" value="20"><label for="netspeed07">20M</label>  '+
+			    	        		'<input type="radio" id="netspeed08" name="netspeed" value="40"><label for="netspeed08">40M</label>  '+
+			    	        		'<input type="radio" id="netspeed09" name="netspeed" value="60"><label for="netspeed09">60M</label>  '+
+			    	        		'<input type="radio" id="netspeed10" name="netspeed" value="80"><label for="netspeed10">80M</label>  '+
+			    	        		'<input type="radio" id="netspeed11" name="netspeed" value="100"><label for="netspeed11">100M</label>  '+
+			    	        		'<input type="radio" id="netspeed12" name="netspeed" value="150"><label for="netspeed12">大于100兆</label>  '
 			    	    },{
 			    	        html: '<b>宽带使用人数：</b>',
 			    	        baseCls :'head x-panel'
@@ -1814,6 +1808,15 @@ $(function(){
 										},async:false});
 									}
 								}
+							},{
+								text:'稍后填写',
+								style:{width:"200px"},
+								formBind: true,
+								handler:function(){
+									if(valid.form()){
+										questionswin.close();
+									}
+								}
 							}]
 		          }
 		        ]
@@ -1849,17 +1852,6 @@ $(function(){
 	        	usespeed: {
 	        		required : "请选择公卫平台使用速度"
 	        	}
-			  },
-			  valid:function(){
-				  alert("aaaa");
-				  Ext.get("#question_submit").enable();
-			  },
-			  invalid:function(){
-				  alert("bbbb");
-				  Ext.get("#question_submit").disable();
-			  },
-			  eachField:function(event,status,options){
-				  console.log(this,event,status,options);
 			  },
 			  description : {
 				  nettype : {
