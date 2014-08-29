@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -41,6 +42,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
+import org.hibernate.transform.Transformers;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,7 @@ import cn.net.tongfang.framework.security.vo.BirthCertificate;
 import cn.net.tongfang.framework.security.vo.ChildLastMedicalExamRecord;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
 import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
+import cn.net.tongfang.framework.security.vo.ExportDiv;
 import cn.net.tongfang.framework.security.vo.ExportMain;
 import cn.net.tongfang.framework.security.vo.ExportSub;
 import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
@@ -479,6 +482,7 @@ public class DataExportService extends HibernateDaoSupport {
 		return ret;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String dataExportChildFile(String disNo, String filterKey,
 			String filterVal) throws Exception {
 		List params = new ArrayList();
@@ -726,6 +730,7 @@ public class DataExportService extends HibernateDaoSupport {
 	 * @param filterVal
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String dataExportChildExam36(String disNo, String filterKey,
 			String filterVal) throws Exception {
 		List params = new ArrayList();
@@ -1287,10 +1292,12 @@ public class DataExportService extends HibernateDaoSupport {
 	 * @param params
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	private List query(StringBuilder hql, List params) {
 		return getHibernateTemplate().find(hql.toString(), params.toArray());
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	private List query(StringBuilder hql) {
 		return getHibernateTemplate().find(hql.toString());
 	}
@@ -1794,17 +1801,23 @@ public class DataExportService extends HibernateDaoSupport {
 				+ CSVFormat.EXCEL.format(new String[] { "a\"bc" }));
 	}
 
-	public Map<String, List> get_Export_Param() throws Exception {
-		Map<String, List> ret = new HashMap<String, List>();
-		List main = getSession().createQuery(
-				"select id ,name from ExportMain order by id").list();
-		List sub = getSession().createQuery(
-				"from ExportSub order by mainid , ord").list();
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map<String,List> get_Export_Param(String type) throws Exception {
+		Map<String,List> ret = new HashMap<String,List>();
+		String where = "";
+		if(type == null){
+			where = " 1=1 ";
+		}else{
+			where = " type="+type;
+		}
+		List main = getSession().createQuery("select id ,name,orgparamtype,pageable,pagesize from ExportMain where "+where+" order by id").list();
+		List sub =  getSession().createQuery("from ExportSub order by mainid , ord").list();
 		ret.put("sub", sub);
 		ret.put("main", main);
 		return ret;
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String sqlExport(String disid, String id, String name, Map params)
 			throws Exception {
 
@@ -1982,6 +1995,7 @@ public class DataExportService extends HibernateDaoSupport {
 
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public String sqlExportCsv(String disid, String name, String filterKey,
 			String filterVal) throws Exception {
 		while (disid.endsWith("00")) {
@@ -2099,6 +2113,7 @@ public class DataExportService extends HibernateDaoSupport {
 
 	// String examname, String userdistrict, Map<String, Map> params,
 	// Map<String, Map<String, String>> basemap, List<String> collist
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public Map sqlList(String disid, String id, Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
@@ -2204,31 +2219,38 @@ public class DataExportService extends HibernateDaoSupport {
 
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public List sqlListHead(String id) throws Exception {
-		Connection conn = null;
-		try {
+		Connection conn = null ;
+		try{
 			conn = getSession().connection();
-			List sqllist = getSession().createQuery(
-					"from ExportMain where id = " + id + " order by id").list();
-			ExportMain main = (ExportMain) sqllist.get(0);
+			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
+			ExportMain main = (ExportMain)sqllist.get(0);
 			String sql = main.getSql();
-			sql = sql + " and 1=2 ";
-			sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
+			sql = sql  + " and 1=2 "+ main.getGroupby() + " "+ main.getOrderby();
 			sql = sql.replaceAll("\"", "'");
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, null);
+			System.out.println("=======sql====="+sql);
+			PreparedStatement stmt =  conn.prepareStatement(sql);
+			if(sql.indexOf("?")>0){
+				stmt.setString(1, "9999999999");
+			}
 			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			int numberOfColumns = rsMetaData.getColumnCount();
 			List retlist = new ArrayList();
 			for (int i = 1; i <= numberOfColumns; i++) {
 				Map colmap = new HashMap();
-				colmap.put("field", "col" + i);
-				colmap.put("title", rsMetaData.getColumnLabel(i));
+				colmap .put("field", "col"+i);
+				String title = rsMetaData.getColumnLabel(i);
+				if(title.trim().toLowerCase().startsWith("button:")){
+					title = title.trim().substring(7);
+					colmap.put("format", "buttonColumn");
+				}
+				colmap .put("title", title);
 				retlist.add(colmap);
 			}
 			return retlist;
-		} catch (Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();
 			throw e;
 		} finally{
@@ -2238,9 +2260,9 @@ public class DataExportService extends HibernateDaoSupport {
 				e.printStackTrace();
 			}
 		}
-
 	}
-
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public Map getQuestionsByOrg() {
 		Map ret = new HashMap();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
@@ -2256,6 +2278,7 @@ public class DataExportService extends HibernateDaoSupport {
 		return ret;
 	}
 
+	@Transactional
 	public Map saveQuestion(Map params) {
 		Map ret = new HashMap();
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
@@ -2283,5 +2306,347 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 		return ret;
 	}
-
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map sqlListnew(String orgs,String id ,Map params,Map pager) throws Exception {
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		// No DataSource so we must handle Connections manually
+		while(orgs.endsWith("00")){
+			orgs = orgs.substring(0,orgs.length()-2);
+		}
+		System.out.println("============"+pager);
+		SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat inputfomarttime = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fomarttime = new SimpleDateFormat("yyyy-MM-dd  hh:mm:ss");
+		try{
+			Connection conn = getSession().connection();
+			Statement st = conn.createStatement();
+			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
+			List sublist =  getSession().createQuery("from ExportSub where  mainid = "+ id +" order by mainid , ord").list();
+			Map<String,ExportSub> submap = new HashMap();
+			for(int i=0 ;i <sublist.size();i++){
+				ExportSub vo = (ExportSub)sublist.get(i);
+				submap.put(vo.getCode(), vo);
+			}
+			ExportMain main = (ExportMain)sqllist.get(0);
+			String sql = main.getSql();
+			if("in".equals(main.getOrgparamtype())){
+				sql = sql.replaceAll("\\?", orgs);
+			}
+			String mainsql = sql;
+			for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+				Object key = iter.next();
+				if(submap.containsKey(key)){
+					ExportSub vo = submap.get(key);
+					System.out.println("=======key====="+key +" params.get(key) == "+params.get(key));
+					if(vo.getType().equals("exists")){
+						if( "1".equals(params.get(key).toString())){
+							sql =  sql +" and not " +vo.getColstr();
+						}else if( "2".equals(params.get(key).toString())){
+							sql =  sql +" and  " +vo.getColstr();
+						}else if( "0".equals(params.get(key).toString())){
+							//不加入
+						}
+					}else{
+						sql =  sql +" and  " +vo.getColstr();
+					}
+				}
+			}
+			String countsql = sql.replaceAll("\"", "'");
+			countsql = " select count(*) "+sql.substring(sql.toLowerCase().indexOf("from"));
+			String pagesql = sql.replaceAll("\"", "'");
+			sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
+			sql = sql.replaceAll("\"", "'");
+			System.out.println("======sql======"+sql);
+			int paramidx = 1;
+			Map ret = new HashMap();
+			if(!main.getPageable()){
+				PreparedStatement stmt =  conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				if("like".equals(main.getOrgparamtype())){
+					stmt.setString(1, orgs+"%");
+					paramidx = 2;
+				}else if(mainsql.indexOf("?")>0){
+					stmt.setString(1, orgs);
+					paramidx = 2;
+				}else{
+					
+				}
+				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+					Object key = iter.next();
+					if(submap.containsKey(key)){
+						Object value = params.get(key);
+						System.out.println("======value======"+value);
+						System.out.println("======value==1111===="+fomart.parse((String)value));
+						ExportSub vo = submap.get(key);
+						if(vo.getType().equals("date")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomart.parse((String)value).getTime()));
+						}else if(vo.getType().equals("time")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomarttime.parse((String)value +" 00:00:00").getTime()));
+						}else if( vo.getType().equals("string")){
+							stmt.setString(paramidx++, (String)value);
+						}else if( vo.getType().equals("exists")){
+							//没有参数
+						}else{
+							stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+						}
+					}
+				}
+				ResultSet rs = stmt.executeQuery();
+				ResultSetMetaData rsMetaData = rs.getMetaData();
+				int numberOfColumns = rsMetaData.getColumnCount();
+				
+				List retlist = new ArrayList();
+				//移动到最后一行,得到总数
+				rs.last();
+				int rowcount = rs.getRow();
+				//移动到取数位置
+				while (rs.next()) {
+//					List row = new ArrayList();
+					Map row = new HashMap();
+					for (int i = 1; i <= numberOfColumns; i++) {
+						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+						if (cls.isAssignableFrom(String.class)) {
+							row.put("col"+i, rs.getString(i));
+						} else if (cls.isAssignableFrom(Float.class)) {
+							row.put("col"+i, rs.getFloat(i));
+						} else if (cls.isAssignableFrom(Integer.class)) {
+							row.put("col"+i, rs.getInt(i));
+						} else if (cls.isAssignableFrom(Long.class)) {
+							row.put("col"+i, rs.getLong(i));
+						} else if (cls.isAssignableFrom(Date.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col"+i, fomart.format(obj));
+						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col"+i, fomart.format(obj));
+						}else{
+							Object obj = rs.getObject(i);
+							row.put("col"+i, (obj));
+						}
+					}
+					retlist.add(row);
+				}
+				ret.put("rows", retlist);
+			}else{
+				SQLQuery countquery = getSession().createSQLQuery(countsql);
+				System.out.println("============"+countsql);
+				System.out.println("=======main.getOrgparamtype()====="+main.getOrgparamtype());
+				if("like".equals(main.getOrgparamtype())){
+					countquery.setString(0, orgs+"%");
+					System.out.println("========???====");
+					paramidx = 1;
+				}else if(countsql.indexOf("\\?")>0){
+					countquery.setString(0, orgs);
+					System.out.println("========???====");
+					paramidx = 1;
+				}else{
+					
+				}
+				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+					Object key = iter.next();
+					if(submap.containsKey(key)){
+						Object value = params.get(key);
+						System.out.println("======value======"+value);
+						ExportSub vo = submap.get(key);
+						if(vo.getType().equals("date")) {
+							countquery.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+						}else if(vo.getType().equals("time")) {
+							countquery.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
+						}else if( vo.getType().equals("string")){
+							countquery.setString(paramidx++, (String)value);
+						}else if( vo.getType().equals("exists")){
+							//没有参数
+						}else{
+							countquery.setFloat(paramidx++, Float.parseFloat((String)value));
+						}
+					}
+				}
+				int rowcount = (Integer)countquery.list().get(0);
+				int pageNum = Integer.parseInt((String)pager.get("pagenumber"));
+				int rowsNum = Integer.parseInt((String)pager.get("pagesize"));
+				int pagecount = rowcount/rowsNum;
+				int startNum = (pageNum - 1) * rowsNum ;
+				if(startNum>rowcount){
+					startNum = 1;
+					pageNum = 1;
+				}
+				int endNum = startNum +rowsNum;
+				System.out.println("=====startNum======="+startNum);
+				String selecttxt = pagesql.substring(pagesql.toLowerCase().indexOf("select")+6, pagesql.toLowerCase().indexOf("from"));
+				String fromtxt = pagesql.substring(pagesql.toLowerCase().indexOf("from")+4);
+				pagesql = " SELECT * FROM  ( SELECT  * FROM (SELECT TOP "+(endNum-1) +" row_number() over("+ main.getOrderby() +") rownum, "+selecttxt+" from " + fromtxt+" "+ main.getOrderby() +")zzzz where rownum>"+(startNum)+" )zzzzz order by rownum";
+				PreparedStatement stmt =  conn.prepareStatement(pagesql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				System.out.println("======pagesql======"+pagesql);
+				if("like".equals(main.getOrgparamtype())){
+					stmt.setString(1, orgs+"%");
+					paramidx = 2;
+				}else if(pagesql.indexOf("?")>0){
+					stmt.setString(1, orgs);
+					paramidx = 2;
+				}else{
+					
+				}
+				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+					Object key = iter.next();
+					if(submap.containsKey(key)){
+						Object value = params.get(key);
+						ExportSub vo = submap.get(key);
+						if(vo.getType().equals("date")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomart.parse((String)value).getTime()));
+						}else if(vo.getType().equals("time")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomarttime.parse((String)value +" 00:00:00").getTime()));
+						}else if( vo.getType().equals("string")){
+							stmt.setString(paramidx++, (String)value);
+						}else if( vo.getType().equals("exists")){
+							//没有参数
+						}else{
+							stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+						}
+					}
+				}
+				ResultSet rs = stmt.executeQuery();
+				ResultSetMetaData rsMetaData = rs.getMetaData();
+				int numberOfColumns = rsMetaData.getColumnCount();
+				List retlist = new ArrayList();
+				//移动到取数位置
+				while (rs.next()) {
+//					List row = new ArrayList();
+					Map row = new HashMap();
+					for (int i = 1; i <= numberOfColumns; i++) {
+						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+						if (cls.isAssignableFrom(String.class)) {
+							row.put("col"+(i-1), rs.getString(i));
+						} else if (cls.isAssignableFrom(Float.class)) {
+							row.put("col"+(i-1), rs.getFloat(i));
+						} else if (cls.isAssignableFrom(Integer.class)) {
+							row.put("col"+(i-1), rs.getInt(i));
+						} else if (cls.isAssignableFrom(Long.class)) {
+							row.put("col"+(i-1), rs.getLong(i));
+						} else if (cls.isAssignableFrom(Date.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col"+(i-1), fomart.format(obj));
+						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col"+(i-1), fomart.format(obj));
+						}else{
+							Object obj = rs.getObject(i);
+							row.put("col"+(i-1), (obj));
+						}
+					}
+					retlist.add(row);
+				}
+				ret.put("rows", retlist);
+				ret.put("currentpage", pageNum);
+				ret.put("total", rowcount);
+				ret.put("pages", rowcount);
+			}
+			conn.close();
+			return ret;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public ExportDiv getDiv(String id) throws Exception {
+		ExportDiv div = (ExportDiv)getSession().get(ExportDiv.class, Integer.parseInt(id));
+		return div;
+	}
+	
+	@Transactional
+	public Map saveTable(String tablename , Map  data, String opt , String distinct , String org , String inputdate,String updatedate){
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		if(opt != null && (!data.containsKey(opt) || data.get(opt)==null || "".equals(data.get(opt)))){
+			data.put(opt, user.getTaxempname());
+		}
+		if(distinct != null && (!data.containsKey(distinct) || data.get(distinct)==null || "".equals(data.get(distinct)))){
+			data.put(distinct, user.getDistrict().getName());
+		}
+		if(org != null && (!data.containsKey(org) || data.get(org)==null || "".equals(data.get(org)))){
+			data.put(org, user.getOrg().getName());
+		}
+		SimpleDateFormat fomarttime = new SimpleDateFormat("yyyy-MM-dd  hh:mm:ss");
+		Map ret = new HashMap();
+		if(!data.containsKey("id") || data.get("id")==null || "".equals(data.get("id"))){
+			if(inputdate != null && (!data.containsKey(inputdate) || data.get(inputdate)==null || "".equals(data.get(inputdate)))){
+				data.put(inputdate, fomarttime.format(new Date()));
+			}
+			data.put("id", UUID.randomUUID().toString());
+			String cols = "";
+			String values = "";
+			for(Iterator iter = data.keySet().iterator();iter.hasNext();){
+				Object key = iter.next();
+				cols += ","+key;
+				values += ",'"+data.get(key)+"'";
+			}
+			String sql = " insert into "+tablename+"(" + cols.substring(1)+") values("+values.substring(1)+")";
+			int result = getSession()
+			.createSQLQuery(sql).executeUpdate();
+			System.out.println("========data.get(id)===="+data.get("id"));
+			if(result >0 ){
+				ret.put("id", data.get("id"));
+				ret.put("success", true);
+				ret.put("msg", "保存成功!");
+			}else{
+				ret.put("success", false);
+				ret.put("msg", "保存失败!");
+			}
+		}
+		else{
+			if(updatedate != null && (!data.containsKey(updatedate) || data.get(updatedate)==null || "".equals(data.get(updatedate)))){
+				data.put(updatedate, fomarttime.format(new Date()));
+			}
+			String updates = "";
+			for(Iterator iter = data.keySet().iterator();iter.hasNext();){
+				Object key = iter.next();
+				updates +=","+key+"='"+data.get(key)+"'";
+			}
+			String sql = " update  "+tablename+" set "+ updates.substring(1) +" where id = '"+data.get("id")+"' ";
+			int result = getSession()
+			.createSQLQuery(sql).executeUpdate();
+			
+			if(result >0 ){
+				ret.put("success", true);
+				ret.put("msg", "保存成功!");
+			}else{
+				ret.put("success", false);
+				ret.put("msg", "保存失败!");
+			}
+		}
+		return ret;
+	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public List getList(String tablename ,Map params,String inputdate) throws Exception {
+		String where = "";
+		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+			Object key = iter.next();
+			where += ","+key+"='"+params.get(key)+"'";
+		}
+		List ret  = getSession().createSQLQuery(" select * from "+tablename+" where "+ where.substring(1).replaceAll(",", " and ") +" order by " + inputdate).setResultTransformer(
+			     Transformers.ALIAS_TO_ENTITY_MAP).list();
+		return  procList(ret);
+	}
+	
+	private List procList(List data){
+		List ret = new ArrayList();
+		SimpleDateFormat fomarttime = new SimpleDateFormat("yyyy-MM-dd");
+		for(int i = 0 ; i <data.size();i++){
+			Map row = (Map)data.get(i);
+			for(Iterator iter = row.keySet().iterator();iter.hasNext();){
+				Object col = iter.next();
+				Object value = row.get(col);
+				if(value instanceof Date || value instanceof Timestamp){
+					row.put(col, fomarttime.format(value));
+				}
+			}
+		}
+		return data;
+	}
+	
+	
 }
