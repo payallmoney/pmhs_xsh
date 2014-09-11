@@ -40,13 +40,11 @@
 <script>
 	function showExport() {
 		var id = getselecttype();
-		console.log(id);
 		$("#params_panel").html('');
 		var values = g_params[id];
 		var html = "<table>";
 		if (g_subs[id]) {
 			for ( var key in g_subs[id]) {
-				console.log(g_subs[id]);
 				if (g_subs[id]) {
 					var item = g_subs[id][key];
 					if (item.display) {
@@ -94,7 +92,6 @@
 			param = genParam(param);
 			dwrFunc(param[0], param[1], param[2], param[3], {
 				callback : function(data) {
-					console.log(data);
 					success(data);
 				},
 				exceptionHandler : function() {
@@ -241,7 +238,6 @@
 	
 	
 	function buttonColumn(value, row, index) {
-		console.trace("222222222222222");
 		var buttons = eval(spechar(value));
 		var retstr = "";
 		for (var i = 0; i < buttons.length; i++) {
@@ -272,14 +268,12 @@
 			initEasyui('#window_panel');
 			$('#window_panel').dialog("refresh");
 			$('#window_panel').dialog('center');
-			console.log(initdata);
 			$('#window_panel form').form('load', initdata);
 		});
 	}
 	
 	function openwindow(obj,i) {
 		var argsstr = $(obj).attr("jsondata");
-		console.trace("3333333333333333333333");
 		var args = eval('('+spechar(argsstr.replace(/\#/g, "'")) +")");
 		$("#window_panel").html('');
 		$("#window_panel").attr("title", args.name);
@@ -313,7 +307,6 @@
 
 	function savebtn(func, jsonid) {
 		var inputs = $("#window_panel form").serializeArray();
-		console.log(inputs);
 		var params = {};
 		$.each(inputs, function(i, obj) {
 			if (obj.value && obj.name) {
@@ -411,27 +404,27 @@
 			obj = $(".jsonbutton");
 		}
 		obj.each(function(i,v){
-			console.log($(v).attr('jsondata'));
-			console.trace("44444444444444444444");
 			var cfg = eval("("+spechar($(v).attr('jsondata') )+")");
 			if(cfg[cfg.name]){
 				var btcfg = cfg[cfg.name];
-				setTimeout(function(){
 				DataExportService.getList(
 						btcfg.tablename,
 						btcfg.params,
-						btcfg.orderby,  function(data) {
+						btcfg.orderby, {
+							async : false,
+							callback :  function(data) {
 							var retstr = '';
 							for(var j = 0 ; j <data.length;j++){
 								retstr += "<a onclick='openEdit(this)' cfg='"+tospechar(JSON.stringify(cfg))+"' jsondata='"+tospechar(JSON.stringify(data[j]))+"' style='margin-left:3px;color:#00F;cursor:pointer;'>第" +(j+1)+"次"
 									+ "</a>"
 							}
 							$(v).next("span").html(retstr);
-							$('#querygrid').datagrid('autoSizeColumn');
-						});
-				},0);
+							
+						}});
+				
 			}
 		});
+		$('#querygrid').datagrid('autoSizeColumn');
 		
 	}
 	
@@ -515,7 +508,6 @@
 		var opts = $(this)['datagrid']('options');
 		if (!opts.url)
 			return false;
-		console.trace("1111111111111111111111");
 		eval("var args = " + spechar($("#window_panel").attr("panelArgs")));
 		var inputs = $("#window_panel").find("input");
 		var params = {};
@@ -538,7 +530,6 @@
 		var dwrFunc = eval(opts.url);
 		dwrFunc(null, $("#window_examid").val(), params, pager, {
 			callback : function(data) {
-				console.log(data);
 				success(data);
 			},
 			exceptionHandler : function() {
@@ -594,7 +585,6 @@
 	}
 
 	function changedate(type) {
-		console.log($.format.parseDate);
 		var today = new Date();
 		var startdate = parseDate($('#base_startdate').datebox('getValue'));
 		var enddate = parseDate($('#base_enddate').datebox('getValue'));
@@ -729,7 +719,6 @@
 			},
 			async : false
 		});
-		console.log(g_options);
 		var exportid = getParameterByName("exportid");
 		var g_main = {};
 		if (exportid) {
@@ -751,7 +740,6 @@
 			}
 		}
 		var g_spottype = {};
-		console.trace(g_options.spottype);
 		for (var i = 0; i < g_options.spottype.length; i++) {
 			g_spottype["" + g_options.spottype[i].code] = g_options.spottype[i];
 			$("#select_type").append(

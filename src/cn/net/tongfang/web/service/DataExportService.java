@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,7 +41,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
-import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -1844,7 +1842,6 @@ public class DataExportService extends HibernateDaoSupport {
 		Connection conn = null;
 		try {
 			conn = getSession().connection();
-			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
 			List sublist = getSession().createQuery(
@@ -1928,7 +1925,7 @@ public class DataExportService extends HibernateDaoSupport {
 					}
 				}
 			}
-			st.close();
+			stmt.close();
 			wb.write(fileOut);
 			fileOut.close();
 		} catch (Exception e) {
@@ -2019,7 +2016,6 @@ public class DataExportService extends HibernateDaoSupport {
 		try {
 			out = new PrintWriter(getWebRootAbsolutePath() + "data/" + fileName);
 			conn = getSession().connection();
-			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where name = '" + name + "' order by id")
 					.list();
@@ -2101,6 +2097,8 @@ public class DataExportService extends HibernateDaoSupport {
 				}
 				out.write("\r\n");
 			}
+			stmt.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
@@ -2130,7 +2128,6 @@ public class DataExportService extends HibernateDaoSupport {
 		Connection conn = null;
 		try {
 			conn = getSession().connection();
-			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
 			List sublist = getSession().createQuery(
@@ -2214,6 +2211,7 @@ public class DataExportService extends HibernateDaoSupport {
 			ret.put("currentpage", 1);
 			ret.put("total", 1);
 			ret.put("pages", 1);
+			stmt.close();
 			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2260,6 +2258,7 @@ public class DataExportService extends HibernateDaoSupport {
 				colmap.put("title", title);
 				retlist.add(colmap);
 			}
+			stmt.close();
 			return retlist;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2333,17 +2332,13 @@ public class DataExportService extends HibernateDaoSupport {
 		while (orgs.endsWith("00")) {
 			orgs = orgs.substring(0, orgs.length() - 2);
 		}
-		SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
-		SimpleDateFormat inputfomarttime = new SimpleDateFormat(
-				"yyyyMMdd hh:mm:ss");
 		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fomarttime = new SimpleDateFormat(
-				"yyyy-MM-dd  hh:mm:ss");
+				"yyyy-MM-dd hh:mm:ss");
 		SimpleDateFormat fomarttime1 = new SimpleDateFormat(
-				"yyyy-MM-dd  hh:mm:ss.SSS");
+				"yyyy-MM-dd hh:mm:ss.SSS");
 		try {
 			Connection conn = getSession().connection();
-			Statement st = conn.createStatement();
 			List sqllist = getSession().createQuery(
 					"from ExportMain where id = " + id + " order by id").list();
 			List sublist = getSession().createQuery(
@@ -2364,8 +2359,6 @@ public class DataExportService extends HibernateDaoSupport {
 				Object key = iter.next();
 				if (submap.containsKey(key)) {
 					ExportSub vo = submap.get(key);
-					System.out.println("=======key=====" + key
-							+ " params.get(key) == " + params.get(key));
 					if (vo.getType().equals("exists")) {
 						if ("1".equals(params.get(key).toString())) {
 							sql = sql + " and not " + vo.getColstr();
@@ -2404,9 +2397,6 @@ public class DataExportService extends HibernateDaoSupport {
 					Object key = iter.next();
 					if (submap.containsKey(key)) {
 						Object value = params.get(key);
-						System.out.println("======value======" + value);
-						System.out.println("======value==1111===="
-								+ fomart.parse((String) value));
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
 							stmt.setDate(paramidx++, new java.sql.Date(fomart
@@ -2465,18 +2455,14 @@ public class DataExportService extends HibernateDaoSupport {
 					retlist.add(row);
 				}
 				ret.put("rows", retlist);
+				stmt.close();
 			} else {
 				SQLQuery countquery = getSession().createSQLQuery(countsql);
-				System.out.println("============" + countsql);
-				System.out.println("=======main.getOrgparamtype()====="
-						+ main.getOrgparamtype());
 				if ("like".equals(main.getOrgparamtype())) {
 					countquery.setString(0, orgs + "%");
-					System.out.println("========???====");
 					paramidx = 1;
 				} else if (countsql.indexOf("\\?") > 0) {
 					countquery.setString(0, orgs);
-					System.out.println("========???====");
 					paramidx = 1;
 				} else {
 
@@ -2485,16 +2471,15 @@ public class DataExportService extends HibernateDaoSupport {
 					Object key = iter.next();
 					if (submap.containsKey(key)) {
 						Object value = params.get(key);
-						System.out.println("======value======" + value);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
 							countquery.setDate(paramidx++, new java.sql.Date(
-									inputfomart2.parse((String) value)
+									fomart.parse((String) value)
 											.getTime()));
 						} else if (vo.getType().equals("time")) {
 							countquery.setDate(
 									paramidx++,
-									new java.sql.Date(inputfomarttime.parse(
+									new java.sql.Date(fomarttime.parse(
 											(String) value + " 00:00:00")
 											.getTime()));
 						} else if (vo.getType().equals("string")) {
@@ -2507,18 +2492,17 @@ public class DataExportService extends HibernateDaoSupport {
 						}
 					}
 				}
-				int rowcount = (Integer) countquery.list().get(0);
+				int rowcount = (Integer) countquery.uniqueResult();
 				int pageNum = Integer
 						.parseInt((String) pager.get("pagenumber"));
 				int rowsNum = Integer.parseInt((String) pager.get("pagesize"));
 				int pagecount = rowcount / rowsNum;
-				int startNum = (pageNum - 1) * rowsNum;
+				int startNum = (pageNum - 1) * rowsNum +1;
 				if (startNum > rowcount) {
 					startNum = 1;
 					pageNum = 1;
 				}
 				int endNum = startNum + rowsNum;
-				System.out.println("=====startNum=======" + startNum);
 				String selecttxt = pagesql.substring(pagesql.toLowerCase()
 						.indexOf("select") + 6,
 						pagesql.toLowerCase().indexOf("from"));
@@ -2533,7 +2517,6 @@ public class DataExportService extends HibernateDaoSupport {
 				PreparedStatement stmt = conn.prepareStatement(pagesql,
 						ResultSet.TYPE_SCROLL_INSENSITIVE,
 						ResultSet.CONCUR_READ_ONLY);
-				System.out.println("======pagesql======" + pagesql);
 				if ("like".equals(main.getOrgparamtype())) {
 					stmt.setString(1, orgs + "%");
 					paramidx = 2;
@@ -2547,7 +2530,7 @@ public class DataExportService extends HibernateDaoSupport {
 					Object key = iter.next();
 					if (submap.containsKey(key)) {
 						Object value = params.get(key);
-						System.out.println("=======value====="+value);
+						System.out.println(key+"==="+value);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
 							stmt.setDate(paramidx++, new java.sql.Date(fomart
@@ -2568,14 +2551,11 @@ public class DataExportService extends HibernateDaoSupport {
 						}
 					}
 				}
-				System.out.println("=====start======="+fomarttime1.format(new Date()));
 				ResultSet rs = stmt.executeQuery();
-				System.out.println("=====111111======="+fomarttime1.format(new Date()));
 				ResultSetMetaData rsMetaData = rs.getMetaData();
 				int numberOfColumns = rsMetaData.getColumnCount();
 				List retlist = new ArrayList();
 				// 移动到取数位置
-				System.out.println("=====22222222222======="+fomarttime1.format(new Date()));
 				while (rs.next()) {
 					// List row = new ArrayList();
 					Map row = new HashMap();
@@ -2604,11 +2584,11 @@ public class DataExportService extends HibernateDaoSupport {
 					}
 					retlist.add(row);
 				}
-				System.out.println("=====33333333333======="+fomarttime1.format(new Date()));
 				ret.put("rows", retlist);
 				ret.put("currentpage", pageNum);
 				ret.put("total", rowcount);
-				ret.put("pages", rowcount);
+				ret.put("pages", pagecount);
+				stmt.close();
 			}
 			conn.close();
 			return ret;
