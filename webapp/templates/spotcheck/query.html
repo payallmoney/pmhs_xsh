@@ -39,7 +39,7 @@
 </style>
 <script>
 	function showExport() {
-		var id = $("#select_type").combobox('getValue');
+		var id = getselecttype();
 		console.log(id);
 		$("#params_panel").html('');
 		var values = g_params[id];
@@ -94,6 +94,7 @@
 			param = genParam(param);
 			dwrFunc(param[0], param[1], param[2], param[3], {
 				callback : function(data) {
+					console.log(data);
 					success(data);
 				},
 				exceptionHandler : function() {
@@ -113,10 +114,10 @@
 				params[obj.attr('id')] = obj.val();
 			}
 		})
-		g_params[$("#select_type").combobox('getValue')] = params;
+		g_params[getselecttype()] = params;
 	}
 	function gettreevalue() {
-		var orgparamtype = g_main[$("#select_type").combobox('getValue')][2];
+		var orgparamtype = g_main[getselecttype()][2];
 		if ("in" == orgparamtype) {
 			var node = $('#orgtree').tree('getChecked');
 			var orgs = "";
@@ -129,12 +130,20 @@
 		}
 	}
 	function gettreeopt() {
-		var orgparamtype = g_main[$("#select_type").combobox('getValue')][2];
+		var orgparamtype = g_main[getselecttype()][2];
 		if ("in" == orgparamtype) {
 			return "check";
 		} else {
 			return "select";
 		}
+	}
+	
+	function getselectval(){
+		return $("#select_type").combobox('getValue');
+	}
+	
+	function getselecttype(){
+		return g_spottype[$("#select_type").combobox('getValue')].mainid;
 	}
 
 	function export_data() {
@@ -147,8 +156,7 @@
 			}
 		});
 		$('.export_button').linkbutton('disable');
-		DataExportService.sqlExport(gettreevalue(), $("#select_type").combobox(
-				'getValue'), $("#select_type").combobox('getText'), params,
+		DataExportService.sqlExport(gettreevalue(), getselecttype(), $("#select_type").combobox('getText'), params,
 				function(data) {
 					$('.export_button').linkbutton('enable');
 					window.location.href = data;
@@ -186,15 +194,15 @@
 		if (isDate(enddate))
 			params["enddate"] = enddate;
 		params["hascheck"] = $("#base_hascheck").combobox('getValue');
-		var pageable = g_main[$("#select_type").combobox('getValue')][3];
-		var pagesize = g_main[$("#select_type").combobox('getValue')][4];
+		var pageable = g_main[getselecttype()][3];
+		var pagesize = g_main[getselecttype()][4];
 		var pagenumber = param.page;
 		var pager = {
 			'pagesize' : (pagesize ? pagesize : 1000),
 			'pagenumber' : (pagenumber ? pagenumber : 1)
 		};
 		var dwrparams = [ gettreevalue(),
-				$("#select_type").combobox('getValue'), params, pager ];
+		                  getselecttype(), params, pager ];
 		return dwrparams;
 	}
 
@@ -230,34 +238,23 @@
 		}
 		return data;
 	}
-
+	
+	
 	function buttonColumn(value, row, index) {
-		var buttons = eval(value.replace(/\#/g, "'"));
+		console.trace("222222222222222");
+		var buttons = eval(spechar(value));
 		var retstr = "";
 		for (var i = 0; i < buttons.length; i++) {
-			retstr += "<button onclick='openwindow("
-					+ JSON.stringify(buttons[i]) + ")'>" + buttons[i].name
-					+ "</button>"
-			if (buttons[i][buttons[i].name]) {
-				DataExportService.getList(
-						buttons[i][buttons[i].name].tablename,
-						buttons[i][buttons[i].name].params,
-						buttons[i][buttons[i].name].orderby, {
-							async : false,
-							callback : function(data) {
-								for(var j = 0 ; j <data.length;j++){
-									retstr += "<a onclick='openEdit("
-										+ JSON.stringify(buttons[i]) +","+JSON.stringify(data[j])+ ")' style='margin-left:3px;color:#00F;cursor:pointer;'>第" +(j+1)+"次"
-										+ "</a>"
-								}
-							}
-						});
-			}
+			retstr += "<button onclick='openwindow(this,"+index+")' jsondata=\""+ tospechar(JSON.stringify(buttons[i])) +"\" class='jsonbutton jsonbt"+index+"'>" + buttons[i].name
+					+ "</button><span></span>"
 		}
 		return retstr;
 	}
 	
-	function openEdit(args,initdata) {
+	
+	function openEdit(obj) {
+		var args = eval('('+spechar($(obj).attr("cfg"))+')');
+		var initdata = eval('('+spechar($(obj).attr("jsondata"))+')');
 		$("#window_panel").html('');
 		$("#window_panel").attr("title", args.name);
 		DataExportService.getDiv(args.id, function(data) {
@@ -268,7 +265,7 @@
 				width : 700,
 				title : args.name,
 				onClose: function(){
-					queryGrid();
+					
 				}
 			});
 			$('#window_panel').dialog("open");
@@ -280,18 +277,22 @@
 		});
 	}
 	
-	function openwindow(args) {
+	function openwindow(obj,i) {
+		var argsstr = $(obj).attr("jsondata");
+		console.trace("3333333333333333333333");
+		var args = eval('('+spechar(argsstr.replace(/\#/g, "'")) +")");
 		$("#window_panel").html('');
 		$("#window_panel").attr("title", args.name);
+		$("#window_panel").attr("btnindex", i);
 		DataExportService.getDiv(args.id, function(data) {
 			var html = data.html.replace(/\\\"/g, "'");
-			$("#window_panel").attr("panelArgs", JSON.stringify(args));
+			$("#window_panel").attr("panelArgs", argsstr);
 			$("#window_panel").append(html);
 			$('#window_panel').dialog({
 				width : 700,
 				title : args.name,
 				onClose: function(){
-					queryGrid();
+					//makelink(".jsonbt"+$("#window_panel").attr("btnindex"));
 				}
 			});
 			$('#window_panel').dialog("open");
@@ -301,8 +302,16 @@
 			$('#window_panel form').form('load', args.writeback);
 		});
 	}
+	
+	function spechar(str){
+		return str.replace(/\#/g, "'").replace(/&pound1;/g, "#").replace(/&quot1;/g, "\\\"").replace(/&apos1;/g, "\\'");
+	}
+	
+	function tospechar(str){
+		return str.replace(/\#/g, "&pound1;").replace(/\\"/g, "&quot1;").replace(/'/g, "&apos1;").replace(/['"]/g, "#");
+	}
 
-	function savebtn(func, opt, distinct, org,inputdate,updatedate) {
+	function savebtn(func, jsonid) {
 		var inputs = $("#window_panel form").serializeArray();
 		console.log(inputs);
 		var params = {};
@@ -312,8 +321,10 @@
 			}
 		});
 		if (func) {
-			func("spotcheck_main", params, opt, distinct, org,inputdate,updatedate, function(data) {
+			func("spotcheck_main", params, jsonid, function(data) {
 				if (data) {
+					setTimeout(function(){makelink(".jsonbt"+$("#window_panel").attr("btnindex"));},0);
+					//makelink(".jsonbt"+$("#window_panel").attr("btnindex"));
 					$('#window_panel form').form('load', data);
 					$.messager.alert('提示', data.msg);
 				}
@@ -369,7 +380,7 @@
 	$(function() {
 		//处理机构树
 		var nodedata = window.top.earyuitreedata;
-		var orgparamtype = g_main[$("#select_type").combobox('getValue')][2];
+		var orgparamtype = g_main[getselecttype()][2];
 		$('#orgtree').tree(
 				{
 					data : nodedata,
@@ -379,27 +390,74 @@
 						var node = $('#orgtree').tree('find',
 								parseInt(nodedata[0].id));
 						$('#orgtree').tree(gettreeopt(), node.target);
+					},
+					onSelect: function(){
+						setTimeout(function(){queryGrid();},0);
+						
 					}
 				});
 		initGrid();
 	});
+	function gridloaded(){
+		setTimeout(function(){makelink();},0);
+		
+	}
+	
+	function makelink(item){
+		var obj ;
+		if(item){
+			obj = $(item);
+		}else{
+			obj = $(".jsonbutton");
+		}
+		obj.each(function(i,v){
+			console.log($(v).attr('jsondata'));
+			console.trace("44444444444444444444");
+			var cfg = eval("("+spechar($(v).attr('jsondata') )+")");
+			if(cfg[cfg.name]){
+				var btcfg = cfg[cfg.name];
+				setTimeout(function(){
+				DataExportService.getList(
+						btcfg.tablename,
+						btcfg.params,
+						btcfg.orderby,  function(data) {
+							var retstr = '';
+							for(var j = 0 ; j <data.length;j++){
+								retstr += "<a onclick='openEdit(this)' cfg='"+tospechar(JSON.stringify(cfg))+"' jsondata='"+tospechar(JSON.stringify(data[j]))+"' style='margin-left:3px;color:#00F;cursor:pointer;'>第" +(j+1)+"次"
+									+ "</a>"
+							}
+							$(v).next("span").html(retstr);
+							$('#querygrid').datagrid('autoSizeColumn');
+						});
+				},0);
+			}
+		});
+		
+	}
+	
+	
+	function test(a,b,c,d){
+		console.log(a,b,c,d);
+	}
 
 	function initGrid() {
 		var columns = [];
-		DataExportService.sqlListHead($("#select_type").combobox('getValue'), {
+		DataExportService.sqlListHead(getselecttype(), {
 			async : false,
 			callback : function(data) {
 				columns = initColumn(data);
 			}
 		});
-		var id = $("#select_type").combobox('getValue');
-		var pageable = g_main[$("#select_type").combobox('getValue')][3];
-		var pagesize = g_main[$("#select_type").combobox('getValue')][4];
+		var id = getselecttype();
+		var pageable = g_main[getselecttype()][3];
+		var pagesize = g_main[getselecttype()][4];
 		$("#querygrid").datagrid({
 			url : 'DataExportService.sqlListnew',
 			columns : [ columns ],
 			rowStyler : gridStyle,
 			singleSelect : true,
+			onLoadSuccess: gridloaded,
+			onLoadFail : test,
 			pageSize : pagesize,
 			pageList : [ pagesize ],
 			pagination : pageable,
@@ -408,7 +466,7 @@
 	}
 	function typechange() {
 		var columns = [];
-		DataExportService.sqlListHead($("#select_type").combobox('getValue'), {
+		DataExportService.sqlListHead(getselecttype(), {
 			async : false,
 			callback : function(data) {
 				columns = initColumn(data);
@@ -433,15 +491,15 @@
 
 	function initWindowGrid() {
 		var columns = [];
-		DataExportService.sqlListHead($("#select_type").combobox('getValue'), {
+		DataExportService.sqlListHead(getselecttype(), {
 			async : false,
 			callback : function(data) {
 				columns = initColumn(data);
 			}
 		});
-		var id = $("#select_type").combobox('getValue');
-		var pageable = g_main[$("#select_type").combobox('getValue')][3];
-		var pagesize = g_main[$("#select_type").combobox('getValue')][4];
+		var id = getselecttype();
+		var pageable = g_main[getselecttype()][3];
+		var pagesize = g_main[getselecttype()][4];
 		$("#querygrid").datagrid({
 			url : 'DataExportService.sqlListnew',
 			columns : [ columns ],
@@ -457,7 +515,8 @@
 		var opts = $(this)['datagrid']('options');
 		if (!opts.url)
 			return false;
-		eval("var args = " + $("#window_panel").attr("panelArgs"));
+		console.trace("1111111111111111111111");
+		eval("var args = " + spechar($("#window_panel").attr("panelArgs")));
 		var inputs = $("#window_panel").find("input");
 		var params = {};
 		$.each(inputs, function(i, v) {
@@ -475,7 +534,7 @@
 			'pagenumber' : (pagenumber ? pagenumber : 1)
 		};
 		var dwrparams = [ gettreevalue(),
-				$("#select_type").combobox('getValue'), params, pager ];
+		                  getselecttype(), params, pager ];
 		var dwrFunc = eval(opts.url);
 		dwrFunc(null, $("#window_examid").val(), params, pager, {
 			callback : function(data) {
@@ -676,19 +735,28 @@
 		if (exportid) {
 			for (var i = 0; i < g_options.main.length; i++) {
 				g_main["" + g_options.main[i][0]] = g_options.main[i];
-				if (g_options.main[i][0] + "" === exportid) {
+				/*if (g_options.main[i][0] + "" === exportid) {
 					$("#select_type").append(
 							" <option value=\""+g_options.main[i][0]+"\">"
 									+ g_options.main[i][1] + "</option>")
-				}
+				}*/
 			}
 		} else {
 			for (var i = 0; i < g_options.main.length; i++) {
 				g_main["" + g_options.main[i][0]] = g_options.main[i];
+				/*
 				$("#select_type").append(
 						" <option value=\""+g_options.main[i][0]+"\">"
-								+ g_options.main[i][1] + "</option>")
+								+ g_options.main[i][1] + "</option>")*/
 			}
+		}
+		var g_spottype = {};
+		console.trace(g_options.spottype);
+		for (var i = 0; i < g_options.spottype.length; i++) {
+			g_spottype["" + g_options.spottype[i].code] = g_options.spottype[i];
+			$("#select_type").append(
+					" <option value=\""+g_options.spottype[i].code+"\">"
+							+ g_options.spottype[i].value + "</option>")
 		}
 		var g_subs = {};
 		for (var i = 0; i < g_options.sub.length; i++) {
