@@ -98,6 +98,8 @@ import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
 
+import com.google.gson.Gson;
+
 public class ModuleMgr extends HibernateDaoSupport {
 	ModuleUtil moduleUtil;
 
@@ -816,6 +818,9 @@ public class ModuleMgr extends HibernateDaoSupport {
 	
 	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params)throws Exception {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
+		Gson gs = new Gson();
+		System.out.println("========1111====="+gs.toJson(qryCond));
+		System.out.println("=======2222====="+gs.toJson(params));
 		buildGeneralWhereHealthFile(qryCond, params, where,0);		
 //		if (params.size() != 0) {
 //			where.replace(0, 4, " where ");
@@ -1000,6 +1005,14 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 				if("noexam".equals(key) && "true".equals(value.trim())){
 					where.append(" and not exists ( select 1 from MedicalExam where fileNo = a.fileNo  ) ");
+				}
+				if("child_status".equals(key)){
+					//DateUtils.toCalendar(new Date()).get(Calendar.YEAR) -  DateUtils.toCalendar(maternal.getBirthday()).get(Calendar.YEAR) >7
+					if("0".equals(value.trim())){
+						where.append(" and b.birthday >= convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
+					}else if("1".equals(value.trim())){
+						where.append(" and b.birthday < convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
+					}
 				}
 			}
 		}
