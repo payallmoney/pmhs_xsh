@@ -1143,8 +1143,11 @@ function hideHUD($t, includeError){
                             _v = v;
                         }
                         combo.val(_v);
+                        
                         ele.val(_v);
-                        ele.hide();
+                        if(!setting.nothidewhenload){
+                        	ele.hide();
+                        }
                     }
                 },
                 reset : function(){

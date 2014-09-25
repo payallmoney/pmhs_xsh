@@ -123,7 +123,8 @@ var cfg = [ {
 		relatedInfoSearchIds : 'relatedInfoSearch_selectCond',
 		relatedInfoSearchValType : '5',
 		displayCols : [ 1, 2, 3, 7 ],
-		displayColNames : [ "编号", "疾病", "", "" ]
+		displayColNames : [ "编号", "疾病", "", "" ],
+		nothidewhenload:true
 	}
 }, {
 	id : "birthday",
@@ -247,7 +248,8 @@ var cfg = [ {
 	id : "workUnit",
 	xtype : "input",
 	setting : {
-		size : 30
+		size : 30,
+		maxlen : 100
 	}
 }, {
 	id : "distance",
@@ -317,7 +319,8 @@ var cfg = [ {
 	id : "husbandWorkUnit",
 	xtype : "input",
 	setting : {
-		size : 30
+		size : 30,
+		maxlen : 100
 	}
 }, {
 	id : "gravidity",
