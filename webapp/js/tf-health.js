@@ -402,7 +402,8 @@ Ext.tf.HealthPanel = Ext.extend(Ext.Panel, {
 					var selections = this.grid.getSelections();
 					if(selections.length == 1){
 						var fileNo = selections[0].data.fileNo;
-						PrintHealthFileAndExamClass.printHealthFile(fileNo);
+//						PrintHealthFileAndExamClass.printHealthFile(fileNo);
+						PrintHealthFileAndExamClass.printHealthFileOther(fileNo);
 					}else{
 						showInfoObj.Infor('请选择打印的档案！');
 					}

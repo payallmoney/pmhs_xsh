@@ -12,14 +12,340 @@ PrintHealthFileAndExamClass.prototype.judgeDate = function(judgeType,date){
 		if(judgeType == 0)
 			return '未测';
 	}else if(date instanceof Date){
-		return date.getFullYear() + '' + PrintHealthFileAndExamClass.addZero(date.getMonth()) + '' + PrintHealthFileAndExamClass.addZero(date.getDate());
+		return date.getFullYear() + '' + PrintHealthFileAndExamClass.addZero(date.getMonth() + 1) + '' + PrintHealthFileAndExamClass.addZero(date.getDate());
 	}
 	return date;
 }
+/*
+ * 修改后的打印程序 20141007
+ */
+PrintHealthFileAndExamClass.prototype.printHealthFileOther = function(fileNo){
+	var dsArray = [];
+	$(window.cfg).each(function(_i, _v) {
+		if (_v.xtype == 'list') {
+			var ds = _v.setting.ds;
+			dsArray.push(ds);
+		}else if(_v.xtype == 'grid'){
+			if(_v.setting.colSettings[0].ds != undefined){
+				var ds = _v.setting.colSettings[0].ds;
+				dsArray.push(ds);
+			}
+			
+		}
+	});
+	console.log(dsArray);
+	getBasicInfomation(dsArray,fileNo);
+}
+
+function addZero(value){
+	if(value < 10){
+		return '0' + value;
+	}
+	return value;
+}
+
+function parseDseaseDate(date){
+	var d = {};
+	if(date.length == 8){
+		d.year = date.substring(0,4);
+		d.month = date.substring(4,6);
+	}
+	return d;
+}
+
+function getBasicInfomation(dsArray,fileNo) {
+	MetaProvider.get(dsArray, function(data) {
+		if (data != null) {
+			var convertObj = {
+				fatherHistory : 'familyMedicalHistory',
+				matherHistory : '',
+				brotherHistory : '', 	
+				familyHistory : '', 	
+			}
+			
+			var healthFileHtml = '<style type="text/css">.listInputValues {	margin-left: 10px;}.inputValues {	border: 1px solid #000;	width: 16px;	height: 16px;	text-align: center;}.printHealthFile,.table_personalInfor {	font-size: 14px;}.td_printHealthFile_content {	border-left: 1px solid #000000;	border-right: 1px solid #000000;	padding-left: 160px;	height: 60px;}.healthfileBasicInfo td {	height: 60px;	vertical-align: bottom;}.rightTableTd {	border-bottom: 1px solid #000000;}.table_personalInfor tbody td {	border-left: 1px solid #000;	border-right: 1px solid #000;	border-top: 1px solid #000;	height: 30px;	padding-left: 5px;}.childTable thead td {	border: none;}.childTable tbody td {	border: none;}.otherOption {	border-left: none;	border-right: none;	border-top: none;	border-bottom: 1px solid #000;	width: 80px;}.noneBorder {	text-align: center;	border: none;	width: 50px;}</style><div class="printHealthFile">	<div>		<h3>附件2</h3>	</div>	<center>		<h3>居民健康档案封面</h3>	</center>	<br />	<table class="table_printHealthFile" cellpadding="0" cellspacing="0"		style="width: 20cm; height: 26.5cm; border-collapse: collapse;">		<tr>			<td				style="text-align: right; font-weight: bolder; border-left: 1px solid #000000; border-right: 1px solid #000000; border-top: 1px solid #000000; font-size: 16px; padding-right: 10px; padding-top: 10px; height: 80px;">编号：				<span class="fileNo"></span>			</td>		</tr>		<tr>			<td				style="text-align: center; height: 100px; font-size: 20px; border-left: 1px solid #000000; border-right: 1px solid #000000; font-weight: bolder; background-color: #FFFFFF">居民健康档案</td>		</tr>		<tr>			<td				style="width: 100%; padding-bottom: 40px; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; vertical-align: top;">				<table cellpadding="0" cellspacing="0" class="healthfileBasicInfo"					style="border-collapse: none; width: 70%; margin-left: 60px;">					<tr>						<td style="width: 200px; text-align: right;">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</td>						<td class="rightTableTd"><span class="name">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">现&nbsp;&nbsp;住&nbsp;&nbsp;址：</td>						<td class="rightTableTd"><span class="address">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">户籍地址：</td>						<td class="rightTableTd"><span class="residenceAddress">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">联系电话：</td>						<td class="rightTableTd"><span class="tel">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">乡镇（街道）名称：</td>						<td class="rightTableTd"><span class="township">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">村（居）委会名称：</td>						<td class="rightTableTd"><span class="village">&nbsp;</span></td>					</tr>					<tr>						<td style="height: 100px;">&nbsp;</td>					</tr>					<tr>						<td style="text-align: right;">建档单位：</td>						<td class="rightTableTd"><span class="buildUnit">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">建&nbsp;&nbsp;档&nbsp;&nbsp;人：</td>						<td class="rightTableTd"><span class="buildPerson">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">责任医生：</td>						<td class="rightTableTd"><span class="doctor">&nbsp;</span></td>					</tr>					<tr>						<td style="text-align: right;">建档日期：</td>						<td class="rightTableTd"><span class="buildDate">&nbsp;</span></td>					</tr>				</table>			</td>		</tr>	</table>	<h3>附件3</h3>	<table class="table_personalInfor" cellpadding="0" cellspacing="0"		style="width: 20cm; border-collapse: collapse;">		<thead>			<tr>				<td style="text-align: center; height: 30px;" colspan="7"><span					style="font-size: 20px; font-weight: bolder;">个人基本信息表</span></td>			</tr>			<tr>				<td colspan="2" style="text-align: right;"><span					style="font-size: 16px; font-weight: bolder;">姓名：</span></td>				<td><span class="name"></span></td>				<td style="text-align: right;"><span					style="font-size: 16px; font-weight: bolder;">编号：</span></td>				<td colspan="3"><span class="fileNo"></span></td>			</tr>		</thead>		<tbody>			<tr>				<td colspan="2" style="width: 150px;">性别</td>				<td colspan="3"><span class="sex"></span></td>				<td>出生日期</td>				<td style="text-align: right;"><span class="birthday"></span></td>			</tr>			<tr>				<td colspan="2">身份证号</td>				<td colspan="3"><span class="idnumber"></span></td>				<td>工作单位</td>				<td><span class="workUnit"></span></td>			</tr>			<tr>				<td colspan="2">本人电话</td>				<td style="width: 150px;"><span class="tel"></span></td>				<td style="width: 80px;">联系人姓名</td>				<td style="width: 150px;"><span class="linkman"></span></td>				<td style="width: 80px;">联系人电话</td>				<td><span class="linkmanTel"></span></td>			</tr>			<tr>				<td colspan="2">常住类型</td>				<td><span class="resideType"></span></td>				<td>民 族</td>				<td colspan="3"><span class="folk"></span><span					class="folkOther"></span></td>			</tr>			<tr>				<td colspan="2">血型</td>				<td colspan="5"><span class="bloodTypeAbo"></span>&nbsp;/&nbsp;RH阴性:<span					class="bloodTypeRh"></span></td>			</tr>			<tr>				<td colspan="2">文化程度</td>				<td colspan="5"><span class="education"></span></td>			</tr>			<tr>				<td colspan="2">职业</td>				<td colspan="5"><span class="occupation"></span></td>			</tr>			<tr>				<td colspan="2">婚姻状况</td>				<td colspan="5"><span class="maritalStatus"></span></td>			</tr>			<tr>				<td colspan="2" style="height: 40px;">医疗费用<br />支付方式				</td>				<td colspan="5"><span class="paymentMode"></span> <span					class="paymentModeOther"></span></td>			</tr>			<tr>				<td colspan="2">药物过敏史</td>				<td colspan="5"><span class="allergiesHistory"></span> <span					class="allergiesOther"></span></td>			</tr>			<tr>				<td colspan="2" >暴露史</td>				<td colspan="5"><span class="exposeHistory"></span></td>			</tr>			<tr>				<td rowspan="4" style="text-align: center;">既 <br />往<br /> 史				</td>				<td>疾病</td>				<td colspan="5" style="height: 100%;"><span					class="diseaseHistory"></span><br /> <br /> <span					class="diseaseHistoryValue"></span></td>			</tr>			<tr>				<td style="text-align: center;">手 术</td>				<td colspan="5" style="height: 100%;"><span class="opshistory"></span>				</td>			</tr>			<tr>				<td style="text-align: center;">外 伤</td>				<td colspan="5" style="height: 100%;"><span					class="traumaHistory"></span></td>			</tr>			<tr>				<td style="text-align: center;">输 血</td>				<td colspan="5" style="height: 100%;"><span class="bloodTrans"></span>				</td>			</tr>			<tr>				<td rowspan="3" style="text-align: center;">家<br />族<br />史				</td>				<td style="height: 100%;">父亲</td>				<td colspan="2"><span class="fatherHistory"></span> <span					class="fhistoryOther"></span></td>				<td>母 亲</td>				<td colspan="2"><span class="matherHistory"></span> <span					class="mhistoryOther"></span></td>			</tr>			<tr>				<td style="height: 100%;">兄弟姐妹</td>				<td colspan="2"><span class="brotherHistory"></span> <span					class="bhistoryOther"></span></td>				<td>子 女</td>				<td colspan="2"><span class="familyHistory"></span> <span					class="fmHistoryOther"></span></td>			</tr>			<tr>				<td colspan="6"><div class="familyMedicalHistory"></div></td>			</tr>			<tr>				<td colspan="2">遗传病史</td>				<td colspan="5"><span class="geneticHistory"></span>					&nbsp;&nbsp;&nbsp;&nbsp;疾病名称<span class="geneticHistoryOther"></span></td>			</tr>			<tr>				<td colspan="2">残疾情况</td>				<td colspan="5"><span class="disabilityStatus"></span> <span					class="disabilityStatusOther"></span></td>			</tr>			<tr>				<td rowspan="5" colspan="2" style="border-bottom: 1px solid #000;">生活环境</td>				<td>厨房排风设施</td>				<td colspan="4"><span class="kitchen"></span></td>			</tr>			<tr>				<td>燃料类型</td>				<td colspan="4"><span class="bunkers"></span></td>			</tr>			<tr>				<td>饮水</td>				<td colspan="4"><span class="drinkingWater"></span></td>			</tr>			<tr>				<td>厕所</td>				<td colspan="4"><span class="toilet"></span></td>			</tr>			<tr>				<td style="border-bottom: 1px solid #000;">禽畜栏</td>				<td colspan="4" style="border-bottom: 1px solid #000;"><span					class="poultry"></span></td>			</tr>		</tbody>	</table></div>';
+			$('#printHealthFile').html(healthFileHtml);
+			$(window.cfg).each(function(_i, _v) {
+				if (_v.xtype == 'list') {
+					var ds = _v.setting.ds;
+					$.each(data, function(key, values) {
+						if(ds == key){
+							var id = _v.id;
+							var basicValue = "";
+							$.each(values,function(){
+								basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;";
+							});
+							if(basicValue != ""){
+								basicValue = basicValue.substring(0,basicValue.length - 24);
+							}
+							if(convertObj.hasOwnProperty(id)){
+								if(convertObj[id] != ''){
+									$('.' + convertObj[id]).html(basicValue);
+								}
+							}else{
+								$('.' + id).html(basicValue);
+							}
+							
+						}
+					});
+				}else if(_v.xtype == 'grid'){
+					if(_v.setting.colSettings[0].ds != undefined){
+						var ds = _v.setting.colSettings[0].ds;
+						$.each(data, function(key, values) {
+							if(ds == key){
+								var id = _v.id;
+								var basicValue = "";
+								if(id == 'diseaseHistory'){
+									$.each(values,function(){
+										if($(this)[0].number == 6){
+											basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;<span class='diseaseHistory06'></span>";
+										}else if($(this)[0].number == 12){
+											basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;<span class='diseaseHistory12'></span>";
+										}else if($(this)[0].number == 13){
+											basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;<span class='diseaseHistory13'></span>&nbsp;&nbsp;&nbsp;&nbsp;";
+										}else{
+											basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;";
+										}
+										
+									});
+								}else{
+									$.each(values,function(){
+										basicValue = basicValue + $(this)[0].number + "&nbsp;" + $(this)[0].name + "&nbsp;&nbsp;&nbsp;&nbsp;";
+									});
+								}
+								if(basicValue != ""){
+									basicValue = basicValue.substring(0,basicValue.length - 24);
+								}
+								if(convertObj.hasOwnProperty(id)){
+									if(convertObj[id] != ''){
+										$('.' + convertObj[id]).html(basicValue);
+									}
+								}else{
+									$('.' + id).html(basicValue);
+								}
+								
+							}
+						});
+					}						
+				}
+			});
+			
+//			var fileNo = $('.personId').html();
+			var cond = {fileNo : fileNo};
+			PersonalInfoService.get(cond,function(d){
+				if(d != null){
+					console.dir(d);
+					$.each(d,function(k,v){
+						$(window.cfg).each(function(_i, _v) {
+							var id = _v.id;
+							if (_v.xtype == 'list') {
+								if(id == k){
+									var ds = _v.setting.ds;
+									var listValues = [];
+									if(_v.setting.multi != undefined && _v.setting.multi){
+										$(v).each(function() {
+											$.each($(this)[0],function(_vi,_vv){
+												$.each(data, function(key, values) {
+													if(ds == key){
+														$.each(values,function(){
+															if(_vv == $(this)[0].id){
+																listValues.push($(this)[0].number);
+															}
+														});
+													}
+												});
+											});
+										});
+									}else{
+										$.each(data, function(key, values) {
+											if(ds == key){
+												$.each(values,function(){
+													if(v == $(this)[0].name){
+														listValues.push($(this)[0].number);
+													}
+												});
+											}
+										});
+									}
+									
+//									var lvs = listValues.split('');
+									var lvsHtml = '';
+									$(listValues).each(function(_bi,_bv){
+										lvsHtml = lvsHtml + '<input type="text" readonly="readonly" class="inputValues listInputValues" value="' + _bv + '"/>&nbsp;/';
+									});
+									if(lvsHtml != ''){
+										lvsHtml = lvsHtml.substring(0,lvsHtml.length - 1);
+									}
+									if(convertObj.hasOwnProperty(id)){
+										$('.' + id).prepend(lvsHtml);
+									}else{
+										$('.' + id).parent('td').append(lvsHtml);
+									}
+									
+									
+									
+								}
+								
+							}else if(_v.xtype == 'input'){
+								if(k == id){
+									if(_v.setting.format != undefined && _v.setting.format == 'date' && v != null){
+										if(id == 'buildDate'){
+											$('.' + id).html(v.getFullYear() + '年' + addZero(v.getMonth() + 1) + '月' + addZero(v.getDate()) + '日');
+										}else{
+											var birthday = v.getFullYear() + addZero(v.getMonth() + 1) + addZero(v.getDate());
+											var sepBirthday = birthday.split('');
+//											console.log(sepBirthday);
+											var birthdayHtml = '';
+											$(sepBirthday).each(function(_bi,_bv){
+												if(_bi == 3 || _bi == 5){
+													birthdayHtml = birthdayHtml + '<input type="text" readonly="readonly" class="inputValues" value="' + _bv + '"/>&nbsp;&nbsp;&nbsp;'
+												}else{
+													birthdayHtml = birthdayHtml + '<input type="text" readonly="readonly" class="inputValues" value="' + _bv + '"/>&nbsp;'
+												}
+												
+											});
+											$('.' + id).html(birthdayHtml);
+										}
+									}else if(_v.setting.disabled != undefined && _v.setting.disabled){
+										$('.' + id).html('<input type="text" class="otherOption" readonly="readonly" value="' + v + '"/>');
+									}else if(v != '' && v != null){
+										if(id == 'fileNo'){
+											var fileNos = v.split('');
+											var fileNoHtml = '';
+											$(fileNos).each(function(_bi,_bv){
+												if(_bi == 5 || _bi == 8 || _bi == 11){
+													fileNoHtml = fileNoHtml + '<input type="text" readonly="readonly" class="inputValues" value="' + _bv + '"/>&nbsp;&nbsp;&nbsp;'
+												}else{
+													fileNoHtml = fileNoHtml + '<input type="text" readonly="readonly" class="inputValues" value="' + _bv + '"/>&nbsp;'
+												}
+												
+											});
+											$('.' + id).html(fileNoHtml);
+										}else{
+											$('.' + id).html(v);
+										}
+										
+									}
+									
+								}
+							}else if(_v.xtype == 'grid'){
+								if(id == k){
+									if(id == 'diseaseHistory'){
+										var number = 1;
+										var dHistory = '';
+										var diseaseHistoryValue06 = '';
+										var diseaseHistoryValue12 = '';
+										var diseaseHistoryValue13 = '';
+										$(v).each(function(_di,_dv){
+											console.log(_dv);
+											dHistory = dHistory + '&nbsp;<input type="text" class="inputValues" readonly="readonly" value="' + _dv.diseaseId + '"/>'
+											var confirmDate = parseDseaseDate(_dv.confirmDate);
+											dHistory = dHistory + '&nbsp;确诊时间<input type="text" class="noneBorder" readonly="readonly" value="' + confirmDate.year + '"/>年<input type="text" class="noneBorder" readonly="readonly" value="' + confirmDate.month + '"/>月';	
+											dHistory = dHistory + '&nbsp;&nbsp;/';
+											if(number % 3 == 0){
+												dHistory = dHistory.substring(0,dHistory.length - 1);
+												dHistory = dHistory + '<br/>';
+											}
+											number = number + 1;
+											
+											if(_dv.remark != null && _dv.remark != ''){
+												if(_dv.diseaseId == 6){
+													diseaseHistoryValue06 = diseaseHistoryValue06 + _dv.remark + ',';
+												}else if(_dv.diseaseId == 12){
+													diseaseHistoryValue12 = diseaseHistoryValue12 + _dv.remark + ',';
+												}else if(_dv.diseaseId == 13){
+													diseaseHistoryValue13 = diseaseHistoryValue13 + _dv.remark + ',';
+												}
+											}
+										});
+										if(number <= 6){
+											for(var i=number;i<=6;i++){
+												if((i-1) % 3 == 0){
+													dHistory = dHistory.substring(0,dHistory.length - 1);
+													dHistory = dHistory + '<br/>';
+												}
+													
+												dHistory = dHistory + '&nbsp;<input type="text" class="inputValues" readonly="readonly"/>&nbsp;确诊时间<input type="text" class="noneBorder" readonly="readonly"/>年<input type="text" class="noneBorder" readonly="readonly"/>月&nbsp;&nbsp;/';
+											}
+										}
+										if(diseaseHistoryValue06 != ''){
+											diseaseHistoryValue06 = diseaseHistoryValue06.substring(0,diseaseHistoryValue06.length - 1);
+											$('.diseaseHistory06').html( '<input type="text" class="otherOption" readonly="readonly" value="' + diseaseHistoryValue06 + '"/>');
+										}else{
+											$('.diseaseHistory06').html( '<input type="text" class="otherOption" readonly="readonly"/>');
+										}
+										if(diseaseHistoryValue12 != ''){
+											diseaseHistoryValue12 = diseaseHistoryValue12.substring(0,diseaseHistoryValue12.length - 1);
+											$('.diseaseHistory12').html( '<input type="text" class="otherOption" readonly="readonly" value="' + diseaseHistoryValue12 + '"/>');
+										}else{
+											$('.diseaseHistory12').html( '<input type="text" class="otherOption" readonly="readonly"/>');
+										}
+										if(diseaseHistoryValue13 != ''){
+											diseaseHistoryValue13 = diseaseHistoryValue13.substring(0,diseaseHistoryValue13.length - 1);
+											$('.diseaseHistory13').html( '<input type="text" class="otherOption" readonly="readonly" value="' + diseaseHistoryValue13 + '"/>');
+										}else{
+											$('.diseaseHistory13').html( '<input type="text" class="otherOption" readonly="readonly"/>');
+										}
+										dHistory = dHistory.substring(0,dHistory.length - 1); 
+										$('.diseaseHistoryValue').html(dHistory);
+									}else{
+										var historyName = {
+											reason : 'reason',
+											opsname : 'opsname',
+											traumaName : 'traumaName'
+										};
+										var historyDate = {
+											transDate : 'transDate',
+											opsdate : 'opsdate',
+											traumaDate : 'traumaDate'
+										};
+										if(v.length > 0 ){
+											var number = 1;
+											var otherHistory = '1 无   2 有：';
+											$(v).each(function(_gi01,_gv01){
+												otherHistory = otherHistory + '名称' + number;
+												$.each(_gv01,function(_gKey01,_gValue01){
+													if(historyName.hasOwnProperty(_gKey01)){
+														otherHistory = otherHistory + '<input type="text" class="otherOption" readonly="readonly" value="' + _gValue01 + '"/>'
+													}
+												});
+												otherHistory = otherHistory + '时间';
+												$.each(_gv01,function(_gKey01,_gValue01){
+													if(historyDate.hasOwnProperty(_gKey01)){
+														otherHistory = otherHistory + '<input type="text" class="otherOption" readonly="readonly" value="' + _gValue01 + '"/>'
+													}
+												});
+												number = number + 1;
+												otherHistory = otherHistory + '/';
+											});
+											if(number <= 2){
+												otherHistory = otherHistory + '名称2<input type="text" class="otherOption" readonly="readonly"/>时间<input type="text" class="otherOption" readonly="readonly"/>/';
+											}
+											otherHistory = otherHistory.substring(0,otherHistory.length - 1);
+											otherHistory = otherHistory + '&nbsp;&nbsp;<input type="text" readonly="readonly" class="inputValues" value="2"/>';
+											$('.' + id).html(otherHistory);
+										}else{
+											$('.' + id).html('1 无   2 有：名称1<input type="text" class="otherOption" readonly="readonly"/>时间<input type="text" class="otherOption" readonly="readonly"/>/名称2<input type="text" class="otherOption" readonly="readonly"/>时间<input type="text" class="otherOption" readonly="readonly"/>&nbsp;&nbsp;<input type="text" readonly="readonly" class="inputValues" value="1"/>');
+										}
+									}
+								}
+							}
+						});
+					});
+					printObj.printHTML($('#printHealthFile').html(),'居民健康档案','12.99cm','30.8cm');
+				}
+				
+			});
+			
+			
+		}
+	});
+}
+
 PrintHealthFileAndExamClass.prototype.printHealthFile = function(fileNo){
 	var cond = {printType : '0',printWhere : fileNo};
 	console.log(cond);
-	var healthFileHtml = '<style type="text/css">.printHealthFile,.table_personalInfor {	font-size: 14px;}.td_printHealthFile_content {	border-left: 1px solid #000000;	border-right: 1px solid #000000;	padding-left: 160px;	height: 60px;}.healthfileBasicInfo td {	height:60px;	vertical-align: bottom;}.rightTableTd{	border-bottom: 1px solid #000000;}.table_personalInfor tbody td {	border-left: 1px solid #000;	border-right: 1px solid #000;	border-top: 1px solid #000;	height: 30px;	padding-left: 5px;}.childTable thead td {	border: none;}.childTable tbody td {	border: none;}</style><div class="printHealthFile">		<table class="table_printHealthFile" cellpadding="0" cellspacing="0"			style="width: 20cm; height: 28cm; border-collapse: collapse;">			<tr>				<td					style="text-align: right; font-weight: bolder; border-left: 1px solid #000000; border-right: 1px solid #000000; border-top: 1px solid #000000; font-size: 16px; padding-right: 10px; padding-top: 10px; height: 80px;">编号：					<span class="FileNo"></span></td>			</tr>			<tr>				<td					style="text-align: center; height:100px;font-size: 20px; border-left: 1px solid #000000; border-right: 1px solid #000000; font-weight: bolder; background-color: #FFFFFF">居民健康档案</td>			</tr>			<tr>				<td style="width: 100%;padding-bottom: 40px; border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000; vertical-align:top;">					<table cellpadding="0" cellspacing="0" class="healthfileBasicInfo"						style="border-collapse: none; width: 70%;margin-left: 60px;">						<tr>							<td style="width:200px;text-align: right;">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</td>							<td class="rightTableTd"><span class="Name">12</span></td>						</tr>						<tr>							<td style="text-align: right;" >现&nbsp;&nbsp;住&nbsp;&nbsp;址：</td>							<td class="rightTableTd" ><span class="Address"></span></td>						</tr>						<tr>							<td style="text-align: right;">户籍地址：</td>							<td class="rightTableTd"><span class="ResidenceAddress"></span></td>						</tr>						<tr>							<td style="text-align: right;">联系电话：</td>								<td class="rightTableTd"><span class="TEL"></span></td>						</tr>						<tr>							<td style="text-align: right;">乡镇（街道）名称：</td>								<td class="rightTableTd"><span class="Township"></span></td>						</tr>						<tr>							<td style="text-align: right;">村（居）委会名称：</td>								<td class="rightTableTd" ><span class="Village"></span></td>						</tr>						<tr>							<td style="height: 150px;">&nbsp;</td>						</tr>						<tr>							<td style="text-align: right;">建档单位：</td>								<td class="rightTableTd" ><span class="BuildUnit"></span></td>						</tr>						<tr>							<td style="text-align: right;">建&nbsp;&nbsp;档&nbsp;&nbsp;人：</td>								<td class="rightTableTd" ><span class="BuildPerson"></span></td>						</tr>						<tr>							<td style="text-align: right;">责任医生：</td>								<td class="rightTableTd" ><span class="Doctor"></span></td>						</tr>						<tr>							<td style="text-align: right;"								>建档日期：</td>							<td class="rightTableTd" ><span class="BuildDate"></span></td>						</tr>					</table>				</td>			</tr>		</table>		<table class="table_personalInfor" cellpadding="0" cellspacing="0"			style="width: 20cm; border-collapse: collapse; margin-top: 60px;">			<thead>				<tr>					<td style="text-align: center; height: 30px;" colspan="7"><span						style="font-size: 20px; font-weight: bolder;">个人基本信息表</span></td>				</tr>				<tr>					<td colspan="2"><span						style="font-size: 16px; font-weight: bolder; text-align: right;">姓名：</span></td>					<td colspan="3"><span class="Name" ></span></td>					<td><span style="font-size: 16px; font-weight: bolder;">编号：</span></td>					<td><span class="FileNo" ></span></td>				</tr>			</thead>			<tbody>				<tr>					<td colspan="2">性别</td>					<td colspan="3"><div class="Sex"></div></td>					<td>出生日期</td>					<td><div class="Birthday"></div></td>				</tr>				<tr>					<td colspan="2">身份证号</td>					<td colspan="3"><div class="IDNumber"></div></td>					<td>工作单位</td>					<td><div class="WorkUnit"></div></td>				</tr>				<tr>					<td colspan="2">本人电话</td>					<td style="width: 150px;"><input class="TEL"						style="border: none; width: 150px;" readonly="readonly"						type="text" /></td>					<td style="width: 80px;">联系人姓名</td>					<td style="width: 150px;"><div class="Linkman"></div></td>					<td style="width: 80px;">联系人电话</td>					<td><div class="LinkmanTEL"></div></td>				</tr>				<tr>					<td colspan="2">常住类型</td>					<td><div class="ResideType"></div></td>					<td>民 族</td>					<td colspan="3"><div class="Folk"></div>						<div class="FolkOther"></div></td>				</tr>				<tr>					<td colspan="2">血型</td>					<td colspan="3"><div class="BloodTypeABO"></div></td>					<td>RH阴性</td>					<td><div class="BloodTypeRH"></div></td>				</tr>				<tr>					<td colspan="2">文化程度</td>					<td colspan="5"><div class="Education"></div></td>				</tr>				<tr>					<td colspan="2">职业</td>					<td colspan="5"><div class="Occupation"></div></td>				</tr>				<tr>					<td colspan="2">婚姻状况</td>					<td colspan="5"><div class="MaritalStatus"></div></td>				</tr>				<tr>					<td colspan="2" style="height: 40px;">医疗费用<br />支付方式					</td>					<td colspan="5"><div class="PaymentMode"></div>						<div class="PaymentModeOther"></div></td>				</tr>				<tr>					<td colspan="2">药物过敏史</td>					<td colspan="5"><div class="AllergiesHistory"></div>						<div class="AllergiesOther"></div></td>				</tr>				<tr>					<td colspan="2">暴露史</td>					<td colspan="5"><div class="ExposeHistory"></div></td>				</tr>				<tr>					<td rowspan="4" style="width: 20px;">既 <br />往<br /> 史					</td>					<td>疾病</td>					<td colspan="5" style="height: 100%;">						<table class="DiseaseHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>疾病名称</td>									<td>确诊时间</td>									<td>疾病说明</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>手 术</td>					<td colspan="5" style="height: 100%;">						<table class="OPSHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>外 伤</td>					<td colspan="5" style="height: 100%;">						<table class="TraumaHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>输 血</td>					<td colspan="5" style="height: 100%;">						<table class="BloodTrans childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td rowspan="2">家<br />族<br />史					</td>					<td style="height: 100%;">父亲</td>					<td colspan="2"><div class="FatherHistory"></div>						<div class="fHistoryOther"></div></td>					<td>母 亲</td>					<td colspan="2"><div class="MatherHistory"></div>						<div class="mHistoryOther"></div></td>				</tr>				<tr>					<td style="height: 100%;">兄弟姐妹</td>					<td colspan="2"><div class="BrotherHistor"></div>						<div class="bHistoryOther"></div></td>					<td>子 女</td>					<td colspan="2"><div class="FamilyHistory"></div>						<div class="fmHistoryOther"></div></td>				</tr>				<tr>					<td colspan="2">遗传病史</td>					<td colspan="5"><div class="GeneticHistory"></div>						<div class="GeneticHistoryOther"></div></td>				</tr>				<tr>					<td colspan="2">残疾情况</td>					<td colspan="5"><div class="DisabilityStatus"></div>						<div class="DisabilityStatusOther"></div></td>				</tr>				<tr>					<td rowspan="5" colspan="2" style="border-bottom: 1px solid #000;">生活环境</td>					<td>厨房排风设施</td>					<td colspan="4"><div class="Kitchen"></div></td>				</tr>				<tr>					<td>燃料类型</td>					<td colspan="4"><div class="Bunkers"></div></td>				</tr>				<tr>					<td>饮水</td>					<td colspan="4"><div class="DrinkingWater"></div></td>				</tr>				<tr>					<td>厕所</td>					<td colspan="4"><div class="Toilet"></div></td>				</tr>				<tr>					<td style="border-bottom: 1px solid #000;">禽畜栏</td>					<td colspan="4" style="border-bottom: 1px solid #000;"><div							class="Poultry"></div></td>				</tr>			</tbody>		</table>	</div>';
+	var healthFileHtml = '<style type="text/css">.printHealthFile,.table_personalInfor {	font-size: 14px;}.td_printHealthFile_content {	border-left: 1px solid #000000;	border-right: 1px solid #000000;	padding-left: 160px;	height: 60px;}.healthfileBasicInfo td {	height:60px;	vertical-align: bottom;}.rightTableTd{	border-bottom: 1px solid #000000;}.table_personalInfor tbody td {	border-left: 1px solid #000;	border-right: 1px solid #000;	border-top: 1px solid #000;	height: 30px;	padding-left: 5px;}.childTable thead td {	border: none;}.childTable tbody td {	border: none;}</style><div class="printHealthFile">		<table class="table_printHealthFile" cellpadding="0" cellspacing="0"			style="width: 19cm; height: 28cm; border-collapse: collapse;">			<tr>				<td					style="text-align: right; font-weight: bolder; border-left: 1px solid #000000; border-right: 1px solid #000000; border-top: 1px solid #000000; font-size: 16px; padding-right: 50px; padding-top: 10px; height: 80px;">编号：					<span class="FileNo"></span></td>			</tr>			<tr>				<td					style="text-align: center; height:100px;font-size: 20px; border-left: 1px solid #000000; border-right: 1px solid #000000; font-weight: bolder; background-color: #FFFFFF">居民健康档案</td>			</tr>			<tr>				<td style="width: 100%;padding-bottom: 40px; border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000; vertical-align:top;">					<table cellpadding="0" cellspacing="0" class="healthfileBasicInfo"						style="border-collapse: none; width: 70%;margin-left: 60px;">						<tr>							<td style="width:200px;text-align: right;">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</td>							<td class="rightTableTd"><span class="Name">12</span></td>						</tr>						<tr>							<td style="text-align: right;" >现&nbsp;&nbsp;住&nbsp;&nbsp;址：</td>							<td class="rightTableTd" ><span class="Address"></span></td>						</tr>						<tr>							<td style="text-align: right;">户籍地址：</td>							<td class="rightTableTd"><span class="ResidenceAddress"></span></td>						</tr>						<tr>							<td style="text-align: right;">联系电话：</td>								<td class="rightTableTd"><span class="TEL"></span></td>						</tr>						<tr>							<td style="text-align: right;">乡镇（街道）名称：</td>								<td class="rightTableTd"><span class="Township"></span></td>						</tr>						<tr>							<td style="text-align: right;">村（居）委会名称：</td>								<td class="rightTableTd" ><span class="Village"></span></td>						</tr>						<tr>							<td style="height: 150px;">&nbsp;</td>						</tr>						<tr>							<td style="text-align: right;">建档单位：</td>								<td class="rightTableTd" ><span class="BuildUnit"></span></td>						</tr>						<tr>							<td style="text-align: right;">建&nbsp;&nbsp;档&nbsp;&nbsp;人：</td>								<td class="rightTableTd" ><span class="BuildPerson"></span></td>						</tr>						<tr>							<td style="text-align: right;">责任医生：</td>								<td class="rightTableTd" ><span class="Doctor"></span></td>						</tr>						<tr>							<td style="text-align: right;"								>建档日期：</td>							<td class="rightTableTd" ><span class="BuildDate"></span></td>						</tr>					</table>				</td>			</tr>		</table>		<table class="table_personalInfor" cellpadding="0" cellspacing="0"			style="width: 19cm; border-collapse: collapse; margin-top: 60px;">			<thead>				<tr>					<td style="text-align: center; height: 30px;" colspan="7"><span						style="font-size: 20px; font-weight: bolder;">个人基本信息表</span></td>				</tr>				<tr>					<td colspan="2" style="text-align: right;"><span						style="font-size: 16px; font-weight: bolder; ">姓名：</span></td>					<td colspan="3"><span class="Name" ></span></td>					<td style="text-align: right;z"><span style="font-size: 16px; font-weight: bolder;">编号：</span></td>					<td><span class="FileNo" ></span></td>				</tr>			</thead>			<tbody>				<tr>					<td colspan="2">性别</td>					<td colspan="3"><div class="Sex"></div></td>					<td>出生日期</td>					<td><div class="Birthday"></div></td>				</tr>				<tr>					<td colspan="2">身份证号</td>					<td colspan="3"><div class="IDNumber"></div></td>					<td>工作单位</td>					<td><div class="WorkUnit"></div></td>				</tr>				<tr>					<td colspan="2">本人电话</td>					<td style="width: 150px;"><input class="TEL"						style="border: none; width: 150px;" readonly="readonly"						type="text" /></td>					<td style="width: 80px;">联系人姓名</td>					<td style="width: 150px;"><div class="Linkman"></div></td>					<td style="width: 80px;">联系人电话</td>					<td><div class="LinkmanTEL"></div></td>				</tr>				<tr>					<td colspan="2">常住类型</td>					<td><div class="ResideType"></div></td>					<td>民 族</td>					<td colspan="3"><div class="Folk"></div>						<div class="FolkOther"></div></td>				</tr>				<tr>					<td colspan="2">血型</td>					<td colspan="3"><div class="BloodTypeABO"></div></td>					<td>RH阴性</td>					<td><div class="BloodTypeRH"></div></td>				</tr>				<tr>					<td colspan="2">文化程度</td>					<td colspan="5"><div class="Education"></div></td>				</tr>				<tr>					<td colspan="2">职业</td>					<td colspan="5"><div class="Occupation"></div></td>				</tr>				<tr>					<td colspan="2">婚姻状况</td>					<td colspan="5"><div class="MaritalStatus"></div></td>				</tr>				<tr>					<td colspan="2" style="height: 40px;">医疗费用<br />支付方式					</td>					<td colspan="5"><div class="PaymentMode"></div>						<div class="PaymentModeOther"></div></td>				</tr>				<tr>					<td colspan="2">药物过敏史</td>					<td colspan="5"><div class="AllergiesHistory"></div>						<div class="AllergiesOther"></div></td>				</tr>				<tr>					<td colspan="2">暴露史</td>					<td colspan="5"><div class="ExposeHistory"></div></td>				</tr>				<tr>					<td rowspan="4" style="width: 20px;">既 <br />往<br /> 史					</td>					<td>疾病</td>					<td colspan="5" style="height: 100%;">						<table class="DiseaseHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>疾病名称</td>									<td>确诊时间</td>									<td>疾病说明</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>手 术</td>					<td colspan="5" style="height: 100%;">						<table class="OPSHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>外 伤</td>					<td colspan="5" style="height: 100%;">						<table class="TraumaHistory childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td>输 血</td>					<td colspan="5" style="height: 100%;">						<table class="BloodTrans childTable" cellpadding="0"							cellspacing="0" style="border-collapse: none; width: 100%;">							<thead>								<tr>									<td>名称</td>									<td>时间</td>								</tr>							</thead>						</table>					</td>				</tr>				<tr>					<td rowspan="2">家<br />族<br />史					</td>					<td style="height: 100%;">父亲</td>					<td colspan="2"><div class="FatherHistory"></div>						<div class="fHistoryOther"></div></td>					<td>母 亲</td>					<td colspan="2"><div class="MatherHistory"></div>						<div class="mHistoryOther"></div></td>				</tr>				<tr>					<td style="height: 100%;">兄弟姐妹</td>					<td colspan="2"><div class="BrotherHistor"></div>						<div class="bHistoryOther"></div></td>					<td>子 女</td>					<td colspan="2"><div class="FamilyHistory"></div>						<div class="fmHistoryOther"></div></td>				</tr>				<tr>					<td colspan="2">遗传病史</td>					<td colspan="5"><div class="GeneticHistory"></div>						<div class="GeneticHistoryOther"></div></td>				</tr>				<tr>					<td colspan="2">残疾情况</td>					<td colspan="5"><div class="DisabilityStatus"></div>						<div class="DisabilityStatusOther"></div></td>				</tr>				<tr>					<td rowspan="5" colspan="2" style="border-bottom: 1px solid #000;">生活环境</td>					<td>厨房排风设施</td>					<td colspan="4"><div class="Kitchen"></div></td>				</tr>				<tr>					<td>燃料类型</td>					<td colspan="4"><div class="Bunkers"></div></td>				</tr>				<tr>					<td>饮水</td>					<td colspan="4"><div class="DrinkingWater"></div></td>				</tr>				<tr>					<td>厕所</td>					<td colspan="4"><div class="Toilet"></div></td>				</tr>				<tr>					<td style="border-bottom: 1px solid #000;">禽畜栏</td>					<td colspan="4" style="border-bottom: 1px solid #000;"><div							class="Poultry"></div></td>				</tr>			</tbody>		</table>	</div>';
 	printerService.printer(cond,function(data){
 		console.log(data);
 		$('#printHealthFile').html(healthFileHtml);
@@ -31,7 +357,24 @@ PrintHealthFileAndExamClass.prototype.printHealthFile = function(fileNo){
 				OPSHistory : 2,
 				TraumaHistory : 2
 			}
+			var basicInfo = {
+				FileNo : 'fileNo',
+				PaperFileNo : 'paperFileNo',
+				Name : 'name',
+				Address : 'address',
+				ResidenceAddress : 'residenceAddress',
+				BuildUnit : 'buildUnit',
+				BuildPerson : 'buildPerson',
+				Doctor : 'doctor',
+				Nation : 'nation',
+				Idnumber : 'idnumber',
+				TEL : 'tel',
+				Linkman : 'linkman',
+				LinkmanTEL : 'linkmanTel'
+			}
+			
 			for(var p in obj){
+				console.log(p);
 				if (listJson.hasOwnProperty(p)){
 					var column = listJson[p];
 					var listArray = Ext.util.JSON.decode(obj[p]);
@@ -48,6 +391,9 @@ PrintHealthFileAndExamClass.prototype.printHealthFile = function(fileNo){
 						tbody = tbody + '</tbody>';
 						$('.' + p).append(tbody);
 					}
+				}else if(basicInfo.hasOwnProperty(p)){
+					console.log(obj[p])
+					$('.' + p).html(obj[p]);
 				}else{
 					$('.' + p).html(PrintHealthFileAndExamClass.judgeDate(0,obj[p]));
 				}
