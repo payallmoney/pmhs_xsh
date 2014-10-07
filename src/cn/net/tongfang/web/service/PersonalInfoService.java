@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +21,7 @@ import cn.net.tongfang.framework.security.vo.CodExamlist;
 import cn.net.tongfang.framework.security.vo.Doctors;
 import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
@@ -46,15 +45,17 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	}
 	@Transactional
 	public synchronized String save(PersonalInfoFBO data) throws Exception{
+		//保证身份证号为大写
+		data.setIdnumber(data.getIdnumber().toUpperCase());
 		// update switch
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 		String fileno = data.getFileNo();
 		//if (fileno.length() == 18){
 		
 		if(fileno != null && !fileno.equals("")){
-			if(!cn.net.tongfang.framework.security.SecurityManager.isValidUser(data.getInputPersonId(),this.getSession())){
-				throw new Exception("不是本单位建立的档案,不允许修改!");
-			}
+//			if(!cn.net.tongfang.framework.security.SecurityManager.isValidUser(data.getInputPersonId(),this.getSession())){
+//				throw new Exception("不是本单位建立的档案,不允许修改!");
+//			}
 			return update(data);
 		}
 		// save routine
@@ -158,6 +159,8 @@ public class PersonalInfoService extends HibernateDaoSupport {
 	
 	@Transactional
 	public String update(PersonalInfoFBO data) throws Exception{
+		try{
+			
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
 
 		PersonalInfo info = new PersonalInfo();
@@ -174,30 +177,33 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		hf.setModifyPerson(user.getUsername());
 		java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
 		
-		String sql = "Select hf.inputDate ,info.inputDate From HealthFile hf,PersonalInfo info Where" +
-					" hf.fileNo = info.fileNo And hf.fileNo = '" + hf.getFileNo() + "'";
-		List list = getHibernateTemplate().find(sql);
-		if(list.size() > 0){
-			for(Object objs : list){
-				Object[] obj = (Object[])objs;
-				if(obj[0] == null){
-					hf.setInputDate(ts);
-				}else{
-					Timestamp hfTimestamp = (Timestamp)obj[0];
-					hf.setInputDate(hfTimestamp);
-				}
-				if(obj[1] == null){
-					info.setInputDate(ts);
-				}else{
-					Timestamp hfTimestamp = (Timestamp)obj[1];
-					info.setInputDate(hfTimestamp);
-				}
+		HealthFile oldfile = (HealthFile)getHibernateTemplate().get(HealthFile.class, hf.getFileNo());
+		if(oldfile !=null){
+			if(oldfile.getInputDate() == null){
+				hf.setInputDate(ts);
+			}else{
+				hf.setInputDate(oldfile.getInputDate());
 			}
+			if(oldfile.getPersonalInfo().getInputDate() == null){
+				info.setInputDate(ts);
+			}else{
+				info.setInputDate(oldfile.getPersonalInfo().getInputDate());
+			}
+			if(oldfile.getInputPersonId() == null){
+				hf.setInputPersonId(user.getUsername());
+				info.setInputPersonId(user.getUsername());
+			}else{
+				hf.setInputPersonId(oldfile.getInputPersonId());
+				info.setInputPersonId(oldfile.getInputPersonId());
+			}
+			getHibernateTemplate().evict(oldfile);
+			getHibernateTemplate().evict(oldfile.getPersonalInfo());
 		}
 		hf.setLastModifyDate(ts);
-		
 		//info.setInputPersonId(user.getUsername()); //当前登录用户
 		info.setIdnumber(EncryptionUtils.encry(data.getIdnumber()));
+		BusiUtils.insertLog(this,hf.getFileNo(),"update","healthfile",user.getUsername(),oldfile,hf);
+		BusiUtils.insertLog(this,hf.getFileNo(),"update","personalinfo",user.getUsername(),oldfile.getPersonalInfo(),info);
 		getHibernateTemplate().update(hf);
 		getHibernateTemplate().update(info);
 		String id = info.getId();
@@ -205,6 +211,13 @@ public class PersonalInfoService extends HibernateDaoSupport {
 		boHelper.setFK(data, info.getId(), "personalInfoId");
 		boHelper.saveDetails(data, getHibernateTemplate());
 		return EncryptionUtils.decipher(info.getFileNo());
+		}catch (RuntimeException ex){
+			ex.printStackTrace();
+			throw ex;
+		}catch (Exception ex){
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 
 	/**

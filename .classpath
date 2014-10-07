@@ -74,7 +74,6 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ezmorph-1.0.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="D:/lib/j2ee/j2ee.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ImApi-2.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/mm.mysql-2.0.4-bin.jar"/>
@@ -82,5 +81,6 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-dbutils-1.5.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-csv-1.0-20131011.113608-242.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/poi-ooxml-3.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/Downloads/j2ee.jar"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

@@ -44,11 +44,12 @@ public class VisitBeforeBorn implements java.io.Serializable {
 	private String edema;
 	private String diagnosisRemark;
 	private String bornBirthAddressPlan;
-	private Integer pelvis01;
-	private Integer pelvis02;
-	private Integer pelvis03;
-	private Integer pelvis04;
+	private Double pelvis01;
+	private Double pelvis02;
+	private Double pelvis03;
+	private Double pelvis04;
 	private String foreignId;
+
 	// Constructors
 
 	/** default constructor */
@@ -56,13 +57,15 @@ public class VisitBeforeBorn implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public VisitBeforeBorn(String fileNo, String inputPersonId,
+	public VisitBeforeBorn(String id, String fileNo, String inputPersonId,
 			Timestamp inputDate) {
+		this.id = id;
 		this.fileNo = fileNo;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
 	}
 
+	/** full constructor */
 	public VisitBeforeBorn(String id, String fileNo, String inputPersonId,
 			Timestamp inputDate, Integer item, Timestamp visitDate,
 			Double diastolicPressure, Double systolicPressure, String result,
@@ -74,9 +77,8 @@ public class VisitBeforeBorn implements java.io.Serializable {
 			String highRiskRemark, String execDistrictNum,
 			String highRiskSearch, Integer gravidity, String edema,
 			String diagnosisRemark, String bornBirthAddressPlan,
-			Integer pelvis01, Integer pelvis02, Integer pelvis03,
-			Integer pelvis04,String foreignId) {
-		super();
+			Double pelvis01, Double pelvis02, Double pelvis03, Double pelvis04,
+			String foreignId) {
 		this.id = id;
 		this.fileNo = fileNo;
 		this.inputPersonId = inputPersonId;
@@ -392,40 +394,40 @@ public class VisitBeforeBorn implements java.io.Serializable {
 		this.bornBirthAddressPlan = bornBirthAddressPlan;
 	}
 
-	public Integer getPelvis01() {
-		return pelvis01;
+	public Double getPelvis01() {
+		return this.pelvis01;
 	}
 
-	public void setPelvis01(Integer pelvis01) {
+	public void setPelvis01(Double pelvis01) {
 		this.pelvis01 = pelvis01;
 	}
 
-	public Integer getPelvis02() {
-		return pelvis02;
+	public Double getPelvis02() {
+		return this.pelvis02;
 	}
 
-	public void setPelvis02(Integer pelvis02) {
+	public void setPelvis02(Double pelvis02) {
 		this.pelvis02 = pelvis02;
 	}
 
-	public Integer getPelvis03() {
-		return pelvis03;
+	public Double getPelvis03() {
+		return this.pelvis03;
 	}
 
-	public void setPelvis03(Integer pelvis03) {
+	public void setPelvis03(Double pelvis03) {
 		this.pelvis03 = pelvis03;
 	}
 
-	public Integer getPelvis04() {
-		return pelvis04;
+	public Double getPelvis04() {
+		return this.pelvis04;
 	}
 
-	public void setPelvis04(Integer pelvis04) {
+	public void setPelvis04(Double pelvis04) {
 		this.pelvis04 = pelvis04;
 	}
 
 	public String getForeignId() {
-		return foreignId;
+		return this.foreignId;
 	}
 
 	public void setForeignId(String foreignId) {

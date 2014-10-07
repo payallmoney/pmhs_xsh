@@ -32,6 +32,7 @@ import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.security.vo.ExamItems;
 import cn.net.tongfang.framework.security.vo.ExamItemsId;
+import cn.net.tongfang.framework.security.vo.Organization;
 import cn.net.tongfang.web.util.FileNoGen;
 
 public class CommonExamService extends HibernateDaoSupport  {
@@ -71,6 +72,9 @@ public class CommonExamService extends HibernateDaoSupport  {
 		hbtTypeMap.put("date", Hibernate.TIMESTAMP);
 		hbtTypeMap.put("number", Hibernate.BIG_DECIMAL);
 	}
+	
+	private static Map<Integer , List> orgmap = new HashMap();
+	
 	public Map newExam(String examname)  throws Exception{
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Calendar cal = Calendar.getInstance();
@@ -103,6 +107,41 @@ public class CommonExamService extends HibernateDaoSupport  {
 			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
 		}
 		return orgid;
+	}
+	private List getSubOrg(int orgid,String space){
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId="+orgid);
+		System.out.println("=====orgid======="+orgid);
+		List ret = new ArrayList();
+		for(int i= 0;i <lists.size();i++){
+			Organization org = (Organization)lists.get(i);
+			List all = new ArrayList();
+			all.add(org.getId());
+			all.add(""+space+"|  "+org.getName());
+			ret.add(all);
+			ret.addAll(getSubOrg(org.getId(),space+"--"));
+		}
+		return ret;
+	}
+	
+	public List getCurrentOrgList(){
+		List ret = new ArrayList();
+		int rootid = SecurityManager.currentOperator().getOrgId();
+		if(!orgmap.containsKey(rootid)){
+			List all = new ArrayList();
+			all.add("");
+			all.add("全部");
+			ret.add(all);
+			List root = new ArrayList();
+			root.add(rootid);
+			root.add(SecurityManager.currentOperator().getOrg().getName());
+			ret.add(root);
+			ret.addAll(getSubOrg(rootid , "--"));
+			orgmap.put(rootid,ret);
+			return ret;
+		}else{
+			return orgmap.get(rootid);
+		}
+		
 	}
 	
 	public List examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{

@@ -373,13 +373,13 @@ function hideHUD($t, includeError){
             		var input = setting.calculateBirthdayByIDNumber[0];
             		$birthday = $('#' + input + ' input');
             		if(setting.calculateBirthday != undefined && setting.calculateBirthday){
-            			if($birthday.val() == ''){
+//            			if($birthday.val() == ''){
                 			if(val.length == 15){
                 				$birthday.val('19' + val.substring(6,12));
                     		}else if(val.length == 18){
                     			$birthday.val(val.substring(6,14));
                     		}
-                		}
+//                		}
             		}else if(setting.calculateAge != undefined && setting.calculateAge){
             			var now = new Date();
             			var year = now.getFullYear();
@@ -1143,8 +1143,11 @@ function hideHUD($t, includeError){
                             _v = v;
                         }
                         combo.val(_v);
+                        
                         ele.val(_v);
-                        ele.hide();
+                        if(!setting.nothidewhenload){
+                        	ele.hide();
+                        }
                     }
                 },
                 reset : function(){
@@ -1618,7 +1621,7 @@ function hideHUD($t, includeError){
                 if (!matchCol) matchCol = setting.value; //default match col
 
                 var res = $.map(data, function(v,i){
-                    if (v[matchCol] == newval){
+                    if (trim(v[matchCol]) == trim(newval)){
                         return i;
                     } else return null;
                 });

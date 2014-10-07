@@ -1107,7 +1107,6 @@ function formatdate(date){
   ];
 
   window.personal_colsMaps = {};
-
   queryjson = parseParams(window.location.search);
 
   if (queryjson.fileNo && queryjson.fileNo.length > 0) {

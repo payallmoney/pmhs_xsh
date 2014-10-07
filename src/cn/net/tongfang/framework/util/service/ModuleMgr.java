@@ -717,6 +717,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthHql(qryCond, params,new StringBuilder());
 		System.out.println("==findHealthFiles====");
+		System.out.println(hql.toString());
 		return queryHealthFiles(pp, params, hql);
 	}
 

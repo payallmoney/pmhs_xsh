@@ -49,6 +49,10 @@ public class FirstVistBeforeBornService extends HealthMainService<FirstVistBefor
 		if(sysUtils.hasHealthFileMaternal(data.getForeignId()) == null){
 			throw new Exception("请先建立孕产妇保健手册。");
 		}
+		FirstVistBeforeBorn fvb = sysUtils.hasFirstVistBeforeBorn(data.getForeignId(),data.getGravidity());
+		if(fvb != null &&( data.getId() == null || data.getId().trim().equals(""))){
+			throw new Exception("第1次产前随访已录入。不允许重复录入!");
+		}
 		if(data.getHighRisk() != null && data.getHighRisk().equals("是")){
 			womanRocordService.save(data.getFileNo(), data.getVisitDate(), data.getHighRiskRemark(), 1);
 		}

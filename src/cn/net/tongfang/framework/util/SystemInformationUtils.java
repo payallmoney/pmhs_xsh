@@ -190,7 +190,7 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	}
 	public String childExamInfo(String fileNo,Integer dataType){
 		fileNo = EncryptionUtils.encry(fileNo);
-		String hql = "From ChildrenMediExam Where fileNo = ? And dataType = :dataType Order By checkItem ASC ";
+		String hql = "From ChildrenMediExam Where fileNo = ? And dataType = ? Order By checkItem ASC ";
 		List list = getHibernateTemplate().find(hql,new Object[]{fileNo,dataType});
 		if(list.size() > 0){
 			String result = "";
@@ -245,7 +245,12 @@ public class SystemInformationUtils extends HibernateDaoSupport {
 	}
 	
 	public Object getSimgleHistoryExamRecord(String  foreignId,String tableName){
-		String hql = " From " + tableName + " Where foreignId = ? Order By visitDate ";
+		String where = "";
+		if(tableName.equals("VisitAfterBorn")){
+			where = " And recordType = 1 ";
+		}
+		String hql = " From " + tableName + " Where foreignId = ? "+where+"  Order By visitDate ";
+		
 		List list = getHibernateTemplate().find(hql,foreignId);
 		if(list.size() > 0){
 			return list.get(0);

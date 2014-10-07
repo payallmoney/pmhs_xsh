@@ -13,7 +13,7 @@
     <tx:annotation-driven transaction-manager="transactionManager"  proxy-target-class="true"/>
 	<context:component-scan base-package="cn.net.tongfang" />
 	 
-<!--
+
 <bean id="dataSource"
     class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName">
@@ -21,25 +21,25 @@
     </property>
    
     <property name="url">
-        <value>jdbc:sqlserver://172.16.10.62:8433;databaseName=pmhs_km_zs</value>
+        <value>jdbc:sqlserver://localhost:1433;databaseName=km</value>
         </property>
         <property name="username">
             <value>sa</value>
         </property>
         <property name="password">
-            <value>kmwsj2013</value>
+            <value>system</value>
         </property>
     </bean>
- -->   
+  <!--
 	<bean id="dataSource"
 		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"> 
 		<property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
 		<property name="url" value="jdbc:sqlserver://localhost:1433;databaseName=pmhs_km" />       
 		<property name="username" value="sa" />       
-		<property name="password" value="11111111" /> 
+		<property name="password" value="system" /> 
 		<property name="initialSize" value="100"/>
 		<property name="maxActive" value="100"/>
-    </bean>
+    </bean> --> 
 	<!--
 	<bean id="dataSource"
 		class="com.mchange.v2.c3p0.ComboPooledDataSource"> 

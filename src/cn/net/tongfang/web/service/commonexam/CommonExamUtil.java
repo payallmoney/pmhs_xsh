@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -25,7 +26,8 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 	private Map<String , Map<String,ExamExamcfg>>  examcfg = new HashMap<String , Map<String,ExamExamcfg>>();
 	private Map<String , String> districtMap = new HashMap();
 	private Map<String , List> districtDetailMap = new HashMap();
-	
+	@Autowired
+	private String districtnumber;
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {
@@ -57,7 +59,8 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 		
 		districtMap.clear();
 		districtDetailMap.clear();
-		List<District> districtlist = getHibernateTemplate().find("from District where id = '530000' or id like '5301%'");
+		System.out.println("===districtnumber========="+districtnumber);
+		List<District> districtlist = getHibernateTemplate().find("from District where id like '"+districtnumber.substring(0,4)+"%'");
 		for(District cfg : districtlist){
 			String id = cfg.getId();
 			if(id.length()==6){
@@ -68,7 +71,7 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 			if(!districtMap.containsKey(id)){
 				districtMap.put(id, getDistrictName(id,cfg.getName()));
 			}
-			if(!"530000".equals(cfg.getId())){
+//			if(!"530000".equals(cfg.getId())){
 				if(cfg.getLevel() == 2){
 					if(!districtDetailMap.containsKey("root"+cfg.getId())){
 						List rootlist = new ArrayList();
@@ -107,7 +110,7 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 					List parentlist = (List)districtDetailMap.get(cfg.getParentId());
 					parentlist.add(cfg);
 				}
-			}
+//			}
 		}
 	}
 	public List<District> getDistrict(String orgid) {

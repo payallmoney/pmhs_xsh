@@ -74,7 +74,7 @@ public class OnLineTakePhotoServlet extends HttpServlet {
             String saveName = UUID.randomUUID().toString(); ;
             String fileName = saveName + ".jpg";
             //写图片
-            File f = new File(filePath+"\\" + fileName);
+            File f = new File(filePath+System.getProperties().getProperty("file.separator") + fileName);
     		DataOutputStream dos = new DataOutputStream(new FileOutputStream(f));
     		dos.write(data);
     		dos.flush();
@@ -86,8 +86,9 @@ public class OnLineTakePhotoServlet extends HttpServlet {
         }
         catch(Exception ex)
         {
+        	ex.printStackTrace();
         	response.setContentType("text/xml");   
-            response.getWriter().write("保存失败");   
+            response.getWriter().write("保存失败,"+ex.getMessage());   
         }
 	}
 

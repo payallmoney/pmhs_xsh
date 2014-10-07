@@ -10,7 +10,7 @@ import java.util.Properties;
 public class OnlineTakePhotoService {
 	public static void save(String key,String picName)throws Exception{
 		File parentFile = new File(Thread.currentThread().getContextClassLoader().getResource("log4j.properties").getPath()).getParentFile();
-		File file = new File(parentFile.getPath() + "/onlineTakePhoto.properties");
+		File file = new File(parentFile.getPath() +System.getProperties().getProperty("file.separator")+ "onlineTakePhoto.properties");
 		if(!file.exists()){
 			try {
 				file.createNewFile();
@@ -41,7 +41,7 @@ public class OnlineTakePhotoService {
 	
 	public static String get(String key)throws Exception{
 		File parentFile = new File(Thread.currentThread().getContextClassLoader().getResource("log4j.properties").getPath()).getParentFile();
-		File file = new File(parentFile.getPath() + "/onlineTakePhoto.properties");
+		File file = new File(parentFile.getPath()+System.getProperties().getProperty("file.separator") + "onlineTakePhoto.properties");
 		Properties prop = new Properties();
 		OutputStream out = null;
 		try {

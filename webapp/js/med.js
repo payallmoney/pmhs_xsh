@@ -38,7 +38,7 @@ function trim(str){
     return str.replace(/(^\s*)|(\s*$)/g, "");  
 }
 
-function data_writeback(ctrl,_s,setting){
+function data_writeback(_s,setting){
 	$.each(setting.writeback, function(i, v) {
 		var ctrl = setting.ctx.getCtrl(v.id);
 		if (ctrl && ctrl['val']) {
@@ -672,7 +672,7 @@ function data_writeback(ctrl,_s,setting){
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
 //				console.log(_s);
-				data_writeback(ctrl,_s,setting)
+				data_writeback(_s,setting)
 //				$.each(setting.writeback, function(i, v) {
 //					var ctrl = setting.ctx.getCtrl(v.id);
 //					if (ctrl && ctrl['val']) {
@@ -803,7 +803,7 @@ function data_writeback(ctrl,_s,setting){
 								if(_s && _s.length>4){
     								setDisabledBySex(_s[2]);
     								isOldMan(_s[3]);
-    								data_writeback(ctrl,_s,setting);
+    								data_writeback(_s,setting);
 //    								$.each(setting.writeback, function(i, v) {
 //    									var ctrl = setting.ctx.getCtrl(v.id);
 //    									if (ctrl && ctrl['val']) {
@@ -833,7 +833,7 @@ function data_writeback(ctrl,_s,setting){
 						var _s = values[0]; // todo duplicated code
 						setDisabledBySex(_s[2]);
 						isOldMan(_s[3]);
-						data_writeback(ctrl,_s,setting);
+						data_writeback(_s,setting);
 //						$.each(setting.writeback, function(i, _v) {
 //							var ctrl = setting.ctx.getCtrl(_v.id);
 //							if (ctrl && ctrl['val']) {
@@ -1186,7 +1186,7 @@ function data_writeback(ctrl,_s,setting){
 			if (setting.writeback && selection.length > 0) {
 				var _s = selection[0];
 //				console.log(_s);
-				data_writeback(ctrl,_s,setting);
+				data_writeback(_s,setting);
 //				$.each(setting.writeback, function(i, v) {
 //					var ctrl = setting.ctx.getCtrl(v.id);
 //					if (ctrl && ctrl['val']) {
@@ -1319,7 +1319,7 @@ function data_writeback(ctrl,_s,setting){
 									if(_s && _s.length>4){
 	    								setDisabledBySex(_s[2]);
 	    								isOldMan(_s[3]);
-	    								data_writeback(ctrl,_s,setting);
+	    								data_writeback(_s,setting);
 //	    								$.each(setting.writeback, function(i, v) {
 //	    									var ctrl = setting.ctx.getCtrl(v.id);
 //	    									if (ctrl && ctrl['val']) {
@@ -1339,7 +1339,7 @@ function data_writeback(ctrl,_s,setting){
 						var _s = values[0]; // todo duplicated code
 						setDisabledBySex(_s[2]);
 						isOldMan(_s[3]);
-						data_writeback(ctrl,_s,setting);
+						data_writeback(_s,setting);
 //						$.each(setting.writeback, function(i, _v) {
 //							var ctrl = setting.ctx.getCtrl(_v.id);
 //							if (ctrl && ctrl['val']) {

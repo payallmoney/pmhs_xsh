@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>jsonServiceTest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript"
+	src="/js/angularjs/jquery/jquery-1.9.1.min.js"></script>
+<script src="/js/angularjs/angular.min.js"></script>
+<script>
+	angular.module('test', []);
+	function TestJson($scope, $window,$http) {
+		$scope.tests = {
+			'QueryHealthFile' : {
+				'key' : 11,
+				//'IDNumber':"123456789012345678",
+				//'mobile':'111111111',
+				'linktel':'23456'
+			},
+			'QueryFamily' : {
+				'key' : 11,
+				'familyid':"d2027e7c-112d-42e7-8f08-5dcd4b3b54ad",
+				'FileNo':'530102001001000006'
+			},
+			'UpdateHealthFile' : {
+				'key' : 11,
+				'WeChat':'123',
+				'FileNo' : "530102001001000006",
+				'name':'3333',
+				'sex':'女',
+				"Birthday": "2012-01-01",
+				'IDNumber':"123456789012345678",
+				'mobile':'111111111',
+				'WeChat':'oPwVruOMk3-QlUMLmd-BOvb7cVyY',
+				'Address':'33333333333',
+				'ResidenceAddress':'444444',
+				'ResideType':'户籍',
+				'OrgID':'1',
+				'Relation':'户主',
+				'WeOrgID':'1',
+				'healthcardid':'123456'
+			},
+			'AddHealthFile' : {
+				'key' : 11,
+				'WeChat':'123',
+				'name':'0000000000000',
+				'sex':'女',
+				"Birthday": "2012-01-01",
+				'districtNumber':'530102001001',
+				'IDNumber':"123456789012345678",
+				'mobile':'111111111',
+				'WeChat':'oPwVruOMk3-QlUMLmd-BOvb7cVyY',
+				'Address':'33333333333',
+				'ResidenceAddress':'444444',
+				'ResideType':'户籍111',
+				'OrgID':'1',
+				'Relation':'户主',
+				'WeOrgID':'1',
+				'OrgWeChat':'222222222',
+				'healthcardid':'123456'
+			},
+			'QueryOrg' : {
+				'key' : 11,
+				'OrgWeChat':'11'
+			},
+			'IsWeChartReged' : {
+				'key' : 11,
+				'WeChat':'oPwVruOMk3-QlUMLmd-BOvb7cVyY'
+			},'WeChatQueryFile' : {
+				'key' : 11,
+				'WeChat':'oPwVruOMk3-QlUMLmd-BOvb7cVyY'
+			},
+		};
+
+		$scope.query = function(type,key) {
+			console.log(type);
+			var url = '/jsonserver.do?type='+type+'&key='+key;
+			$http({
+				method : 'POST',
+				url : url,
+				data : $scope.tests[type],
+				headers: {'Content-Type': 'text/json'}
+			}).success(function(data, status, headers, config) {
+				console.log("success",data, status, headers, config);
+				$scope.html = data;
+			}).error(function(data, status, headers, config) {
+				console.log("error",data, status, headers, config);
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+			});
+		}
+	}
+</script>
+</head>
+<body ng-app="test" ng-controller="TestJson">
+	<input ng-repeat=' (k,v) in tests ' type='button' value='测试{{k}}'
+		ng-click="query(k,v.key)">
+	<div>{{html|json}}</div>
+
+</body>
+</html>
