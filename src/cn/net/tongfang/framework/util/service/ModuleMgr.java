@@ -819,8 +819,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params)throws Exception {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		Gson gs = new Gson();
-		System.out.println("========1111====="+gs.toJson(qryCond));
-		System.out.println("=======2222====="+gs.toJson(params));
+		if(qryCond.getParams().containsKey("child_status")){
+			String value = (String)qryCond.getParams().get("child_status");
+			//DateUtils.toCalendar(new Date()).get(Calendar.YEAR) -  DateUtils.toCalendar(maternal.getBirthday()).get(Calendar.YEAR) >7
+			if("0".equals(value.trim())){
+				where.append(" and b.birthday >= convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
+			}else if("1".equals(value.trim())){
+				where.append(" and b.birthday < convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
+			}
+		}
 		buildGeneralWhereHealthFile(qryCond, params, where,0);		
 //		if (params.size() != 0) {
 //			where.replace(0, 4, " where ");
@@ -1006,14 +1013,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				if("noexam".equals(key) && "true".equals(value.trim())){
 					where.append(" and not exists ( select 1 from MedicalExam where fileNo = a.fileNo  ) ");
 				}
-				if("child_status".equals(key)){
-					//DateUtils.toCalendar(new Date()).get(Calendar.YEAR) -  DateUtils.toCalendar(maternal.getBirthday()).get(Calendar.YEAR) >7
-					if("0".equals(value.trim())){
-						where.append(" and b.birthday >= convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
-					}else if("1".equals(value.trim())){
-						where.append(" and b.birthday < convert(datetime,convert(nvarchar,(YEAR(getdate())-7))+'-01-01')  ");
-					}
-				}
+				
 			}
 		}
 		System.out.println("============"+where);
@@ -3242,7 +3242,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		StringBuilder where = new StringBuilder( " where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
-		where.append(" and b.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-65))+'-01-01')  ");
+		where.append(" and b.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-64))+'-01-01')  ");
 //		if (params.size() != 0) {
 //			where.replace(0, 4, " where ");
 //		}
