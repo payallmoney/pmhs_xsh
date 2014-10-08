@@ -106,7 +106,7 @@ public class DataExportService extends HibernateDaoSupport {
 	// denc(a.fileNo) as fileNo ,denc(a.name) as
 	// name,b.sex,b.birthday,b.idnumber,a.address,b.linkman,a.tel
 	private static String[] headerHealthFile = { "档案编号", "姓名", "性别", "出生日期",
-			"身份证号码", "地址", "联系人", "联系电话" };
+			"身份证号码", "地址", "联系人", "联系电话","纸质档案编号","建档人" };
 	// 第2至5次产前随访
 	private static String[] headerVistBeforeBorn = { "执行机构", "档案编号", "姓名",
 			"性别", "出生日期", "孕周", "项目", "高危", "随访日期", "下次随访日期", "随访医生", "操作人员" };
@@ -814,7 +814,7 @@ public class DataExportService extends HibernateDaoSupport {
 							+ "dbo.denc(b.idnumber) idnumber,"
 							+ "a.address,"
 							+ "b.linkman,"
-							+ "a.tel "
+							+ "a.tel , a.paperFileNo,emp.username "
 							+ "from HealthFile a, PersonalInfo b,  Sam_Taxempcode emp , Organization e")
 					.append(where);
 			System.out.println("=========hql==========" + hql);
@@ -828,7 +828,7 @@ public class DataExportService extends HibernateDaoSupport {
 
 			SQLQuery query = getSession().createSQLQuery(hql.toString());
 			String[] resultname = new String[] { "fileNo", "name", "sex",
-					"birthday", "idnumber", "address", "linkman", "tel" };
+					"birthday", "idnumber", "address", "linkman", "tel","paperFileNo","username" };
 			for (int i = 0; i < resultname.length; i++) {
 				query.addScalar(resultname[i], Hibernate.STRING);
 			}
@@ -2351,6 +2351,7 @@ public class DataExportService extends HibernateDaoSupport {
 			}
 			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
+			sql += " and emp.org_id = " + user.getOrgId() + " ";
 			if ("in".equals(main.getOrgparamtype())) {
 				sql = sql.replaceAll("\\?", orgs);
 			}
