@@ -2238,7 +2238,6 @@ public class DataExportService extends HibernateDaoSupport {
 			sql = sql + " and 1=2 " + main.getGroupby() + " "
 					+ main.getOrderby();
 			sql = sql.replaceAll("\"", "'");
-			System.out.println("=======sql=====" + sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			if (sql.indexOf("?") > 0) {
 				stmt.setString(1, "9999999999");
@@ -2251,9 +2250,14 @@ public class DataExportService extends HibernateDaoSupport {
 				Map colmap = new HashMap();
 				colmap.put("field", "col" + i);
 				String title = rsMetaData.getColumnLabel(i);
+				System.out.println("========title===="+title);
 				if (title.trim().toLowerCase().startsWith("button:")) {
 					title = title.trim().substring(7);
 					colmap.put("format", "buttonColumn");
+				}else if (title.trim().toLowerCase().startsWith("funcbutton:")) {
+					title = title.trim().substring(11);
+					colmap.put("format", "funcButtonColumn");
+					System.out.println("========1111====");
 				}
 				colmap.put("title", title);
 				retlist.add(colmap);
@@ -2368,6 +2372,11 @@ public class DataExportService extends HibernateDaoSupport {
 						} else if ("0".equals(params.get(key).toString())) {
 							// 不加入
 						}
+					}else if (vo.getType().equals("select")) {
+						String value = params.get(key).toString();
+						Gson gs = new Gson();
+						Map options = gs.fromJson(vo.getColstr(), HashMap.class);
+						sql = sql + " and  " + options.get(value);
 					} else {
 						sql = sql + " and  " + vo.getColstr();
 					}
@@ -2485,9 +2494,9 @@ public class DataExportService extends HibernateDaoSupport {
 											.getTime()));
 						} else if (vo.getType().equals("string")) {
 							countquery.setString(paramidx++, (String) value);
-						} else if (vo.getType().equals("exists")) {
+						} else if (vo.getType().equals("exists") || vo.getType().equals("select")) {
 							// 没有参数
-						} else {
+						}else {
 							countquery.setFloat(paramidx++,
 									Float.parseFloat((String) value));
 						}
@@ -2531,7 +2540,6 @@ public class DataExportService extends HibernateDaoSupport {
 					Object key = iter.next();
 					if (submap.containsKey(key)) {
 						Object value = params.get(key);
-						System.out.println(key+"==="+value);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
 							stmt.setDate(paramidx++, new java.sql.Date(fomart
@@ -2544,7 +2552,7 @@ public class DataExportService extends HibernateDaoSupport {
 											.getTime()));
 						} else if (vo.getType().equals("string")) {
 							stmt.setString(paramidx++, (String) value);
-						} else if (vo.getType().equals("exists")) {
+						} else if (vo.getType().equals("exists") || vo.getType().equals("select")) {
 							// 没有参数
 						} else {
 							stmt.setFloat(paramidx++,
