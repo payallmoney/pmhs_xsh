@@ -61,6 +61,7 @@ import cn.net.tongfang.framework.util.service.ModuleMgr;
 import cn.net.tongfang.web.service.bo.BirthCertifiQry;
 
 import com.csvreader.CsvWriter;
+import com.google.gson.Gson;
 
 /**
  * @author Jackstraw
@@ -1551,10 +1552,10 @@ public class DataExportService extends HibernateDaoSupport {
 		Statement st = conn.createStatement();
 		List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
 		List sublist =  getSession().createQuery("from ExportSub where  mainid = "+ id +" order by mainid , ord").list();
-		Map<Integer,ExportSub> submap = new HashMap();
+		Map<String,ExportSub> submap = new HashMap();
 		for(int i=0 ;i <sublist.size();i++){
 			ExportSub vo = (ExportSub)sublist.get(i);
-			submap.put(vo.getId(), vo);
+			submap.put(vo.getCode(), vo);
 		}
 		ExportMain main = (ExportMain)sqllist.get(0);
 		String sql = main.getSql();
@@ -1574,10 +1575,13 @@ public class DataExportService extends HibernateDaoSupport {
 //				+ " and d.FileNo = g.FileNo and g.FileNo = h.FileNo"
 //				+ " and d.InputDate >='2012-10-1'"
 //				+ " and d.InputDate <'2013-10-1' order by e.district_id";
+		Gson gs = new Gson();
+		System.out.println("============"+gs.toJson(params));
 		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
 			Object key = iter.next();
+			System.out.println("=======key====="+key);
 			Object value = params.get(key);
-			ExportSub vo = submap.get(Integer.parseInt((String)key));
+			ExportSub vo = submap.get((String)key);
 			sql =  sql +" and " +vo.getColstr();
 		}
 		sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
@@ -1591,7 +1595,7 @@ public class DataExportService extends HibernateDaoSupport {
 		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
 			Object key = iter.next();
 			Object value = params.get(key);
-			ExportSub vo = submap.get(Integer.parseInt((String)key));
+			ExportSub vo = submap.get((String)key);
 			if(vo.getType().equals("date")) {
 				stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
 			}else if( vo.getType().equals("string")){
