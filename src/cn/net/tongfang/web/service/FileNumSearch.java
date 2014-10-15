@@ -109,7 +109,7 @@ public class FileNumSearch extends HibernateDaoSupport {
 				hsqlparam = " And hc.fileNo = hf.fileNo ";
 				extendCols = " ,hc.id ";
 			} else if (otherparamtype.equals(OtherParamType_Old)) {
-				hsqlparam = " And p.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-65))+'-01-01') ";
+				hsqlparam = " And p.birthday <  convert(datetime,convert(nvarchar,(YEAR(getdate())-64))+'-01-01') ";
 			} else if (otherparamtype.equals(OtherParamType_MarryWoman)) {// 女性婚检
 				hsqlparam = " And p.sex = '女'  ";
 				extendCols = " ,hf.tel,hf.township,hf.village,p.workUnit,p.folk,p.folkOther,p.education,p.occupation,p.idnumber,hf.residenceAddress,hf.districtNumber ";
