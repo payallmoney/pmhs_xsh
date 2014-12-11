@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -106,7 +109,7 @@ public class DataExportService extends HibernateDaoSupport {
 	// denc(a.fileNo) as fileNo ,denc(a.name) as
 	// name,b.sex,b.birthday,b.idnumber,a.address,b.linkman,a.tel
 	private static String[] headerHealthFile = { "档案编号", "姓名", "性别", "出生日期",
-			"身份证号码", "地址", "联系人", "联系电话","纸质档案编号","建档人" };
+			"身份证号码", "地址", "联系人", "联系电话", "纸质档案编号", "建档人", "责任医生" };
 	// 第2至5次产前随访
 	private static String[] headerVistBeforeBorn = { "执行机构", "档案编号", "姓名",
 			"性别", "出生日期", "孕周", "项目", "高危", "随访日期", "下次随访日期", "随访医生", "操作人员" };
@@ -128,6 +131,9 @@ public class DataExportService extends HibernateDaoSupport {
 			"户藉人口数", "城镇居民人口数", "乡村居民人口数", "孕产妇数", "活产数", "0-6岁儿童数",
 			"15岁以上人口数", "35岁以上人口数", "65岁以上人口数", "应管理高血压人数", "应管理糖尿病人数",
 			"应管理精神病人数" };
+	
+	private static Pattern procPattern = Pattern.compile("^\\s*\\{\\s*call .*",Pattern.CASE_INSENSITIVE);
+	
 
 	public static final String VISIT_AFTER_DEFAULT = "0";
 	public static final String VISIT_AFTER_42 = "1";
@@ -814,7 +820,7 @@ public class DataExportService extends HibernateDaoSupport {
 							+ "dbo.denc(b.idnumber) idnumber,"
 							+ "a.address,"
 							+ "b.linkman,"
-							+ "a.tel , a.paperFileNo,emp.username "
+							+ "a.tel , a.paperFileNo,emp.username , a.doctor "
 							+ "from HealthFile a, PersonalInfo b,  Sam_Taxempcode emp , Organization e")
 					.append(where);
 			System.out.println("=========hql==========" + hql);
@@ -828,7 +834,8 @@ public class DataExportService extends HibernateDaoSupport {
 
 			SQLQuery query = getSession().createSQLQuery(hql.toString());
 			String[] resultname = new String[] { "fileNo", "name", "sex",
-					"birthday", "idnumber", "address", "linkman", "tel","paperFileNo","username" };
+					"birthday", "idnumber", "address", "linkman", "tel",
+					"paperFileNo", "username","doctor" };
 			for (int i = 0; i < resultname.length; i++) {
 				query.addScalar(resultname[i], Hibernate.STRING);
 			}
@@ -1797,10 +1804,6 @@ public class DataExportService extends HibernateDaoSupport {
 		return format.format(now);
 	}
 
-	public static void main(String[] args) {
-		System.out.println("======"
-				+ CSVFormat.EXCEL.format(new String[] { "a\"bc" }));
-	}
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
 	public Map<String, List> get_Export_Param(String type) throws Exception {
@@ -1818,8 +1821,34 @@ public class DataExportService extends HibernateDaoSupport {
 				"from ExportSub order by mainid , ord").list();
 		ret.put("sub", sub);
 		ret.put("main", main);
-		List spottype = getSession().createQuery(
-				"from SpotcheckType where exists(select 1 from ExportMain  where id=mainid)  order by code ").list();
+		List spottype = getSession()
+				.createQuery(
+						"from SpotcheckType where exists(select 1 from ExportMain  where id=mainid)  order by code ")
+				.list();
+		ret.put("spottype", spottype);
+		return ret;
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map<String, List> get_Export_ParamById(String id) throws Exception {
+		Map<String, List> ret = new HashMap<String, List>();
+		String where = "";
+		if (id == null) {
+			where = " 1=1 ";
+		} else {
+			where = " id=" + id;
+		}
+		List main = getSession().createQuery(
+				"select id ,name,orgparamtype,pageable,pagesize from ExportMain where "
+						+ where + " order by id").list();
+		List sub = getSession().createQuery(
+				"from ExportSub order by mainid , ord").list();
+		ret.put("sub", sub);
+		ret.put("main", main);
+		List spottype = getSession()
+				.createQuery(
+						"from SpotcheckType where exists(select 1 from ExportMain  where id=mainid)  order by code ")
+				.list();
 		ret.put("spottype", spottype);
 		return ret;
 	}
@@ -2098,7 +2127,7 @@ public class DataExportService extends HibernateDaoSupport {
 				out.write("\r\n");
 			}
 			stmt.close();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
@@ -2235,13 +2264,32 @@ public class DataExportService extends HibernateDaoSupport {
 					"from ExportMain where id = " + id + " order by id").list();
 			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
-			sql = sql + " and 1=2 " + main.getGroupby() + " "
-					+ main.getOrderby();
-			sql = sql.replaceAll("\"", "'");
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			if (sql.indexOf("?") > 0) {
-				stmt.setString(1, "9999999999");
+			if(!DataExportService.isproc(main.getSql())){
+				sql = sql + " and 1=2 " + main.getGroupby() + " "
+						+ main.getOrderby();
 			}
+			sql = sql.replaceAll("\"", "'");
+			
+			System.out.println("===sql========="+sql);
+			PreparedStatement  stmt = null ;
+			if(DataExportService.isproc(main.getSql())){
+				 stmt = conn.prepareCall(sql);
+			}else{
+				 stmt = conn.prepareStatement(sql);
+			}
+			int idx = sql.indexOf("?");
+			int idxbegin = 1;
+			while (idx > 0) {
+				System.out.println("============"+idx);
+				stmt.setString(idxbegin++, null);
+				idx = sql.indexOf("?",idx+1);
+			}
+//			if(DataExportService.isproc(main.getSql())){
+//				int paramsnum = Integer.parseInt(main.getOrderby());
+//				for(int i = 1 ;i <paramsnum ;i++){
+//					stmt.setObject(i+1, null);
+//				}
+//			}
 			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			int numberOfColumns = rsMetaData.getColumnCount();
@@ -2250,11 +2298,11 @@ public class DataExportService extends HibernateDaoSupport {
 				Map colmap = new HashMap();
 				colmap.put("field", "col" + i);
 				String title = rsMetaData.getColumnLabel(i);
-				System.out.println("========title===="+title);
+				System.out.println("========title====" + title);
 				if (title.trim().toLowerCase().startsWith("button:")) {
 					title = title.trim().substring(7);
 					colmap.put("format", "buttonColumn");
-				}else if (title.trim().toLowerCase().startsWith("funcbutton:")) {
+				} else if (title.trim().toLowerCase().startsWith("funcbutton:")) {
 					title = title.trim().substring(11);
 					colmap.put("format", "funcButtonColumn");
 					System.out.println("========1111====");
@@ -2355,6 +2403,531 @@ public class DataExportService extends HibernateDaoSupport {
 			}
 			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
+			String mainsql = sql;
+			String countsql = "";
+			String pagesql = "";
+			if(!DataExportService.isproc(main.getSql())){
+				sql += " and emp.org_id = " + user.getOrgId() + " ";
+				if ("in".equals(main.getOrgparamtype())) {
+					sql = sql.replaceAll("\\?", orgs);
+				}
+				mainsql = sql;
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					if (submap.containsKey(key)) {
+						ExportSub vo = submap.get(key);
+						if (vo.getType().equals("exists")) {
+							if ("1".equals(params.get(key).toString())) {
+								sql = sql + " and not " + vo.getColstr();
+							} else if ("2".equals(params.get(key).toString())) {
+								sql = sql + " and  " + vo.getColstr();
+							} else if ("0".equals(params.get(key).toString())) {
+								// 不加入
+							}
+						} else if (vo.getType().equals("select")) {
+							String value = params.get(key).toString();
+							Gson gs = new Gson();
+							Map options = gs
+									.fromJson(vo.getColstr(), HashMap.class);
+							sql = sql + " and  " + options.get(value);
+						} else {
+							sql = sql + " and  " + vo.getColstr();
+						}
+					}
+				}
+				countsql = sql.replaceAll("\"", "'");
+				countsql = " select count(*) "
+						+ sql.substring(sql.toLowerCase().indexOf("from"));
+				pagesql = sql.replaceAll("\"", "'");
+				sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
+				sql = sql.replaceAll("\"", "'");
+			}
+			int paramidx = 1;
+			Map ret = new HashMap();
+			if (!main.getPageable()) {
+				PreparedStatement stmt = conn.prepareStatement(sql,
+						ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_READ_ONLY);
+				if ("like".equals(main.getOrgparamtype())) {
+					stmt.setString(paramidx++, orgs + "%");
+				} else if (mainsql.indexOf("?") > 0) {
+					stmt.setString(paramidx++, orgs);
+				} else {
+
+				}
+				if(DataExportService.isproc(main.getSql())){
+					for(int i = 0 ;i < sublist.size() ;i++){
+						ExportSub sub = (ExportSub)sublist.get(i);
+						System.out.println("============"+paramidx +"=="+params.get(sub.getCode()));
+						if(params.containsKey(sub.getCode())){
+							stmt.setObject(paramidx++, params.get(sub.getCode()));
+						}else{
+							stmt.setObject(paramidx++, null);
+						}
+					}
+				}else{
+					for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+						Object key = iter.next();
+						if (submap.containsKey(key)) {
+							Object value = params.get(key);
+							ExportSub vo = submap.get(key);
+							if (vo.getType().equals("date")) {
+								stmt.setDate(paramidx++, new java.sql.Date(fomart
+										.parse((String) value).getTime()));
+							} else if (vo.getType().equals("time")) {
+								stmt.setDate(
+										paramidx++,
+										new java.sql.Date(fomarttime.parse(
+												(String) value + " 00:00:00")
+												.getTime()));
+							} else if (vo.getType().equals("string")) {
+								stmt.setString(paramidx++, (String) value);
+							} else if (vo.getType().equals("exists")) {
+								// 没有参数
+							} else {
+								stmt.setFloat(paramidx++,
+										Float.parseFloat((String) value));
+							}
+						}
+					}
+				}
+				ResultSet rs = stmt.executeQuery();
+				ResultSetMetaData rsMetaData = rs.getMetaData();
+				int numberOfColumns = rsMetaData.getColumnCount();
+
+				List retlist = new ArrayList();
+				// 移动到最后一行,得到总数
+				rs.last();
+				int rowcount = rs.getRow();
+				System.out.println("======rowcount======"+rowcount);
+				rs.first();
+				// 移动到取数位置
+				while (rs.next()) {
+					// List row = new ArrayList();
+					Map row = new HashMap();
+					for (int i = 1; i <= numberOfColumns; i++) {
+						Class cls = Class.forName(rsMetaData
+								.getColumnClassName(i));
+						if (cls.isAssignableFrom(String.class)) {
+							row.put("col" + i, (rs.getString(i)));
+						} else if (cls.isAssignableFrom(Float.class)) {
+							row.put("col" + i, rs.getFloat(i));
+						} else if (cls.isAssignableFrom(Integer.class)) {
+							row.put("col" + i, rs.getInt(i));
+						} else if (cls.isAssignableFrom(Long.class)) {
+							row.put("col" + i, rs.getLong(i));
+						} else if (cls.isAssignableFrom(Date.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col" + i, fomart.format(obj));
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col" + i, fomart.format(obj));
+						} else {
+							Object obj = rs.getObject(i);
+							row.put("col" + i, (obj));
+						}
+					}
+					retlist.add(row);
+				}
+				System.out.println("============"+new Gson().toJson(retlist));
+				ret.put("rows", retlist);
+				stmt.close();
+			} else {
+				SQLQuery countquery = getSession().createSQLQuery(countsql);
+				if ("like".equals(main.getOrgparamtype())) {
+					countquery.setString(0, orgs + "%");
+					paramidx = 1;
+				} else if (countsql.indexOf("\\?") > 0) {
+					countquery.setString(0, orgs);
+					paramidx = 1;
+				} else {
+
+				}
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					if (submap.containsKey(key)) {
+						Object value = params.get(key);
+						ExportSub vo = submap.get(key);
+						if (vo.getType().equals("date")) {
+							countquery.setDate(paramidx++, new java.sql.Date(
+									fomart.parse((String) value).getTime()));
+						} else if (vo.getType().equals("time")) {
+							countquery.setDate(
+									paramidx++,
+									new java.sql.Date(fomarttime.parse(
+											(String) value + " 00:00:00")
+											.getTime()));
+						} else if (vo.getType().equals("string")) {
+							countquery.setString(paramidx++, (String) value);
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
+							// 没有参数
+						} else {
+							countquery.setFloat(paramidx++,
+									Float.parseFloat((String) value));
+						}
+					}
+				}
+				int rowcount = (Integer) countquery.uniqueResult();
+				int pageNum = Integer
+						.parseInt((String) pager.get("pagenumber"));
+				int rowsNum = Integer.parseInt((String) pager.get("pagesize"));
+				int pagecount = rowcount / rowsNum;
+				int startNum = (pageNum - 1) * rowsNum + 1;
+				if (startNum > rowcount) {
+					startNum = 1;
+					pageNum = 1;
+				}
+				int endNum = startNum + rowsNum;
+				String selecttxt = pagesql.substring(pagesql.toLowerCase()
+						.indexOf("select") + 6,
+						pagesql.toLowerCase().indexOf("from"));
+				String fromtxt = pagesql.substring(pagesql.toLowerCase()
+						.indexOf("from") + 4);
+				pagesql = " SELECT * FROM  ( SELECT  * FROM (SELECT TOP "
+						+ (endNum - 1) + " row_number() over("
+						+ main.getOrderby() + ") rownum, " + selecttxt
+						+ " from " + fromtxt + " " + main.getOrderby()
+						+ ")zzzz where rownum>=" + (startNum)
+						+ " )zzzzz order by rownum";
+				PreparedStatement stmt = conn.prepareStatement(pagesql,
+						ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_READ_ONLY);
+				if ("like".equals(main.getOrgparamtype())) {
+					stmt.setString(1, orgs + "%");
+					paramidx = 2;
+				} else if (pagesql.indexOf("?") > 0) {
+					stmt.setString(1, orgs);
+					paramidx = 2;
+				} else {
+
+				}
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					if (submap.containsKey(key)) {
+						Object value = params.get(key);
+						ExportSub vo = submap.get(key);
+						if (vo.getType().equals("date")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomart
+									.parse((String) value).getTime()));
+						} else if (vo.getType().equals("time")) {
+							stmt.setDate(
+									paramidx++,
+									new java.sql.Date(fomarttime.parse(
+											(String) value + " 00:00:00")
+											.getTime()));
+						} else if (vo.getType().equals("string")) {
+							stmt.setString(paramidx++, (String) value);
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
+							// 没有参数
+						} else {
+							stmt.setFloat(paramidx++,
+									Float.parseFloat((String) value));
+						}
+					}
+				}
+				ResultSet rs = stmt.executeQuery();
+				ResultSetMetaData rsMetaData = rs.getMetaData();
+				int numberOfColumns = rsMetaData.getColumnCount();
+				List retlist = new ArrayList();
+				// 移动到取数位置
+				while (rs.next()) {
+					// List row = new ArrayList();
+					Map row = new HashMap();
+					for (int i = 1; i <= numberOfColumns; i++) {
+						Class cls = Class.forName(rsMetaData
+								.getColumnClassName(i));
+						if (cls.isAssignableFrom(String.class)) {
+							row.put("col" + (i - 1), (rs.getString(i)));
+						} else if (cls.isAssignableFrom(Float.class)) {
+							row.put("col" + (i - 1), rs.getFloat(i));
+						} else if (cls.isAssignableFrom(Integer.class)) {
+							row.put("col" + (i - 1), rs.getInt(i));
+						} else if (cls.isAssignableFrom(Long.class)) {
+							row.put("col" + (i - 1), rs.getLong(i));
+						} else if (cls.isAssignableFrom(Date.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col" + (i - 1), fomart.format(obj));
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
+							Date obj = rs.getDate(i);
+							row.put("col" + (i - 1), fomart.format(obj));
+						} else {
+							Object obj = rs.getObject(i);
+							row.put("col" + (i - 1), (obj));
+						}
+					}
+					retlist.add(row);
+				}
+				ret.put("rows", retlist);
+				ret.put("currentpage", pageNum);
+				ret.put("total", rowcount);
+				ret.put("pages", pagecount);
+				stmt.close();
+			}
+			conn.close();
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public ExportDiv getDiv(String id) throws Exception {
+		ExportDiv div = (ExportDiv) getSession().get(ExportDiv.class,
+				Integer.parseInt(id));
+		return div;
+	}
+
+	@Transactional
+	public Map saveTable(String tablename, Map olddata, String jsonid)
+			throws Exception {
+		try {
+			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+					.currentOperator();
+			Gson gs = new Gson();
+			ExportJson json = (ExportJson) getSession().get(ExportJson.class,
+					jsonid);
+			System.out.println("============" + json.getJson());
+			String jsonstr = json.getJson();
+			// if(jsonstr.trim().startsWith("{")){
+			// jsonstr = "("+jsonstr+")";
+			// }
+			System.out.println("============" + jsonstr);
+			Map jsonmap = gs.fromJson(jsonstr, HashMap.class);
+
+			List ids = (List) jsonmap.get("pk");
+
+			Map ret = new HashMap();
+			System.out.println("============"
+					+ BaseParamUtil.hasId(ids, olddata));
+			if (!BaseParamUtil.hasId(ids, olddata)) {
+				List addparam = (List) jsonmap.get("addparam");
+				Map data = BaseParamUtil.makeBaseParam(addparam);
+				data.putAll(olddata);
+				// BeanUtils.copyProperties(olddata,data);
+				// 如果id存在,则
+				String cols = "";
+				String values = "";
+				for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					cols += "," + key;
+					values += ",'"
+							+ String.valueOf(data.get(key)).replaceAll("'",
+									"''") + "'";
+				}
+				String sql = " insert into " + tablename + "("
+						+ cols.substring(1) + ") values(" + values.substring(1)
+						+ ")";
+				int result = getSession().createSQLQuery(sql).executeUpdate();
+				if (result > 0) {
+					ret.putAll(data);
+					ret.put("success", true);
+					ret.put("msg", "保存成功!");
+				} else {
+					ret.put("success", false);
+					ret.put("msg", "保存失败!");
+				}
+			} else {
+				List editparam = (List) jsonmap.get("editparam");
+				Map data = BaseParamUtil.makeBaseParam(editparam);
+				data.putAll(olddata);
+				String updates = "";
+				for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					updates += ","
+							+ key
+							+ "='"
+							+ String.valueOf(data.get(key)).replaceAll("'",
+									"''") + "'";
+				}
+				String sql = " update  " + tablename + " set "
+						+ updates.substring(1) + " where id = '"
+						+ data.get("id") + "' ";
+				int result = getSession().createSQLQuery(sql).executeUpdate();
+				if (result > 0) {
+					ret.putAll(data);
+					ret.put("success", true);
+					ret.put("msg", "保存成功!");
+				} else {
+					ret.put("success", false);
+					ret.put("msg", "保存失败!");
+				}
+			}
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public List getList(String tablename, Map params, String inputdate)
+			throws Exception {
+		System.out.println("=======params=====" + params);
+		String where = "";
+		for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+			Object key = iter.next();
+			where += "," + key + "='" + params.get(key) + "'";
+		}
+		System.out.println("============" + " select * from " + tablename
+				+ " where " + where.substring(1).replaceAll(",", " and ")
+				+ " order by " + inputdate);
+		List ret = getSession()
+				.createSQLQuery(
+						" select * from " + tablename + " where "
+								+ where.substring(1).replaceAll(",", " and ")
+								+ " order by " + inputdate)
+				.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP).list();
+		return procList(ret);
+	}
+
+	private List procList(List data) {
+		List ret = new ArrayList();
+		SimpleDateFormat fomarttime = new SimpleDateFormat("yyyy-MM-dd");
+		for (int i = 0; i < data.size(); i++) {
+			Map row = (Map) data.get(i);
+			for (Iterator iter = row.keySet().iterator(); iter.hasNext();) {
+				Object col = iter.next();
+				Object value = row.get(col);
+				if (value instanceof Date || value instanceof Timestamp) {
+					row.put(col, fomarttime.format(value));
+				}
+			}
+		}
+		return data;
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map get_task_Param() throws Exception {
+		Map ret = new HashMap();
+		String where = "";
+		List main = getSession()
+				.createSQLQuery("select id ,name from task_code  order by id")
+				.addScalar("id", Hibernate.STRING)
+				.addScalar("name", Hibernate.STRING).list();
+		ret.put("task_code",main);
+		List task_code_detail = getSession()
+				.createSQLQuery("select id,col,tablename,valuetype,coltext from task_code_detail  order by id")
+				.addScalar("id", Hibernate.STRING)
+				.addScalar("col", Hibernate.STRING)
+				.addScalar("tablename", Hibernate.STRING)
+				.addScalar("valuetype", Hibernate.STRING)
+				.addScalar("coltext", Hibernate.STRING).list();
+		Map detailmap = new HashMap();
+		for(int i =0; i<task_code_detail.size();i++){
+			Map row = new HashMap();
+			Object[] item = (Object[])task_code_detail.get(i);
+			row.put("id", item[0]);
+			row.put("col", item[1]);
+			row.put("tablename", item[2]);
+			row.put("valuetype", item[3]);
+			row.put("coltext", item[4]);
+			if(!detailmap.containsKey(item[0])){
+				detailmap.put(item[0], new ArrayList());
+			}
+			List idlist = (List)detailmap.get(item[0]);
+			idlist.add(row);
+		}
+		ret.put("task_code_detail",detailmap);
+		
+		return ret;
+	}
+
+	public Map saveTask(Map params) {
+		Map ret = new HashMap();
+		if (params.containsKey("id") && params.get("id") != null
+				&& ((String) params.get("id")).trim().length() > 0) {
+			// update
+			String update = "update task_task set ";
+			String sql = "";
+			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				Object value = params.get(key);
+				if (!"id".equals(key)) {
+					sql += "," + key + "='" + value + "'";
+				}
+			}
+			update = update + sql.substring(1) + " where id = '"
+					+ params.get("id") + "'";
+			System.out.println("=====update=======" + update);
+			getSession().createSQLQuery(update).executeUpdate();
+		} else {
+			// insert
+			SimpleDateFormat sf = new SimpleDateFormat(
+					"yyyy-MM-dd hh:mm:ss.SSS");
+			String id = UUID.randomUUID().toString();
+			params.put("id", id);
+			params.put("inputdate", sf.format(new Date()));
+			// update
+			String insert = "insert into  task_task ( ";
+			String cols = "";
+			String values = "";
+			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				Object value = params.get(key);
+				cols += "," + key;
+				values += ",'" + value + "'";
+
+			}
+			insert = insert + cols.substring(1) + " ) values ("
+					+ values.substring(1) + ")";
+			getSession().createSQLQuery(insert).executeUpdate();
+
+		}
+		// SQLQuery query = getSession().createSQLQuery();
+		ret.put("msg", "保存成功");
+		return ret;
+	}
+	
+	public Map delTask(Map params) {
+		Map ret = new HashMap();
+		if (params.containsKey("id") && params.get("id") != null
+				&& ((String) params.get("id")).trim().length() > 0) {
+			// update
+			String delsql = "delete task_task where id = '"
+					+ params.get("id") + "'";
+			System.out.println("=======del====="+delsql);
+			getSession().createSQLQuery(delsql).executeUpdate();
+		}
+		// SQLQuery query = getSession().createSQLQuery();
+		ret.put("msg", "删除成功");
+		ret.put("success", true);
+		return ret;
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map querytask(String orgs, String id, Map params, Map pager)
+			throws Exception {
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		System.out.println("==========111==");
+		// No DataSource so we must handle Connections manually
+		while (orgs.endsWith("00")) {
+			orgs = orgs.substring(0, orgs.length() - 2);
+		}
+		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fomarttime = new SimpleDateFormat(
+				"yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat fomarttime1 = new SimpleDateFormat(
+				"yyyy-MM-dd hh:mm:ss.SSS");
+		try {
+			Connection conn = getSession().connection();
+			List sqllist = getSession().createQuery(
+					"from ExportMain where id = " + id + " order by id").list();
+			List sublist = getSession().createQuery(
+					"from ExportSub where  mainid = " + id
+							+ " order by mainid , ord").list();
+			Map<String, ExportSub> submap = new HashMap();
+			for (int i = 0; i < sublist.size(); i++) {
+				ExportSub vo = (ExportSub) sublist.get(i);
+				submap.put(vo.getCode(), vo);
+			}
+			ExportMain main = (ExportMain) sqllist.get(0);
+			String sql = main.getSql();
 			sql += " and emp.org_id = " + user.getOrgId() + " ";
 			if ("in".equals(main.getOrgparamtype())) {
 				sql = sql.replaceAll("\\?", orgs);
@@ -2372,10 +2945,11 @@ public class DataExportService extends HibernateDaoSupport {
 						} else if ("0".equals(params.get(key).toString())) {
 							// 不加入
 						}
-					}else if (vo.getType().equals("select")) {
+					} else if (vo.getType().equals("select")) {
 						String value = params.get(key).toString();
 						Gson gs = new Gson();
-						Map options = gs.fromJson(vo.getColstr(), HashMap.class);
+						Map options = gs
+								.fromJson(vo.getColstr(), HashMap.class);
 						sql = sql + " and  " + options.get(value);
 					} else {
 						sql = sql + " and  " + vo.getColstr();
@@ -2442,24 +3016,16 @@ public class DataExportService extends HibernateDaoSupport {
 					for (int i = 1; i <= numberOfColumns; i++) {
 						Class cls = Class.forName(rsMetaData
 								.getColumnClassName(i));
-						if (cls.isAssignableFrom(String.class)) {
-							row.put("col" + i, (rs.getString(i)));
-						} else if (cls.isAssignableFrom(Float.class)) {
-							row.put("col" + i, rs.getFloat(i));
-						} else if (cls.isAssignableFrom(Integer.class)) {
-							row.put("col" + i, rs.getInt(i));
-						} else if (cls.isAssignableFrom(Long.class)) {
-							row.put("col" + i, rs.getLong(i));
-						} else if (cls.isAssignableFrom(Date.class)) {
+						if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col" + i, fomart.format(obj));
+							row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
 						} else if (cls
 								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col" + i, fomart.format(obj));
+							row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
 						} else {
 							Object obj = rs.getObject(i);
-							row.put("col" + i, (obj));
+							row.put(rsMetaData.getColumnLabel(i), (obj));
 						}
 					}
 					retlist.add(row);
@@ -2484,8 +3050,7 @@ public class DataExportService extends HibernateDaoSupport {
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
 							countquery.setDate(paramidx++, new java.sql.Date(
-									fomart.parse((String) value)
-											.getTime()));
+									fomart.parse((String) value).getTime()));
 						} else if (vo.getType().equals("time")) {
 							countquery.setDate(
 									paramidx++,
@@ -2494,9 +3059,10 @@ public class DataExportService extends HibernateDaoSupport {
 											.getTime()));
 						} else if (vo.getType().equals("string")) {
 							countquery.setString(paramidx++, (String) value);
-						} else if (vo.getType().equals("exists") || vo.getType().equals("select")) {
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
 							// 没有参数
-						}else {
+						} else {
 							countquery.setFloat(paramidx++,
 									Float.parseFloat((String) value));
 						}
@@ -2507,7 +3073,7 @@ public class DataExportService extends HibernateDaoSupport {
 						.parseInt((String) pager.get("pagenumber"));
 				int rowsNum = Integer.parseInt((String) pager.get("pagesize"));
 				int pagecount = rowcount / rowsNum;
-				int startNum = (pageNum - 1) * rowsNum +1;
+				int startNum = (pageNum - 1) * rowsNum + 1;
 				if (startNum > rowcount) {
 					startNum = 1;
 					pageNum = 1;
@@ -2552,7 +3118,8 @@ public class DataExportService extends HibernateDaoSupport {
 											.getTime()));
 						} else if (vo.getType().equals("string")) {
 							stmt.setString(paramidx++, (String) value);
-						} else if (vo.getType().equals("exists") || vo.getType().equals("select")) {
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
 							// 没有参数
 						} else {
 							stmt.setFloat(paramidx++,
@@ -2571,24 +3138,16 @@ public class DataExportService extends HibernateDaoSupport {
 					for (int i = 1; i <= numberOfColumns; i++) {
 						Class cls = Class.forName(rsMetaData
 								.getColumnClassName(i));
-						if (cls.isAssignableFrom(String.class)) {
-							row.put("col" + (i - 1), (rs.getString(i)));
-						} else if (cls.isAssignableFrom(Float.class)) {
-							row.put("col" + (i - 1), rs.getFloat(i));
-						} else if (cls.isAssignableFrom(Integer.class)) {
-							row.put("col" + (i - 1), rs.getInt(i));
-						} else if (cls.isAssignableFrom(Long.class)) {
-							row.put("col" + (i - 1), rs.getLong(i));
-						} else if (cls.isAssignableFrom(Date.class)) {
+						if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col" + (i - 1), fomart.format(obj));
+							row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
 						} else if (cls
 								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col" + (i - 1), fomart.format(obj));
+							row.put(rsMetaData.getColumnLabel(i), fomart.format(obj));
 						} else {
 							Object obj = rs.getObject(i);
-							row.put("col" + (i - 1), (obj));
+							row.put(rsMetaData.getColumnLabel(i), (obj));
 						}
 					}
 					retlist.add(row);
@@ -2607,123 +3166,10 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 	}
 
-
-	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
-	public ExportDiv getDiv(String id) throws Exception {
-		ExportDiv div = (ExportDiv) getSession().get(ExportDiv.class,
-				Integer.parseInt(id));
-		return div;
+	public static boolean isproc(String sql){
+		return DataExportService.procPattern.matcher(sql).matches();
 	}
-
-	@Transactional
-	public Map saveTable(String tablename, Map olddata, String jsonid) throws Exception {
-		try{
-		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
-				.currentOperator();
-		Gson gs = new Gson();
-		ExportJson json = (ExportJson)getSession().get(ExportJson.class, jsonid);
-		System.out.println("============"+json.getJson());
-		String jsonstr = json.getJson();
-//		if(jsonstr.trim().startsWith("{")){
-//			jsonstr = "("+jsonstr+")";
-//		}
-		System.out.println("============"+jsonstr);
-		Map jsonmap = gs.fromJson(jsonstr, HashMap.class);
-		
-		List ids = (List) jsonmap.get("pk");
-		
-		
-		Map ret = new HashMap();
-		System.out.println("============"+BaseParamUtil.hasId(ids, olddata));
-		if (!BaseParamUtil.hasId(ids, olddata)) {
-			List addparam = (List) jsonmap.get("addparam");
-			Map data = BaseParamUtil.makeBaseParam(addparam);
-			data.putAll(olddata);
-//			BeanUtils.copyProperties(olddata,data);
-			// 如果id存在,则
-			String cols = "";
-			String values = "";
-			for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				cols += "," + key;
-				values += ",'" + String.valueOf(data.get(key)).replaceAll("'", "''") + "'";
-			}
-			String sql = " insert into " + tablename + "(" + cols.substring(1)
-					+ ") values(" + values.substring(1) + ")";
-			int result = getSession().createSQLQuery(sql).executeUpdate();
-			if (result > 0) {
-				ret.putAll(data);
-				ret.put("success", true);
-				ret.put("msg", "保存成功!");
-			} else {
-				ret.put("success", false);
-				ret.put("msg", "保存失败!");
-			}
-		} else {
-			List editparam = (List) jsonmap.get("editparam");
-			Map data = BaseParamUtil.makeBaseParam(editparam);
-			data.putAll(olddata);
-			String updates = "";
-			for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				updates += "," + key + "='" + String.valueOf(data.get(key)).replaceAll("'", "''") + "'";
-			}
-			String sql = " update  " + tablename + " set "
-					+ updates.substring(1) + " where id = '" + data.get("id")
-					+ "' ";
-			int result = getSession().createSQLQuery(sql).executeUpdate();
-			if (result > 0) {
-				ret.putAll(data);
-				ret.put("success", true);
-				ret.put("msg", "保存成功!");
-			} else {
-				ret.put("success", false);
-				ret.put("msg", "保存失败!");
-			}
-		}
-		return ret;
-		}catch(Exception e){
-			e.printStackTrace();
-			throw e;
-		}
+	public static void main(String[] args){
+		System.out.println("============"+ "abc?def?ccc".indexOf("?",4));
 	}
-	
-
-	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
-	public List getList(String tablename, Map params, String inputdate)
-			throws Exception {
-		System.out.println("=======params=====" + params);
-		String where = "";
-		for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-			Object key = iter.next();
-			where += "," + key + "='" + params.get(key) + "'";
-		}
-		System.out.println("============" + " select * from " + tablename
-				+ " where " + where.substring(1).replaceAll(",", " and ")
-				+ " order by " + inputdate);
-		List ret = getSession()
-				.createSQLQuery(
-						" select * from " + tablename + " where "
-								+ where.substring(1).replaceAll(",", " and ")
-								+ " order by " + inputdate)
-				.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP).list();
-		return procList(ret);
-	}
-
-	private List procList(List data) {
-		List ret = new ArrayList();
-		SimpleDateFormat fomarttime = new SimpleDateFormat("yyyy-MM-dd");
-		for (int i = 0; i < data.size(); i++) {
-			Map row = (Map) data.get(i);
-			for (Iterator iter = row.keySet().iterator(); iter.hasNext();) {
-				Object col = iter.next();
-				Object value = row.get(col);
-				if (value instanceof Date || value instanceof Timestamp) {
-					row.put(col, fomarttime.format(value));
-				}
-			}
-		}
-		return data;
-	}
-
 }
