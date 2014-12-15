@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,13 +57,15 @@ public class JsonServer extends HibernateDaoSupport {
 			@RequestParam(value = "type", required = true) String type,
 			@RequestParam(value = "key", required = true) String key)
 			throws Exception {
+		System.out.println("========进入系统====");
 		ObjectMapper mapper = new ObjectMapper();
 		Map ret = new HashMap();
 		if (validkey(key, ret)) {
 			// 继续处理流程
 			String json = IOUtils.toString(request.getInputStream(), "UTF-8");
 			System.out.println(json);
-			Map params = mapper.readValue(json, Map.class);
+			Map params = mapper.readValue(json, HashMap.class);
+			System.out.println("=======jsonparam====="+json);
 			try {
 				ret = processSql(type, params);
 			} catch (Exception e) {
@@ -99,6 +100,8 @@ public class JsonServer extends HibernateDaoSupport {
 			} else {
 				return sqlObject(main, params);
 			}
+		}else if ("queryProc".equals(main.getSvrtype())) {
+			return procList(main, params);
 		} else if ("update".equals(main.getSvrtype())) {
 			return sqlUpdate(main, params);
 		} else if ("insert".equals(main.getSvrtype())) {
@@ -160,7 +163,7 @@ public class JsonServer extends HibernateDaoSupport {
 
 			sql = sql.replaceAll("\"", "'");
 			System.out.println("sql==="+sql);
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			PreparedStatement stmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY );
 			int paramidx = 1;
 			SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyy-MM-dd");
 			SimpleDateFormat inputfomarttime = new SimpleDateFormat(
@@ -179,32 +182,97 @@ public class JsonServer extends HibernateDaoSupport {
 			int numberOfColumns = rsMetaData.getColumnCount();
 			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
 			List retlist = new ArrayList();
+			int count = 0 ; //不允许超过100条
+			int pagesize = 100;
+			int pagenum = 0 ;
+			
+			if(params.containsKey("pager")){
+				Map pager = (Map)params.get("pager");
+				if(pager.containsKey("pagesize")){
+					pagesize = (Integer)pager.get("pagesize");
+				}
+				if(pager.containsKey("pagenum")){
+					pagenum = (Integer)pager.get("pagenum");
+				}
+			}
+			rs.absolute(pagenum*pagesize+1);
+			while (rs.next() && count<pagesize) {
+				count++;
+				Map row = new HashMap();
+				for (int i = 1; i <= numberOfColumns; i++) {
+					row.put(rsMetaData.getColumnLabel(i),rs.getObject(i));
+				}
+				retlist.add(row);
+			}
+			Map ret = new HashMap();
+			ret.put("rows", retlist);
+			ret.put("success", true);
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+
+	}
+	
+	@Transactional(readOnly = true)
+	public Map procList(ServiceMain main, Map params) throws Exception {
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		// No DataSource so we must handle Connections manually
+		try {
+			Connection conn = getSession().connection();
+			List sublist = getSession().createQuery(
+					"from ServiceSub where  mainid = " + main.getId()
+							+ " order by ord").list();
+			Map<String, ServiceSub> submap = new HashMap();
+			for (int i = 0; i < sublist.size(); i++) {
+				ServiceSub vo = (ServiceSub) sublist.get(i);
+				submap.put(vo.getName(), vo);
+			}
+
+			String sql = main.getSql();
+			String where = "";
+//			if (!sql.toLowerCase().contains("where")) {
+//				where = where + " where 1=1 ";
+//			}
+			for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+				Object key = iter.next();
+				ServiceSub vo = submap.get(key);
+				if(vo !=null)
+					where = where + " and " + vo.getColstr().replaceAll("\\?", "'"+params.get(key)+"'");
+			}
+			
+			where = where + " " + (main.getGroupby() == null ? "":main.getGroupby()) + " " + (main.getOrderby()== null ? "":main.getOrderby());
+
+			where = where.replaceAll("\"", "'");
+			System.out.println("sql==="+sql);
+			PreparedStatement stmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY );
+			System.out.println("=======where====="+where);
+			
+			stmt.setString(1, where);
+			int pagesize = 100;
+			int pagenum = 1 ;
+			if(params.containsKey("pager")){
+				Map pager = (Map)params.get("pager");
+				if(pager.containsKey("pagesize")){
+					pagesize = (Integer)pager.get("pagesize");
+				}
+				if(pager.containsKey("pagenum")){
+					pagenum = (Integer)pager.get("pagenum");
+				}
+			}
+			stmt.setInt(2, pagenum);
+			stmt.setInt(3, pagesize);
+			int paramidx = 1;
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int numberOfColumns = rsMetaData.getColumnCount();
+			List retlist = new ArrayList();
 			while (rs.next()) {
 				Map row = new HashMap();
 				for (int i = 1; i <= numberOfColumns; i++) {
-					Class cls = null;
-					try {
-						cls = Class.forName(rsMetaData.getColumnClassName(i));
-					} catch (Exception e) {
-
-					}
-					if (cls.isAssignableFrom(String.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getString(i));
-					} else if (cls.isAssignableFrom(Float.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getFloat(i));
-					} else if (cls.isAssignableFrom(Integer.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getInt(i));
-					} else if (cls.isAssignableFrom(Long.class)) {
-						row.put(rsMetaData.getColumnLabel(i), rs.getLong(i));
-					} else if (cls.isAssignableFrom(Date.class)) {
-						Date obj = rs.getDate(i);
-						row.put(rsMetaData.getColumnLabel(i),
-								fomart.format(obj));
-					} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
-						Date obj = rs.getDate(i);
-						row.put(rsMetaData.getColumnLabel(i),
-								fomart.format(obj));
-					}
+					row.put(rsMetaData.getColumnLabel(i),rs.getObject(i));
 				}
 				retlist.add(row);
 			}
