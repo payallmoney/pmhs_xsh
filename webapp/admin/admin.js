@@ -1352,15 +1352,15 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod personInfo_01 mod_disable"><img src="../image/menu/personInfo_01.gif"/><div>个人健康记录索引</div><div class="remarks"></div></div>'+
 		'</div>';
 	}
-	else if($templateId == 'fun_complex_template'){
-		flag = true;
-		modItems = '<div class="div_container">'+
-			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_02 mod_disable"><img src="../image/menu/complex_02.gif"/><div>高危儿童档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_03 mod_disable"><img src="../image/menu/complex_03.gif"/><div>高危孕产妇档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
-		'</div>';
-	}
+//	else if($templateId == 'fun_complex_template'){
+//		flag = true;
+//		modItems = '<div class="div_container">'+
+//			'<div class="mod complex_01 mod_disable"><img src="../image/menu/complex_01.gif"/><div>出生医学证明查询</div><div class="remarks"></div></div>'+
+//			'<div class="mod complex_02 mod_disable"><img src="../image/menu/complex_02.gif"/><div>高危儿童档案查询</div><div class="remarks"></div></div>'+
+//			'<div class="mod complex_03 mod_disable"><img src="../image/menu/complex_03.gif"/><div>高危孕产妇档案查询</div><div class="remarks"></div></div>'+
+//			'<div class="mod complex_04 mod_disable"><img src="../image/menu/complex_04.gif"/><div>HIV和梅毒项目统计</div><div class="remarks"></div></div>'+
+//		'</div>';
+//	}
 	
 	else if($templateId == 'fun_clinics_template'){
 		flag = true;
@@ -1687,11 +1687,21 @@ $(function(){
 	},async:false});
 	CommonExamService.getAllDistrict({callback:function(data){
 		window.AlldistrictMap = data;
-		window.districtdata = getTreeData(currentid);
+		var ids = currentid.split(',');
+		window.districtdata = {nodemap: {},nodes: [],treenodes: []}
+		for(var i=0 ; i<ids.length;i++){
+			var nodedata = getTreeData(ids[i]);
+			window.districtdata.treenodes = window.districtdata.treenodes.concat( nodedata.treenodes);
+			window.districtdata.nodes = window.districtdata.nodes.concat( nodedata.nodes);
+			window.districtdata.nodemap = $.extend(window.districtdata.nodemap,  nodedata.nodemap);
+		}
 	},async:false});
 	window.earyuitreedata = window.districtdata.treenodes;
 	CommonExamService.getCurrentOrgList({callback:function(data){
 		window.orgList = data;
+	},async:false});
+	CommonExamService.getPersonMap({callback:function(data){
+		window.orgPersonList = data;
 	},async:false});
 	var needquest = true;
 	DataExportService.getQuestionsByOrg({callback:function(data){
