@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.directwebremoting.ConversionException;
@@ -21,6 +22,9 @@ public class TimestampConverter extends AbstractConverter {
 	private static String PATTERN = "yyyy-MM-dd";
 	private static String PATTERN_FALLBACK = "yyyyMMdd";
 	private static String PATTERN_HOUR_FALLBACK = "yyyyMMddHHmmss";
+	private Pattern p1 = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+	private Pattern p2 = Pattern.compile("\\d{8}"); 
+	private Pattern p3 = Pattern.compile("\\d{14}"); 
 	
 	public Object convertInbound(Class<?> paramType, InboundVariable data)
 			throws ConversionException {
@@ -35,32 +39,28 @@ public class TimestampConverter extends AbstractConverter {
 		}
 		
 		Timestamp date = null;
+		System.out.println("======value======"+value);
 		if ( value.length() > 0 ) {
-			DateFormat df = new SimpleDateFormat(PATTERN); 
-			DateFormat dfFallback = new SimpleDateFormat(PATTERN_FALLBACK);
-			DateFormat dfHourFallback = new SimpleDateFormat(PATTERN_HOUR_FALLBACK); 
-			try {
-				date = new Timestamp( dfHourFallback.parse(value).getTime() );
-				System.out.println("value==="+value+"=======1111111111111111111111111============"+date);
-			} catch (ParseException e1) {
-				System.out.println("==========222222222222222222222=========");
-				logger.warn("invalid date format: " + value);
-				try {
-					date = new Timestamp(df.parse(value).getTime());		
-					System.out.println("============333333333333333333=======");
-				} catch (ParseException e2) {
-					logger.warn("invalid date format: " + value);
-					try{
-						date = new Timestamp(dfFallback.parse(value).getTime());
-					}catch (ParseException e3) {
-						logger.warn("invalid date format: " + value);
-						return null;
-					}
+			try{
+				if(p1.matcher(value).matches()){
+					DateFormat df = new SimpleDateFormat(PATTERN); 
+					date = new Timestamp(df.parse(value).getTime());	
+				}else if(p2.matcher(value).matches()){
+					DateFormat dfFallback = new SimpleDateFormat(PATTERN_FALLBACK);
+					date = new Timestamp(dfFallback.parse(value).getTime());
+				}else if(p3.matcher(value).matches()){
+					DateFormat dfHourFallback = new SimpleDateFormat(PATTERN_HOUR_FALLBACK); 
+					date = new Timestamp( dfHourFallback.parse(value).getTime() );
+				}else{
+					long time = Long.parseLong(value);
+					date = new Timestamp(time);
 				}
+			}catch(Exception ex){
+				logger.error("无效的日期值: " + value);
+				return null;
 			}
-			
 		}
-
+		System.out.println("====date========"+date);
 		return date;
 	}
 
