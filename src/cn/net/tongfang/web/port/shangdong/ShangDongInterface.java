@@ -53,147 +53,8 @@ public class ShangDongInterface implements BaseInter {
 	private static List collist = new ArrayList();
 	private static Map distinctInputpersonMap = new HashMap();
 	private static int pagesize = 100;
+	public boolean testflag = false;
 	
-	private static String testHealthfileret = "{"+
-			"    \"respCode\":\"0\","+
-			"    \"respMsg\":\"操作成功\","+
-			"    \"sign\":\"c2460e4b7ebb3641797d29b6097f45a1\","+
-			"\"baseInfos\":["+
-			"        {"+
-			"            \"phone\":\"13855555555\","+
-			"            \"pillallergic\":\"2\","+
-			"            \"cityId\":118,"+
-			"            \"cityCode\":\"\","+
-			"            \"addr\":\"测试住址\","+
-			"            \"orgDistrictId\":\"\","+
-			"            \"doctor\":\"责任医生\","+
-			"            \"maritalstatus\":\"2\","+
-			"            \"lifeEnvironment\":{"+
-			"                \"id\":200407,"+
-			"                \"drinkwater\":\"1\","+
-			"                \"livestockrail\":\"1\","+
-			"                \"toilet\":\"1\","+
-			"                \"fueltype\":\"1\","+
-			"                \"blowmeasure\":\"3\","+
-			"                \"archiveid\":\"37010200500100284\""+
-			"            },"+
-			"            \"createunit\":118,"+
-			"            \"houseRelation\":\"1\","+
-			"            \"orgProvinceCode\":\"37\","+
-			"            \"orgTownId\":\"\","+
-			"            \"workunit\":\"工作单位\","+
-			"            \"createdDate\":\"2014-03-05 16:33:35\","+
-			"            \"diseasenditionEx\":\"眼里残疾\","+
-			"            \"orgDistinctCode\":\"370102\","+
-			"            \"diseaseEx\":\"遗传病史\","+
-			"            \"job\":\"2\","+
-			"            \"idcard\":\"111111199902021234\","+
-			"            \"townId\":165,"+
-			"            \"bloodtype\":\"1\","+
-			"            \"nation\":\"1\","+
-			"            \"distinctCode\":\"\","+
-			"            \"createdBy\":7,"+
-			"            \"email\":\"test@qq.com\","+
-			"            \"livetype\":\"1\","+
-			"            \"orgProvinceId\":15,"+
-			"            \"contactphone\":\"13888888888\","+
-			"            \"culture\":\"3\","+
-			"            \"provinceId\":15,"+
-			"            \"exposure\":\"2\","+
-			"            \"birthday\":\"2014-03-06 11:08:01\","+
-			"            \"sex\":\"1\","+
-			"            \"minority\":\"少数民族\","+
-			"            \"villageCode\":\"\","+
-			"            \"provinceCode\":\"37\","+
-			"            \"pillallergicOther\":\"药物过敏史其他\","+
-			"            \"lastUpdateBy\":7,"+
-			"            \"orgCityCode\":\"3701\","+
-			"            \"rh\":\"2\","+
-			"            \"orgTownCode\":\"370102005\","+
-			"            \"disease\":\"2\","+
-			"            \"id\":1161790,"+
-			"            \"isDel\":\"N\","+
-			"            \"districtId\":917,"+
-			"            \"medicalpaytype\":\"2\","+
-			"            \"fyArchiveid\":\"\","+
-			"            \"archiveid\":\"37010200500100284\","+
-			"            \"customername\":\"居民姓名修改xml\","+
-			"            \"houseRealOther\":\"与户主关系其他\","+
-			"            \"orgCityId\":118,"+
-			"            \"lastUpdateDate\":\"2014-03-06 11:08:01\","+
-			"            \"townCode\":\"\","+
-			"            \"illnessHistoryInfos\":["+
-			"                {"+
-			"                    \"id\":38708,"+
-			"                    \"therioma\":\"恶性肿瘤名称\","+
-			"                    \"illnessname\":\"1\","+
-			"                    \"jobillness\":\"职业病\","+
-			"                    \"illnesstype\":\"1\","+
-			"                    \"diagnosetime\":\"2014-03-06 11:08:01\","+
-			"                    \"illnessOther\":\"既往史疾病其他\","+
-			"                    \"illnessnameOther\":\"既往史名称\","+
-			"                    \"archiveid\":\"37010200500100284\""+
-			"                },"+
-			"                {"+
-			"                    \"id\":38708,"+
-			"                    \"therioma\":\"恶性肿瘤名称\","+
-			"                    \"illnessname\":\"2\","+
-			"                    \"jobillness\":\"职业病\","+
-			"                    \"illnesstype\":\"2\","+
-			"                    \"diagnosetime\":\"2014-03-06 11:08:01\","+
-			"                    \"illnessOther\":\"既往史疾病其他\","+
-			"                    \"illnessnameOther\":\"既往史名称\","+
-			"                    \"archiveid\":\"37010200500100284\""+
-			"                },"+
-			"                {"+
-			"                    \"id\":38708,"+
-			"                    \"therioma\":\"恶性肿瘤名称\","+
-			"                    \"illnessname\":\"3\","+
-			"                    \"jobillness\":\"职业病\","+
-			"                    \"illnesstype\":\"3\","+
-			"                    \"diagnosetime\":\"2014-03-06 11:08:01\","+
-			"                    \"illnessOther\":\"既往史疾病其他\","+
-			"                    \"illnessnameOther\":\"既往史名称\","+
-			"                    \"archiveid\":\"37010200500100284\""+
-			"                },"+
-			"                {"+
-			"                    \"id\":38708,"+
-			"                    \"therioma\":\"恶性肿瘤名称\","+
-			"                    \"illnessname\":\"4\","+
-			"                    \"jobillness\":\"职业病\","+
-			"                    \"illnesstype\":\"4\","+
-			"                    \"diagnosetime\":\"2014-03-06 11:08:01\","+
-			"                    \"illnessOther\":\"既往史疾病其他\","+
-			"                    \"illnessnameOther\":\"既往史名称\","+
-			"                    \"archiveid\":\"37010200500100284\""+
-			"                }"+
-			"            ],"+
-			"            \"villageId\":162,"+
-			"            \"familyHistory\":{"+
-			"                \"familytype\":\"1\","+
-			"                \"id\":5837,"+
-			"                \"brothersisterhistoryOther\":\"兄弟其他\","+
-			"                \"childrenhistory\":\"2\","+
-			"                \"brothersisterhistory\":\"2\","+
-			"                \"childrenhistoryOther\":\"子女其他\","+
-			"                \"motherhistoryOther\":\"母亲其他\","+
-			"                \"fatherhistoryOther\":\"父亲其他\","+
-			"                \"motherhistory\":\"1\","+
-			"                \"fatherhistory\":\"1\","+
-			"                \"archiveid\":\"37010200500100284\""+
-			"            },"+
-			"            \"orgVillageCode\":\"370102005001\","+
-			"            \"customerid\":\"\","+
-			"            \"contactname\":\"联系人姓名\","+
-			"            \"householdAddr\":\"户籍地址\","+
-			"            \"medicalpaytypeOther\":\"医疗费用支付方式其它\","+
-			"            \"populationType\":\"1\","+
-			"            \"diseasendition\":\"2\","+
-			"            \"orgVillageId\":\"\""+
-			"        }"+
-			"    ]"+
-			"}";
-
 	public void setFileNoGen(FileNoGen fileNoGen) {
 		this.fileNoGen = fileNoGen;
 	}
@@ -256,11 +117,15 @@ public class ShangDongInterface implements BaseInter {
 			// 取得params
 			final Map params = getParams(interfacecode, startpage, begindate,
 					enddate);
-			params.put("archiveid","13062910021300176");
+//			params.put("archiveid","13062910021300176");
+			System.out.println("============"+gs.toJson(params));
 			try {
 				String json = postInterface(interfacecode, subcode, url,
 						params, hbt);
-				json = testHealthfileret;
+				if(ShangDongInterfaceTestData.testMap.containsKey(subcode) && testflag){
+					json = ShangDongInterfaceTestData.testMap.get(subcode);
+				}
+				System.out.println("=======json====="+json);
 				Map ret = gs.fromJson(json, HashMap.class);
 				// 对数据进行映射
 				List datas = (List)ret.get(listname);
