@@ -298,18 +298,27 @@ public class ModuleMgr extends HibernateDaoSupport {
 //		Integer orgId = SecurityManager.currentOperator().getOrgId();
 		String disId = SecurityManager.currentOperator().getDistrictId();
 		log.debug("currunt user disId: " + disId);
-		List<District> list = getHibernateTemplate().find(
-				"from District where id=?", disId);
-		return list;
+		String[] dists = disId.split(",");
+		List ret = new ArrayList();
+		for(int i =0 ;i<dists.length;i++){
+			List<District> list = getHibernateTemplate().find(
+					"from District where id=?",  dists[i]);
+			ret.addAll(list);
+		}
+		return ret;
 	}
 	
 	private List<District> getUserDistrictIgnore() {
 //		Integer orgId = SecurityManager.currentOperator().getOrgId();
 		String disId = SecurityManager.currentOperator().getDistrictId();
-		log.debug("currunt user disId: " + disId);
-		List<District> list = getHibernateTemplate().find(
-				"from District where id=?", disId.substring(0, 6));
-		return list;
+		String[] dists = disId.split(",");
+		List ret = new ArrayList();
+		for(int i =0 ;i<dists.length;i++){
+			List<District> list = getHibernateTemplate().find(
+					"from District where id=?", dists[i]);
+			ret.addAll(list);
+		}
+		return ret;
 	}
 	
 	
@@ -682,8 +691,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 		return query(hql, params, pp);
 	}
 
-	private <T> PagingResult<T> query(StringBuilder hql, List params,
-			PagingParam pp) {
+	private <T> PagingResult<T> query(StringBuilder hql, List params,		PagingParam pp) {
+		try{
 		if (pp == null)
 			pp = new PagingParam();
 
@@ -712,6 +721,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		});
 		return new PagingResult<T>(totalSize, list);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
 	}
 
 	public PagingResult<HealthFile> findHealthFiles(HealthFileQry qryCond,
@@ -817,7 +830,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 	}
 	
 	private StringBuilder buildHealthAlreadyBuildChildHql(HealthFileQry qryCond, List params)throws Exception {
-		StringBuilder where = new StringBuilder( " where 1=1 ");
+		StringBuilder where = new StringBuilder( " where a.fileNo = c.fileNo ");
 		Gson gs = new Gson();
 		if(qryCond.getParams().containsKey("child_status")){
 			String value = (String)qryCond.getParams().get("child_status");
@@ -833,7 +846,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 //			where.replace(0, 4, " where ");
 //		}
 		StringBuilder hql = new StringBuilder(
-				"from HealthFile a, HealthFileChildren b").append(where).append(
+				"from HealthFile a ,  PersonalInfo b,HealthFileChildren c ").append(where).append(
 				" order by a.name ASC");
 		log.debug("hql: " + hql.toString());
 		return hql;
@@ -842,7 +855,6 @@ public class ModuleMgr extends HibernateDaoSupport {
 			HealthFileQry qryCond, PagingParam pp)throws Exception {
 		List params = new ArrayList();
 		StringBuilder hql = buildHealthAlreadyBuildChildHql(qryCond, params);
-
 		PagingResult<Object> p = query(hql, params, pp);
 		List list = p.getData();
 		List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
@@ -850,7 +862,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 		for (Object object : list) {
 			Object[] objs = (Object[]) object;
 			HealthFile file = (HealthFile) objs[0];
-			HealthFileChildren maternal = (HealthFileChildren) objs[1];
+			HealthFileChildren maternal = (HealthFileChildren) objs[2];
 			if(!tmpFileNo.equals(file.getFileNo())){
 				file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
 				file.setName(EncryptionUtils.decipher(file.getName()));
@@ -2467,7 +2479,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 			//为产后42天 , 则恢复妇保手册为未结案
 			HealthFileMaternal hfm = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, vb.getForeignId());
 			hfm.setIsClosed("0");
-			getHibernateTemplate().save(hfm);
+			hfm.setClosedDate(null);
+			getHibernateTemplate().update(hfm);
 		}
 		getHibernateTemplate().flush();
 	}
