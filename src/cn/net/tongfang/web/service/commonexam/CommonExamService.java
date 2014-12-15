@@ -27,12 +27,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.SecurityManager;
+import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.District;
 import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.security.vo.ExamItems;
 import cn.net.tongfang.framework.security.vo.ExamItemsId;
 import cn.net.tongfang.framework.security.vo.Organization;
+import cn.net.tongfang.framework.security.vo.SamTaxempcode;
 import cn.net.tongfang.web.util.FileNoGen;
 
 public class CommonExamService extends HibernateDaoSupport  {
@@ -74,6 +76,9 @@ public class CommonExamService extends HibernateDaoSupport  {
 	}
 	
 	private static Map<Integer , List> orgmap = new HashMap();
+	private static Map<Integer , String> orgidtocode = new HashMap();
+	private static Map<String,Map> orgcodemap = new HashMap();
+	private static Map<Integer,List> orgempmap = new HashMap();
 	
 	public Map newExam(String examname)  throws Exception{
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -92,11 +97,22 @@ public class CommonExamService extends HibernateDaoSupport  {
 	}
 	
 	public List<District> getDistrict(String orgid) {
+		List<District> ret = new ArrayList();
 		if(orgid == null){
-			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+			String[] orgids = SecurityManager.currentOperator().getDistrictId().split(",");
+			for(int i=0;i<orgids.length;i++){
+				orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+				ret.addAll(commonExamUtil.getDistrict(orgid));
+			}
+		}else{
+			String[] orgids = orgid.split(",");
+			for(int i=0;i<orgids.length;i++){
+				orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+				ret.addAll(commonExamUtil.getDistrict(orgid));
+			}
 		}
 		System.out.println("========orgid==========="+orgid);
-		return commonExamUtil.getDistrict(orgid);
+		return ret;
 	}
 	
 	public Map<String , List> getAllDistrict(String orgid) {
@@ -104,7 +120,12 @@ public class CommonExamService extends HibernateDaoSupport  {
 	}
 	public String getCurrentRoot(String orgid){
 		if(orgid == null){
-			orgid = "root"+SecurityManager.currentOperator().getDistrictId();
+			String[] orgids = SecurityManager.currentOperator().getDistrictId().split(",");
+			orgid = "";
+			for(int i = 0 ; i< orgids.length;i++){
+				orgid+=",root"+orgids[i];
+			}
+			orgid = orgid.substring(1);
 		}
 		return orgid;
 	}
@@ -123,6 +144,92 @@ public class CommonExamService extends HibernateDaoSupport  {
 		return ret;
 	}
 	
+	private void initOrgMap(){
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId=0");
+		Map ret = new HashMap();
+		String space = "";
+		for(int i= 0;i <lists.size();i++){
+			Organization org = (Organization)lists.get(i);
+			String code = inttostring(i);
+			orgidtocode.put(org.getId(), code);
+			Map orgmap = new HashMap();
+			orgmap.put("data", org);
+			Map child = getSubOrgnew(org.getId(),code);
+			orgmap.put("child", child);
+			ret.put(code, orgmap);
+		}
+		orgcodemap = ret;
+	}
+	
+	public Map getPersonMap(){
+		if(orgempmap!=null&&orgempmap.size()<=0){
+			List<SamTaxempcode> lists = getHibernateTemplate().find("from SamTaxempcode order by org_id");
+			Map ret = new HashMap();
+			for(int i= 0;i <lists.size();i++){
+				SamTaxempcode org = (SamTaxempcode)lists.get(i);
+				if(!ret.containsKey(org.getOrgId())){
+					ret.put(org.getOrgId(), new ArrayList());
+				}
+				List list = (List)ret.get(org.getOrgId());
+				list.add(org);
+			}
+			orgempmap = ret;
+		}
+		return orgempmap;
+	}
+	
+	private Map getSubOrgnew(int orgid, String parentcode){
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId="+orgid);
+		Map ret = new HashMap();
+		for(int i= 0;i <lists.size();i++){
+			String code = parentcode+inttostring(i);
+			Organization org = (Organization)lists.get(i);
+			orgidtocode.put(org.getId(), code);
+			Map orgmap = new HashMap();
+			orgmap.put("data", org);
+			Map child = getSubOrgnew(org.getId(),code);
+			orgmap.put("child", child);
+			ret.put(code, orgmap);
+		}
+		return ret;
+	}
+	
+	private String inttostring(int i ){
+		return ("000"+i).substring(("000"+i).length()-3);
+	}
+	
+	
+	public List getCurrentOrgListnew(){
+		TaxempDetail  emp =SecurityManager.currentOperator();
+		List ret = new ArrayList();
+		int rootid = emp.getOrgId();
+		if(!orgidtocode.containsKey(rootid)){
+			initOrgMap();
+		}
+		String code = orgidtocode.get(rootid);
+		int m = code.length()/3;
+		Map curr = orgcodemap;
+		for(int i=1 ;i<=m;i++){
+			curr = (Map)curr.get(code.substring(0,(i+1)*3));
+		}
+		return getorglistnew(curr,"");
+	}
+	public List getorglistnew(Map curr,String space){
+		List ret = new ArrayList();
+		Organization org = (Organization)curr.get("data");
+		List item = new ArrayList();
+		item.add(org.getId());
+		item.add(""+space+"  "+org.getName());
+		ret.add(item);
+		Map childs = (Map)curr.get("child");
+		for(Iterator iter = childs.keySet().iterator();iter.hasNext();){
+			Object key = iter.next();
+			Map child = (Map)childs.get(key);
+			ret.addAll(getorglistnew(child,space+"-|--"));
+		}
+		return ret;
+	}
+	
 	public List getCurrentOrgList(){
 		List ret = new ArrayList();
 		int rootid = SecurityManager.currentOperator().getOrgId();
@@ -135,13 +242,12 @@ public class CommonExamService extends HibernateDaoSupport  {
 			root.add(rootid);
 			root.add(SecurityManager.currentOperator().getOrg().getName());
 			ret.add(root);
-			ret.addAll(getSubOrg(rootid , "--"));
+			ret.addAll(getSubOrg(rootid , "-|--"));
 			orgmap.put(rootid,ret);
 			return ret;
 		}else{
 			return orgmap.get(rootid);
 		}
-		
 	}
 	
 	public List examList(String examname,String userdistrict,Map<String,Map> params,Map <String,Map<String,String>> basemap,List<String> collist) throws Exception{

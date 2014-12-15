@@ -31,7 +31,6 @@ public class OrganizationTreeServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-
 		ServletContext servletContext = this.getServletContext();
 
 		WebApplicationContext ctx = WebApplicationContextUtils
