@@ -85,7 +85,17 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	    <!-- run every morning at 10 AM -->
 	    <property name="cronExpression" value="0 50 12 * * ?" />
 	</bean>
+	<!-- 
+	<bean id="makejobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	  <property name="targetObject" ref="SmsService" />
+	  <property name="targetMethod" value="makeMsgJob" />
+	</bean>
 	
+	<bean id="makeSmsjob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    	<property name="jobDetail" ref="makejobDetail" />
+	    <property name="cronExpression" value="0 50 12 * * ?" />
+	</bean>
+	 -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	    <property name="triggers">
 	        <list>

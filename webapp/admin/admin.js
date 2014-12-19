@@ -1295,12 +1295,12 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod child_business_05 mod_disable"><img src="../image/menu/child_business_05.gif"/><div>3~6岁儿童健康体检</div><div class="remarks"></div></div>'+
 
 		'</div>';
-	}else if($templateId == 'fun_manage_child_template'){
-		flag = true;
-		modItems = '<div class="div_container">'+
-			'<div class="mod child_manage_01 mod_disable"><img src="../image/menu/child_manage_01.gif"/><div>儿童档案查询</div><div class="remarks"></div></div>'+
-			'<div class="mod child_manage_02 mod_disable"><img src="../image/menu/child_manage_02.gif"/><div>高危儿童查询</div><div class="remarks"></div></div>'+
-		'</div>';
+//	}else if($templateId == 'fun_manage_child_template'){
+//		flag = true;
+//		modItems = '<div class="div_container">'+
+//			'<div class="mod child_manage_01 mod_disable"><img src="../image/menu/child_manage_01.gif"/><div>儿童档案查询</div><div class="remarks"></div></div>'+
+//			'<div class="mod child_manage_02 mod_disable"><img src="../image/menu/child_manage_02.gif"/><div>高危儿童查询</div><div class="remarks"></div></div>'+
+//		'</div>';
 	}else if($templateId == 'fun_business_female_template'){
 		flag = true;
 		modItems = '<div class="div_child_business_container div_container">'+

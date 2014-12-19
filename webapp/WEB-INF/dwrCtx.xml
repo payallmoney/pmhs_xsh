@@ -31,6 +31,8 @@
 
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.bo.*" />
+			<dwr:convert type="bean"
+			class="cn.net.tongfang.framework.security.bo.NewQryCondition" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.vo.*" />
 		<dwr:convert type="bean"
@@ -567,5 +569,12 @@
 		<aop:scoped-proxy />
 		<property name="birthReportWithMonthService" ref="BirthReportWithMonthService" />
 	</bean>	
+	
+	<bean id="TcmService"
+		class="cn.net.tongfang.web.service.tcm.TcmService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="TcmService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
 	
 </beans>
