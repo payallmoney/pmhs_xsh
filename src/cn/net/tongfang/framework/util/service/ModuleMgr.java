@@ -2441,7 +2441,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 			System.out.println("=====vb.getForeignId()======="+vb.getForeignId());
 			HealthFileMaternal hfm = (HealthFileMaternal)getHibernateTemplate().get(HealthFileMaternal.class, vb.getForeignId());
 			hfm.setIsClosed("0");
-			getHibernateTemplate().save(hfm);
+			hfm.setClosedDate(null);
+			getHibernateTemplate().update(hfm);
 		}
 		getHibernateTemplate().flush();
 	}
