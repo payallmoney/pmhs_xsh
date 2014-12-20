@@ -19,7 +19,8 @@ tcmString = {
 	"4" : "传授按揉迎香穴、足三里穴方法",
 	"5" : "传授按揉四神聪穴方法",
 	"6" : "其他",
-}
+},
+tcmcurrentnode = null;
 tcmConfig = {
 	'hf.name' : {
 		code : 'hf.name',
@@ -171,8 +172,16 @@ Ext.tcm.tcmQuery = new Ext.Panel({
 				id : 'org'
 			}),
 			rootVisible : false,
+//			selModel : new Ext.tree.DefaultSelectionModel({
+//				listeners :{
+//					selectionchange :function(){
+//						Ext.getCmp("tcmQuery.msgsender.grid").store.reload();
+//					}
+//				}
+//			}),
 			listeners : {
-				click : function() {
+				click:function(node){
+					tcmcurrentnode = node;
 					Ext.getCmp("tcmQuery.msgsender.grid").store.reload();
 				},
 				load : function() {
@@ -285,7 +294,10 @@ Ext.tcm.tcmQuery = new Ext.Panel({
 							district : "",
 							conditions : []
 						};
-						var root = Ext.getCmp("tcmQuery.query.district").getSelectionModel().getSelectedNode();
+						var root = tcmcurrentnode;
+						if(!root){
+							root = Ext.getCmp("tcmQuery.query.district").getSelectionModel().getSelectedNode()
+						}
 						if (!root) {
 							root = Ext.getCmp("tcmQuery.query.district").getRootNode().firstChild;
 						}

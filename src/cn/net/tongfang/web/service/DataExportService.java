@@ -3,12 +3,15 @@ package cn.net.tongfang.web.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -29,11 +33,15 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import cn.net.tongfang.framework.security.bo.NewQryCondition;
 import cn.net.tongfang.framework.security.bo.QryCondition;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.BabyVisit;
@@ -58,6 +66,8 @@ import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.ExcelUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
+import cn.net.tongfang.framework.util.service.vo.PagingParam;
+import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.BirthCertifiQry;
 
 import com.csvreader.CsvWriter;
@@ -159,6 +169,8 @@ public class DataExportService extends HibernateDaoSupport {
 	private static final String CHILDHIGHRISKINFO_TITLE = "高危儿童信息";
 	private static final String WOMANBIRTHFILE_TITLE = "孕产妇档案";
 
+	private static Pattern procPattern = Pattern.compile("^\\s*\\{\\s*call .*",Pattern.CASE_INSENSITIVE);
+	
 	private ReportService reportService;
 	private SystemInformationUtils sysInfos;
 	private SummaryService summaryService;
@@ -1870,212 +1882,288 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 	}
 	
-	public Map sqlListnew(String orgs,String id ,Map params,Map pager) throws Exception {
+	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+	public Map sqlListnew(String orgs, String id, Map params, Map pager)
+			throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
 		// No DataSource so we must handle Connections manually
-		System.out.println("============"+pager);
-		try{
+		while (orgs.endsWith("00")) {
+			orgs = orgs.substring(0, orgs.length() - 2);
+		}
+		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fomarttime = new SimpleDateFormat(
+				"yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat fomarttime1 = new SimpleDateFormat(
+				"yyyy-MM-dd hh:mm:ss.SSS");
+		try {
 			Connection conn = getSession().connection();
-			Statement st = conn.createStatement();
-			List sqllist = getSession().createQuery("from ExportMain where id = "+ id +" order by id").list();
-			List sublist =  getSession().createQuery("from ExportSub where  mainid = "+ id +" order by mainid , ord").list();
-			Map<String,ExportSub> submap = new HashMap();
-			for(int i=0 ;i <sublist.size();i++){
-				ExportSub vo = (ExportSub)sublist.get(i);
+			List sqllist = getSession().createQuery(
+					"from ExportMain where id = " + id + " order by id").list();
+			List sublist = getSession().createQuery(
+					"from ExportSub where  mainid = " + id
+							+ " order by mainid , ord").list();
+			Map<String, ExportSub> submap = new HashMap();
+			for (int i = 0; i < sublist.size(); i++) {
+				ExportSub vo = (ExportSub) sublist.get(i);
 				submap.put(vo.getCode(), vo);
 			}
-			ExportMain main = (ExportMain)sqllist.get(0);
+			ExportMain main = (ExportMain) sqllist.get(0);
 			String sql = main.getSql();
-			if("in".equals(main.getOrgparamtype())){
-				sql = sql.replaceAll("\\?", orgs);
-			}
 			String mainsql = sql;
-			for(Iterator iter = params.keySet().iterator();iter.hasNext();){
-				Object key = iter.next();
-				if(submap.containsKey(key)){
-					ExportSub vo = submap.get(key);
-					sql =  sql +" and " +vo.getColstr();
+			String countsql = "";
+			String pagesql = "";
+			if(!DataExportService.isproc(main.getSql())){
+				sql += " and emp.org_id = " + user.getOrgId() + " ";
+				if ("in".equals(main.getOrgparamtype())) {
+					sql = sql.replaceAll("\\?", orgs);
 				}
+				mainsql = sql;
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					if (submap.containsKey(key)) {
+						ExportSub vo = submap.get(key);
+						if (vo.getType().equals("exists")) {
+							if ("1".equals(params.get(key).toString())) {
+								sql = sql + " and not " + vo.getColstr();
+							} else if ("2".equals(params.get(key).toString())) {
+								sql = sql + " and  " + vo.getColstr();
+							} else if ("0".equals(params.get(key).toString())) {
+								// 不加入
+							}
+						} else if (vo.getType().equals("select")) {
+							String value = params.get(key).toString();
+							Gson gs = new Gson();
+							Map options = gs
+									.fromJson(vo.getColstr(), HashMap.class);
+							sql = sql + " and  " + options.get(value);
+						} else {
+							sql = sql + " and  " + vo.getColstr();
+						}
+					}
+				}
+				countsql = sql.replaceAll("\"", "'");
+				countsql = " select count(*) "
+						+ sql.substring(sql.toLowerCase().indexOf("from"));
+				pagesql = sql.replaceAll("\"", "'");
+				sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
+				sql = sql.replaceAll("\"", "'");
 			}
-			String countsql = sql.replaceAll("\"", "'");
-			countsql = " select count(*) "+sql.substring(sql.toLowerCase().indexOf("from"));
-			String pagesql = sql.replaceAll("\"", "'");
-			sql = sql  + " "+ main.getGroupby() + " "+ main.getOrderby();
-			sql = sql.replaceAll("\"", "'");
 			int paramidx = 1;
 			Map ret = new HashMap();
-			if(!main.getPageable()){
-			
-				PreparedStatement stmt =  conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-				if("like".equals(main.getOrgparamtype())){
-					stmt.setString(1, orgs+"%");
-					paramidx = 2;
-				}else if(mainsql.indexOf("?")>0){
-					stmt.setString(1, orgs);
-					paramidx = 2;
-				}else{
-					
+			if (!main.getPageable()) {
+				PreparedStatement stmt = conn.prepareStatement(sql,
+						ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_READ_ONLY);
+				if ("like".equals(main.getOrgparamtype())) {
+					stmt.setString(paramidx++, orgs + "%");
+				} else if (mainsql.indexOf("?") > 0) {
+					stmt.setString(paramidx++, orgs);
+				} else {
+
 				}
-				SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
-				SimpleDateFormat inputfomarttime = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
-				
-				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
-					Object key = iter.next();
-					if(submap.containsKey(key)){
-						Object value = params.get(key);
-						System.out.println("======value======"+value);
-						ExportSub vo = submap.get(key);
-						if(vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
-						}else if(vo.getType().equals("time")) {
-							stmt.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
-						}else if( vo.getType().equals("string")){
-							stmt.setString(paramidx++, (String)value);
+				if(DataExportService.isproc(main.getSql())){
+					for(int i = 0 ;i < sublist.size() ;i++){
+						ExportSub sub = (ExportSub)sublist.get(i);
+						System.out.println("============"+paramidx +"=="+params.get(sub.getCode()));
+						if(params.containsKey(sub.getCode())){
+							stmt.setObject(paramidx++, params.get(sub.getCode()));
 						}else{
-							stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+							stmt.setObject(paramidx++, null);
+						}
+					}
+				}else{
+					for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
+						Object key = iter.next();
+						if (submap.containsKey(key)) {
+							Object value = params.get(key);
+							ExportSub vo = submap.get(key);
+							if (vo.getType().equals("date")) {
+								stmt.setDate(paramidx++, new java.sql.Date(fomart
+										.parse((String) value).getTime()));
+							} else if (vo.getType().equals("time")) {
+								stmt.setDate(
+										paramidx++,
+										new java.sql.Date(fomarttime.parse(
+												(String) value + " 00:00:00")
+												.getTime()));
+							} else if (vo.getType().equals("string")) {
+								stmt.setString(paramidx++, (String) value);
+							} else if (vo.getType().equals("exists")) {
+								// 没有参数
+							} else {
+								stmt.setFloat(paramidx++,
+										Float.parseFloat((String) value));
+							}
 						}
 					}
 				}
 				ResultSet rs = stmt.executeQuery();
 				ResultSetMetaData rsMetaData = rs.getMetaData();
 				int numberOfColumns = rsMetaData.getColumnCount();
-				SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+
 				List retlist = new ArrayList();
-				//移动到最后一行,得到总数
+				// 移动到最后一行,得到总数
 				rs.last();
 				int rowcount = rs.getRow();
-				//移动到取数位置
+				System.out.println("======rowcount======"+rowcount);
+				rs.first();
+				// 移动到取数位置
 				while (rs.next()) {
-//					List row = new ArrayList();
+					// List row = new ArrayList();
 					Map row = new HashMap();
 					for (int i = 1; i <= numberOfColumns; i++) {
-						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+						Class cls = Class.forName(rsMetaData
+								.getColumnClassName(i));
 						if (cls.isAssignableFrom(String.class)) {
-							row.put("col"+i, rs.getString(i));
+							row.put("col" + i, (rs.getString(i)));
 						} else if (cls.isAssignableFrom(Float.class)) {
-							row.put("col"+i, rs.getFloat(i));
+							row.put("col" + i, rs.getFloat(i));
 						} else if (cls.isAssignableFrom(Integer.class)) {
-							row.put("col"+i, rs.getInt(i));
+							row.put("col" + i, rs.getInt(i));
 						} else if (cls.isAssignableFrom(Long.class)) {
-							row.put("col"+i, rs.getLong(i));
+							row.put("col" + i, rs.getLong(i));
 						} else if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col"+i, fomart.format(obj));
-						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+							row.put("col" + i, fomart.format(obj));
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col"+i, fomart.format(obj));
-						}else{
+							row.put("col" + i, fomart.format(obj));
+						} else {
 							Object obj = rs.getObject(i);
-							row.put("col"+i, (obj));
+							row.put("col" + i, (obj));
 						}
 					}
 					retlist.add(row);
 				}
+				System.out.println("============"+new Gson().toJson(retlist));
 				ret.put("rows", retlist);
-			}else{
+				stmt.close();
+			} else {
 				SQLQuery countquery = getSession().createSQLQuery(countsql);
-				System.out.println("============"+countsql);
-				System.out.println("=======main.getOrgparamtype()====="+main.getOrgparamtype());
-				if("like".equals(main.getOrgparamtype())){
-					countquery.setString(0, orgs+"%");
-					System.out.println("========???====");
+				if ("like".equals(main.getOrgparamtype())) {
+					countquery.setString(0, orgs + "%");
 					paramidx = 1;
-				}else if(countsql.indexOf("\\?")>0){
+				} else if (countsql.indexOf("\\?") > 0) {
 					countquery.setString(0, orgs);
-					System.out.println("========???====");
 					paramidx = 1;
-				}else{
-					
+				} else {
+
 				}
-				SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
-				SimpleDateFormat inputfomarttime = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
-				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
-					if(submap.containsKey(key)){
+					if (submap.containsKey(key)) {
 						Object value = params.get(key);
-						System.out.println("======value======"+value);
 						ExportSub vo = submap.get(key);
-						if(vo.getType().equals("date")) {
-							countquery.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
-						}else if(vo.getType().equals("time")) {
-							countquery.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
-						}else if( vo.getType().equals("string")){
-							countquery.setString(paramidx++, (String)value);
-						}else{
-							countquery.setFloat(paramidx++, Float.parseFloat((String)value));
+						if (vo.getType().equals("date")) {
+							countquery.setDate(paramidx++, new java.sql.Date(
+									fomart.parse((String) value).getTime()));
+						} else if (vo.getType().equals("time")) {
+							countquery.setDate(
+									paramidx++,
+									new java.sql.Date(fomarttime.parse(
+											(String) value + " 00:00:00")
+											.getTime()));
+						} else if (vo.getType().equals("string")) {
+							countquery.setString(paramidx++, (String) value);
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
+							// 没有参数
+						} else {
+							countquery.setFloat(paramidx++,
+									Float.parseFloat((String) value));
 						}
 					}
 				}
-				int rowcount = (Integer)countquery.list().get(0);
-				int pageNum = Integer.parseInt((String)pager.get("pagenumber"));
-				int rowsNum = Integer.parseInt((String)pager.get("pagesize"));
-				int pagecount = rowcount/rowsNum;
-				int startNum = (pageNum - 1) * rowsNum ;
-				if(startNum>rowcount){
+				int rowcount = (Integer) countquery.uniqueResult();
+				int pageNum = Integer
+						.parseInt((String) pager.get("pagenumber"));
+				int rowsNum = Integer.parseInt((String) pager.get("pagesize"));
+				int pagecount = rowcount / rowsNum;
+				int startNum = (pageNum - 1) * rowsNum + 1;
+				if (startNum > rowcount) {
 					startNum = 1;
 					pageNum = 1;
 				}
-				int endNum = startNum +rowsNum;
-				System.out.println("=====startNum======="+startNum);
-				String selecttxt = pagesql.substring(pagesql.toLowerCase().indexOf("select")+6, pagesql.toLowerCase().indexOf("from"));
-				String fromtxt = pagesql.substring(pagesql.toLowerCase().indexOf("from")+4);
-				pagesql = " SELECT * FROM  ( SELECT  * FROM (SELECT TOP "+(endNum-1) +" row_number() over("+ main.getOrderby() +") rownum, "+selecttxt+" from " + fromtxt+" "+ main.getOrderby() +")zzzz where rownum>"+(startNum)+" )zzzzz order by rownum";
-				PreparedStatement stmt =  conn.prepareStatement(pagesql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-				System.out.println("======pagesql======"+pagesql);
-				if("like".equals(main.getOrgparamtype())){
-					stmt.setString(1, orgs+"%");
+				int endNum = startNum + rowsNum;
+				String selecttxt = pagesql.substring(pagesql.toLowerCase()
+						.indexOf("select") + 6,
+						pagesql.toLowerCase().indexOf("from"));
+				String fromtxt = pagesql.substring(pagesql.toLowerCase()
+						.indexOf("from") + 4);
+				pagesql = " SELECT * FROM  ( SELECT  * FROM (SELECT TOP "
+						+ (endNum - 1) + " row_number() over("
+						+ main.getOrderby() + ") rownum, " + selecttxt
+						+ " from " + fromtxt + " " + main.getOrderby()
+						+ ")zzzz where rownum>=" + (startNum)
+						+ " )zzzzz order by rownum";
+				PreparedStatement stmt = conn.prepareStatement(pagesql,
+						ResultSet.TYPE_SCROLL_INSENSITIVE,
+						ResultSet.CONCUR_READ_ONLY);
+				if ("like".equals(main.getOrgparamtype())) {
+					stmt.setString(1, orgs + "%");
 					paramidx = 2;
-				}else if(pagesql.indexOf("?")>0){
+				} else if (pagesql.indexOf("?") > 0) {
 					stmt.setString(1, orgs);
 					paramidx = 2;
-				}else{
-					
+				} else {
+
 				}
-				for(Iterator iter = params.keySet().iterator();iter.hasNext();){
+				for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
 					Object key = iter.next();
-					if(submap.containsKey(key)){
+					if (submap.containsKey(key)) {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
-						if(vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
-						}else if(vo.getType().equals("time")) {
-							stmt.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
-						}else if( vo.getType().equals("string")){
-							stmt.setString(paramidx++, (String)value);
-						}else{
-							stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+						if (vo.getType().equals("date")) {
+							stmt.setDate(paramidx++, new java.sql.Date(fomart
+									.parse((String) value).getTime()));
+						} else if (vo.getType().equals("time")) {
+							stmt.setDate(
+									paramidx++,
+									new java.sql.Date(fomarttime.parse(
+											(String) value + " 00:00:00")
+											.getTime()));
+						} else if (vo.getType().equals("string")) {
+							stmt.setString(paramidx++, (String) value);
+						} else if (vo.getType().equals("exists")
+								|| vo.getType().equals("select")) {
+							// 没有参数
+						} else {
+							stmt.setFloat(paramidx++,
+									Float.parseFloat((String) value));
 						}
 					}
 				}
 				ResultSet rs = stmt.executeQuery();
 				ResultSetMetaData rsMetaData = rs.getMetaData();
 				int numberOfColumns = rsMetaData.getColumnCount();
-				SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
 				List retlist = new ArrayList();
-				//移动到取数位置
+				// 移动到取数位置
 				while (rs.next()) {
-//					List row = new ArrayList();
+					// List row = new ArrayList();
 					Map row = new HashMap();
 					for (int i = 1; i <= numberOfColumns; i++) {
-						Class cls = Class.forName(rsMetaData.getColumnClassName(i));
+						Class cls = Class.forName(rsMetaData
+								.getColumnClassName(i));
 						if (cls.isAssignableFrom(String.class)) {
-							row.put("col"+(i-1), rs.getString(i));
+							row.put("col" + (i - 1), (rs.getString(i)));
 						} else if (cls.isAssignableFrom(Float.class)) {
-							row.put("col"+(i-1), rs.getFloat(i));
+							row.put("col" + (i - 1), rs.getFloat(i));
 						} else if (cls.isAssignableFrom(Integer.class)) {
-							row.put("col"+(i-1), rs.getInt(i));
+							row.put("col" + (i - 1), rs.getInt(i));
 						} else if (cls.isAssignableFrom(Long.class)) {
-							row.put("col"+(i-1), rs.getLong(i));
+							row.put("col" + (i - 1), rs.getLong(i));
 						} else if (cls.isAssignableFrom(Date.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col"+(i-1), fomart.format(obj));
-						} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+							row.put("col" + (i - 1), fomart.format(obj));
+						} else if (cls
+								.isAssignableFrom(java.sql.Timestamp.class)) {
 							Date obj = rs.getDate(i);
-							row.put("col"+(i-1), fomart.format(obj));
-						}else{
+							row.put("col" + (i - 1), fomart.format(obj));
+						} else {
 							Object obj = rs.getObject(i);
-							row.put("col"+(i-1), (obj));
+							row.put("col" + (i - 1), (obj));
 						}
 					}
 					retlist.add(row);
@@ -2083,14 +2171,17 @@ public class DataExportService extends HibernateDaoSupport {
 				ret.put("rows", retlist);
 				ret.put("currentpage", pageNum);
 				ret.put("total", rowcount);
-				ret.put("pages", rowcount);
+				ret.put("pages", pagecount);
+				stmt.close();
 			}
+			conn.close();
 			return ret;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
+
 	
 	
 	public ExportDiv getDiv(String id) throws Exception {
@@ -2110,6 +2201,12 @@ public class DataExportService extends HibernateDaoSupport {
 			PreparedStatement stmt =  conn.prepareStatement(sql);
 			if(sql.indexOf("?")>0){
 				stmt.setString(1, "9999999999");
+			}
+			if(DataExportService.isproc(main.getSql())){
+				int paramsnum = Integer.parseInt(main.getOrderby());
+				for(int i = 1 ;i <paramsnum ;i++){
+					stmt.setObject(i+1, null);
+				}
 			}
 			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData rsMetaData = rs.getMetaData();
@@ -2132,4 +2229,114 @@ public class DataExportService extends HibernateDaoSupport {
 			throw e;
 		}
 	}
+	public static boolean isproc(String sql){
+		return DataExportService.procPattern.matcher(sql).matches();
+	}
+	
+	public static void main (String[] args) {
+		System.out.println("============"+ DataExportService.procPattern.matcher("{call queryRate(1,?,?,?) }").matches());
+	}
+	public String exportTcmQuery(NewQryCondition cod)
+			throws Exception {
+		String[] titles = new String[]{"录入日期","档案编号","姓名","家长","性别","项目","联系电话","生日","地址","中医健康指导"};
+		Map tcmmap = new HashMap();
+		tcmmap.put("1", "中医饮食调养指导");
+		tcmmap.put("2", "中医起居调摄指导");
+		tcmmap.put("3", "传授摩腹、捏脊方法");
+		tcmmap.put("4", "传授按揉迎香穴、足三里穴方法");
+		tcmmap.put("5", "传授按揉四神聪穴方法");
+		tcmmap.put("6", "其他");
+		try {
+			XSSFWorkbook wb = new XSSFWorkbook();
+			String path = "";
+			String folderPath = ModuleMgr.class.getProtectionDomain()
+					.getCodeSource().getLocation().getPath();
+			System.out.println("========folderPath====" + folderPath);
+			if (folderPath.indexOf("WEB-INF") > 0) {
+				path = folderPath.substring(0,
+						folderPath.indexOf("WEB-INF/classes"));
+			}
+			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+					.currentOperator();
+			String fileName = "中医药健康指导"+new SimpleDateFormat("yyyy-MM-dd_hh_mm_ss").format(new Date()) + "_" + user.getUsername()
+					 + ".xlsx";
+			FileOutputStream fileOut = new FileOutputStream(
+					path + "data/"+fileName  );
+			System.out.println("============"+path + "data/中医药健康指导"+fileName);
+			Sheet sheet1 = wb.createSheet("中医药健康指导");
+			
+			CallableStatement proc = getSession().connection().prepareCall(
+					"{ call Proc_TCM(?,?,?,?,?,?,?) }");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			proc.setString(1, cod.getDistrict());
+			String begindate = null;
+			if(StringUtils.hasText(cod.getValueByName("begindate"))){
+				begindate = df.format(Long.parseLong(cod.getValueByName("begindate")));
+			}
+			proc.setString(2,begindate);
+			String enddate = null;
+			if(StringUtils.hasText(cod.getValueByName("begindate"))){
+				enddate = df.format(Long.parseLong(cod.getValueByName("enddate")));
+			}
+			proc.setString(3,enddate);
+			proc.setString(4, cod.getParamsStr());
+			proc.setInt(5, 0);
+			proc.setInt(6, -99);
+			proc.registerOutParameter(7, Types.INTEGER);
+			ResultSet rs = proc.executeQuery();
+
+			List<Map> ret = new ArrayList();
+
+			ResultSetMetaData md = rs.getMetaData();
+			int columnCount = md.getColumnCount();
+			int rowidx = 0;
+			Row rowtitle = sheet1.createRow((short) rowidx++);
+			for (int i = 0; i < titles.length; i++) {
+				Cell cell = rowtitle.createCell(i);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(titles[i]);
+			}
+			SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
+			while (rs.next()) {
+				Row row = sheet1.createRow((short) rowidx++);
+				int cellidx = 0;
+				for (int i = 4; i <= columnCount-1; i++) {
+					Class cls = Class.forName(md.getColumnClassName(i));
+					Cell cell = row.createCell(cellidx++);
+					if (cls.isAssignableFrom(String.class)) {
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						if(i == columnCount-1){
+							cell.setCellValue(rs.getString(i+1));
+						}else{
+							cell.setCellValue(rs.getString(i));
+						}
+					} else if (cls.isAssignableFrom(Float.class)) {
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(rs.getFloat(i));
+					} else if (cls.isAssignableFrom(Integer.class)) {
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(rs.getInt(i));
+					} else if (cls.isAssignableFrom(Long.class)) {
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(rs.getLong(i));
+					} else if (cls.isAssignableFrom(Date.class)) {
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						Date obj = rs.getDate(i);
+						cell.setCellValue(fomart.format(obj));
+					} else if (cls.isAssignableFrom(java.sql.Timestamp.class)) {
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						Date obj = rs.getDate(i);
+						cell.setCellValue(fomart.format(obj));
+					}
+				}
+			}
+			wb.write(fileOut);
+			fileOut.close();
+			return getDownloadURL() + fileName;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw ex;
+		}
+	}
+
 }

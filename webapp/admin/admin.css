@@ -1,24 +1,5 @@
+@charset(utf8)
 
-/*鍙跺瓙缁撶偣 
-.x-tree-node-leaf .x-tree-node-icon {
-	background-image: url(next.gif) !important;
-}
-
-鐖剁粨鐐�
-.x-tree-node-collapsed .x-tree-node-icon {
-	background-image: url(next.gif);
-}
-
-鎵撳紑鐖剁粨鐐�
-.x-tree-node-expanded .x-tree-node-icon {
-	background-image: url(next.gif);
-}
-
-.x-grid3-col, .x-grid3-cell{
-	border-right: 1px solid #ecefd6 !important;//鎺у埗鍒楃嚎
-}*/
-
-/*鏂扮殑寮瑰嚭绐楀彛甯冨眬*/
 div#ballisticForm_new{
 	width:250px;
 	height:340px;
