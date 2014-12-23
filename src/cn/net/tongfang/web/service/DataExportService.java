@@ -2500,9 +2500,9 @@ public class DataExportService extends HibernateDaoSupport {
 				rs.last();
 				int rowcount = rs.getRow();
 				System.out.println("======rowcount======"+rowcount);
-				rs.first();
+				boolean flag = rs.first();
 				// 移动到取数位置
-				while (rs.next()) {
+				while (flag) {
 					// List row = new ArrayList();
 					Map row = new HashMap();
 					for (int i = 1; i <= numberOfColumns; i++) {
@@ -2529,6 +2529,7 @@ public class DataExportService extends HibernateDaoSupport {
 						}
 					}
 					retlist.add(row);
+					flag = rs.next();
 				}
 				System.out.println("============"+new Gson().toJson(retlist));
 				ret.put("rows", retlist);
