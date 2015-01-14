@@ -4,7 +4,15 @@ public class Condition {
 	private String filterKey;
 	private String filterVal;
 	private String opt;
+	private String type;
 	
+	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	public String getOpt() {
 		return opt;
 	}

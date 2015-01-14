@@ -1902,8 +1902,7 @@ public class DataExportService extends HibernateDaoSupport {
 				Object value = params.get(key);
 				ExportSub vo = submap.get(Integer.parseInt((String) key));
 				if (vo.getType().equals("date")) {
-					stmt.setDate(paramidx++, new java.sql.Date(inputfomart2
-							.parse((String) value).getTime()));
+					stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 				} else if (vo.getType().equals("string")) {
 					stmt.setString(paramidx++, (String) value);
 				} else {
@@ -2189,8 +2188,7 @@ public class DataExportService extends HibernateDaoSupport {
 				Object value = params.get(key);
 				ExportSub vo = submap.get(Integer.parseInt((String) key));
 				if (vo.getType().equals("date")) {
-					stmt.setDate(paramidx++, new java.sql.Date(inputfomart2
-							.parse((String) value).getTime()));
+					stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 				} else if (vo.getType().equals("time")) {
 					stmt.setDate(paramidx++, new java.sql.Date(inputfomarttime
 							.parse((String) value + " 00:00:00").getTime()));
@@ -2472,8 +2470,7 @@ public class DataExportService extends HibernateDaoSupport {
 							Object value = params.get(key);
 							ExportSub vo = submap.get(key);
 							if (vo.getType().equals("date")) {
-								stmt.setDate(paramidx++, new java.sql.Date(fomart
-										.parse((String) value).getTime()));
+								stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 							} else if (vo.getType().equals("time")) {
 								stmt.setDate(
 										paramidx++,
@@ -2551,8 +2548,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							countquery.setDate(paramidx++, new java.sql.Date(
-									fomart.parse((String) value).getTime()));
+							countquery.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							countquery.setDate(
 									paramidx++,
@@ -2610,8 +2606,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(fomart
-									.parse((String) value).getTime()));
+							stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							stmt.setDate(
 									paramidx++,
@@ -2984,8 +2979,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(fomart
-									.parse((String) value).getTime()));
+							stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							stmt.setDate(
 									paramidx++,
@@ -3050,8 +3044,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							countquery.setDate(paramidx++, new java.sql.Date(
-									fomart.parse((String) value).getTime()));
+							countquery.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							countquery.setDate(
 									paramidx++,
@@ -3109,8 +3102,8 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(fomart
-									.parse((String) value).getTime()));
+							stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
+							
 						} else if (vo.getType().equals("time")) {
 							stmt.setDate(
 									paramidx++,

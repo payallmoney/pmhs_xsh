@@ -1,3 +1,4 @@
 /webapp/WEB-INF/classes
 /webapp/WEB-INF/tmp
 /webapp/WEB-INF/work
+/.classpath

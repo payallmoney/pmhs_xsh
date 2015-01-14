@@ -16,7 +16,7 @@ Ext.grid.GridPanel.prototype.initComponent =
     });
 // Ext.QuickTips.init();
 
-
+var currentnode = null;
 Ext.task.TaskQuery = new Ext.Panel({
 // layout : 'anchor',
     layout: 'border',
@@ -58,8 +58,9 @@ Ext.task.TaskQuery = new Ext.Panel({
             fields: [ 'type', 'display' ],
             data: [
                 [ '', '全部' ],
-                [ '0', '未完成' ],
-                [ '1', '已完成' ]
+                [ '1', '未完成' ],
+                [ '2', '已完成' ],
+                [ '0', '正在创建' ]
             ]
         }),
         displayField: 'display',
@@ -75,12 +76,12 @@ Ext.task.TaskQuery = new Ext.Panel({
         xtype: 'datefield',
         id: 'TaskQuery.msgsender.query.startdatefield',
         format: 'Y-m-d',
-        value: new Date()
+        value: '2011-01-01'
     }, "至", {
         xtype: 'datefield',
         id: 'TaskQuery.msgsender.query.enddatefield',
         format: 'Y-m-d',
-        value: new Date()
+        value: '2016-01-01'
     }, "-", {
         text: '查询任务',
         iconCls: 'c_refresh',
@@ -94,19 +95,15 @@ Ext.task.TaskQuery = new Ext.Panel({
             TaskService.querySendStatus(function (data) {
                 if (data) {
                     if (data === "-1") {
-                        Ext.getCmp("task.label.statustext").setText("任务未执行!");
                         Ext.getCmp("task.button.start").enable();
                         Ext.getCmp("task.button.stop").disable();
                     } else if (data === "0") {
-                        Ext.getCmp("task.label.statustext").setText("任务未执行!");
                         Ext.getCmp("task.button.start").enable();
                         Ext.getCmp("task.button.stop").disable();
                     } else if (data === "1") {
-                        Ext.getCmp("task.label.statustext").setText("任务已完成!");
                         Ext.getCmp("task.button.start").enable();
                         Ext.getCmp("task.button.stop").disable();
                     } else if (data === "2") {
-                        Ext.getCmp("task.label.statustext").setText("任务正在执行!");
                         Ext.getCmp("task.button.start").disable();
                         Ext.getCmp("task.button.stop").enable();
                     }
@@ -134,7 +131,6 @@ Ext.task.TaskQuery = new Ext.Panel({
                     xtype: 'treepanel',
                     layout: 'fit',
                     animate: true,
-                    title: '行政区划',
                     id: 'TaskQuery.query.district',
                     enableDD: false,
                     loader: new Ext.ux.DWRTreeLoader({
@@ -148,7 +144,17 @@ Ext.task.TaskQuery = new Ext.Panel({
                         draggable: false,
                         id: 'org'
                     }),
-                    rootVisible: false
+                    rootVisible: false,
+                    listeners: {
+                        click: {
+                            stopEvent: true,
+                            fn: function (n, e) {
+                                currentnode = n;
+                                Ext.getCmp("TaskQuery.msgsender.grid").store.reload();
+                            }
+                        }
+                    }
+
                 }
 
             ]
@@ -174,7 +180,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                                         conditions: []
                                     };
                                     console.log(Ext.getCmp("TaskQuery.query.district").getSelectionModel().getSelectedNode());
-                                    var root = Ext.getCmp("TaskQuery.query.district").getSelectionModel().getSelectedNode();
+                                    var root = currentnode;
                                     if (!root) {
                                         root = Ext.getCmp("TaskQuery.query.district").getRootNode().firstChild;
                                     }
@@ -253,6 +259,10 @@ Ext.task.TaskQuery = new Ext.Panel({
                             {
                                 name: 'birthday',
                                 mapping: 'birthday'
+                            },
+                            {
+                                name: 'inputpage',
+                                mapping: 'inputpage'
                             }
                         ]))
                     }),
@@ -270,8 +280,24 @@ Ext.task.TaskQuery = new Ext.Panel({
                             "header": "任务类型",
                             "sortable": true,
                             "dataIndex": "examname",
-
                             width: 140
+                        },
+                        {
+                            "header": "状态",
+                            "dataIndex": "status",
+                            width: 50,
+                            "renderer": function (v, cell, data, rowindex, colindex) {
+                                console.log(data);
+                                if (v == 2) {
+                                    return '已完成';
+                                } else if (v == 1) {
+                                    return '<button onclick="opentask(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\')">处理任务</button>';
+                                } else if (v == 0) {
+                                    return '正在创建';
+                                } else {
+                                    return '其他';
+                                }
+                            }
                         },
                         {
                             "sortable": true,
@@ -313,22 +339,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                                 return '<span qtip="' + data + '"/>' + data + '</span>';
                             }
                         },
-                        {
-                            "header": "状态",
-                            "dataIndex": "status",
-                            width: 50,
-                            "renderer": function (v) {
-                                if (v == 2) {
-                                    return '已完成';
-                                } else if (v == 1) {
-                                    return '未完成';
-                                } else if (v == 0) {
-                                    return '正在创建';
-                                } else {
-                                    return '其他';
-                                }
-                            }
-                        },
+
                         {
                             "header": "完成时间",
                             "dataIndex": "sendtime",
@@ -348,9 +359,49 @@ Ext.task.TaskQuery = new Ext.Panel({
                         displayMsg: '{0} - {1} of {2}',
                         emptyMsg: "没有记录"
                     },
-                    sm: new Ext.grid.CheckboxSelectionModel()
+                    sm: new Ext.grid.CheckboxSelectionModel(),
+                    listeners: {
+                        rowdblclick: function (grid, rowIndex, e) {
+                            console.log(grid.store.getAt(rowIndex));
+                        }
+                    }
                 }
             ]}
     ]
 });
+function opentask(taskurl, fileno) {
+
+    taskurl = taskurl + '?fileNo=' + fileno + '&isNext=1'
+    console.log(taskurl);
+    var taskwindow = new Ext.Window({
+        closable: true,
+        layout: 'fit',
+        modal: true ,
+        items:[
+            {
+                xtype: 'iframepanel',
+                defaultSrc : taskurl,
+                layout:'fit',
+                style:'top:0px;bottom:10px',
+                title : '',
+                loadMask : true,
+                autoScroll: true,
+                listeners:{
+                    message : function(f,data) {
+                        console.log("receive message...");
+                        console.log(data);
+                        if ( data.data == 'quit' ) {
+                            taskwindow.close();
+                        } else if ( data.data == 'saved' ) {
+                            this.load();
+                        }
+                    }.createDelegate(this)
+                }
+            }
+        ]
+    });
+//    $.cookie('showHelp', 'Y', {expires: 0, path: '/'});
+    taskwindow.show();
+    taskwindow.maximize();
+}
 ModuleMgr.register(Ext.task.TaskQuery);

@@ -6,7 +6,7 @@
 -->
 <hibernate-mapping>
     <sql-query name="InputPersonProc" callable="true">
-    	<return alias="SummaryStatistics01" class="cn.net.tongfang.framework.security.vo.SummaryStatistics01"/>
+    	<return alias="R" class="cn.net.tongfang.framework.security.vo.SummaryStatistics01"/>
     	    <!-- 
     		<return-property name="id" column="ID"></return-property>
     		<return-property name="rowId" column="RowID"></return-property>

@@ -1,10 +1,12 @@
 package cn.net.tongfang.framework.util;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
@@ -20,6 +22,11 @@ import com.google.gson.GsonBuilder;
 
 
 public class BusiUtils {
+	private static Pattern p1 = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+	private static Pattern p2 = Pattern.compile("\\d{8}"); 
+	private static Pattern p3 = Pattern.compile("\\d{14}"); 
+	private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
 	/**
 	 * 截去字符串结尾的特征串
 	 * @param s
@@ -48,6 +55,21 @@ public class BusiUtils {
 		
 		return new Timestamp( cal.getTimeInMillis() );
 	}
+	
+	public static Timestamp parseDate(String datestr) throws Exception{
+		if(p1.matcher(datestr).matches()){
+			return new Timestamp(sdf1.parse(datestr).getTime());
+		}
+		if(p2.matcher(datestr).matches()){
+			return new Timestamp(sdf2.parse(datestr).getTime());
+		}
+		if(p3.matcher(datestr).matches()){
+			long time = Long.parseLong(datestr);
+			return  new Timestamp(time);
+		}
+		return null;
+	}
+	
 	
 	
 	public static void insertLog(HibernateDaoSupport hbt ,final String fileno,final String type,final String tablename ,final String userid,final Object oldobj, final Object newobj ){

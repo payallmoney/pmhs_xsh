@@ -2,6 +2,7 @@ package cn.net.tongfang.web.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,8 +15,11 @@ import java.util.regex.Pattern;
 
 import net.sf.json.JSONObject;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.beans.BeanUtils;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +42,12 @@ import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SystemInformationUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
+import cn.net.tongfang.framework.util.service.vo.PagingParam;
+import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.BarCodeBo;
 import cn.net.tongfang.web.service.bo.BirthCertificateBO;
 import cn.net.tongfang.web.service.bo.CertificateBO;
+import cn.net.tongfang.web.service.bo.QueryCertificateBO;
 import cn.net.tongfang.web.util.FileNoGen;
 
 /**
@@ -250,10 +257,10 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 	 * @param orgId
 	 * @return
 	 */
-	public List<BirthCertificate> getDestroyedCertiId(int orgId,String resTxt) {
+	public PagingResult<BirthCertificate> getDestroyedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And isEffectived = 3 "
 				+ "And B.orgId = ?";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
 	}
 
 	/**
@@ -396,34 +403,67 @@ public class BirthCertificateMsgService extends HibernateDaoSupport {
 		return birthCertificateId + ",";
 	}
 
-	public List<BirthCertificate> getUsedCertificate(int orgId, String resTxt) {
+	public PagingResult<BirthCertificate> getUsedCertificate(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
 				+ "B.orgId = ? And A.isEffectived = 2";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
 	}
 	
-	public List<BirthCertificate> getPigeonholedCertiId(int orgId, String resTxt) {
+	public PagingResult<BirthCertificate> getPigeonholedCertiId(QueryCertificateBO qryCerti,PagingParam pp) {
 		String hql = "From BirthCertificate A,BirthCertificateOrg B Where A.certifiId = B.certificateId And "
 				+ "B.orgId = ? And A.isEffectived = 4";
-		return getBirthCertificates(orgId, resTxt, hql);
+		return getBirthCertificates(hql,qryCerti,pp);
 	}
 
-	private List<BirthCertificate> getBirthCertificates(int orgId,
-			String resTxt, String hql) {
+	private PagingResult<BirthCertificate> getBirthCertificates(String hql,QueryCertificateBO qryCerti,PagingParam pp) {
 		List params = new ArrayList();
-		params.add(orgId);
-		if (StringUtils.hasText(resTxt)) {
+		params.add(qryCerti.getOrgId());
+		if (StringUtils.hasText(qryCerti.getResTxt())) {
 			hql =  hql + " And A.certifiId Like ?";
-			params.add(resTxt + "%");
+			params.add(qryCerti.getResTxt() + "%");
 		}
-		List list = getHibernateTemplate().find(hql,params.toArray());
-		List<BirthCertificate> listCert = new ArrayList<BirthCertificate>();
-		for(Object obj : list){
-			Object[] objs = (Object[])obj;
-			listCert.add((BirthCertificate)objs[0]);
+		String countSql = "Select Count(*) " + hql;
+		int totalSize = ((Long)(getHibernateTemplate().find(countSql,params.toArray()).get(0))).intValue();
+		final String fhql = hql.toString();
+		final PagingParam fpp = pp;
+		final List fparams = params;
+		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
+			@Override
+			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+				Query query = arg0.createQuery(fhql);
+				for (int i = 0; i < fparams.size(); i++) {
+					query.setParameter(i, fparams.get(i));
+				}
+				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+				return query.list();
+			}
+		});
+		List<BirthCertificate> birthCertificates = new ArrayList<BirthCertificate>();
+		for (Object object : list) {
+			Object[] objs = (Object[]) object;
+			BirthCertificate birthcertifi = (BirthCertificate) objs[0];
+			getHibernateTemplate().evict(birthcertifi);
+			birthCertificates.add(birthcertifi);
 		}
-		return listCert;
+		return new PagingResult<BirthCertificate>(totalSize, birthCertificates);
 	}
+	
+//	private List<BirthCertificate> getBirthCertificates(int orgId,
+//			String resTxt, String hql) {
+//		List params = new ArrayList();
+//		params.add(orgId);
+//		if (StringUtils.hasText(resTxt)) {
+//			hql =  hql + " And A.certifiId Like ?";
+//			params.add(resTxt + "%");
+//		}
+//		List list = getHibernateTemplate().find(hql,params.toArray());
+//		List<BirthCertificate> listCert = new ArrayList<BirthCertificate>();
+//		for(Object obj : list){
+//			Object[] objs = (Object[])obj;
+//			listCert.add((BirthCertificate)objs[0]);
+//		}
+//		return listCert;
+//	}
 	
 	/**
 	 * @param d

@@ -1,48 +1,26 @@
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.time.DateUtils;
-import org.hibernate.cfg.ImprovedNamingStrategy;
-
-import cn.net.tongfang.framework.util.EncryptionUtils;
 
 public class Test {
 
 	public static void main(String[] args) {
-		// System.out.println("==================="+(int)'a');
-		// char charcode = 'C';
-		// int flag = 0x01;
-		// System.out.println("==================="+s_enc(charcode,flag));
-		// System.out.println("==================="+s_enc2(charcode,flag));
-		// System.out.println("==================="+s_enc1('1',0x71));
-		// System.out.println("==================="+Integer.toHexString(s_enc1('1',0x71)
-		// ));
-		// System.out.println("==================="+s_denc1(flag,s_enc1(charcode,flag)));
-		// /6D8080 50A3E5 85F81B
-		// System.out.println("==================="+Integer.toHexString(s_enc('1',0x61)));
-		// testB_2();
-		// test2();
-		
-		// test3();
-		// String ttt = "''aa''bb''cc".replaceAll("mmm", "");
-		// System.out.println(ttt);
-		// DateFormat df = new SimpleDateFormat("yyyyMMdd");
-		// try{
-		// Timestamp tm = new Timestamp(df.parse("20120302").getTime());
-		// System.out.println(tm);
-		// }catch(Exception ex){
-		// ex.printStackTrace();
-		// }
-		System.out.println("12345678".substring(0,6));
-//		ImprovedNamingStrategy ts = new ImprovedNamingStrategy();
-//		System.out.println(camelcasify("test_aaest"));
+//		Gson gs = new Gson();
+//		HealthFile a = new HealthFile();
+//		PersonalInfo info = new PersonalInfo();
+//		HealthFileMaternalBO data = new HealthFileMaternalBO();
+//		String infostr = "{\"id\":\"40288168467701fe0146771ef46d000c    \",\"fileNo\":\"530102001001000136\",\"fileNoSub\":\"1000136\",\"sex\":\"女\",\"birthday\":\"Nov 4, 2011 12:00:00 AM\",\"idnumber\":\"429004198311041730\",\"workUnit\":\"无\",\"tel\":\"\",\"linkman\":\"\",\"linkmanTel\":\"\",\"folk\":\"汉族\",\"folkOther\":\"\",\"bloodTypeRh\":\"不详\",\"occupation\":\"农、林、牧、渔、水利业生产人员\",\"paymentModeOther\":\"\",\"allergiesOther\":\"\",\"fhistoryOther\":\"\",\"mhistoryOther\":\"\",\"bhistoryOther\":\"\",\"fmHistoryOther\":\"\",\"geneticHistory\":\"无\",\"geneticHistoryOther\":\"\",\"disabilityStatusOther\":\"\",\"inputDate\":\"Jun 8, 2014 12:17:35 AM\",\"farmStatus\":\"是\",\"kitchen\":\"无\",\"bunkers\":\"柴火\",\"drinkingWater\":\"自来水\",\"toilet\":\"简易棚厕\",\"poultry\":\"单设\",\"townStatus\":\"否\",\"bornStatus\":\"否\"}";
+//		String filestr = "{\"fileNo\":\"530102001001000136\",\"name\":\"22222\",\"address\":\"11\",\"residenceAddress\":\"1\",\"tel\":\"333\",\"township\":\"华山街道办事处\",\"village\":\"洪化桥社区居委会\",\"buildUnit\":\"昆明市卫生局\",\"buildPerson\":\"李雯霞\",\"doctor\":\"张敏\",\"buildDate\":\"Jun 9, 2014 12:00:00 AM\",\"districtNumber\":\"530102001001        \",\"namePng\":\"nmpng\",\"inputPersonId\":\"222\",\"inputDate\":\"Jun 8, 2014 12:17:35 AM\",\"lastModifyDate\":\"Jun 9, 2014 10:07:18 AM\",\"modifyPerson\":\"1111\",\"barCode\":\"aaa\",\"isOverCount\":1,\"isModifyOrNew\":1,\"paperFileNo\":\"1\",\"status\":0,\"nation\":\"中国\"}";
+//		String datastr = "{\"fileNo\":\"530102001001000136\",\"name\":\"22222\",\"birthday\":\"Nov 4, 2011 12:00:00 AM\",\"tel\":\"333\",\"firstAidTel\":\"\",\"addressProvence\":\"云南省\",\"addressCity\":\"昆明市\",\"addressCounty\":\"\",\"addressTownship\":\"华山街道办事处\",\"addressVillage\":\"洪化桥社区居委会\",\"addressGroup\":\"\",\"residenceProvence\":\"云南省\",\"residenceCity\":\"昆明市\",\"residenceCounty\":\"\",\"residenceTownship\":\"华山街道办事处\",\"residenceVillage\":\"洪化桥社区居委会\",\"residenceGroup\":\"\",\"highRiskCode\":\"\",\"buildUnit\":\"昆明市卫生局\",\"buildDate\":\"Jun 9, 2014 12:00:00 AM\",\"nationality\":\"中国\",\"nationalityOther\":\"\",\"idnumber\":\"429004198311041730\",\"workUnit\":\"无\",\"folk\":\"汉族\",\"folkOther\":\"\",\"occupation\":\"农、林、牧、渔、水利业生产人员\",\"recuperateProvence\":\"\",\"recuperateCity\":\"\",\"recuperateCounty\":\"\",\"recuperateTownship\":\"\",\"recuperateVillage\":\"\",\"recuperateGroup\":\"\",\"husbandName\":\"\",\"husbandTel\":\"\",\"husbandOccupation\":\"\",\"husbandOccupationOther\":\"\",\"husbandWorkUnit\":\"\",\"gravidity\":1,\"isClosed\":\"0\",\"barCode\":\"\"}";
+//		info = gs.fromJson(infostr, PersonalInfo.class);
+//		a = gs.fromJson(filestr, HealthFile.class);
+//		a.setPersonalInfo(info);
+//		data = gs.fromJson(datastr, HealthFileMaternalBO.class);
+//		System.out.println("============"+gs.toJson(a));
+//		System.out.println("=======data====="+gs.toJson(data));
+//		BeanUtils.copyProperties(data, a); 
+//		System.out.println("============"+gs.toJson(a));
+		String a = "abc#123dddd";
+		System.out.println("============"+a.replaceAll("#", ""));
 	}
 
 	public static String camelcasify(String in) {
