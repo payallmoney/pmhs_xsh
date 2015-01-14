@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>jsonServiceTest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript"
+	src="/js/angularjs/jquery/jquery-1.9.1.min.js"></script>
+<script src="/js/angularjs/angular.min.js"></script>
+<script>
+	angular.module('test', []);
+	function TestJson($scope, $window,$http) {
+		$scope.tests = {
+			'QueryHealthFile' : {
+				'key' : 11,
+				'name' : '付' 
+			}
+		};
+
+		$scope.query = function(type,key) {
+			console.log(type);
+			var url = '/jsonserver.do?type='+type+'&key='+key;
+			console.log($("#param").val());
+			$.ajax({
+				method : 'POST',
+				url : url,
+				data : $("#param").val(),
+				headers: {'Content-Type': 'text/json'}
+			}).success(function(data, status, headers, config) {
+				console.log("success",data, status, headers, config);
+				$("#result").val( JSON.stringify(data));
+			}).error(function(data, status, headers, config) {
+				console.log("error",data, status, headers, config);
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+			});
+		}
+	}
+</script>
+</head>
+<body ng-app="test" ng-controller="TestJson">
+	<input type='button' value='测试QueryHealthFile'
+		ng-click="query('QueryHealthFile','mtl001')"> <br>
+	<code>
+	<font color='red'>提交url:  /jsonserver.do?type=queryoldman&key=mtl001</font><br>
+	<font color='red'>参数说明:</font><br>
+				 "name" : "付志鹏"  //按姓名查询  <br>
+				"IDNumber":"123456789012345678", //按身份证号查询 <br>
+				"mobile":"111111111", // 按电话号码查询 <br>
+				"linktel":"23456"  //按联系电话查询 <br>
+	</code>
+	<textarea id='param' rows=10 style='width:90%' >
+		{
+				"pager":{"pagenum":1,"pagesize":100}
+			}
+			 
+	</textarea><br>
+	<code>
+		
+	
+	<textarea id='result' rows=10 style='width:90%' >
+
+	</textarea><br>
+	<font color='red'>结果说明:(如数据过多时,最多需要使用pager参数进行分页 如 "pager":{"pagenum":1,"pagesize":100}  ))</font><br>
+				城乡居民健康档案编号:fileno <br>
+本人姓名:name <br>
+性别代码:sex <br>
+出生日期:birthday <br>
+身份证件类别代码:idtype <br>
+身份证件号码:IDNumber <br>
+工作单位名称:workunit <br>
+本人电话号码:tel <br>
+联系人姓名:linkman <br>
+联系人电话号码:LinkmanTEL <br>
+常住地址户籍标志:ResideType <br>
+民族:Folk <br>
+ABO血型:BloodTypeABO <br>
+Rh血型:BloodTypeRH <br>
+学历:Education <br>
+职业类别:Occupation <br>
+婚姻状况:MaritalStatus <br>
+医疗费用支付方式:paymentmode <br>
+药物过敏史:AllergiesHistory <br>
+环境危险因素暴露情况:exposeHistory <br>
+既往史疾病:diseaseHistory 多条记录以,分割 , 名称和时间|分割<br>
+手术史:opshistory 多条记录以,分割 , 名称和时间|分割<br>
+外伤史:traumaHistory 多条记录以,分割 , 名称和时间|分割<br>
+输血史:bloodTrans 多条记录以,分割 , 原因和时间|分割<br>
+遗传性疾病史:GeneticHistory <br>
+残疾情况:disabilityStatus 多条记录以,分割<br>
+家庭厨房排风设施:kitchen <br>
+家庭燃料类型:bunkers <br>
+家庭饮水类别:drinkingWater <br>
+家庭厕所类别:toilet <br>
+家庭禽畜栏类别:poultry <br>
+母亲家族史:matherHistory 多条记录以,分割<br>
+兄弟姐妹家族史:brotherHistory 多条记录以,分割<br>
+父亲家族史:fatherHistory 多条记录以,分割<br>
+子女家族史:familyHistory 多条记录以,分割<br>
+
+	</code>
+
+</body>
+</html>

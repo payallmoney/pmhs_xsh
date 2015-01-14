@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>jsonServiceTest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript"
+	src="/js/angularjs/jquery/jquery-1.9.1.min.js"></script>
+<script src="/js/angularjs/angular.min.js"></script>
+<script>
+angular.module('test', []);
+function TestJson($scope, $window,$http) {
+	$scope.tests = {
+		'基本信息接口' : {
+			'url': 'http://124.133.239.162:9898/api/baseinfo/get_baseinfo',
+			params:{
+				merId:'100028',
+				dataMode:0,
+				data:'json',
+				key:'633486657542732603668097856885596636443770700288207616701042420450707536531979348937332823',
+				openId:'ph003300'
+			}
+		},
+	};
+
+	$scope.query = function(key,param) {
+		$http({
+			method : 'POST',
+			url : param.url,
+			data : param.params,
+			headers: {'Content-Type': 'text/json'}
+		}).success(function(data, status, headers, config) {
+			console.log("success",data, status, headers, config);
+			$scope.html = data;
+		}).error(function(data, status, headers, config) {
+			console.log("error",data, status, headers, config);
+		});
+	}
+}
+</script>
+</head>
+<body ng-app="test" ng-controller="TestJson">
+	<input ng-repeat=' (k,v) in tests ' type='button' value='测试{{k}}'
+		ng-click="query(k,v)">
+	<div>{{html|json}}</div>
+
+</body>
+</html>

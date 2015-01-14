@@ -56,6 +56,16 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="ConfigUtils"/>
 	</bean>
 	-->
+	
+	<bean id="TaskUtil"
+		class="cn.net.tongfang.web.service.task.TaskUtil" scope="singleton"> 
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="host" ><value>127.0.0.1</value></property>
+		<property name="name" ><value>test</value></property>
+		<property name="pwd" ><value>test</value></property>
+		<property name="apiId" ><value>test</value></property>
+		<property name="dbName" ><value>mas</value></property>
+	</bean>
 	<!--定时短信相关任务-->
 	<bean id="SmsUtil"
 		class="cn.net.tongfang.framework.util.SmsUtil" scope="singleton"> 
@@ -89,11 +99,22 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	    <property name="cronExpression" value="0 50 12 * * ?" />
 	</bean>
 	
+	
+	<bean id="taskDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	  <property name="targetObject" ref="TaskService" />
+	  <property name="targetMethod" value="sendMsgJob" />
+	</bean>
+	
+	<bean id="taskJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    	<property name="jobDetail" ref="taskDetail" />
+	    <!-- run every morning at 10 AM -->
+	    <property name="cronExpression" value="0 0 0 * * ?" />
+	</bean>
+	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	    <property name="triggers">
 	        <list>
-	            <ref bean="sendSmsJob" />
-	            <ref bean="makeSmsjob" />
+	            <ref bean="taskJob" />
 	        </list>
 	    </property>
 	</bean>

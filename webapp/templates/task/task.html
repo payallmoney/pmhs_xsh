@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="height:100%;width:100%;">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css"
+	href="/js/easyui/themes/hc/easyui.css">
+<link rel="stylesheet" type="text/css" href="/js/easyui/themes/icon.css">
+<script type="text/javascript" src="/js/easyui/jquery-1.8.0.min.js"></script>
+<script src='/js/angularjs/jquery/jquery.dateFormat-1.0.js'></script>
+<script type='text/javascript' src='/dwr/engine.js'></script>
+<script type='text/javascript' src='/dwr/util.js'></script>
+<script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
+<script type='text/javascript' src='/dwr/interface/DataExportService.js'></script>
+<script type='text/javascript' src='/dwr/interface/HealthFileService.js'></script>
+
+
+<script type='text/javascript'
+	src='/dwr/interface/UserMenuTreeService.js'></script>
+<script src="/js/util/util.js"></script>
+<script src="/js/easyui/jquery.easyui.min.js"></script>
+<script src="/js/easyui/locale/easyui-lang-zh_CN.js"></script>
+<style>
+.tree-file {
+	background: url(../../resources/images/default/tree/leaf.gif) no-repeat;
+}
+
+.tree-node-selected {
+	background: #d9e8fb;
+	color: #000000;
+}
+
+.datagrid-row-selected {
+	background: #eaf2ff !important;
+	color: #000000;
+	font-weight: bold;
+}
+
+.datagrid-row-over,.datagrid-header td.datagrid-header-over {
+	background: #eaf2ff !important;
+	color: #000000;
+	cursor: default;
+}
+</style>
+<body>
+	<div class="easyui-panel easyui-layout" data-options='fit:true'>
+		<div data-options="region:'west'" title='机构' style='width: 200px'>
+			<ul id="orgtree"></ul>
+		</div>
+		<div id="query-tools" data-options="region:'north'"
+			style='height: 40px; padding-top: 5px; padding-left: 5px; border: true; background-color: #E0ECFF;'>
+			<select id='select_type' class="easyui-combobox" name="state"
+				style="width: 400px;" data-options="onSelect:typechange">
+			</select> <a id="btn_remove" href="#" class="easyui-linkbutton"
+				data-options="iconCls:'icon-remove'"
+				onclick="javascript:showExport()">查询</a>
+		</div>
+		<div id="params_panel" class="easyui-dialog" title='参数'
+			style="width: 280px;"
+			data-options="iconCls:'icon-save',resizable:false,modal:false,closed:true,onClose:dialogClose">
+		</div>
+		<div id="window_panel" class="easyui-dialog" title='窗口'
+			data-options="modal:true,closed:true"></div>
+		<div class="easyui-layout" data-options="region:'center'">
+			<!-- <div style='height:26px;padding:5px 0 0 5px;background-color: #E0ECFF;' data-options="region:'north',border:false"><font bold id='orgname'>请选择机构</font></div> -->
+			<div data-options="region:'center',border:false">
+				<table id='querygrid'></table>
+			</div>
+		</div>
+	</div>
+	<script>
+		var task_param = null;
+		DataExportService.get_task_Param({
+			callback : function(data) {
+				console.log(data);
+				task_code = data.task_code;
+				for (var i = 0; i < task_code.length; i++) {
+					$("#select_type").append(
+							" <option value=\""+task_code[i][0]+"\">"
+									+ task_code[i][1] + "</option>")
+				}
+			},
+			async : false
+		});
+		initeasytree("#orgtree");
+		function typechange() {
+			var columns = [];
+			DataExportService.sqlListHead($("#select_type").combobox('getValue'), {
+				async : false,
+				callback : function(data) {
+					columns = initColumn(data);
+				}
+			});
+			$("#querygrid").datagrid({
+				columns : [ columns ]
+			});
+		}
+		
+		function showExport() {
+			var id = getParameterByName("id");
+			$("#params_panel").html('');
+			var values = oldparam;
+			var html = "<table>";
+			if (g_subs[id]) {
+				for ( var key in g_subs[id]) {
+					html += ("<tr><td>" + g_subs[id][key].name + "：</td>");
+					console.log(g_subs[id][key]);
+					if (g_subs[id][key].type == 'select') {
+						var data = eval("(" + g_subs[id][key].colstr + ")");
+						html += ("<td><select id='"+g_subs[id][key].code+"'>");
+						for ( var opt in data) {
+							if (values && values[key] && values[key] == opt) {
+								html += "<option value=\""+opt+"\" selected>"
+										+ opt + "</option>";
+							} else {
+								html += "<option value=\""+opt+"\">" + opt
+										+ "</option>";
+							}
+						}
+						html += ("</select></td></tr>");
+					} else {
+						if (values && values[key]) {
+							html += ("<td><input id='"+g_subs[id][key].code+"' value='"+values[key]+"'></td></tr>");
+						} else {
+							html += ("<td><input id='"+g_subs[id][key].code+"'></td></tr>");
+						}
+					}
+				}
+			}
+			html += ("<tr><td colspan=2 ><a class='query_button'  href='#' onclick='javascript:queryGrid(this)'>查询</a></td></tr>");
+			html += ("</table>");
+			$("#params_panel").append(html);
+			$('.query_button').linkbutton({
+				iconCls : 'icon-search'
+			});
+			$('.export_button').linkbutton({
+				iconCls : 'icon-redo'
+			});
+			$('#params_panel').dialog();
+			$('#params_panel').dialog('open');
+			$('#params_panel').dialog('center');
+		}
+		function dialogClose() {
+			saveparams();
+			$("#iframe").attr("src", "about:blank");
+		}
+	</script>
+</body>
+</html>
