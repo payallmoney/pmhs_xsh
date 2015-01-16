@@ -29,7 +29,7 @@ Ext.task.TaskQuery = new Ext.Panel({
         store: new Ext.data.Store({
             autoLoad: true,
             proxy: new Ext.ux.data.DWRProxy({
-                dwrFunction: TaskService.getTaskRuleOption,
+                dwrFunction: TaskService.getTaskRuleOption
             }),
             reader: new Ext.data.ArrayReader({
                 id: 0
@@ -39,7 +39,7 @@ Ext.task.TaskQuery = new Ext.Panel({
             ])),
             listeners: {
                 load: function (combo) {
-                    　　Ext.getCmp("TaskQuery.query.combo.type").setValue(Ext.getCmp("TaskQuery.query.combo.type").store.getAt(0).data.id);
+                    Ext.getCmp("TaskQuery.query.combo.type").setValue(Ext.getCmp("TaskQuery.query.combo.type").store.getAt(0).data.id);
                 }
             }
         }),
@@ -90,27 +90,6 @@ Ext.task.TaskQuery = new Ext.Panel({
             Ext.getCmp("TaskQuery.msgsender.grid").getStore().reload();
         }
     }],
-    listeners: {
-        render: function () {
-            TaskService.querySendStatus(function (data) {
-                if (data) {
-                    if (data === "-1") {
-                        Ext.getCmp("task.button.start").enable();
-                        Ext.getCmp("task.button.stop").disable();
-                    } else if (data === "0") {
-                        Ext.getCmp("task.button.start").enable();
-                        Ext.getCmp("task.button.stop").disable();
-                    } else if (data === "1") {
-                        Ext.getCmp("task.button.start").enable();
-                        Ext.getCmp("task.button.stop").disable();
-                    } else if (data === "2") {
-                        Ext.getCmp("task.button.start").disable();
-                        Ext.getCmp("task.button.stop").enable();
-                    }
-                }
-            });
-        }
-    },
     items: [
         {
             region: 'west',
@@ -285,7 +264,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                         {
                             "header": "状态",
                             "dataIndex": "status",
-                            width: 50,
+                            width: 140,
                             "renderer": function (v, cell, data, rowindex, colindex) {
                                 console.log(data);
                                 if (v == 2) {
@@ -322,7 +301,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                             "header": "生日",
                             "dataIndex": "birthday",
                             width: 90,
-                            "renderer": Ext.util.Format.dateRenderer('Y-m-d'),
+                            "renderer": Ext.util.Format.dateRenderer('Y-m-d')
                         },
                         {
                             "sortable": true,
@@ -376,23 +355,23 @@ function opentask(taskurl, fileno) {
     var taskwindow = new Ext.Window({
         closable: true,
         layout: 'fit',
-        modal: true ,
-        items:[
+        modal: true,
+        items: [
             {
                 xtype: 'iframepanel',
-                defaultSrc : taskurl,
-                layout:'fit',
-                style:'top:0px;bottom:10px',
-                title : '',
-                loadMask : true,
+                defaultSrc: taskurl,
+                layout: 'fit',
+                style: 'top:0px;bottom:10px',
+                title: '',
+                loadMask: true,
                 autoScroll: true,
-                listeners:{
-                    message : function(f,data) {
+                listeners: {
+                    message: function (f, data) {
                         console.log("receive message...");
                         console.log(data);
-                        if ( data.data == 'quit' ) {
+                        if (data.data == 'quit') {
                             taskwindow.close();
-                        } else if ( data.data == 'saved' ) {
+                        } else if (data.data == 'saved') {
                             this.load();
                         }
                     }.createDelegate(this)

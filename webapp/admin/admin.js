@@ -1144,7 +1144,7 @@ Ext.onReady(function() {
   TaskService.hasTaskAuth(function(data){
 	 if(data.hasauth){
 		 $("#_task_info").css("margin",3);
-		 Ext.get('_task_info').dom.innerHTML = "<a href='javascript:opentask()'>未完成任务：<span class='badge'>" + '55'+"</span>";
+		 Ext.get('_task_info').dom.innerHTML = "<a href='javascript:opentaskwindow()'>未完成任务：<span class='badge'>" + '55'+"</span>";
 	 } else{
 		 $("#_task_info").css({"margin":5,"color":'red'});
 		 Ext.get('_task_info').dom.innerHTML = "<span title='开通联系电话:15752013080!'>未开通任务功能!开通联系电话:15752013080</span>";
@@ -1152,12 +1152,12 @@ Ext.onReady(function() {
   });
 });
 
-function opentask(){
+function opentaskwindow(){
 	window.taskwindow = new Ext.Window({
 		closable:true,
 		layout :'fit',
-		modal:true,  
-        html:"<iframe id='openwin' src='task.jsp' scrolling='auto' style='width:100%;height:100%;margin:0;padding:0;border:0;'></iframe>"
+		modal:true,
+        html:"<iframe id='openwin' src='task.html' scrolling='auto' style='width:100%;height:100%;margin:0;padding:0;border:0;'></iframe>"
 	});
 	window.taskwindow.show();
 	window.taskwindow.maximize();
