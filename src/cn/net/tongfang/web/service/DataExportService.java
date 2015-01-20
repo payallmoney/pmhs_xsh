@@ -1551,11 +1551,13 @@ public class DataExportService extends HibernateDaoSupport {
 	public String sqlExport(String disid,String id ,String name ,Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		String fileName = DateToStr(new Date()) + "_" + user.getUsername()
-				+ "_" + id + ".xls";
+//		String fileName = DateToStr(new Date()) + "_" + user.getUsername()
+//				+ "_" + id + ".xls";
 		//
+		File f =  File.createTempFile(name, ".xls", new File(getWebRootAbsolutePath()+"data/"));
+		String fileName = f.getName();
 		HSSFWorkbook wb = new HSSFWorkbook();
-		FileOutputStream fileOut = new FileOutputStream(getWebRootAbsolutePath() + "data/" + fileName);
+		FileOutputStream fileOut = new FileOutputStream(f);
 		
 		Sheet sheet1 = wb.createSheet(name);
 		// No DataSource so we must handle Connections manually
@@ -1602,18 +1604,16 @@ public class DataExportService extends HibernateDaoSupport {
 		PreparedStatement stmt =  conn.prepareStatement(sql);
 		stmt.setString(1, disid+"%");
 		int paramidx = 2;
-		SimpleDateFormat inputfomart1 = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat inputfomart2 = new SimpleDateFormat("yyyyMMdd");
 		for(Iterator iter = params.keySet().iterator();iter.hasNext();){
 			Object key = iter.next();
 			Object value = params.get(key);
 			ExportSub vo = submap.get((String)key);
 			if(vo.getType().equals("date")) {
-				stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+				stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 			}else if( vo.getType().equals("string")){
 				stmt.setString(paramidx++, (String)value);
 			}else{
-				stmt.setFloat(paramidx++, Float.parseFloat((String)value));
+				stmt.setObject(paramidx++, value);
 			}
 		}
 		ResultSet rs = stmt.executeQuery();
@@ -1629,10 +1629,8 @@ public class DataExportService extends HibernateDaoSupport {
 			cell.setCellValue(rsMetaData.getColumnLabel(i));
 		}
 		SimpleDateFormat fomart = new SimpleDateFormat("yyyy-MM-dd");
-		int count = 0 ;
-		while (rs.next()) {
-			count ++;
-			Row row = sheet1.createRow((short)rowidx++);
+		while (rs.next() && rowidx<65535) {
+			Row row = sheet1.createRow((int)rowidx++);
 			cellidx = 0;
 			for (int i = 1; i <= numberOfColumns; i++) {
 				Class cls = Class.forName(rsMetaData.getColumnClassName(i));
@@ -1665,6 +1663,8 @@ public class DataExportService extends HibernateDaoSupport {
 					}else{
 						cell.setCellValue(fomart.format(obj));
 					}
+				}else{
+					cell.setCellValue(String.valueOf(rs.getObject(i)));
 				}
 			}
 		}
@@ -1683,11 +1683,11 @@ public class DataExportService extends HibernateDaoSupport {
 	public String sqlExportOrg(String id ,String name ,Map params) throws Exception {
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
 				.currentOperator();
-		String fileName = DateToStr(new Date()) + "_" + user.getUsername()
-				+ "_" + id + ".xls";
+		File f =  File.createTempFile(name, ".xls", new File(getWebRootAbsolutePath()+"data/"));
+		String fileName = f.getName();
 		//
 		HSSFWorkbook wb = new HSSFWorkbook();
-		FileOutputStream fileOut = new FileOutputStream(getWebRootAbsolutePath() + "data/" + fileName);
+		FileOutputStream fileOut = new FileOutputStream(f);
 		
 		Sheet sheet1 = wb.createSheet(name);
 		// No DataSource so we must handle Connections manually
@@ -1720,7 +1720,7 @@ public class DataExportService extends HibernateDaoSupport {
 			Object value = params.get(key);
 			ExportSub vo = submap.get(Integer.parseInt((String)key));
 			if(vo.getType().equals("date")) {
-				stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+				stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 			}else if( vo.getType().equals("string")){
 				stmt.setString(paramidx++, (String)value);
 			}else{
@@ -1824,7 +1824,7 @@ public class DataExportService extends HibernateDaoSupport {
 				Object value = params.get(key);
 				ExportSub vo = submap.get(Integer.parseInt((String)key));
 				if(vo.getType().equals("date")) {
-					stmt.setDate(paramidx++, new java.sql.Date(inputfomart2.parse((String)value).getTime()));
+					stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 				}else if(vo.getType().equals("time")) {
 					stmt.setDate(paramidx++, new java.sql.Date(inputfomarttime.parse((String)value +" 00:00:00").getTime()));
 				}else if( vo.getType().equals("string")){
@@ -1942,13 +1942,15 @@ public class DataExportService extends HibernateDaoSupport {
 						}
 					}
 				}
-				countsql = sql.replaceAll("\"", "'");
+				
 				countsql = " select count(*) "
 						+ sql.substring(sql.toLowerCase().indexOf("from"));
+				
 				pagesql = sql.replaceAll("\"", "'");
 				sql = sql + " " + main.getGroupby() + " " + main.getOrderby();
-				sql = sql.replaceAll("\"", "'");
 			}
+			countsql = countsql.replaceAll("\"", "'");
+			sql = sql.replaceAll("\"", "'");
 			int paramidx = 1;
 			Map ret = new HashMap();
 			if (!main.getPageable()) {
@@ -1965,7 +1967,6 @@ public class DataExportService extends HibernateDaoSupport {
 				if(DataExportService.isproc(main.getSql())){
 					for(int i = 0 ;i < sublist.size() ;i++){
 						ExportSub sub = (ExportSub)sublist.get(i);
-						System.out.println("============"+paramidx +"=="+params.get(sub.getCode()));
 						if(params.containsKey(sub.getCode())){
 							stmt.setObject(paramidx++, params.get(sub.getCode()));
 						}else{
@@ -1979,8 +1980,7 @@ public class DataExportService extends HibernateDaoSupport {
 							Object value = params.get(key);
 							ExportSub vo = submap.get(key);
 							if (vo.getType().equals("date")) {
-								stmt.setDate(paramidx++, new java.sql.Date(fomart
-										.parse((String) value).getTime()));
+								stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 							} else if (vo.getType().equals("time")) {
 								stmt.setDate(
 										paramidx++,
@@ -1992,8 +1992,7 @@ public class DataExportService extends HibernateDaoSupport {
 							} else if (vo.getType().equals("exists")) {
 								// 没有参数
 							} else {
-								stmt.setFloat(paramidx++,
-										Float.parseFloat((String) value));
+								stmt.setObject(paramidx++, value);
 							}
 						}
 					}
@@ -2006,7 +2005,6 @@ public class DataExportService extends HibernateDaoSupport {
 				// 移动到最后一行,得到总数
 				rs.last();
 				int rowcount = rs.getRow();
-				System.out.println("======rowcount======"+rowcount);
 				boolean flag = rs.first();
 				// 移动到取数位置
 				while (flag) {
@@ -2038,10 +2036,10 @@ public class DataExportService extends HibernateDaoSupport {
 					retlist.add(row);
 					flag = rs.next();
 				}
-				System.out.println("============"+new Gson().toJson(retlist));
 				ret.put("rows", retlist);
 				stmt.close();
 			} else {
+				System.out.println("====countsql========"+countsql);
 				SQLQuery countquery = getSession().createSQLQuery(countsql);
 				if ("like".equals(main.getOrgparamtype())) {
 					countquery.setString(0, orgs + "%");
@@ -2058,8 +2056,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							countquery.setDate(paramidx++, new java.sql.Date(
-									fomart.parse((String) value).getTime()));
+							countquery.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							countquery.setDate(
 									paramidx++,
@@ -2117,8 +2114,7 @@ public class DataExportService extends HibernateDaoSupport {
 						Object value = params.get(key);
 						ExportSub vo = submap.get(key);
 						if (vo.getType().equals("date")) {
-							stmt.setDate(paramidx++, new java.sql.Date(fomart
-									.parse((String) value).getTime()));
+							stmt.setTimestamp(paramidx++, BusiUtils.parseDate((String) value));
 						} else if (vo.getType().equals("time")) {
 							stmt.setDate(
 									paramidx++,
