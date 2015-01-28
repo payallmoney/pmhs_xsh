@@ -1,11 +1,7 @@
 package cn.net.tongfang.web.service.task;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
+import cn.net.tongfang.framework.security.vo.TaskRule;
+import cn.net.tongfang.framework.security.vo.TaskStatus;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,9 +12,11 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.net.tongfang.framework.security.vo.CodTelSendRule;
-import cn.net.tongfang.framework.security.vo.TaskRule;
-import cn.net.tongfang.framework.security.vo.TaskStatus;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class TaskUtil extends HibernateDaoSupport implements ApplicationListener {
 	public static int IS_CREATED_FALSE = 0;
@@ -138,6 +136,7 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 			String msg = rule.getMsg();
 			msg = msg.replaceAll("\r\n", "");
 			msg = msg.replaceAll("\n", "");
+
 			final String sql = 
 					" insert into Task_Log "
 							+ "select  dateadd(day,"+ (rule.getDays() )+",a."
@@ -148,7 +147,7 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 							+ "',"
 							+ IS_SENDED_FALSE
 							+ " , null,null,'"+rule.getTablename()+"',"+tableidnamestr
-							+ ",null,'0',newid() from "
+							+ ",null,'0',newid(), '"+rule.getId()+"', '"+rule.getParent() +"' from "
 							+ rule.getTablename()
 							+ " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'"
 							+ " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a."+rule.getTableidname()+" and examname ='"
@@ -159,6 +158,7 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 							+ ", convert(varchar,year( GETDATE()))+'-01-01') and dateadd(day,"
 							+ rule.getDays()
 							+ ", convert(varchar,year( GETDATE())+1)+'-01-01') ";
+            System.out.println(sql);
 			getHibernateTemplate().execute(new HibernateCallback(){
 				@Override
 				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {

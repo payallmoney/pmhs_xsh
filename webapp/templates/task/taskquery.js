@@ -17,13 +17,74 @@ Ext.grid.GridPanel.prototype.initComponent =
 // Ext.QuickTips.init();
 
 var currentnode = null;
+var taskoptions = null;
+var taskcats = null;
+var alloptions = [];
+var taskoptmap = {};
+function makeoptmap() {
+    if (taskoptions && taskcats) {
+        for (var i = 0; i < taskoptions.length; i++) {
+            var obj = taskoptions[i].data;
+            if (obj.parent) {
+                if (!taskoptmap[obj.parent]) {
+                    taskoptmap[obj.parent] = [];
+                }
+                taskoptmap[obj.parent].push([obj.id, obj.name, obj.parent, obj.ord]);
+                alloptions.push([obj.id, obj.name, obj.parent, obj.ord]);
+            }
+        }
+    }
+}
 Ext.task.TaskQuery = new Ext.Panel({
 // layout : 'anchor',
     layout: 'border',
     defaults: {
         style: "float:left"
     },
-    tbar: [ '任务类型：', {
+    tbar: ['分类：', {
+        xtype: 'combo',
+        id: 'TaskQuery.query.combo.cat',
+        store: new Ext.data.Store({
+            autoLoad: true,
+            proxy: new Ext.ux.data.DWRProxy({
+                dwrFunction: TaskService.getTaskCatOption
+            }),
+            reader: new Ext.data.ArrayReader({
+                id: 0
+            }, Ext.data.Record.create([
+                {name: 'id', mapping: 0},
+                {name: 'name', mapping: 1},
+                {name: 'ord', mapping: 2}
+            ])),
+            listeners: {
+                load: function (combo) {
+                    taskcats = Ext.getCmp("TaskQuery.query.combo.cat").store.data.items;
+                    makeoptmap();
+                    Ext.getCmp("TaskQuery.query.combo.cat").setValue(Ext.getCmp("TaskQuery.query.combo.cat").store.getAt(0).data.id);
+                }
+            }
+        }),
+        displayField: 'name',
+        valueField: 'id',
+        mode: 'local',
+        editable: false,
+        width: 120,
+        allowBlank: false,
+        triggerAction: 'all',
+        listeners: {
+            select: function (combo, record, index) {
+                if (index == 0) {
+                    Ext.getCmp("TaskQuery.query.combo.type").store.loadData([
+                        ['', '全部']
+                    ].concat(alloptions));
+                } else {
+                    Ext.getCmp("TaskQuery.query.combo.type").store.loadData([
+                        ['', '全部']
+                    ].concat(taskoptmap[record.id]));
+                }
+            }
+        }
+    } , '任务类型：', {
         xtype: 'combo',
         id: 'TaskQuery.query.combo.type',
         store: new Ext.data.Store({
@@ -35,10 +96,14 @@ Ext.task.TaskQuery = new Ext.Panel({
                 id: 0
             }, Ext.data.Record.create([
                 {name: 'id', mapping: 0},
-                {name: 'name', mapping: 1}
+                {name: 'name', mapping: 1},
+                {name: 'parent', mapping: 2},
+                {name: 'ord', mapping: 3}
             ])),
             listeners: {
                 load: function (combo) {
+                    taskoptions = Ext.getCmp("TaskQuery.query.combo.type").store.data.items;
+                    makeoptmap();
                     Ext.getCmp("TaskQuery.query.combo.type").setValue(Ext.getCmp("TaskQuery.query.combo.type").store.getAt(0).data.id);
                 }
             }
@@ -131,6 +196,9 @@ Ext.task.TaskQuery = new Ext.Panel({
                                 currentnode = n;
                                 Ext.getCmp("TaskQuery.msgsender.grid").store.reload();
                             }
+                        },
+                        'load': function () {
+                            Ext.getCmp("TaskQuery.msgsender.grid").store.reload();
                         }
                     }
 
@@ -149,7 +217,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                     xtype: 'grid',
                     id: 'TaskQuery.msgsender.grid',
                     store: new Ext.data.Store({
-                        // autoLoad : true,
+//                        autoLoad : true,
                         proxy: new Ext.ux.data.DWRProxy({
                             dwrFunction: TaskService.queryLogs,
                             listeners: {
@@ -158,7 +226,6 @@ Ext.task.TaskQuery = new Ext.Panel({
                                         district: "",
                                         conditions: []
                                     };
-                                    console.log(Ext.getCmp("TaskQuery.query.district").getSelectionModel().getSelectedNode());
                                     var root = currentnode;
                                     if (!root) {
                                         root = Ext.getCmp("TaskQuery.query.district").getRootNode().firstChild;
@@ -174,7 +241,10 @@ Ext.task.TaskQuery = new Ext.Panel({
                                         cond.conditions[cond.conditions.length] = {filterKey: "vo.smsdate", filterVal: Ext.getCmp("TaskQuery.msgsender.query.enddatefield").getValue(), opt: "<="};
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.type").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.examname", filterVal: Ext.getCmp("TaskQuery.query.combo.type").getValue(), opt: "<="};
+                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.examid", filterVal: Ext.getCmp("TaskQuery.query.combo.type").getValue(), opt: "="};
+                                    }
+                                    if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.cat").getValue())) {
+                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.parentid", filterVal: Ext.getCmp("TaskQuery.query.combo.cat").getValue(), opt: "="};
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.isSended").getValue())) {
                                         cond.conditions[cond.conditions.length] = {filterKey: "vo.status", filterVal: Ext.getCmp("TaskQuery.query.combo.isSended").getValue(), opt: "="};
@@ -266,11 +336,11 @@ Ext.task.TaskQuery = new Ext.Panel({
                             "dataIndex": "status",
                             width: 140,
                             "renderer": function (v, cell, data, rowindex, colindex) {
-                                console.log(data);
                                 if (v == 2) {
                                     return '已完成';
                                 } else if (v == 1) {
-                                    return '<button onclick="opentask(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\')">处理任务</button>';
+                                    return '<button onclick="opentask(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\',\'' + data.data.examname+ ' 姓名：' +data.data.name + '\')">处理任务</button>'+
+                                    '<button onclick="opentaskdefault(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\',\'' + data.data.examname + '\')">默认值</button>';
                                 } else if (v == 0) {
                                     return '正在创建';
                                 } else {
@@ -341,34 +411,66 @@ Ext.task.TaskQuery = new Ext.Panel({
                     sm: new Ext.grid.CheckboxSelectionModel(),
                     listeners: {
                         rowdblclick: function (grid, rowIndex, e) {
-                            console.log(grid.store.getAt(rowIndex));
+//                            console.log(grid.store.getAt(rowIndex));
                         }
                     }
                 }
             ]}
     ]
 });
-function opentask(taskurl, fileno) {
+function opentask(taskurl, fileno,title) {
 
-    taskurl = taskurl + '?fileNo=' + fileno + '&isNext=1'
-    console.log(taskurl);
+    taskurl = taskurl + '?fileNo=' + fileno + '&isNext=1&loadtaskdefault=true'
     var taskwindow = new Ext.Window({
         closable: true,
         layout: 'fit',
         modal: true,
+        title: '任务处理————'+title,
         items: [
             {
                 xtype: 'iframepanel',
                 defaultSrc: taskurl,
                 layout: 'fit',
                 style: 'top:0px;bottom:10px',
-                title: '',
+
                 loadMask: true,
                 autoScroll: true,
                 listeners: {
                     message: function (f, data) {
-                        console.log("receive message...");
-                        console.log(data);
+                        if (data.data == 'quit') {
+                            taskwindow.close();
+                        } else if (data.data == 'saved') {
+                            this.load();
+                        }
+                    }.createDelegate(this)
+                }
+            }
+        ]
+    });
+//    $.cookie('showHelp', 'Y', {expires: 0, path: '/'});
+    taskwindow.show();
+    taskwindow.maximize();
+}
+
+function opentaskdefault(taskurl, fileno,title) {
+
+    taskurl = taskurl + '?loadtaskdefault=true&savetaskdefault=true'
+    var taskwindow = new Ext.Window({
+        closable: true,
+        layout: 'fit',
+        modal: true,
+        title: '默认值管理————'+title,
+        items: [
+            {
+                xtype: 'iframepanel',
+                defaultSrc: taskurl,
+                layout: 'fit',
+                style: 'top:0px;bottom:10px',
+
+                loadMask: true,
+                autoScroll: true,
+                listeners: {
+                    message: function (f, data) {
                         if (data.data == 'quit') {
                             taskwindow.close();
                         } else if (data.data == 'saved') {

@@ -12,11 +12,10 @@
 	<property name="connection.username">sa</property>
 	<property name="connection.password">11111111</property>
 	<property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
-	<property name="default_catalog">pmhs_km</property>
 	<property name="myeclipse.connection.profile">
 		com.microsoft.sqlserver.jdbc.SQLServerDriver
 	</property>
-
 </session-factory>
+
 
 </hibernate-configuration>

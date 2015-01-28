@@ -1557,7 +1557,9 @@ function hideHUD($t, includeError){
            }
 
 
-            function setVal(newval, matchCol, setInput) { 
+            function setVal(newval, matchCol, setInput) {
+                $('.list-input:not(:last-child)',ele).remove();
+                input = $(":input", ele);
                 val = [];
                 $.each(newval, function(_,v){
                     addVal(v, matchCol, setInput);
@@ -1619,13 +1621,13 @@ function hideHUD($t, includeError){
             //setInput, if we should set input's val when value is set , *NOT* used
             function addVal(newval, matchCol, setInput) { 
                 if (!matchCol) matchCol = setting.value; //default match col
-
+                console.log(data,newval, matchCol, setInput);
                 var res = $.map(data, function(v,i){
                     if (trim(v[matchCol]) == trim(newval)){
                         return i;
                     } else return null;
                 });
-
+                console.log(res);
                // onbeforedeactivate
 
                 var tobeRet;

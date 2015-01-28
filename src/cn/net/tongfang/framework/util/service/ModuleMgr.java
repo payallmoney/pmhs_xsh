@@ -3585,53 +3585,61 @@ public class ModuleMgr extends HibernateDaoSupport {
 	
 	public PagingResult<Map<String, Object>> findHighRiskRecords(
 			QryCondition qryCond, PagingParam pp) throws Exception{
-		String where = genQryCondition(qryCond);
-		String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
-		String districtId = qryCond.getDistrict();
-		while(districtId.endsWith("00")){
-			districtId = districtId.substring(0,districtId.length()-2);
-		}
-		int totalSize = ((Long)getHibernateTemplate().find(" Select Count(*)" + hql,districtId).get(0)).intValue();
-		
-		final String fhql = hql + " order by c.lastExamDate ASC";
-		final PagingParam fpp = pp;
-		final String fdistrict = districtId;
-		List list = getHibernateTemplate().executeFind(new HibernateCallback(){
-			@Override
-			public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
-				Query query = arg0.createQuery(fhql);
-				query.setParameter(0, fdistrict);
-				query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
-				return query.list();
-			}
-		});
-		List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
-		String tmpFileNo = "";
-		for (Object object : list) {
-			Object[] objs = (Object[]) object;
-			HealthFile file = (HealthFile) objs[0];
-			PersonalInfo person = (PersonalInfo) objs[1];
-			if(!tmpFileNo.equals(file.getFileNo())){
-				file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
-				file.setName(EncryptionUtils.decipher(file.getName()));
-				person.setIdnumber(EncryptionUtils.decipher(person.getFileNo()));
-				tmpFileNo = file.getFileNo();
-			}
-			person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
-			WomanLastMedicalExamRecord record = (WomanLastMedicalExamRecord) objs[2];
-			getHibernateTemplate().evict(file);
-			getHibernateTemplate().evict(person);
-			getHibernateTemplate().evict(record);
-			Map map = new HashMap();
-			map.put("file", file);
-			map.put("personalInfo", person);
-			map.put("record", record);
-			files.add(map);
-		}
+        try {
+            String where = genQryCondition(qryCond);
+            String hql = " From HealthFile a,PersonalInfo b,WomanLastMedicalExamRecord c " + where;
+            String districtId = qryCond.getDistrict();
+            System.out.println("where==" + where + "hql==" + hql);
+            while (districtId.endsWith("00")) {
+                districtId = districtId.substring(0, districtId.length() - 2);
+            }
+            System.out.println(" Select Count(*)" + hql);
+            int totalSize = ((Long) getHibernateTemplate().find(" Select Count(*)" + hql).get(0)).intValue();
 
-		PagingResult<Map<String, Object>> result = new PagingResult<Map<String, Object>>(
-				totalSize, files);
-		return result;
+            final String fhql = hql + " order by c.lastExamDate ASC";
+            final PagingParam fpp = pp;
+            final String fdistrict = districtId;
+            System.out.println("fhql==" + fhql + "fdistrict==" + fdistrict);
+            List list = getHibernateTemplate().executeFind(new HibernateCallback() {
+                @Override
+                public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+                    Query query = arg0.createQuery(fhql);
+//                    query.setParameter(0, fdistrict);
+                    query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+                    return query.list();
+                }
+            });
+            List<Map<String, Object>> files = new ArrayList<Map<String, Object>>();
+            String tmpFileNo = "";
+            for (Object object : list) {
+                Object[] objs = (Object[]) object;
+                HealthFile file = (HealthFile) objs[0];
+                PersonalInfo person = (PersonalInfo) objs[1];
+                if (!tmpFileNo.equals(file.getFileNo())) {
+                    file.setFileNo(EncryptionUtils.decipher(file.getFileNo()));
+                    file.setName(EncryptionUtils.decipher(file.getName()));
+                    person.setIdnumber(EncryptionUtils.decipher(person.getFileNo()));
+                    tmpFileNo = file.getFileNo();
+                }
+                person.setIdnumber(EncryptionUtils.decipher(person.getIdnumber()));
+                WomanLastMedicalExamRecord record = (WomanLastMedicalExamRecord) objs[2];
+                getHibernateTemplate().evict(file);
+                getHibernateTemplate().evict(person);
+                getHibernateTemplate().evict(record);
+                Map map = new HashMap();
+                map.put("file", file);
+                map.put("personalInfo", person);
+                map.put("record", record);
+                files.add(map);
+            }
+
+            PagingResult<Map<String, Object>> result = new PagingResult<Map<String, Object>>(
+                    totalSize, files);
+            return result;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            throw ex;
+        }
 	}
 
 	public PagingResult<Map<String, Object>> findChildHighRiskRecords(
