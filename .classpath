@@ -105,5 +105,7 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/slf4j-jdk14-1.6.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-test.jar"/>
 	<classpathentry kind="lib" path="D:/lib/j2ee/j2ee.jar"/>
+	<classpathentry kind="con" path="melibrary.com.genuitec.eclipse.hibernate.MYECLIPSE_HIBERNATE3_3_EM"/>
+	<classpathentry kind="con" path="melibrary.com.genuitec.eclipse.hibernate.MYECLIPSE_HIBERNATE3_3_CORE"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

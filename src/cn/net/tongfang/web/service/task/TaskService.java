@@ -1,7 +1,9 @@
 package cn.net.tongfang.web.service.task;
 
+import cn.net.tongfang.framework.dwr.convert.IntegerConverter;
 import cn.net.tongfang.framework.security.bo.Condition;
 import cn.net.tongfang.framework.security.bo.QryCondition;
+import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.*;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SmsUtil;
@@ -15,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.security.userdetails.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -884,7 +887,7 @@ public class TaskService extends HibernateDaoSupport {
                     .createSQLQuery(
                             "update Task_Log set personname = hf.name from Task_Log vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ")
                     .executeUpdate();
-            StringBuilder where = new StringBuilder(" where vo.fileno = info.fileNo and vo.querytype='0' and vo.examname = rule.name ");
+            StringBuilder where = new StringBuilder(" where vo.fileno = info.fileNo and vo.querytype='0' and vo.examid = rule.id ");
             List params = new ArrayList();
             if (StringUtils.hasText(qryCond.getDistrict())) {
                 where.append(" and vo.fileno like ? ");
@@ -1258,4 +1261,130 @@ public class TaskService extends HibernateDaoSupport {
 
         return ret;
     }
+    //TODO 查询未完成任务
+    private long queryUncompleteTaskData(String type,int status) throws Exception{
+        Map ret = new HashMap();
+        TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+        String sqlext = "";
+        List<Object> params = new ArrayList();
+        params.add(user.getOrgId());
+        Timestamp today = new Timestamp(new Date().getTime());
+        if("curmonth".equals(type)){
+            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+            Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.MONTH).getTime());
+            Timestamp end = new Timestamp(DateUtils.addMonths(DateUtils.truncate(today,Calendar.MONTH),1).getTime());
+            params.add(begin);
+            params.add(end);
+        }else  if("curday".equals(type)){
+            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+            Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.DATE).getTime());
+            Timestamp end = new Timestamp(DateUtils.addDays(DateUtils.truncate(today, Calendar.DATE), 1).getTime());
+            params.add(begin);
+            params.add(end);
+        }else  if("curweek".equals(type)){
+            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+            Timestamp begin = new Timestamp(DateUtils.addWeeks(DateUtils.truncate(today, Calendar.DAY_OF_WEEK), -1).getTime());
+            Timestamp end = new Timestamp(DateUtils.truncate(today, Calendar.DAY_OF_WEEK).getTime());
+            params.add(begin);
+            params.add(end);
+        }else  if("lastweek".equals(type)){
+            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+            int dayofweek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            System.out.println(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
+            Timestamp begin = new Timestamp(DateUtils.addDays(DateUtils.truncate(today, Calendar.DATE),-dayofweek-7).getTime());
+            Timestamp end = new Timestamp(DateUtils.addWeeks(begin,1).getTime());
+            params.add(begin);
+            params.add(end);
+        }
+        if (status>-1){
+            sqlext+=" and a.status = ? ";
+            params.add(status);
+        }
+        System.out.println(params.toArray());
+        return (Long)  getHibernateTemplate().find("select count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
+                "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname and  emp.orgId = ?   " + sqlext, params.toArray() ).get(0);
+    }
+    //TODO 查询未完成任务
+    public Map queryUncompleteTask(String type,int status) throws Exception{
+        Map ret = new HashMap();
+        long taskcount = queryUncompleteTaskData(type,status);
+        ret.put("taskcount",taskcount);
+        ret.put("success", true);
+        return ret;
+    }
+
+    //TODO 查询图表数据
+    public Map queryChatData() throws Exception{
+        Map ret = new HashMap();
+        TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+        ret.put("monthcompelete", queryUncompleteTaskData("curmonth",2));
+        ret.put("monthuncompelete", queryUncompleteTaskData("curmonth",1));
+        ret.put("daycompelete", queryUncompleteTaskData("curday",2));
+        ret.put("dayuncompelete", queryUncompleteTaskData("curday",1));
+        ret.put("lastweekcompelete", queryUncompleteTaskData("lastweek",2));
+        ret.put("lastweekuncompelete", queryUncompleteTaskData("lastweek",1));
+
+        Timestamp today = new Timestamp(new Date().getTime());
+        Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.MONTH).getTime());
+        Timestamp end = new Timestamp(DateUtils.addMonths(DateUtils.truncate(today, Calendar.MONTH),1).getTime());
+        List<Object[]> uncompletedata = getHibernateTemplate().find("select day(a.smsdate), count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
+                "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname " +
+                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ? and a.status = 1 group by day(a.smsdate) " , new Object[]{user.getOrgId(),begin,end} );
+        List<Object[]> completedata = getHibernateTemplate().find("select day(a.smsdate), count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
+                "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname " +
+                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ? and a.status = 2 group by day(a.smsdate) ", new Object[]{user.getOrgId(), begin, end});
+        int dayofmonth =Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        List uncomplete = new ArrayList();
+        List complete = new ArrayList();
+        List days = new ArrayList();
+        boolean flag = false;
+        System.out.println(dayofmonth);
+        for(int i = 0 ; i < dayofmonth ; i++){
+            days.add((i+1)+"日");
+            flag = false;
+            for(int j = 0 ; j <uncompletedata.size();j++){
+                if((Integer)(uncompletedata.get(j)[0]) == i+1){
+                    uncomplete .add(uncompletedata.get(j)[1]);
+                    flag = true;
+                    break;
+                }
+            }
+            if(!flag){
+                uncomplete .add(0);
+            }
+            flag = false;
+            for(int j = 0 ; j <completedata.size();j++){
+                if((Integer)(uncompletedata.get(j)[0]) == i+1){
+                    complete .add(completedata.get(j)[1]);
+                    flag = true;
+                    break;
+                }
+            }
+            if(!flag){
+                complete .add(0);
+            }
+        }
+        System.out.println(begin);
+        System.out.println(end);
+        List catdata = getHibernateTemplate().find("select cat.name, sum(case when a.status = 1 then 1 else 0 end )," +
+                "sum(case when a.status = 2 then 1 else 0 end )  from  TaskLog a ,TaskCat  cat, HealthFile b,SamTaxempcode  emp " +
+                "where a.fileno = b.fileNo and b.inputPersonId   = emp.loginname and a.parentid = cat.id  " +
+                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ?   group by cat.name " , new Object[]{user.getOrgId(),begin,end} );
+        ret.put ("catdata",catdata);
+        ret.put ("uncomplete",uncomplete);
+        ret.put ("complete",complete);
+        ret.put ("days",days);
+        ret.put("success", true);
+        return ret;
+    }
+
+    //TODO 更新任务标志
+    public Map updateTaskCompelte(String taskid) throws Exception{
+        Map ret = new HashMap();
+        System.out.println("=========taskid============"+taskid);
+        getHibernateTemplate().bulkUpdate(" update TaskLog set sendtime=getdate() ,status=2  where id = ? ",taskid);
+        ret.put("success", true);
+        return ret;
+    }
+
 }

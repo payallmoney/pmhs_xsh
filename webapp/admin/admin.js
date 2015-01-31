@@ -1141,10 +1141,13 @@ Ext.onReady(function() {
 // interval: 60*1000//任务间隔，毫秒为单位
 // }
 // Ext.TaskMgr.start(taskCheckSession);//初始化时就启动任务
+
   TaskService.hasTaskAuth(function(data){
 	 if(data.hasauth){
 		 $("#_task_info").css("margin",3);
-		 Ext.get('_task_info').dom.innerHTML = "<a href='javascript:opentaskwindow()'>未完成任务：<span class='badge'>" + '55'+"</span>";
+		 TaskService.queryUncompleteTask('curmonth',1,function(data){
+			 Ext.get('_task_info').dom.innerHTML = "<a href='javascript:opentaskwindow()'>未完成任务：<span class='badge'>" + data.taskcount+"</span>";
+		 })
 	 } else{
 		 $("#_task_info").css({"margin":5,"color":'red'});
 		 Ext.get('_task_info').dom.innerHTML = "<span title='开通联系电话:15752013080!'>未开通任务功能!开通联系电话:15752013080</span>";

@@ -1,56 +1,59 @@
 package cn.net.tongfang.framework.security.vo;
 
 /**
- * Created by oyx on 2015-01-25.
+ * TaskCat entity. @author MyEclipse Persistence Tools
  */
-public class TaskCat {
-    private String id;
-    private String name;
-    private Integer ord;
 
-    public String getId() {
-        return id;
-    }
+public class TaskCat implements java.io.Serializable {
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	// Fields
 
-    public String getName() {
-        return name;
-    }
+	private String id;
+	private String name;
+	private Integer ord;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	// Constructors
 
-    public Integer getOrd() {
-        return ord;
-    }
+	/** default constructor */
+	public TaskCat() {
+	}
 
-    public void setOrd(Integer ord) {
-        this.ord = ord;
-    }
+	/** minimal constructor */
+	public TaskCat(String id) {
+		this.id = id;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	/** full constructor */
+	public TaskCat(String id, String name, Integer ord) {
+		this.id = id;
+		this.name = name;
+		this.ord = ord;
+	}
 
-        TaskCat taskCat = (TaskCat) o;
+	// Property accessors
 
-        if (id != null ? !id.equals(taskCat.id) : taskCat.id != null) return false;
-        if (name != null ? !name.equals(taskCat.name) : taskCat.name != null) return false;
-        if (ord != null ? !ord.equals(taskCat.ord) : taskCat.ord != null) return false;
+	public String getId() {
+		return this.id;
+	}
 
-        return true;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (ord != null ? ord.hashCode() : 0);
-        return result;
-    }
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getOrd() {
+		return this.ord;
+	}
+
+	public void setOrd(Integer ord) {
+		this.ord = ord;
+	}
+
 }

@@ -4,7 +4,7 @@ Ext.grid.GridPanel.prototype.initComponent =
     Ext.grid.GridPanel.prototype.initComponent.createInterceptor(function () {
         if (this.store && this.bbar && this.bbar.xtype == 'paging'
             && !(this.bbar instanceof Ext.PagingToolbar) && !this.bbar.store
-            ) {
+        ) {
             if (this.store.xtype && !(this.store instanceof Ext.data.Store)) {
                 this.store = Ext.ComponentMgr.create(this.store);
             }
@@ -84,7 +84,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                 }
             }
         }
-    } , '任务类型：', {
+    }, '任务类型：', {
         xtype: 'combo',
         id: 'TaskQuery.query.combo.type',
         store: new Ext.data.Store({
@@ -120,12 +120,12 @@ Ext.task.TaskQuery = new Ext.Panel({
         xtype: 'combo',
         id: 'TaskQuery.query.combo.isSended',
         store: new Ext.data.SimpleStore({
-            fields: [ 'type', 'display' ],
+            fields: ['type', 'display'],
             data: [
-                [ '', '全部' ],
-                [ '1', '未完成' ],
-                [ '2', '已完成' ],
-                [ '0', '正在创建' ]
+                ['', '全部'],
+                ['1', '未完成'],
+                ['2', '已完成'],
+                ['0', '正在创建']
             ]
         }),
         displayField: 'display',
@@ -235,24 +235,44 @@ Ext.task.TaskQuery = new Ext.Panel({
                                         cond.district = cond.district.substr(0, cond.district.length - 2);
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.msgsender.query.startdatefield").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.smsdate", filterVal: Ext.getCmp("TaskQuery.msgsender.query.startdatefield").getValue(), opt: ">="};
+                                        cond.conditions[cond.conditions.length] = {
+                                            filterKey: "vo.smsdate",
+                                            filterVal: Ext.getCmp("TaskQuery.msgsender.query.startdatefield").getValue(),
+                                            opt: ">="
+                                        };
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.msgsender.query.enddatefield").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.smsdate", filterVal: Ext.getCmp("TaskQuery.msgsender.query.enddatefield").getValue(), opt: "<="};
+                                        cond.conditions[cond.conditions.length] = {
+                                            filterKey: "vo.smsdate",
+                                            filterVal: Ext.getCmp("TaskQuery.msgsender.query.enddatefield").getValue(),
+                                            opt: "<="
+                                        };
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.type").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.examid", filterVal: Ext.getCmp("TaskQuery.query.combo.type").getValue(), opt: "="};
+                                        cond.conditions[cond.conditions.length] = {
+                                            filterKey: "vo.examid",
+                                            filterVal: Ext.getCmp("TaskQuery.query.combo.type").getValue(),
+                                            opt: "="
+                                        };
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.cat").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.parentid", filterVal: Ext.getCmp("TaskQuery.query.combo.cat").getValue(), opt: "="};
+                                        cond.conditions[cond.conditions.length] = {
+                                            filterKey: "vo.parentid",
+                                            filterVal: Ext.getCmp("TaskQuery.query.combo.cat").getValue(),
+                                            opt: "="
+                                        };
                                     }
                                     if (!Ext.isEmpty(Ext.getCmp("TaskQuery.query.combo.isSended").getValue())) {
-                                        cond.conditions[cond.conditions.length] = {filterKey: "vo.status", filterVal: Ext.getCmp("TaskQuery.query.combo.isSended").getValue(), opt: "="};
+                                        cond.conditions[cond.conditions.length] = {
+                                            filterKey: "vo.status",
+                                            filterVal: Ext.getCmp("TaskQuery.query.combo.isSended").getValue(),
+                                            opt: "="
+                                        };
                                     }
                                     var o = cond;
                                     if (!params.limit)
                                         params.limit = 20;
-                                    params[dataProxy.loadArgsKey] = [ o, params ];
+                                    params[dataProxy.loadArgsKey] = [o, params];
                                 }.createDelegate(this)
                             }
                         }),
@@ -312,6 +332,10 @@ Ext.task.TaskQuery = new Ext.Panel({
                             {
                                 name: 'inputpage',
                                 mapping: 'inputpage'
+                            },
+                            {
+                                name: 'id',
+                                mapping: 'id'
                             }
                         ]))
                     }),
@@ -339,8 +363,7 @@ Ext.task.TaskQuery = new Ext.Panel({
                                 if (v == 2) {
                                     return '已完成';
                                 } else if (v == 1) {
-                                    return '<button onclick="opentask(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\',\'' + data.data.examname+ ' 姓名：' +data.data.name + '\')">处理任务</button>'+
-                                    '<button onclick="opentaskdefault(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\',\'' + data.data.examname + '\')">默认值</button>';
+                                    return '<button onclick="opentask(\'' + data.data.inputpage + '\',\'' + data.data.fileno + '\',\'' + data.data.examname + ' 姓名：' + data.data.name + '\',\'' + data.data.id + '\')">处理任务</button>';
                                 } else if (v == 0) {
                                     return '正在创建';
                                 } else {
@@ -415,24 +438,24 @@ Ext.task.TaskQuery = new Ext.Panel({
                         }
                     }
                 }
-            ]}
+            ]
+        }
     ]
 });
-function opentask(taskurl, fileno,title) {
+function opentask(taskurl, fileno, title, taskid) {
 
-    taskurl = taskurl + '?fileNo=' + fileno + '&isNext=1&loadtaskdefault=true'
+    taskurl = taskurl + '?fileNo=' + fileno + '&isNext=1&loadtaskdefault=true&taskid='+taskid;
     var taskwindow = new Ext.Window({
         closable: true,
         layout: 'fit',
         modal: true,
-        title: '任务处理————'+title,
+        title: '任务处理————' + title,
         items: [
             {
                 xtype: 'iframepanel',
                 defaultSrc: taskurl,
                 layout: 'fit',
                 style: 'top:0px;bottom:10px',
-
                 loadMask: true,
                 autoScroll: true,
                 listeners: {
@@ -452,21 +475,19 @@ function opentask(taskurl, fileno,title) {
     taskwindow.maximize();
 }
 
-function opentaskdefault(taskurl, fileno,title) {
-
+function opentaskdefault(taskurl, title) {
     taskurl = taskurl + '?loadtaskdefault=true&savetaskdefault=true'
     var taskwindow = new Ext.Window({
         closable: true,
         layout: 'fit',
         modal: true,
-        title: '默认值管理————'+title,
+        title: '默认值管理————' + title,
         items: [
             {
                 xtype: 'iframepanel',
                 defaultSrc: taskurl,
                 layout: 'fit',
                 style: 'top:0px;bottom:10px',
-
                 loadMask: true,
                 autoScroll: true,
                 listeners: {
