@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1082448214">
+  <component name="DataSourceManagerImpl" format="xml" hash="1727030951">
     <data-source source="LOCAL" name="SQL Server - @localhost" uuid="5f4eb94d-b6eb-4626-9b56-a871c8b8459c">
       <driver-ref>sqlserver.ms</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://localhost:1433</jdbc-url>
-      <user-name>sa</user-name>
-      <user-password>df9bdf9bdf9bdf9bdf9bdf9bdf9bdf9b</user-password>
-      <schema-pattern>pmhs_km.dbo</schema-pattern>
-      <default-schemas>master.*</default-schemas>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="hibernate.cfg.xml" uuid="d1ff91ef-bb0f-4c12-b12f-6018bbc62c68">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://localhost:1433;databaseName=pmhs_km</jdbc-url>
       <libraries />
     </data-source>
   </component>
 </project>
-

@@ -852,6 +852,7 @@ public class TaskService extends HibernateDaoSupport {
 
     // 短信发送任务启动
     public String smsStartSend() throws Exception {
+    	System.out.println("============启动任务生成");
         if (!taskUtil.isStarted()) {
             taskUtil.setStarted(true);
 

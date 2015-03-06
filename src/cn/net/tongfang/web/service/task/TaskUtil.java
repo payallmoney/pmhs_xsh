@@ -2,6 +2,7 @@ package cn.net.tongfang.web.service.task;
 
 import cn.net.tongfang.framework.security.vo.TaskRule;
 import cn.net.tongfang.framework.security.vo.TaskStatus;
+
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -30,11 +31,9 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 	private String pwd;
 	private String apiId;
 	private String dbName;
-	
+
 	private boolean started = false;
 	private String processString = "";
-	
-	
 
 	public String getHost() {
 		return host;
@@ -75,7 +74,6 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
 	}
-	
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {
@@ -86,7 +84,7 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 	public void createMsgJob() {
 		// TODO 启动时生成当天的任务信息 即Sms_Status 表的数据
 		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
-		List isCreated = getHibernateTemplate().find("from TaskStatus where smsdate = ?",today);
+		List isCreated = getHibernateTemplate().find("from TaskStatus where smsdate = ?", today);
 		TaskStatus taskstatus = null;
 		if (isCreated == null || isCreated.isEmpty()) {
 			taskstatus = new TaskStatus();
@@ -105,15 +103,14 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 		getHibernateTemplate().flush();
 		makeSendMsg();
 	}
-	
-	
-	public boolean isSended(){
+
+	public boolean isSended() {
 		Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
-		List isCreated = getHibernateTemplate().find("from TaskStatus where smsdate = ?",today);
+		List isCreated = getHibernateTemplate().find("from TaskStatus where smsdate = ?", today);
 		TaskStatus taskstatus = null;
 		if (!isCreated.isEmpty()) {
 			taskstatus = (TaskStatus) isCreated.get(0);
-			if(taskstatus.getIssended() == IS_SENDED_TRUE){
+			if (taskstatus.getIssended() == IS_SENDED_TRUE) {
 				return true;
 			}
 		}
@@ -128,46 +125,45 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 		today = DateUtils.truncate(today, Calendar.DAY_OF_MONTH);
 		for (TaskRule rule : rules) {
 			String tableidnamestr = "";
-			if("number".equals(rule.getIdtype())){
-				tableidnamestr = " convert(varchar,a."+rule.getTableidname()+")";
-			}else{
-				tableidnamestr = "a."+rule.getTableidname();
+			if ("number".equals(rule.getIdtype())) {
+				tableidnamestr = " convert(varchar,a." + rule.getTableidname() + ")";
+			} else {
+				tableidnamestr = "a." + rule.getTableidname();
 			}
 			String msg = rule.getMsg();
 			msg = msg.replaceAll("\r\n", "");
 			msg = msg.replaceAll("\n", "");
 
-			final String sql = 
-					" insert into Task_Log "
-							+ "select  dateadd(day,"+ (rule.getDays() )+",a."
-							+ rule.getCol()+") ,'"
-							+ rule.getName()
-							+ "', a.fileno,b.tel,'"
-							+ msg
-							+ "',"
-							+ IS_SENDED_FALSE
-							+ " , null,null,'"+rule.getTablename()+"',"+tableidnamestr
-							+ ",null,'0',newid(), '"+rule.getId()+"', '"+rule.getParent() +"' from "
-							+ rule.getTablename()
-							+ " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'"
-							+ " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a."+rule.getTableidname()+" and examname ='"
-							+ rule.getName()
-							+ "'  ) and a."
-							+ rule.getCol() + " BETWEEN  dateadd(day,"
-							+ rule.getDays()
-							+ ", convert(varchar,year( GETDATE()))+'-01-01') and dateadd(day,"
-							+ rule.getDays()
-							+ ", convert(varchar,year( GETDATE())+1)+'-01-01') ";
-            System.out.println(sql);
-			getHibernateTemplate().execute(new HibernateCallback(){
+			final String sql;
+			String datecolstr = " dateadd(day," + (rule.getDays()) + ",a." + rule.getCol() + ")";
+			if(rule.getTaskdatecol()!= null && rule.getTaskdatecol().trim().length()>0){
+				datecolstr = rule.getTaskdatecol();
+			}
+			if ("0".equals(rule.getType())) {
+				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,b.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and a." + rule.getCol() + " BETWEEN  dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE()))+'-01-01') and dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE())+1)+'-01-01') ";
+
+			} else {
+
+				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,b.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and " + rule.getRulestr();
+
+			}
+
+			System.out.println("====================================================================");
+			System.out.println("====================================================================");
+			System.out.println("====================================================================");
+			System.out.println(sql);
+			System.out.println("====================================================================");
+			System.out.println("====================================================================");
+			System.out.println("====================================================================");
+			getHibernateTemplate().execute(new HibernateCallback() {
 				@Override
 				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
 					return arg0.createSQLQuery(sql).executeUpdate();
 				}
 			});
-			
+
 		}
-		if(rules.size()>0)
+		if (rules.size() > 0)
 			getHibernateTemplate().flush();
 	}
 
