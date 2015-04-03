@@ -1,67 +1,60 @@
 package cn.net.tongfang.framework.security.vo;
 
 /**
- * Created by oyx on 2015-01-28.
+ * TaskDefaultValue entity. @author MyEclipse Persistence Tools
  */
-public class TaskDefaultValue {
-    private String empcode;
-    private String name;
-    private String urlname;
-    private String content;
 
-    public String getEmpcode() {
-        return empcode;
-    }
+public class TaskDefaultValue implements java.io.Serializable {
 
-    public void setEmpcode(String empcode) {
-        this.empcode = empcode;
-    }
+	// Fields
 
-    public String getName() {
-        return name;
-    }
+	private TaskDefaultValueId id;
+	private String urlname;
+	private String content;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	// Constructors
 
-    public String getUrlname() {
-        return urlname;
-    }
+	/** default constructor */
+	public TaskDefaultValue() {
+	}
 
-    public void setUrlname(String urlname) {
-        this.urlname = urlname;
-    }
+	/** minimal constructor */
+	public TaskDefaultValue(TaskDefaultValueId id) {
+		this.id = id;
+	}
 
-    public String getContent() {
-        return content;
-    }
+	/** full constructor */
+	public TaskDefaultValue(TaskDefaultValueId id, String urlname,
+			String content) {
+		this.id = id;
+		this.urlname = urlname;
+		this.content = content;
+	}
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	// Property accessors
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public TaskDefaultValueId getId() {
+		return this.id;
+	}
 
-        TaskDefaultValue that = (TaskDefaultValue) o;
+	public void setId(TaskDefaultValueId id) {
+		this.id = id;
+	}
 
-        if (content != null ? !content.equals(that.content) : that.content != null) return false;
-        if (empcode != null ? !empcode.equals(that.empcode) : that.empcode != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (urlname != null ? !urlname.equals(that.urlname) : that.urlname != null) return false;
+	public String getUrlname() {
+		return this.urlname;
+	}
 
-        return true;
-    }
+	public void setUrlname(String urlname) {
+		this.urlname = urlname;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = empcode != null ? empcode.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (urlname != null ? urlname.hashCode() : 0);
-        result = 31 * result + (content != null ? content.hashCode() : 0);
-        return result;
-    }
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
 }

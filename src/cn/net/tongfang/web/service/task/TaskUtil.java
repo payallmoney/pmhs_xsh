@@ -135,26 +135,19 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
 			msg = msg.replaceAll("\n", "");
 
 			final String sql;
-			String datecolstr = " dateadd(day," + (rule.getDays()) + ",a." + rule.getCol() + ")";
+			String datecolstr = " dateadd(day," + (rule.getDays()) + ", convert(date,a." + rule.getCol() + "))";
 			if(rule.getTaskdatecol()!= null && rule.getTaskdatecol().trim().length()>0){
 				datecolstr = rule.getTaskdatecol();
 			}
 			if ("0".equals(rule.getType())) {
-				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,b.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and a." + rule.getCol() + " BETWEEN  dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE()))+'-01-01') and dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE())+1)+'-01-01') ";
+				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,c.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , HealthFile c where  a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and a." + rule.getCol() + " BETWEEN  dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE()))+'-01-01') and dateadd(day," + rule.getDays() + ", convert(varchar,year( GETDATE())+1)+'-01-01') ";
 
 			} else {
 
-				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,b.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , Sms_PersonTel b,HealthFile c where a.fileno = b.fileno and a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and " + rule.getRulestr();
+				sql = " insert into Task_Log " + "select  "+ datecolstr +" ,'" + rule.getName() + "', a.fileno,c.tel,'" + msg + "'," + IS_SENDED_FALSE + " , null,null,'" + rule.getTablename() + "'," + tableidnamestr + ",null,'0',newid(), '" + rule.getId() + "', '" + rule.getParent() + "' from " + rule.getTablename() + " a , HealthFile c where  a.fileno = c.fileno and c.status = '0'" + " and NOT EXISTS (select 1 from Task_Log log where log.fileNo = a.fileNo and log.smsdate = DATEADD(D, 0, DATEDIFF(D, 0, GETDATE())) and tableidvalue = a." + rule.getTableidname() + " and examname ='" + rule.getName() + "'  ) and " + rule.getRulestr();
 
 			}
-
-			System.out.println("====================================================================");
-			System.out.println("====================================================================");
-			System.out.println("====================================================================");
 			System.out.println(sql);
-			System.out.println("====================================================================");
-			System.out.println("====================================================================");
-			System.out.println("====================================================================");
 			getHibernateTemplate().execute(new HibernateCallback() {
 				@Override
 				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {

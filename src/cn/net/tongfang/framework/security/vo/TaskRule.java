@@ -3,232 +3,229 @@ package cn.net.tongfang.framework.security.vo;
 import java.sql.Timestamp;
 
 /**
- * Created by oyx on 2015-01-16.
+ * TaskRule entity. @author MyEclipse Persistence Tools
  */
-public class TaskRule {
-    private String id;
-    private String name;
-    private String tablename;
-    private String col;
-    private int days;
-    private Timestamp optdate;
-    private String msg;
-    private String wherestr;
-    private String tableidname;
-    private String type;
-    private String rulestr;
-    private String teltable;
-    private String teljoinstr;
-    private String telcol;
-    private String idtype;
-    private String inputpage;
-    private String parent;
-    private Integer ord;
-    
-    private String taskdatecol;
 
-    
-    
-    public String getTaskdatecol() {
-		return taskdatecol;
+public class TaskRule implements java.io.Serializable {
+
+	// Fields
+
+	private String id;
+	private String name;
+	private String tablename;
+	private String col;
+	private Integer days;
+	private Timestamp optdate;
+	private String msg;
+	private String wherestr;
+	private String tableidname;
+	private String type;
+	private String rulestr;
+	private String teltable;
+	private String teljoinstr;
+	private String telcol;
+	private String idtype;
+	private String inputpage;
+	private String parent;
+	private Integer ord;
+	private String taskdatecol;
+
+	// Constructors
+
+	/** default constructor */
+	public TaskRule() {
+	}
+
+	/** minimal constructor */
+	public TaskRule(String id, String tablename, String col, Integer days,
+			Timestamp optdate, String msg) {
+		this.id = id;
+		this.tablename = tablename;
+		this.col = col;
+		this.days = days;
+		this.optdate = optdate;
+		this.msg = msg;
+	}
+
+	/** full constructor */
+	public TaskRule(String id, String name, String tablename, String col,
+			Integer days, Timestamp optdate, String msg, String wherestr,
+			String tableidname, String type, String rulestr, String teltable,
+			String teljoinstr, String telcol, String idtype, String inputpage,
+			String parent, Integer ord, String taskdatecol) {
+		this.id = id;
+		this.name = name;
+		this.tablename = tablename;
+		this.col = col;
+		this.days = days;
+		this.optdate = optdate;
+		this.msg = msg;
+		this.wherestr = wherestr;
+		this.tableidname = tableidname;
+		this.type = type;
+		this.rulestr = rulestr;
+		this.teltable = teltable;
+		this.teljoinstr = teljoinstr;
+		this.telcol = telcol;
+		this.idtype = idtype;
+		this.inputpage = inputpage;
+		this.parent = parent;
+		this.ord = ord;
+		this.taskdatecol = taskdatecol;
+	}
+
+	// Property accessors
+
+	public String getId() {
+		return this.id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTablename() {
+		return this.tablename;
+	}
+
+	public void setTablename(String tablename) {
+		this.tablename = tablename;
+	}
+
+	public String getCol() {
+		return this.col;
+	}
+
+	public void setCol(String col) {
+		this.col = col;
+	}
+
+	public Integer getDays() {
+		return this.days;
+	}
+
+	public void setDays(Integer days) {
+		this.days = days;
+	}
+
+	public Timestamp getOptdate() {
+		return this.optdate;
+	}
+
+	public void setOptdate(Timestamp optdate) {
+		this.optdate = optdate;
+	}
+
+	public String getMsg() {
+		return this.msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	public String getWherestr() {
+		return this.wherestr;
+	}
+
+	public void setWherestr(String wherestr) {
+		this.wherestr = wherestr;
+	}
+
+	public String getTableidname() {
+		return this.tableidname;
+	}
+
+	public void setTableidname(String tableidname) {
+		this.tableidname = tableidname;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getRulestr() {
+		return this.rulestr;
+	}
+
+	public void setRulestr(String rulestr) {
+		this.rulestr = rulestr;
+	}
+
+	public String getTeltable() {
+		return this.teltable;
+	}
+
+	public void setTeltable(String teltable) {
+		this.teltable = teltable;
+	}
+
+	public String getTeljoinstr() {
+		return this.teljoinstr;
+	}
+
+	public void setTeljoinstr(String teljoinstr) {
+		this.teljoinstr = teljoinstr;
+	}
+
+	public String getTelcol() {
+		return this.telcol;
+	}
+
+	public void setTelcol(String telcol) {
+		this.telcol = telcol;
+	}
+
+	public String getIdtype() {
+		return this.idtype;
+	}
+
+	public void setIdtype(String idtype) {
+		this.idtype = idtype;
+	}
+
+	public String getInputpage() {
+		return this.inputpage;
+	}
+
+	public void setInputpage(String inputpage) {
+		this.inputpage = inputpage;
+	}
+
+	public String getParent() {
+		return this.parent;
+	}
+
+	public void setParent(String parent) {
+		this.parent = parent;
+	}
+
+	public Integer getOrd() {
+		return this.ord;
+	}
+
+	public void setOrd(Integer ord) {
+		this.ord = ord;
+	}
+
+	public String getTaskdatecol() {
+		return this.taskdatecol;
 	}
 
 	public void setTaskdatecol(String taskdatecol) {
 		this.taskdatecol = taskdatecol;
 	}
 
-	public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTablename() {
-        return tablename;
-    }
-
-    public void setTablename(String tablename) {
-        this.tablename = tablename;
-    }
-
-    public String getCol() {
-        return col;
-    }
-
-    public void setCol(String col) {
-        this.col = col;
-    }
-
-    public int getDays() {
-        return days;
-    }
-
-    public void setDays(int days) {
-        this.days = days;
-    }
-
-    public Timestamp getOptdate() {
-        return optdate;
-    }
-
-    public void setOptdate(Timestamp optdate) {
-        this.optdate = optdate;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public String getWherestr() {
-        return wherestr;
-    }
-
-    public void setWherestr(String wherestr) {
-        this.wherestr = wherestr;
-    }
-
-    public String getTableidname() {
-        return tableidname;
-    }
-
-    public void setTableidname(String tableidname) {
-        this.tableidname = tableidname;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getRulestr() {
-        return rulestr;
-    }
-
-    public void setRulestr(String rulestr) {
-        this.rulestr = rulestr;
-    }
-
-    public String getTeltable() {
-        return teltable;
-    }
-
-    public void setTeltable(String teltable) {
-        this.teltable = teltable;
-    }
-
-    public String getTeljoinstr() {
-        return teljoinstr;
-    }
-
-    public void setTeljoinstr(String teljoinstr) {
-        this.teljoinstr = teljoinstr;
-    }
-
-    public String getTelcol() {
-        return telcol;
-    }
-
-    public void setTelcol(String telcol) {
-        this.telcol = telcol;
-    }
-
-    public String getIdtype() {
-        return idtype;
-    }
-
-    public void setIdtype(String idtype) {
-        this.idtype = idtype;
-    }
-
-    public String getInputpage() {
-        return inputpage;
-    }
-
-    public void setInputpage(String inputpage) {
-        this.inputpage = inputpage;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TaskRule taskRule = (TaskRule) o;
-
-        if (days != taskRule.days) return false;
-        if (col != null ? !col.equals(taskRule.col) : taskRule.col != null) return false;
-        if (id != null ? !id.equals(taskRule.id) : taskRule.id != null) return false;
-        if (idtype != null ? !idtype.equals(taskRule.idtype) : taskRule.idtype != null) return false;
-        if (inputpage != null ? !inputpage.equals(taskRule.inputpage) : taskRule.inputpage != null) return false;
-        if (msg != null ? !msg.equals(taskRule.msg) : taskRule.msg != null) return false;
-        if (name != null ? !name.equals(taskRule.name) : taskRule.name != null) return false;
-        if (optdate != null ? !optdate.equals(taskRule.optdate) : taskRule.optdate != null) return false;
-        if (rulestr != null ? !rulestr.equals(taskRule.rulestr) : taskRule.rulestr != null) return false;
-        if (tableidname != null ? !tableidname.equals(taskRule.tableidname) : taskRule.tableidname != null)
-            return false;
-        if (tablename != null ? !tablename.equals(taskRule.tablename) : taskRule.tablename != null) return false;
-        if (telcol != null ? !telcol.equals(taskRule.telcol) : taskRule.telcol != null) return false;
-        if (teljoinstr != null ? !teljoinstr.equals(taskRule.teljoinstr) : taskRule.teljoinstr != null) return false;
-        if (teltable != null ? !teltable.equals(taskRule.teltable) : taskRule.teltable != null) return false;
-        if (type != null ? !type.equals(taskRule.type) : taskRule.type != null) return false;
-        if (wherestr != null ? !wherestr.equals(taskRule.wherestr) : taskRule.wherestr != null) return false;
-        if (taskdatecol != null ? !taskdatecol.equals(taskRule.taskdatecol) : taskRule.taskdatecol != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (tablename != null ? tablename.hashCode() : 0);
-        result = 31 * result + (col != null ? col.hashCode() : 0);
-        result = 31 * result + days;
-        result = 31 * result + (optdate != null ? optdate.hashCode() : 0);
-        result = 31 * result + (msg != null ? msg.hashCode() : 0);
-        result = 31 * result + (wherestr != null ? wherestr.hashCode() : 0);
-        result = 31 * result + (tableidname != null ? tableidname.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (rulestr != null ? rulestr.hashCode() : 0);
-        result = 31 * result + (teltable != null ? teltable.hashCode() : 0);
-        result = 31 * result + (teljoinstr != null ? teljoinstr.hashCode() : 0);
-        result = 31 * result + (telcol != null ? telcol.hashCode() : 0);
-        result = 31 * result + (idtype != null ? idtype.hashCode() : 0);
-        result = 31 * result + (inputpage != null ? inputpage.hashCode() : 0);
-        result = 31 * result + (taskdatecol != null ? taskdatecol.hashCode() : 0);
-        return result;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
-
-    public Integer getOrd() {
-        return ord;
-    }
-
-    public void setOrd(Integer ord) {
-        this.ord = ord;
-    }
 }

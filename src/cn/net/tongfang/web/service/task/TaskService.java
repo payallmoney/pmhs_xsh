@@ -1221,8 +1221,10 @@ public class TaskService extends HibernateDaoSupport {
         Map ret = new HashMap();
         TaskDefaultValue defaultValue = new TaskDefaultValue();
         defaultValue.setUrlname(url);
-        defaultValue.setName(name);
-        defaultValue.setEmpcode(cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername());
+        TaskDefaultValueId id = new TaskDefaultValueId();
+        id.setName(name);
+        id.setEmpcode(cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername());
+        defaultValue.setId(id);
         defaultValue.setContent(data);
         getHibernateTemplate().saveOrUpdate(defaultValue);
         ret.put("success", true);

@@ -1,122 +1,90 @@
 package cn.net.tongfang.framework.security.vo;
 
 /**
- * Created by oyx on 2015-01-28.
+ * TaskDefaults entity. @author MyEclipse Persistence Tools
  */
-public class TaskDefaults {
-    private String id;
-    private String district;
-    private String empcode;
-    private Integer level;
-    private String urlname;
-    private String code;
-    private String value;
-    private String valuetype;
-    private Boolean valid;
 
-    public String getId() {
-        return id;
-    }
+public class TaskDefaults implements java.io.Serializable {
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	// Fields
 
-    public String getDistrict() {
-        return district;
-    }
+	private String id;
+	private String urlname;
+	private String code;
+	private String value;
+	private String valuetype;
+	private Boolean valid;
 
-    public void setDistrict(String district) {
-        this.district = district;
-    }
+	// Constructors
 
-    public String getEmpcode() {
-        return empcode;
-    }
+	/** default constructor */
+	public TaskDefaults() {
+	}
 
-    public void setEmpcode(String empcode) {
-        this.empcode = empcode;
-    }
+	/** minimal constructor */
+	public TaskDefaults(String id) {
+		this.id = id;
+	}
 
-    public Integer getLevel() {
-        return level;
-    }
+	/** full constructor */
+	public TaskDefaults(String id, String urlname, String code, String value,
+			String valuetype, Boolean valid) {
+		this.id = id;
+		this.urlname = urlname;
+		this.code = code;
+		this.value = value;
+		this.valuetype = valuetype;
+		this.valid = valid;
+	}
 
-    public void setLevel(Integer level) {
-        this.level = level;
-    }
+	// Property accessors
 
-    public String getUrlname() {
-        return urlname;
-    }
+	public String getId() {
+		return this.id;
+	}
 
-    public void setUrlname(String urlname) {
-        this.urlname = urlname;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getCode() {
-        return code;
-    }
+	public String getUrlname() {
+		return this.urlname;
+	}
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+	public void setUrlname(String urlname) {
+		this.urlname = urlname;
+	}
 
-    public String getValue() {
-        return value;
-    }
+	public String getCode() {
+		return this.code;
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public void setCode(String code) {
+		this.code = code;
+	}
 
-    public String getValuetype() {
-        return valuetype;
-    }
+	public String getValue() {
+		return this.value;
+	}
 
-    public void setValuetype(String valuetype) {
-        this.valuetype = valuetype;
-    }
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    public Boolean getValid() {
-        return valid;
-    }
+	public String getValuetype() {
+		return this.valuetype;
+	}
 
-    public void setValid(Boolean valid) {
-        this.valid = valid;
-    }
+	public void setValuetype(String valuetype) {
+		this.valuetype = valuetype;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public Boolean getValid() {
+		return this.valid;
+	}
 
-        TaskDefaults that = (TaskDefaults) o;
+	public void setValid(Boolean valid) {
+		this.valid = valid;
+	}
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (district != null ? !district.equals(that.district) : that.district != null) return false;
-        if (empcode != null ? !empcode.equals(that.empcode) : that.empcode != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (level != null ? !level.equals(that.level) : that.level != null) return false;
-        if (urlname != null ? !urlname.equals(that.urlname) : that.urlname != null) return false;
-        if (valid != null ? !valid.equals(that.valid) : that.valid != null) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
-        if (valuetype != null ? !valuetype.equals(that.valuetype) : that.valuetype != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (district != null ? district.hashCode() : 0);
-        result = 31 * result + (empcode != null ? empcode.hashCode() : 0);
-        result = 31 * result + (level != null ? level.hashCode() : 0);
-        result = 31 * result + (urlname != null ? urlname.hashCode() : 0);
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (valuetype != null ? valuetype.hashCode() : 0);
-        result = 31 * result + (valid != null ? valid.hashCode() : 0);
-        return result;
-    }
 }

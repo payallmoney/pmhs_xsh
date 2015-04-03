@@ -50,16 +50,7 @@
 		<property name="filterProcessesUrl" value="/j_spring_security_logout" />
 	</bean>
 
-	<bean id="taskLogoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
-		<constructor-arg value="/tasksystem/login.jsp"/> <!-- URL redirected to after logout -->
-		<constructor-arg>
-			<list>
-				<ref bean="rememberMeServices"/>
-				<bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
-			</list>
-		</constructor-arg>
-		<property name="filterProcessesUrl" value="/tasksystem/logout" />
-	</bean>
+	
 <!--
 	<bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
 		<property name="authenticationManager" ref="authenticationManager"/>
@@ -72,19 +63,15 @@
 	-->
 	<bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
 		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
 		<property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
 		<property name="defaultTargetUrl" value="/admin"/>
 		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
-
-	<bean id="taskAuthenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="authenticationFailureUrl" value="/tasksystem/login.jsp?login_error=1"/>
-		<property name="defaultTargetUrl" value="/tasksystem/index.html"/>
-		<property name="filterProcessesUrl" value="/tasksystem/j_spring_security_check"/>
-		<property name="rememberMeServices" ref="rememberMeServices"/>
-	</bean>
+	
+	
+	
 
     <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
         <property name="authenticationManager"><ref local="authenticationManager"/></property>
@@ -120,6 +107,53 @@
 			</bean>
 		</property>
 	</bean>
+	
+	
+	<bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false"/>
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.vote.RoleVoter"/>
+				<bean class="org.springframework.security.vote.AuthenticatedVoter"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="accessDecisionManager" ref="accessDecisionManager"/>
+		<property name="objectDefinitionSource">
+			<security:filter-invocation-definition-source>
+				<security:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR" />
+				<security:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
+				<security:intercept-url pattern="/admin/*" access="IS_AUTHENTICATED_REMEMBERED" />
+				<security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+			</security:filter-invocation-definition-source>
+		</property>
+	</bean>
+	
+	
+	
+	<bean id="taskLogoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
+		<constructor-arg value="/tasksystem/login.jsp"/> <!-- URL redirected to after logout -->
+		<constructor-arg>
+			<list>
+				<ref bean="rememberMeServices"/>
+				<bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
+			</list>
+		</constructor-arg>
+		<property name="filterProcessesUrl" value="/tasksystem/logout" />
+	</bean>
+
+	<bean id="taskAuthenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
+		<property name="authenticationFailureUrl" value="/tasksystem/login.jsp?login_error=1"/>
+		<property name="defaultTargetUrl" value="/tasksystem/index.jsp"/>
+		<!--<property name="alwaysUseDefaultTargetUrl" value="true"/>-->
+		<property name="filterProcessesUrl" value="/tasksystem/j_spring_security_check"/>
+		<property name="rememberMeServices" ref="rememberMeServices"/>
+	</bean>
 
 	<bean id="taskExceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint">
@@ -130,20 +164,11 @@
 		</property>
 		<property name="accessDeniedHandler">
 			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-				<property name="errorPage" value="/tasksystem/login.jsp"/>
+				<property name="errorPage" value="/accessDenied.jsp"/>
 			</bean>
 		</property>
 	</bean>
-
-	<bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
-		<property name="allowIfAllAbstainDecisions" value="false"/>
-		<property name="decisionVoters">
-			<list>
-				<bean class="org.springframework.security.vote.RoleVoter"/>
-				<bean class="org.springframework.security.vote.AuthenticatedVoter"/>
-			</list>
-		</property>
-	</bean>
+	
 
 	<bean id="TaskFilterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
 		<property name="authenticationManager" ref="authenticationManager" />
@@ -151,30 +176,31 @@
 		<property name="objectDefinitionSource">
 			<security:filter-invocation-definition-source>
 				<security:intercept-url pattern="/tasksystem/login.jsp" access="ROLE_ANONYMOUS" />
-				<security:intercept-url pattern="/tasksystem/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/**" access="IS_AUTHENTICATED_REMEMBERED" />
 			</security:filter-invocation-definition-source>
 		</property>
 	</bean>
+	
 
-	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="accessDecisionManager" ref="accessDecisionManager"/>
-		<property name="objectDefinitionSource">
-			<value><![CDATA[
-				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				PATTERN_TYPE_APACHE_ANT
-				/secure/extreme/**=ROLE_SUPERVISOR
-				/secure/**=IS_AUTHENTICATED_REMEMBERED
-				/admin/**=IS_AUTHENTICATED_REMEMBERED
-				/**=IS_AUTHENTICATED_ANONYMOUSLY
-			]]></value>
-		</property>
-	</bean>
+	<!--<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">-->
+		<!--<property name="authenticationManager" ref="authenticationManager"/>-->
+		<!--<property name="accessDecisionManager" ref="accessDecisionManager"/>-->
+		<!--<property name="objectDefinitionSource">-->
+			<!--<value><![CDATA[-->
+				<!--CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON-->
+				<!--PATTERN_TYPE_APACHE_ANT-->
+				<!--/secure/extreme/**=ROLE_SUPERVISOR-->
+				<!--/secure/**=IS_AUTHENTICATED_REMEMBERED-->
+				<!--/admin/**=IS_AUTHENTICATED_REMEMBERED-->
+				<!--/**=IS_AUTHENTICATED_ANONYMOUSLY-->
+			<!--]]></value>-->
+		<!--</property>-->
+	<!--</bean>-->
 
 
 	<bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
 		<property name="userDetailsService" ref="myUserDetailsService"/>
-		<property name="key" value="changeThis"/>
+		<property name="key" value="pmhskm"/>
 	</bean>
 
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
