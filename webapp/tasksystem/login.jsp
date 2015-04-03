@@ -10,7 +10,6 @@ Purchase: http://wrapbootstrap.com
 <head>
     <meta charset="utf-8"/>
     <title>恒辰公卫重点人群管理系统</title>
-
     <meta name="description" content="modals and wells"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
