@@ -2,3 +2,5 @@
 /webapp/WEB-INF/tmp
 /webapp/WEB-INF/work
 /.classpath
+/.idea
+/.settings
