@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>恒辰重点人群管理系统</title>
     <meta name="description" content="恒辰重点人群管理系统"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="shortcut icon" href="../assets/img/favicon.png" type="image/x-icon"/>
     <!--Basic Styles-->
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../assets/css/bootstrap.css" rel="stylesheet"/>
     <link href="../assets/bootstrap-dialog/css/bootstrap-dialog.min.css" rel="stylesheet"/>
     <link id="bootstrap-rtl-link" href="" rel="stylesheet"/>
     <link href="../assets/css/font-awesome.min.css" rel="stylesheet"/>
@@ -26,7 +26,9 @@
 
     <!--Skin Script: Place this script in head to load scripts for skins and rtl support-->
     <script src="../assets/js/skins.js"></script>
-    <script src="./index.js"></script>
+
+    <link rel="stylesheet" href="../assets/zTree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
 </head>
 <!-- /Head -->
 <!-- Body -->
@@ -126,7 +128,7 @@
         </div>
     </div>
 </div>
-<div class="main-container container-fluid">
+<div class="fill main-container container-fluid">
     <!-- Page Container -->
     <div class="page-container">
         <!-- Page Sidebar -->
@@ -149,19 +151,140 @@
         </div>
         <div class="page-content">
             <!-- Page Breadcrumb -->
-            <div class="page-breadcrumbs">
-                <ul class="breadcrumb">
-                    <li>
-                        <i class="fa fa-home"></i>
-                        <a href="#">首页</a>
-                    </li>
-                    <li class="active">重点人群管理</li>
+            <!--<div class="page-breadcrumbs">-->
+            <!--<ul class="breadcrumb">-->
+            <!--<li>-->
+            <!--<i class="fa fa-home"></i>-->
+            <!--<a href="#">首页</a>-->
+            <!--</li>-->
+            <!--<li class="active">重点人群管理</li>-->
+            <!--</ul>-->
+            <!--</div>-->
+
+            <div class="fill page-body">
+                <ul class="nav nav-tabs">
+                    <li role="presentation" class="active"><a href="#tab1">重点人群管理</a></li>
                 </ul>
-            </div>
+                <div class="fill tabs">
+                    <div id=" tab1" class="fill">
+                        <nav class="navbar  navbar-default">
+                            <div class="container-fluid">
+                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                    <form class="navbar-form navbar-left" role="search">
+                                        <div class="form-group">
+                                            <span class="inline v-align-m form-label">分类</span>
+                                            <select>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                            </select>
+                                            <span class="inline v-align-m form-label">任务类型</span>
+                                            <select>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                            </select>
+                                            <span class="inline v-align-m form-label">是否完成</span>
+                                            <select>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                                <option>测试</option>
+                                            </select>
+                                            <span class="inline v-align-m form-label">任务日期</span>
+                                            <input type="text" class="form-control" placeholder="日期:20150101-20150131">
+                                        </div>
+                                        <button type="submit" class="btn btn-default">查询</button>
+                                    </form>
+                                </div>
+                                <!-- /.navbar-collapse -->
+                            </div>
+                            <!-- /.container-fluid -->
+                        </nav>
+                        <div class="fill treeview">
+                            <ul id="treeDemo" class="ztree"></ul>
+                        </div>
+                        <div class="fill datatable">
+                            <div class="fill panel panel-default">
+                                <!-- Default panel contents -->
+                                <!--<div class="panel-heading">Panel heading</div>-->
 
-            <div class="page-body">
-
-
+                                <!-- Table -->
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Username</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>Mark</td>
+                                        <td>Otto</td>
+                                        <td>@mdo</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">2</th>
+                                        <td>Jacob</td>
+                                        <td>Thornton</td>
+                                        <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">3</th>
+                                        <td>Larry</td>
+                                        <td>the Bird</td>
+                                        <td>@twitter</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav class="table-pager">
+                                <ul class="pagination">
+                                    <li>
+                                        <a href="#" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li><a href="#">1</a></li>
+                                    <li><a href="#">2</a></li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li><a href="#">5</a></li>
+                                    <li>
+                                        <a href="#" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="gotopage"><input id="pagenum">页</div>
+                                <span class="pagenums">共<span>20</span>页<span>30</span>条</span>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- /Page Body -->
         </div>
@@ -174,11 +297,13 @@
 <script src="../assets/js/jquery-2.0.3.min.js"></script>
 <script src="../assets/js/bootstrap.min.js"></script>
 <script src="../assets/js/slimscroll/jquery.slimscroll.min.js"></script>
-
+<script type="text/javascript" src="../assets/zTree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="../assets/zTree/js/jquery.ztree.excheck-3.5.js"></script>
 <!--Beyond Scripts-->
 <script src="../assets/js/beyond.min.js"></script>
 
 <!--Page Related Scripts-->
 <script src="../assets/js/bootbox/bootbox.js"></script>
+<script src="./index.js"></script>
 </body>
 </html>

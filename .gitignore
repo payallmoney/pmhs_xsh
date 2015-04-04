@@ -1,8 +1,8 @@
 /webapp/WEB-INF/classes
 /webapp/WEB-INF/tmp
 /webapp/WEB-INF/work
-/.classpath
-/.idea
+.classpath
+.idea/
 /.settings
 /tongfang.log
 .myhibernatedata
