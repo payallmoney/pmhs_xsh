@@ -1274,19 +1274,15 @@ public class ModuleMgr extends HibernateDaoSupport {
 
 	private StringBuilder buildDiseaseHealthHql(HealthFileQry qryCond,
 			List params, Integer DiseaseType)throws Exception {
-		StringBuilder where = new StringBuilder();
+		StringBuilder where = new StringBuilder(" where 1=1 ");
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
-		where.append(" and c.diseaseId = ?");
+//		where.append(" and c.diseaseId = ?");
+		where.append(" and exists (select 1 from DiseaseHistory  where   personalInfoId = b.id and diseaseId = ?) ");
 		params.add(DiseaseType);
-
-		where.append(" and c.personalInfoId = b.id");
-
-		if (params.size() != 0) {
-			where.replace(0, 4, " where ");
-		}
+		
 		StringBuilder hql = new StringBuilder(
-				"from HealthFile a, PersonalInfo b, DiseaseHistory c").append(
+				"from HealthFile a, PersonalInfo b ").append(
 				where).append(" order by a.fileNo");
 		log.debug("hql: " + hql.toString());
 		return hql;
