@@ -29,6 +29,9 @@ public class TaskRule implements java.io.Serializable {
 	private String parent;
 	private Integer ord;
 	private String taskdatecol;
+	private String checktable;
+	private String checkdatecol;
+	private String checkrule;
 
 	// Constructors
 
@@ -37,14 +40,10 @@ public class TaskRule implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public TaskRule(String id, String tablename, String col, Integer days,
-			Timestamp optdate, String msg) {
+	public TaskRule(String id, Integer days, Timestamp optdate) {
 		this.id = id;
-		this.tablename = tablename;
-		this.col = col;
 		this.days = days;
 		this.optdate = optdate;
-		this.msg = msg;
 	}
 
 	/** full constructor */
@@ -52,7 +51,8 @@ public class TaskRule implements java.io.Serializable {
 			Integer days, Timestamp optdate, String msg, String wherestr,
 			String tableidname, String type, String rulestr, String teltable,
 			String teljoinstr, String telcol, String idtype, String inputpage,
-			String parent, Integer ord, String taskdatecol) {
+			String parent, Integer ord, String taskdatecol, String checktable,
+			String checkdatecol, String checkrule) {
 		this.id = id;
 		this.name = name;
 		this.tablename = tablename;
@@ -72,6 +72,9 @@ public class TaskRule implements java.io.Serializable {
 		this.parent = parent;
 		this.ord = ord;
 		this.taskdatecol = taskdatecol;
+		this.checktable = checktable;
+		this.checkdatecol = checkdatecol;
+		this.checkrule = checkrule;
 	}
 
 	// Property accessors
@@ -226,6 +229,30 @@ public class TaskRule implements java.io.Serializable {
 
 	public void setTaskdatecol(String taskdatecol) {
 		this.taskdatecol = taskdatecol;
+	}
+
+	public String getChecktable() {
+		return this.checktable;
+	}
+
+	public void setChecktable(String checktable) {
+		this.checktable = checktable;
+	}
+
+	public String getCheckdatecol() {
+		return this.checkdatecol;
+	}
+
+	public void setCheckdatecol(String checkdatecol) {
+		this.checkdatecol = checkdatecol;
+	}
+
+	public String getCheckrule() {
+		return this.checkrule;
+	}
+
+	public void setCheckrule(String checkrule) {
+		this.checkrule = checkrule;
 	}
 
 }

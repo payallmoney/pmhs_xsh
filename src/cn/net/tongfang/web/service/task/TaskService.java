@@ -986,7 +986,11 @@ public class TaskService extends HibernateDaoSupport {
         List<TaskLog> sendinglist = getHibernateTemplate().find(
                 "from TaskLog where status = " + SmsUtil.IS_SENDED_FALSE + "");
         String exceptStr = "";
+
+        System.out.println("sendinglist.size()==="+sendinglist.size());
+        int count = 0 ;
         for (TaskLog log : sendinglist) {
+            System.out.println( (count++)+"   /"+ sendinglist.size());
             if (taskUtil.isStarted()) {
                 int result = 0;
                 Serializable id = null;
@@ -996,9 +1000,9 @@ public class TaskService extends HibernateDaoSupport {
                         .getClassMetadata(
                                 Class.forName("cn.net.tongfang.framework.security.vo."
                                         + tablename)).getIdentifierType();
-                System.out
-                        .println("==============idtype.getClass().getName()====="
-                                + idtype.getClass().getName());
+//                System.out
+//                        .println("==============idtype.getClass().getName()====="
+//                                + idtype.getClass().getName());
                 // 判断如果是数字型，则转换
                 if ("org.hibernate.type.LongType".equals(idtype.getClass()
                         .getName())) {
