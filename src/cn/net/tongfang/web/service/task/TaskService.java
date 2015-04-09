@@ -1,6 +1,5 @@
 package cn.net.tongfang.web.service.task;
 
-import cn.net.tongfang.framework.dwr.convert.IntegerConverter;
 import cn.net.tongfang.framework.security.bo.Condition;
 import cn.net.tongfang.framework.security.bo.QryCondition;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
@@ -17,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.security.userdetails.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;

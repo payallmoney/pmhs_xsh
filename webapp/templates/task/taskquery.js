@@ -141,12 +141,12 @@ Ext.task.TaskQuery = new Ext.Panel({
         xtype: 'datefield',
         id: 'TaskQuery.msgsender.query.startdatefield',
         format: 'Y-m-d',
-        value: '2011-01-01'
+        value: '2015-01-01'
     }, "至", {
         xtype: 'datefield',
         id: 'TaskQuery.msgsender.query.enddatefield',
         format: 'Y-m-d',
-        value: '2016-01-01'
+        value: '2015-12-31'
     }, "-", {
         text: '查询任务',
         iconCls: 'c_refresh',

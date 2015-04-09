@@ -10,7 +10,10 @@ public class TaskLog implements java.io.Serializable {
 
 	// Fields
 
-	private TaskLogId id;
+	private String id;
+	private Timestamp smsdate;
+	private String examname;
+	private String fileno;
 	private String tel;
 	private String msg;
 	private Integer status;
@@ -20,7 +23,6 @@ public class TaskLog implements java.io.Serializable {
 	private String tableidvalue;
 	private String personname;
 	private String querytype;
-	private String id_1;
 	private String examid;
 	private String parentid;
 
@@ -31,19 +33,26 @@ public class TaskLog implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public TaskLog(TaskLogId id, String msg, Integer status, String id_1) {
+	public TaskLog(String id, Timestamp smsdate, String examname,
+			String fileno, String msg, Integer status) {
 		this.id = id;
+		this.smsdate = smsdate;
+		this.examname = examname;
+		this.fileno = fileno;
 		this.msg = msg;
 		this.status = status;
-		this.id_1 = id_1;
 	}
 
 	/** full constructor */
-	public TaskLog(TaskLogId id, String tel, String msg, Integer status,
+	public TaskLog(String id, Timestamp smsdate, String examname,
+			String fileno, String tel, String msg, Integer status,
 			Timestamp sendtime, String error, String tablename,
 			String tableidvalue, String personname, String querytype,
-			String id_1, String examid, String parentid) {
+			String examid, String parentid) {
 		this.id = id;
+		this.smsdate = smsdate;
+		this.examname = examname;
+		this.fileno = fileno;
 		this.tel = tel;
 		this.msg = msg;
 		this.status = status;
@@ -53,19 +62,42 @@ public class TaskLog implements java.io.Serializable {
 		this.tableidvalue = tableidvalue;
 		this.personname = personname;
 		this.querytype = querytype;
-		this.id_1 = id_1;
 		this.examid = examid;
 		this.parentid = parentid;
 	}
 
 	// Property accessors
 
-	public TaskLogId getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(TaskLogId id) {
+	public void setId(String id) {
 		this.id = id;
+	}
+
+	public Timestamp getSmsdate() {
+		return this.smsdate;
+	}
+
+	public void setSmsdate(Timestamp smsdate) {
+		this.smsdate = smsdate;
+	}
+
+	public String getExamname() {
+		return this.examname;
+	}
+
+	public void setExamname(String examname) {
+		this.examname = examname;
+	}
+
+	public String getFileno() {
+		return this.fileno;
+	}
+
+	public void setFileno(String fileno) {
+		this.fileno = fileno;
 	}
 
 	public String getTel() {
@@ -138,14 +170,6 @@ public class TaskLog implements java.io.Serializable {
 
 	public void setQuerytype(String querytype) {
 		this.querytype = querytype;
-	}
-
-	public String getId_1() {
-		return this.id_1;
-	}
-
-	public void setId_1(String id_1) {
-		this.id_1 = id_1;
 	}
 
 	public String getExamid() {

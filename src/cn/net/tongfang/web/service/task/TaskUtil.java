@@ -122,7 +122,7 @@ public class TaskUtil extends HibernateDaoSupport implements ApplicationListener
         // TODO 这里根据Cod_TelSendRule 表,生成Sms_SendLog表的内容 ,并且不生成重复的数据
         System.out.println("任务生成.....");
         //改成直接使用存储过程
-        getSession().createQuery(" {call p_initTask()} ").executeUpdate();
+        getSession().createSQLQuery("{ call p_initTask()} ").executeUpdate();
     }
 
     public boolean isStarted() {
