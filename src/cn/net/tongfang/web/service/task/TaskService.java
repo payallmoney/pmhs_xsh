@@ -1235,7 +1235,7 @@ public class TaskService extends HibernateDaoSupport {
 
     //TODO 获得默认值列表
     public List getDefaultList(String url) {
-        return getHibernateTemplate().find("select name from TaskDefaultValue where urlname = ? and empcode = ?  ", new String[]{url, cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername()});
+        return getHibernateTemplate().find("select id.name from TaskDefaultValue where urlname = ? and id.empcode = ?  ", new String[]{url, cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername()});
     }
 
     //TODO 获得默认值

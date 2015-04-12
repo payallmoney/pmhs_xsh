@@ -135,7 +135,7 @@
 	
 	
 	<bean id="taskLogoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
-		<constructor-arg value="/tasksystem/login.jsp"/> <!-- URL redirected to after logout -->
+		<constructor-arg value="/tasksystem/index.jsp"/> <!-- URL redirected to after logout -->
 		<constructor-arg>
 			<list>
 				<ref bean="rememberMeServices"/>
@@ -148,23 +148,23 @@
 	<bean id="taskAuthenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
 		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
-		<property name="authenticationFailureUrl" value="/tasksystem/login.jsp?login_error=1"/>
-		<property name="defaultTargetUrl" value="/tasksystem/index.html"/>
+		<property name="authenticationFailureUrl" value="/tasksystem/index.jsp?login_error=1"/>
+		<property name="defaultTargetUrl" value="/tasksystem/#/main"/>
 		<!--<property name="alwaysUseDefaultTargetUrl" value="true"/>-->
-		<property name="filterProcessesUrl" value="/tasksystem/j_spring_security_check"/>
+		<property name="filterProcessesUrl" value="/tasksystem/login"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
 
 	<bean id="taskExceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint">
 			<bean class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-				<property name="loginFormUrl" value="/tasksystem/login.jsp"/>
+				<property name="loginFormUrl" value="/tasksystem/index.jsp"/>
 				<property name="forceHttps" value="false"/>
 			</bean>
 		</property>
 		<property name="accessDeniedHandler">
 			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-				<property name="errorPage" value="/tasksystem/login.jsp"/>
+				<property name="errorPage" value="/tasksystem/index.jsp"/>
 			</bean>
 		</property>
 	</bean>
@@ -175,7 +175,11 @@
 		<property name="accessDecisionManager" ref="accessDecisionManager" />
 		<property name="objectDefinitionSource">
 			<security:filter-invocation-definition-source>
-				<security:intercept-url pattern="/tasksystem/login.jsp" access="ROLE_ANONYMOUS" />
+				<security:intercept-url pattern="/tasksystem/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/app/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/lib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				<security:intercept-url pattern="/tasksystem/**" access="IS_AUTHENTICATED_REMEMBERED" />
 			</security:filter-invocation-definition-source>
 		</property>

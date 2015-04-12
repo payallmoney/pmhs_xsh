@@ -10,3 +10,9 @@ pmhs_km.iml
 readme
 Reserve.log
 tongfang*
+.idea
+/pmhs_km.iml
+/.myhibernatedata
+/.project
+/.classpath
+.settings
