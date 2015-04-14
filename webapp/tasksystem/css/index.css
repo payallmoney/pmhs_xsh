@@ -1,0 +1,46 @@
+.main-container.fill{
+    top:45px;
+}
+.main-container>.page-container{
+    position:absolute;
+}
+.fill{
+    position:absolute;
+    top:0px;
+    left:0px;
+    bottom:0px;
+    right:0px;
+}
+
+div.tabpanel{
+    height:100%;
+    position: relative;
+}
+.tab-content{
+    top:36px;
+    position:absolute;
+    left:0px;
+    bottom:0px;
+    right:0px;
+}
+.fill.datatable{
+    top:45px;
+}
+.fill.pager{
+    top:inherit;
+    bottom:0;
+}
+
+.ui-grid-pager-row-count-picker select{
+    font-size: inherit;
+    color: inherit;
+    background-color: inherit;
+    border: inherit;
+    padding: inherit;
+}
+.gridStyle{
+    height:100%;
+}
+.ui-grid-viewport{
+    overflow: auto !important;
+}

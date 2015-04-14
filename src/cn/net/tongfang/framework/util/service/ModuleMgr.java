@@ -1358,8 +1358,8 @@ public class ModuleMgr extends HibernateDaoSupport {
 		buildGeneralWhereHealthFile(qryCond, params, where,0);
 
 //		where.append(" and c.diseaseId = ?");
-		where.append(" and exists (select 1 from DiseaseHistory  where   personalInfoId = b.id and diseaseId = ?) ");
-		params.add(DiseaseType);
+		where.append(" and exists (select 1 from DiseaseHistory  where   personalInfoId = b.id and diseaseId = '"+DiseaseType+"') ");
+//		params.add(DiseaseType);
 		
 		StringBuilder hql = new StringBuilder(
 				"from HealthFile a, PersonalInfo b ").append(

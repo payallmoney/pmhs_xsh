@@ -149,7 +149,7 @@
 		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
 		<property name="authenticationFailureUrl" value="/tasksystem/index.jsp?login_error=1"/>
-		<property name="defaultTargetUrl" value="/tasksystem/#/main"/>
+		<property name="defaultTargetUrl" value="/tasksystem/lib/success.json"/>
 		<!--<property name="alwaysUseDefaultTargetUrl" value="true"/>-->
 		<property name="filterProcessesUrl" value="/tasksystem/login"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
