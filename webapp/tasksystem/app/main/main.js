@@ -28,14 +28,12 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             CommonExamService.getCurrentDistrict({
                 callback: function (data) {
                     $scope.district = data;
-                    console.log("district ==", data);
                 }
             });
             //取出机构数据
             CommonExamService.getCurrentOrgListnew({
                 callback: function (data) {
                     $scope.orgdata = data;
-                    console.log("orgdata ==", data);
                 }
             });
 

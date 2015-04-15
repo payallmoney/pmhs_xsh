@@ -7,11 +7,11 @@ var app =
         'ui.grid',
         'ui.grid.pagination',
         'ui.grid.selection',
-        'jsTree.directive',
+        'ui.utils',
         'tasksystem.login',
-        'tasksystem.main'
-    ]).
-        config(['$routeProvider', function ($routeProvider) {
+        'tasksystem.main',
+        'tasksystem.filters'
+    ]). config(['$routeProvider', function ($routeProvider) {
             $routeProvider.otherwise({redirectTo: '/login'});
         }]).config(function ($controllerProvider, $compileProvider, $filterProvider, $provide) {
             app.controller = $controllerProvider.register;
@@ -57,16 +57,4 @@ var app =
                     return deferred.promise;
                 }
             }
-        }).directive('zTree', ['$timeout',
-
-            function($timeout) {
-                return {
-                    restrict: 'A',
-                    link: function(scope, element, attrs) {
-                        $timeout(function(){
-                            $.fn.zTree.init(element, scope[attrs.setting], scope[attrs.zNodes]);
-                        })
-                    }
-                }
-            }
-        ]);
+        });

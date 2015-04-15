@@ -43,7 +43,7 @@ div.tabpanel{
     height:100%;
 }
 .ui-grid-viewport{
-    overflow: auto !important;
+    /*overflow: auto !important;*/
 }
 .treeview.fill{
     top:45px;
@@ -100,7 +100,7 @@ li.jstree-leaf>a>i.jstree-icon.jstree-themeicon{
 }
 .distitem.current{
     color:red;
-    background-color:#eee;
+    background-color:#ddd;
 }
 .distitem.active:before{
     content:url(../img/folder-open.gif);

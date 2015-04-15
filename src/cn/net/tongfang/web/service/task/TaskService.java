@@ -867,7 +867,9 @@ public class TaskService extends HibernateDaoSupport {
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public PagingResult<Map> queryLogs(QryCondition qryCond, PagingParam pp)
             throws Exception {
+
         try {
+
             if (pp == null)
                 pp = new PagingParam();
             Map leftlikemap = new HashMap();
@@ -889,8 +891,11 @@ public class TaskService extends HibernateDaoSupport {
             StringBuilder where = new StringBuilder(" where vo.fileno = info.fileNo and vo.querytype='0' and vo.examid = rule.id ");
             List params = new ArrayList();
             if (StringUtils.hasText(qryCond.getDistrict())) {
-                where.append(" and vo.fileno like ? ");
-                params.add(qryCond.getDistrict() + "%");
+                String dist = qryCond.getDistrict();
+                if(dist.substring(dist.length()-2).equals("00")){
+                    dist = dist.substring(0,dist.length()-2);
+                }
+                where.append(" and vo.fileno like '" + dist + "%' ");
             }
             for (Condition obj : qryCond.getConditions()) {
                 String key = obj.getFilterKey();
@@ -944,7 +949,8 @@ public class TaskService extends HibernateDaoSupport {
             for (int i = 0; i < params.size(); i++) {
                 query.setParameter(i, params.get(i));
             }
-
+            System.out.println("pp.getStart()==="+pp.getStart());
+            System.out.println("pp.getLimit()==="+pp.getLimit());
             query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 
             List<Object[]> list = query.list();
@@ -956,7 +962,7 @@ public class TaskService extends HibernateDaoSupport {
                 TaskRule rule = (TaskRule) objs[2];
                 data.put("birthday", info.getBirthday());
                 data.put("idnumber", info.getIdnumber());
-                System.out.println("1111111111111111111111111" + new Gson().toJson(rule));
+                System.out.println("===================" + new Gson().toJson(data));
                 data.put("inputpage", rule.getInputpage());
                 retlist.add(data);
             }

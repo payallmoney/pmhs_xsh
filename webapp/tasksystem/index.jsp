@@ -24,8 +24,6 @@
     <link href="lib/beyond/css/animate.min.css" rel="stylesheet"/>
     <link href="lib/uigrid/ui-grid.min.css" rel="stylesheet"/>
     <link href="lib/uiselect/select.min.css" rel="stylesheet"/>
-    <link href="lib/jstree/themes/default/style.min.css" rel="stylesheet"/>
-    <link href="lib/scrollingtab/scrolling-tabs.min.css" rel="stylesheet"/>
     <link href="css/index.css" rel="stylesheet"/>
 
 
@@ -57,9 +55,9 @@
 <script type='text/javascript' src='/dwr/util.js'></script>
 <script type='text/javascript' src='/dwr/interface/systemInformationUtils.js'></script>
 <script type='text/javascript' src='/dwr/interface/CommonExamService.js'></script>
-<%--<script src="lib/beyond/js/jquery-2.0.3.min.js"></script>--%>
-<script src="lib/jquery-1.11.2.min.js"></script>
-<script src="lib/jstree/jstree.min.js"></script>
+<script type='text/javascript' src='/dwr/interface/TaskService.js'></script>
+<script src="lib/beyond/js/jquery-2.0.3.min.js"></script>
+<script src="lib/moment.min.js"></script>
 <script src="lib/script.min.js"></script>
 <script src="lib/beyond/js/bootstrap.min.js"></script>
 <script src="lib/beyond/js/slimscroll/jquery.slimscroll.min.js"></script>
@@ -81,15 +79,15 @@
 <%--<script type='text/javascript' src='lib/angular/angular-resource.min.js'></script>--%>
 <script type='text/javascript' src='lib/angular/angular-route.min.js'></script>
 <script type='text/javascript' src='lib/ngbootstrap/ui-bootstrap-tpls-0.12.1.min.js'></script>
+<script type='text/javascript' src='lib/ngbootstrap/ui-bootstrap-tpls-0.12.1.min.js'></script>
 
 <script type='text/javascript' src='lib/uigrid/ui-grid.min.js'></script>
 <script type='text/javascript' src='lib/uiselect/select.min.js'></script>
 
-<%--<script type='text/javascript' src='lib/angular/angular-touch.min.js'></script>--%>
-
-<script type='text/javascript' src='lib/jstree/jsTree.directive.js'></script>
+<script type='text/javascript' src='lib/ui-utils/ui-utils.min.js'></script>
 <script src="js/version/version.js"></script>
 <script src="js/version/version-directive.js"></script>
+<script src="js/filters.js"></script>
 <script src="js/version/interpolate-filter.js"></script>
 
 <script type='text/javascript' src='js/index.js'></script>
