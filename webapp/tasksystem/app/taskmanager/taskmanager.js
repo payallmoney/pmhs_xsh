@@ -46,13 +46,15 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService) {
                     }
                 }
             }
-            var children = [];
-            for(var i = 0 ;i <root.children.length;i++){
-                var childitem = angular.extend({},root.children[i]);
-                childitem.children = null;
-                children.push(childitem);
+            if(root.children){
+                var children = [];
+                for(var i = 0 ;i <root.children.length;i++){
+                    var childitem = angular.extend({},root.children[i]);
+                    childitem.children = null;
+                    children.push(childitem);
+                }
+                item.children= children;
             }
-            item.children= children;
         }
     };
     console.log($scope.districtdata);
