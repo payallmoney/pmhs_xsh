@@ -25,6 +25,7 @@ div.tabpanel{
 }
 .fill.datatable{
     top:45px;
+    left:240px;
 }
 .fill.pager{
     top:inherit;
@@ -43,4 +44,78 @@ div.tabpanel{
 }
 .ui-grid-viewport{
     overflow: auto !important;
+}
+.treeview.fill{
+    top:45px;
+    width:240px;
+    right:inherit;
+    border-top:solid 5px #eee;
+    border-right:solid 5px #eee;
+    overflow: auto;
+}
+li.jstree-leaf>a>i.jstree-icon.jstree-themeicon{
+    background-image: url(../../js/ext-3.3.0/resources/images/yourtheme/tree/leaf.gif);
+    background-position: center;
+}
+
+li.jstree-leaf>a>i.jstree-icon.jstree-themeicon{
+    background-image: url(../../js/ext-3.3.0/resources/images/yourtheme/tree/leaf.gif);
+    background-position: center;
+}
+.jstree-node>a>i.jstree-icon.jstree-themeicon{
+    background-image: url(../../js/ext-3.3.0/resources/images/yourtheme/tree/folder.gif);
+    background-position: center;
+}
+.jstree-node.jstree-open>a>i.jstree-icon.jstree-themeicon{
+    background-image: url(../../js/ext-3.3.0/resources/images/yourtheme/tree/folder-open.gif);
+    background-position: center;
+}
+
+
+
+.distinctmenu .item{
+    padding:0;
+    border:none;
+    white-space: nowrap;
+}
+.distinctmenu .list{
+    padding:0;
+    border:none;
+}
+.distitem{
+    position: relative;
+    width:100%;
+    height:30px;
+    line-height: 30px;
+    /*padding:20px;*/
+    vertical-align: middle;
+    text-align: left;
+    text-indent: 20px;
+    border:1px solid #eee;
+    border-bottom: none;
+    cursor: pointer;
+}
+.distitem:before{
+    content:url(../img/folder.gif);
+}
+.distitem.current{
+    color:red;
+    background-color:#eee;
+}
+.distitem.active:before{
+    content:url(../img/folder-open.gif);
+}
+.distitem.nochild:before{
+    content:url(../img/leaf.gif);
+}
+
+.item.distsub{
+    position: relative;
+    padding-left:20px;
+    text-align: left;
+}
+
+.distitem.active +.distsub{
+    border:none;
+
 }

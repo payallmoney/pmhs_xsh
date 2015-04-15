@@ -179,6 +179,7 @@
 				<security:intercept-url pattern="/tasksystem/app/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				<security:intercept-url pattern="/tasksystem/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				<security:intercept-url pattern="/tasksystem/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				<security:intercept-url pattern="/tasksystem/lib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				<security:intercept-url pattern="/tasksystem/**" access="IS_AUTHENTICATED_REMEMBERED" />
 			</security:filter-invocation-definition-source>

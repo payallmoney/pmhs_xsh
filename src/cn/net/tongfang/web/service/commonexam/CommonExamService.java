@@ -232,6 +232,65 @@ public class CommonExamService extends HibernateDaoSupport {
         return SecurityManager.currentOperator().getTaxempname();
     }
 
+    private List getSubDistrict(String distid) throws Exception {
+        List ret = new ArrayList();
+        Map distmap = commonExamUtil.getDistrictMap();
+        List<District> sublist = commonExamUtil.getDistrict(distid);
+        if(sublist != null) {
+            for (District d : sublist) {
+                Map item = getNodeFromDistrict(d);
+                List child = getSubDistrict(d.getId());
+                if (child == null || child.size() == 0) {
+                    item.put("haschild", false);
+                    ret.add(item);
+                } else {
+                    item.put("haschild", true);
+                    item.put("children", child);
+                    ret.add(item);
+                }
+            }
+            return ret;
+        }else{
+            return null;
+        }
+    }
+    public List getCurrentDistrict() throws Exception {
+        try {
+            List ret = new ArrayList();
+            String key = SecurityManager.currentOperator().getDistrictId();
+            String id = key;
+            if ("00".equals(key.substring(key.length() - 2))) {
+                id = key.substring(0,key.length()-2);
+            }
+            String vlaue = (String) commonExamUtil.getDistrictMap().get(id);
+            Map distmap = commonExamUtil.getDistrictMap();
+            Map root = new HashMap();
+            root.put("id", key);
+            root.put("text", vlaue);
+//            root.put("parent", "#");
+            List child = getSubDistrict(key);
+            if (child ==null || child.size() == 0) {
+                root.put("haschild", false);
+                ret.add(root);
+            } else {
+                root.put("haschild", true);
+                root.put("children",child);
+                ret.add(root);
+            }
+            return ret;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
+    private Map getNodeFromDistrict(District d)  throws Exception {
+        Map ret = new HashMap();
+        ret.put("id",d.getId());
+        ret.put("text",d.getName());
+//        ret.put("parent",d.getParentId());
+        return ret;
+    }
+
     public List getorglistnew(Map curr) throws Exception {
         try {
             System.out.println("curr==" + curr.get("data"));

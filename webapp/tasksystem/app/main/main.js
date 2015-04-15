@@ -25,10 +25,10 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 'inject':'$scope'
             }];
             //取出行政区划数据
-            CommonExamService.getDistrictMap({
+            CommonExamService.getCurrentDistrict({
                 callback: function (data) {
-                    $scope.districtMap = data;
-                    console.log("districtMap ==", data);
+                    $scope.district = data;
+                    console.log("district ==", data);
                 }
             });
             //取出机构数据
