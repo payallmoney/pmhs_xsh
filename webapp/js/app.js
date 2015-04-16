@@ -1137,7 +1137,6 @@ var fieldsArray = {};
                         defaultSrc: taskurl,
                         layout: 'fit',
                         style: 'top:0px;bottom:10px',
-
                         loadMask: true,
                         autoScroll: true,
                         listeners: {

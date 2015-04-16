@@ -1,7 +1,7 @@
 'use strict';
 
 
-app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
+app.controller('TaskManagerCtrl', function ($scope, i18nService, $modal, $log) {
     //初始化查询参数
     $scope.query = {};
     //设置树参数
@@ -38,7 +38,7 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
             }
             if (root.children) {
                 var children = [];
-                for (var i = 0; i < root.children.length; i++) {
+                for (i = 0; i < root.children.length; i++) {
                     var childitem = angular.extend({}, root.children[i]);
                     childitem.children = null;
                     children.push(childitem);
@@ -47,30 +47,32 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
             }
         }
     };
-    console.log($scope.districtdata);
-    //$scope.dateStr = function(code){
-    //    if (typeof code === 'string'){
-    //        return code.substring(0,10);
-    //    }else{
-    //        return code;
-    //    }
-    //};
     //表格参数
     i18nService.setCurrentLang('zh-cn');
     $scope.gridOptions = {
         data: [],
+        enableSorting: false,
+        enableColumnMenus: false,
         columnDefs: [
-            {displayName: '任务日期', field: 'smsdate',cellFilter :"substr:0:10"},
-            {displayName: '任务类型', field: 'examid'},
-            {displayName: '状态', field: 'status',cellTemplate:'<div class="ui-grid-cell-contents"><span ng-show="COL_FIELD==0">正在创建</span><span ng-show="COL_FIELD==2">已完成</span><button  ng-show="COL_FIELD==1"'+
-            ' ng-click=" grid.appScope.onCellClick(row)"> '+
-            ' 处理任务</button></div>'},
-            {displayName: '档案号', field: 'fileno'},
-            {displayName: '姓名', field: 'personname'},
-            {displayName: '身份证号', field: 'idnumber'},
-            {displayName: '生日', field: 'birthday',cellFilter :"date:'yyyy-MM-dd'"},
-            {displayName: '电话', field: 'tel'},
-            {displayName: '内容', field: 'msg'}
+            {displayName: '任务日期', field: 'smsdate', width: 80, cellFilter: "substr:0:10"},
+            {displayName: '任务类型', field: 'examid', width: 80, tooltip: ''},
+            {
+                displayName: '状态',
+                field: 'status',
+                cellTemplate: '<div class="ui-grid-cell-contents">' +
+                ' <span ng-show="COL_FIELD==0">正在创建</span>' +
+                ' <span ng-show="COL_FIELD==2">已完成</span> ' +
+                ' <button  ng-show="COL_FIELD==1" ' +
+                ' ng-click=" grid.appScope.onCellClick(row.entity)"> ' +
+                ' 处理任务</button></div>',
+                width: 80
+            },
+            {displayName: '档案号', field: 'fileno', width: 140, pinnedLeft: true},
+            {displayName: '姓名', field: 'personname', width: 70, pinnedLeft: true},
+            {displayName: '身份证号', field: 'idnumber', width: 150},
+            {displayName: '生日', field: 'birthday', cellFilter: "date:'yyyy-MM-dd'", width: 80},
+            {displayName: '电话', field: 'tel', width: 100},
+            {displayName: '内容', field: 'msg', width: 200}
             //{displayName:'完成情况',field: 'status'}
         ],
         paginationPageSizes: [20],
@@ -86,10 +88,40 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
         noUnselect: true,
         onRegisterApi: function (gridApi) {
             $scope.gridApi = gridApi;
-            $scope.gridApi.pagination.on.paginationChanged($scope, function (currentPage, pageSize) {
+            $scope.gridApi.pagination.on.paginationChanged($scope, function () {
                 $scope.querydata();
             });
         }
+    };
+
+    //TODO 执行点击函数
+    $scope.onCellClick = function (row) {
+        console.log(row);
+        //打开模态窗口
+        var taskurl = row['inputpage'] + '?fileNo=' + row['fileno'] + '&isNext=1&loadtaskdefault=true&taskid=' + row['id'];
+        var modaldata = {url:taskurl,title:row['examname']+':'+row['personname']+" "+row['msg']};
+        var modalInstance = $modal.open({
+            templateUrl: 'OldWindowModalContent.html',
+            controller: 'ModalInstanceCtrl',
+            windowClass: 'oldwindow',
+            size: 'lg',
+            backdrop: false,
+            resolve: {
+                data: function () {
+                    return modaldata;
+                }
+            }
+        });
+        modalInstance.opened.then(function(){
+            $('#oldwindowiframe').on ('load',function(){
+
+            });
+        });
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
     };
     //初始化查询参数
     //初始化分类下拉
@@ -122,7 +154,8 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
     //日期校验20110101-20120101的类型
     $scope.dateValidate = function (code) {
         var dateregstr = "(?:(?!0000)[0-9]{4}(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)";
-        var regexp1 = new RegExp("^(" + dateregstr + '|' + dateregstr + "-" + dateregstr + ")$");
+        var regexp1 = new RegExp("^" + dateregstr + '|' + dateregstr + "-" + dateregstr + "$/i");
+        console.log("^" + dateregstr + '|' + dateregstr + "-" + dateregstr + "$/i");
         return regexp1;
     };
     $scope.$watch("query.cat", function (newval, oldval) {
@@ -131,7 +164,7 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
         }
     });
     function inarray(str, array, name) {
-        if(array && array.length){
+        if (array && array.length) {
             $.each(array, function (key, value) {
                 if (name && value[name] == str) {
                     return true;
@@ -141,15 +174,16 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
             });
         }
         return false;
-    };
+    }
+
     $scope.filterRule = function (item) {
         if (item.id == '' || $scope.query.cat == '' || item.parent == $scope.query.cat) {
             return true;
         }
         return false;
     };
-    $scope.$watch("query.dist",function(newval,oldval){
-        if(newval != oldval){
+    $scope.$watch("query.dist", function (newval, oldval) {
+        if (newval != oldval) {
             $scope.querydata();
         }
     });
@@ -193,7 +227,10 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
             filterVal: $scope.query.status,
             opt: "="
         });
-        TaskService.queryLogs(cond, {start: ($scope.gridOptions.paginationCurrentPage - 1) * 20, limit: 20}, function (data) {
+        TaskService.queryLogs(cond, {
+            start: ($scope.gridOptions.paginationCurrentPage - 1) * 20,
+            limit: 20
+        }, function (data) {
             $scope.gridOptions.data = data.data;
             $scope.gridOptions.totalItems = data.totalSize;
             $scope.$digest();
@@ -201,3 +238,8 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService,$filter) {
     }
 
 });
+
+function setFrameLoaded(){
+    $('#oldwindowiframe').contents().find('body').append($('<link href="/tasksystem/css/oldwindow.css" rel="stylesheet"/>'));
+    //$('#oldwindowiframe').contents().find('body').append($('<link href="/tasksystem/lib/beyond/css/bootstrap.min.css" rel="stylesheet"/>'));
+}

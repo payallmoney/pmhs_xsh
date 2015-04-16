@@ -20,9 +20,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             $scope.menu = [{
                 "text": '重点人群管理',
                 "js": "app/taskmanager/taskmanager.js",
-                'html': 'app/taskmanager/taskmanager.html',
-                'code': 'TaskManagerCtrl',
-                'inject':'$scope'
+                'html': 'app/taskmanager/taskmanager.html'
             }];
             //取出行政区划数据
             CommonExamService.getCurrentDistrict({
@@ -41,8 +39,6 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 "text": '简介',
                 "js": "app/dashboard/dashboard.js",
                 'html': 'app/dashboard/dashboard.html',
-                'code': 'DashboardCtrl',
-                'inject': '$scope',
                 "close": false
             };
             $scope.loadTab(dashboard);
@@ -87,5 +83,12 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 menu.active = true;
             }
         };
-
+        for(var i =0  ;i<10;i++){
+            var dashboard = {
+                "text": '测试'+i,
+                'html': 'app/test/test.html',
+                "close": false
+            };
+            $scope.loadTab(dashboard);
+        }
     });
