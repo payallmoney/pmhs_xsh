@@ -22,6 +22,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 "js": "app/taskmanager/taskmanager.js",
                 'html': 'app/taskmanager/taskmanager.html'
             }];
+
             //取出行政区划数据
             CommonExamService.getCurrentDistrict({
                 callback: function (data) {
@@ -42,6 +43,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 "close": false
             };
             $scope.loadTab(dashboard);
+            $scope.loadTab($scope.menu[0]);
         }).catch(function () {
             $location.path('/tasksystem/login');
         });
@@ -83,12 +85,12 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
                 menu.active = true;
             }
         };
-        for(var i =0  ;i<10;i++){
-            var dashboard = {
-                "text": '测试'+i,
-                'html': 'app/test/test.html',
-                "close": false
-            };
-            $scope.loadTab(dashboard);
-        }
+        //for(var i =0  ;i<10;i++){
+        //    var dashboard = {
+        //        "text": '测试'+i,
+        //        'html': 'app/test/test.html',
+        //        "close": false
+        //    };
+        //    $scope.loadTab(dashboard);
+        //}
     });

@@ -55,7 +55,7 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService, $modal, $log) {
         enableColumnMenus: false,
         columnDefs: [
             {displayName: '任务日期', field: 'smsdate', width: 80, cellFilter: "substr:0:10"},
-            {displayName: '任务类型', field: 'examid', width: 80, tooltip: ''},
+            {displayName: '任务类型', field: 'examname', width: 80, tooltip: ''},
             {
                 displayName: '状态',
                 field: 'status',
