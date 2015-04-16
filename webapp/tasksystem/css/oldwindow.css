@@ -63,9 +63,8 @@ ul.tabs{
 .outerContainer>.container>table.form_tbl >tbody> tr:first-child >td{
     border-top:none;
 }
-/*border-top: 1px solid #000;*/
-td[style*="border-top:1px solid #000"]{
-    border:none;
+.container td[style*="border-top: 1px solid #000;"]{
+    border-top:none !important;
 }
 .outerContainer>.container>table.form_tbl >tbody> tr:last-child >td{
     border-bottom:none;
@@ -179,7 +178,7 @@ ul.tabs >li>a:hover{
 .caption{
     display: none;
 }
-td  input[type=text]{
+table.form_tbl td  input[type=text]{
     color:blue;
 }
 .toolbar>span{
