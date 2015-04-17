@@ -3,8 +3,6 @@ package cn.net.tongfang.web.service.commonexam;
 import java.util.List;
 import java.util.Map;
 
-import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
-
 public class CommonQueryVO {
 	private Map<String,String> base;
 	private List<Map> items;

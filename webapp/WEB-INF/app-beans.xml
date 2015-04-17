@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:security="http://www.springframework.org/schema/security"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+                          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+	   					 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
 
 	<bean id="HelloService"
 		class="cn.net.tongfang.framework.security.demo.service.SimpleServiceImpl">
@@ -12,13 +14,25 @@
 	
 
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
-		<property name="filterInvocationDefinitionSource">
-			<value><![CDATA[
-				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				PATTERN_TYPE_APACHE_ANT
-				/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-			]]></value>
-		</property>
+		<!--<property name="filterInvocationDefinitionSource">-->
+			<!--<value><![CDATA[-->
+				<!--CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON-->
+				<!--PATTERN_TYPE_APACHE_ANT-->
+				<!--/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor-->
+			<!--]]></value>-->
+		<!--</property>-->
+		<security:filter-chain-map path-type="ant">
+			<security:filter-chain pattern="/css/**" filters="none" />
+			<security:filter-chain pattern="/images/**" filters="none" />
+			<security:filter-chain pattern="/js/**" filters="none" />
+			<security:filter-chain pattern="/download/**" filters="none" />
+			<!--<security:filter-chain pattern="/tasksystem/login.jsp" filters="none" />-->
+			<!--<security:filter-chain pattern="/tasksystem/logout" filters="none" />-->
+			<security:filter-chain pattern="/tasksystem/**"
+								   filters="httpSessionContextIntegrationFilter,taskLogoutFilter,taskAuthenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,taskExceptionTranslationFilter,TaskFilterSecurityInterceptor" />
+			<security:filter-chain pattern="/**"
+								   filters="httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
+		</security:filter-chain-map>
 	</bean>
 
 	<bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
@@ -110,6 +124,62 @@
 		</property>
 	</bean>
 
+
+
+
+	<bean id="taskLogoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
+		<constructor-arg value="/tasksystem/index.jsp"/> <!-- URL redirected to after logout -->
+		<constructor-arg>
+			<list>
+				<ref bean="rememberMeServices"/>
+				<bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
+			</list>
+		</constructor-arg>
+		<property name="filterProcessesUrl" value="/tasksystem/logout" />
+	</bean>
+
+	<bean id="taskAuthenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
+		<property name="authenticationFailureUrl" value="/tasksystem/index.jsp?login_error=1"/>
+		<property name="defaultTargetUrl" value="/tasksystem/lib/success.json"/>
+		<!--<property name="alwaysUseDefaultTargetUrl" value="true"/>-->
+		<property name="filterProcessesUrl" value="/tasksystem/login"/>
+		<property name="rememberMeServices" ref="rememberMeServices"/>
+	</bean>
+
+	<bean id="taskExceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint">
+			<bean class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+				<property name="loginFormUrl" value="/tasksystem/index.jsp"/>
+				<property name="forceHttps" value="false"/>
+			</bean>
+		</property>
+		<property name="accessDeniedHandler">
+			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
+				<property name="errorPage" value="/tasksystem/index.jsp"/>
+			</bean>
+		</property>
+	</bean>
+
+
+	<bean id="TaskFilterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager" ref="accessDecisionManager" />
+		<property name="objectDefinitionSource">
+			<security:filter-invocation-definition-source>
+				<security:intercept-url pattern="/tasksystem/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/app/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/lib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/tasksystem/**" access="IS_AUTHENTICATED_REMEMBERED" />
+			</security:filter-invocation-definition-source>
+		</property>
+	</bean>
+
+
 	<bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
 		<property name="userDetailsService" ref="myUserDetailsService"/>
 		<property name="key" value="changeThis"/>
@@ -142,5 +212,18 @@
 	
 	<bean id="passwordEncoder" class="org.springframework.security.providers.encoding.Md5PasswordEncoder">
 		<property name="encodeHashAsBase64" value="false"></property>
+	</bean>
+
+	<bean id="TaskUtil"
+		  class="cn.net.tongfang.web.service.task.TaskUtil" scope="singleton">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="host" ><value>127.0.0.1</value></property>
+		<property name="name" ><value>test</value></property>
+		<property name="pwd" ><value>test</value></property>
+		<property name="apiId" ><value>test</value></property>
+		<property name="dbName" ><value>mas</value></property>
+	</bean>
+	<bean id="districtnumber" class="java.lang.String">
+		<constructor-arg value="530521"/>
 	</bean>
 </beans>

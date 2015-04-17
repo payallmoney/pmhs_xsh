@@ -498,6 +498,11 @@ var fieldsArray = {};
                         info("数据已保存<br/>" + (updateMode ? "您可以继续修改, 或退出" : "请继续输入下一条" ));
                     }
                     window.saving = false;
+					if (qo['taskid']) {
+						//这里更新数据标志
+						TaskService.updateTaskCompelte(qo['taskid'], function () {
+						});
+					}
                     if(!updateMode){
                 		go();
                 		info("数据已保存<br/>" + ("请继续输入下一条" ));
@@ -868,7 +873,16 @@ var fieldsArray = {};
                      send = $.extend(false, {}, dataLoaded, model);
                      updateMode = true;
                 }
-
+				if (qo['savetaskdefault'] == 'true') {
+					var str = prompt("请输入模板名称", "模板名称");
+					if (str) {
+						window.top.saveddefaultname = str;
+						window.top.TaskService.saveDefault(window.location.pathname, str, JSON.stringify(send), function (data) {
+							showDialog("<li>保存默认值成功!</li>", true);
+						});
+					}
+					return;
+				}
                 if (services.propValidate){
                     var tobeValid = [];
                     for(var prop in send) {
@@ -936,10 +950,145 @@ var fieldsArray = {};
                 }
             }
 
-            showHelp();
+            //showHelp();
             focusFirst();
         } //function go
-        return {
+		   function getTaskDefault() {
+			   var pathname = window.location.pathname;
+			   window.top.TaskService.getDefaultList(pathname, function (data) {
+				   console.log(data);
+				   if (!data) {
+					   data = [];
+				   }
+				   var selectwin = new Ext.Window({
+					   title: '选择默认值模板',
+					   id: 'taskdefaultselectwin',
+					   width: 320,
+					   height: 120,
+					   layout: 'table',
+					   closable: false,
+					   style: 'position:fixed',
+					   bodyStyle: 'padding:10px 5px;',
+					   shadow: false,
+					   x: 5,
+					   y: 10,
+					   renderTo: Ext.getBody(),
+					   layoutConfig: {
+						   columns: 2
+					   },
+					   buttons: [{
+						   text: '应用模板',
+						   id: 'defaultbutton',
+						   style:'float:none;',
+						   handler: function () {
+							   loaddata(pathname, Ext.getCmp('defaultselectcombo').getValue());
+						   }
+					   },{
+						   text: '增加模板',
+						   id: 'defaultbutton',
+						   style:'float:none;',
+						   handler: function () {
+							   opentaskdefault(window.location.pathname, "");
+						   }
+					   }],
+					   buttonAlign: 'center',
+					   items: [
+						   {
+							   xtype: 'combo',
+							   id: 'defaultselectcombo',
+							   fieldLabel: '默认值',
+							   triggerAction: 'all',
+							   allowBlank: false,
+							   width: 250,
+							   listWith: 300,
+							   store: data,
+							   emptyText: '--请选择默认值模板--'
+						   }, {
+							   xtype: 'button',
+							   text: '刷新',
+							   style: 'margin:0;',
+							   handler: function (obj) {
+								   refreshcombo();
+							   }
+						   }
+
+					   ]
+				   });
+				   selectwin.show();
+				   if (data.length == 1) {
+					   loaddata(pathname, data[0]);
+				   }
+			   });
+		   }
+		   function refreshcombo(){
+			   window.top.TaskService.getDefaultList(window.location.pathname, function (data) {
+				   if (!data) {
+					   data = [];
+				   }
+				   Ext.getCmp('defaultselectcombo').store.loadData(data);
+				   if(window.top.saveddefaultname){
+					   Ext.getCmp('defaultselectcombo').setValue( window.top.saveddefaultname);
+					   window.top.saveddefaultname = null;
+				   }
+			   });
+		   }
+		   function loaddata(pathname, name) {
+			   if (!name) {
+				   showDialog("<li>请选择默认值模板!</li>", true);
+				   return;
+			   }
+			   window.top.TaskService.getDefault(pathname, name, function (data) {
+				   console.log(data);
+				   var values;
+				   eval("values = " + data.val.content);
+				   var cfg = data.cfglist;
+				   for (var idx in cfg) {
+					   values[cfg[idx].code] = eval(cfg[idx].value);
+				   }
+				   console.log(values);
+				   medObj.setModel({});
+				   medObj.setModel(values);
+			   });
+		   }
+
+		   function opentaskdefault(taskurl, title) {
+			   taskurl = taskurl + '?savetaskdefault=true'
+			   var taskwindow = new Ext.Window({
+				   closable: true,
+				   layout: 'fit',
+				   modal: true,
+				   title: '默认值模板管理',
+				   items: [
+					   {
+						   xtype: 'iframepanel',
+						   defaultSrc: taskurl,
+						   layout: 'fit',
+						   style: 'top:0px;bottom:10px',
+						   loadMask: true,
+						   autoScroll: true,
+						   listeners: {
+							   message: function (f, data) {
+								   if (data.data == 'quit') {
+									   taskwindow.close();
+								   } else if (data.data == 'saved') {
+									   this.load();
+								   }
+							   }.createDelegate(this)
+						   }
+					   }
+				   ],
+				   listeners:{
+					   close:function(){
+						   refreshcombo();
+						   $("body").removeClass("x-window-maximized-ct");
+					   }
+				   }
+			   });
+			   taskwindow.show();
+			   taskwindow.maximize();
+		   }
+
+		   return {
             getDataLoaded : function(){
                 return dataLoaded;
             },
@@ -1160,4 +1309,80 @@ function showDialog(msg, clickToClose){
         $('.blockOverlay').one('click', $.unblockUI);
     }
 
+}
+
+function getTaskDefault() {
+	var pathname = window.location.pathname;
+	window.top.TaskService.getDefaultList(pathname, function (data) {
+		console.log(data);
+		if (data && data.length && data.length > 0) {
+			if (data.length == 1) {
+				loaddata(pathname, data[0]);
+			} else {
+				var selectwin = new Ext.Panel({
+					title: '选择默认值',
+					id: 'taskdefaultselectwin',
+					width: 320,
+					height: 120,
+					layout: 'table',
+					style: 'position:fixed;top:10px;left:5px;',
+					modal: true,
+					renderTo: Ext.getBody(),
+					layoutConfig: {
+						columns: 2
+					},
+					buttons: [{
+						style: 'font:normal 12px  宋体 !important;',
+						bodyStyle: 'font-size: 10px !important;',
+						text: '确定',
+						formBind: true,
+						handler: function () {
+							loaddata(pathname, Ext.getCmp('defaultselectcombo').getValue());
+							//selectwin.close();
+						}
+					}],
+					buttonAlign: 'center',
+					items: [
+						{
+							xtype: 'label',
+							html: '默&nbsp;认&nbsp;值：',
+							style: 'padding-left:5px;margin:5px 0px 0px 0px;font:normal 12px 宋体 !important;',
+							bodyStyle: 'font-size: 10px !important;',
+							layoutConfig: {
+								animate: true
+							},
+							width: 50,
+							height: 25
+						},
+						{
+							xtype: 'combo',
+							id: 'defaultselectcombo',
+							fieldLabel: '默认值',
+							style: 'text-indent:5px;margin:5px 0px 0px 0px;width:90%;font:normal 12px  宋体 !important;',
+							bodyStyle: 'font-size: 10px !important;',
+							height: 25,
+							allowBlank: false,
+							store: data
+						}
+
+					]
+				});
+				selectwin.show();
+			}
+		}
+	});
+}
+function loaddata(pathname, name) {
+	window.top.TaskService.getDefault(pathname, name, function (data) {
+		console.log(data);
+		var values;
+		eval("values = " + data.val.content);
+		var cfg = data.cfglist;
+		for (var idx in cfg) {
+			values[cfg[idx].code] = eval(cfg[idx].value);
+		}
+		console.log(values);
+		medObj.setModel({});
+		medObj.setModel(values);
+	});
 }

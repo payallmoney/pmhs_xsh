@@ -42,6 +42,7 @@ public class Test {
 		// }
 		ImprovedNamingStrategy ts = new ImprovedNamingStrategy();
 		System.out.println(camelcasify("test_aaest"));
+		System.out.println("============"+"杨彬妍".length());
 	}
 
 	public static String camelcasify(String in) {

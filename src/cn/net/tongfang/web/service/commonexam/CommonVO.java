@@ -1,17 +1,16 @@
 package cn.net.tongfang.web.service.commonexam;
 
+import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
+
 import java.util.List;
 import java.util.Map;
 
-import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
-
-public class CommonVO implements java.io.Serializable{
+public class CommonVO {
 	private ExamBaseinfo base;
 	private List<Map> items;
 	private Map man;
 	private Map woman;
 	private Map districtMap;
-	private Map<String , Map> fileinfo;
 	public Map getDistrictMap() {
 		return districtMap;
 	}
@@ -42,11 +41,4 @@ public class CommonVO implements java.io.Serializable{
 	public void setItems(List<Map> items) {
 		this.items = items;
 	}
-	public Map<String, Map> getFileinfo() {
-		return fileinfo;
-	}
-	public void setFileinfo(Map<String, Map> fileinfo) {
-		this.fileinfo = fileinfo;
-	}
-	
 }

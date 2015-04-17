@@ -576,5 +576,10 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="TcmService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
-	
+	<bean id="TaskService" class="cn.net.tongfang.web.service.task.TaskService">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="taskUtil" ref="TaskUtil" />
+		<dwr:remote javascript="TaskService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+		<aop:scoped-proxy />
+	</bean>
 </beans>
