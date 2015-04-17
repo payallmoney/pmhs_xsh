@@ -9,9 +9,13 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
         });
     }])
 
-    .controller('MainCtrl', function ($scope, Auth, $location ) {
+    .controller('MainCtrl', function ($scope, Auth, $location ,$q) {
         $scope.tabs =[];
         $scope.activetext = '';
+        var init = $q.defer();
+        $scope.init = function(){
+            return  init.promise;
+        };
         //登录状态
         Auth.checklogin().then(function () {
             //取出登录数据
@@ -27,6 +31,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             CommonExamService.getCurrentDistrict({
                 callback: function (data) {
                     $scope.district = data;
+                    init.resolve();
                 }
             });
             //取出机构数据
@@ -44,6 +49,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             };
             $scope.loadTab(dashboard);
             $scope.loadTab($scope.menu[0]);
+
         }).catch(function () {
             $location.path('/tasksystem/login');
         });

@@ -6,17 +6,19 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService, $modal, $log) {
     $scope.query = {};
     //设置树参数
     //以下处理是为了防止树内容一次加载导致的性能问题,改为了点击加载 , 使用了非deepcopy
-    var base = angular.extend({}, $scope.$parent.district[0]);
-    base.children = null;
-    $scope.query.dist = base.id;
-    $scope.currentdistname = base.text;
-    $scope.dist = {children: [base]};
-    var rootid = $scope.$parent.district[0].id;
-    var rootlength = $scope.$parent.district[0].id.length;
-    var extcount = 0;
-    if (rootid.substring(rootid.length - 2) == '00') {
-        extcount = 1
-    }
+    $scope.$parent.init().then(function(){
+        var base = angular.extend({}, $scope.$parent.district[0]);
+        base.children = null;
+        $scope.query.dist = base.id;
+        $scope.currentdistname = base.text;
+        $scope.dist = {children: [base]};
+        var rootid = $scope.$parent.district[0].id;
+        var rootlength = $scope.$parent.district[0].id.length;
+        $scope.extcount = 0;
+        if (rootid.substring(rootid.length - 2) == '00') {
+            $scope.extcount = 1;
+        }
+    });
 
     $scope.treeclick = function (item) {
         item.active = !item.active;
@@ -24,9 +26,15 @@ app.controller('TaskManagerCtrl', function ($scope, i18nService, $modal, $log) {
         $scope.currentdistname = item.text;
         if (!item.children) {
             var root = $scope.$parent.district[0];
-            var count = (item.id.length - rootlength ) / 3 + extcount;
-            for (var i = 0; i < count; i++) {
-                var childid = item.id.substr(0, 6 + i * 3);
+            var count = (item.id.length - 6 ) / 3 +  $scope.extcount;
+            for (var i = 1; i <= count; i++) {
+                var rootlength = root.id.length;
+                var extcount = 0;
+                if (root.id.substring(root.id.length - 2) == '00') {
+                    extcount = 1;
+                    rootlength = 4;
+                }
+                var childid = item.id.substr(0,rootlength + (rootlength ==4?i*2 : i * 3));
                 if (root.children) {
                     for (var j = 0; j < root.children.length; j++) {
                         if (root.children[j].id == childid) {
