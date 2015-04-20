@@ -25,7 +25,7 @@
     <link href="lib/uigrid/ui-grid.min.css" rel="stylesheet"/>
     <link href="lib/uiselect/select.min.css" rel="stylesheet"/>
     <link href="css/index.css" rel="stylesheet"/>
-
+    <link rel="stylesheet" media="screen and (max-width:1390px)" href="css/small.css" type="text/css" />
 
     <!--Skin Script: Place this script in head to load scripts for skins and rtl support-->
 

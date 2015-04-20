@@ -24,13 +24,13 @@
 
 		<dwr:convert type="integer" class="java.lang.Integer" />
 		<dwr:convert type="timestamp" class="java.sql.Timestamp" />
-		<!-- <dwr:convert type="boolean" class="java.lang.Boolean"/> <dwr:convert 
+		<!-- <dwr:convert type="boolean" class="java.lang.Boolean"/> <dwr:convert
 			type="string" class="java.lang.String"/> -->
 
 		<dwr:convert type="bean" class="cn.net.tongfang.framework.demo.*" />
 
 		<dwr:convert type="bean"
-			class="cn.net.tongfang.framework.security.bo.*" />
+			class="java.util.*" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.vo.*" />
 		<dwr:convert type="bean"
@@ -161,6 +161,7 @@
 	<bean id="TaskService" class="cn.net.tongfang.web.service.task.TaskService">
 		<property name="sessionFactory" ref="sessionFactory" />
 		<property name="taskUtil" ref="TaskUtil" />
+		<property name="examUtil" ref="commonExamUtil" />
 		<dwr:remote javascript="TaskService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>

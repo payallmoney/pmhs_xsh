@@ -9,9 +9,13 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
         });
     }])
 
-    .controller('MainCtrl', function ($scope, Auth, $location ) {
+    .controller('MainCtrl', function ($scope, Auth, $location ,$q) {
         $scope.tabs =[];
         $scope.activetext = '';
+        var init = $q.defer();
+        $scope.init = function(){
+            return  init.promise;
+        };
         //登录状态
         Auth.checklogin().then(function () {
             //取出登录数据
@@ -24,15 +28,10 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             }];
 
             //取出行政区划数据
-            CommonExamService.getCurrentDistrict({
+            TaskService.getCurrentDistrict({
                 callback: function (data) {
                     $scope.district = data;
-                }
-            });
-            //取出机构数据
-            CommonExamService.getCurrentOrgListnew({
-                callback: function (data) {
-                    $scope.orgdata = data;
+                    init.resolve();
                 }
             });
 
@@ -44,6 +43,7 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
             };
             $scope.loadTab(dashboard);
             $scope.loadTab($scope.menu[0]);
+
         }).catch(function () {
             $location.path('/tasksystem/login');
         });
@@ -51,23 +51,23 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
         $scope.loadTab = function (menu) {
             console.log(menu);
             if(menu.js){
-            $script(menu.js, function () {
-                var flag = false;
-                for (var i = 0; i < $scope.tabs.length; i++) {
-                    if ($scope.tabs[i].text == menu.text) {
-                        flag = true;
+                $script(menu.js, function () {
+                    var flag = false;
+                    for (var i = 0; i < $scope.tabs.length; i++) {
+                        if ($scope.tabs[i].text == menu.text) {
+                            flag = true;
 
-                    }else{
-                        $scope.tabs[i].active = false;
+                        }else{
+                            $scope.tabs[i].active = false;
+                        }
                     }
-                }
-                if (!flag) {
-                    menu.close=true;
-                    $scope.tabs.push(menu)
-                }
-                menu.active = true;
-                $scope.$digest();
-            });
+                    if (!flag) {
+                        menu.close=true;
+                        $scope.tabs.push(menu)
+                    }
+                    menu.active = true;
+                    $scope.$digest();
+                });
             }else{
                 var flag = false;
                 for (var i = 0; i < $scope.tabs.length; i++) {
@@ -93,4 +93,32 @@ angular.module('tasksystem.main', ['ngRoute','ui.bootstrap'])
         //    };
         //    $scope.loadTab(dashboard);
         //}
+
+        $("#sidebar-collapse").on('click', function () {
+            if (!$('#sidebar').is(':visible'))
+                $("#sidebar").toggleClass("hide");
+            $("#sidebar").toggleClass("menu-compact");
+            $(".sidebar-collapse").toggleClass("active");
+            var b = $("#sidebar").hasClass("menu-compact");
+
+            if ($(".sidebar-menu").closest("div").hasClass("slimScrollDiv")) {
+                $(".sidebar-menu").slimScroll({ destroy: true });
+                $(".sidebar-menu").attr('style', '');
+            }
+            if (b) {
+                $(".open > .submenu")
+                    .removeClass("open");
+            } else {
+                if ($('.page-sidebar').hasClass('sidebar-fixed')) {
+                    var position = (readCookie("rtl-support") || location.pathname == "/index-rtl-fa.html" || location.pathname == "/index-rtl-ar.html") ? 'right' : 'left';
+                    $('.sidebar-menu').slimscroll({
+                        height: 'auto',
+                        position: position,
+                        size: '3px',
+                        color: themeprimary
+                    });
+                }
+            }
+            //Slim Scroll Handle
+        });
     });
