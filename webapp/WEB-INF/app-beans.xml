@@ -38,7 +38,7 @@
 	<bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
 	<bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
-		<constructor-arg value="/index.html"/> <!-- URL redirected to after logout -->
+		<constructor-arg value="/login.jsp"/> <!-- URL redirected to after logout -->
 		<constructor-arg>
 			<list>
 				<ref bean="rememberMeServices"/>

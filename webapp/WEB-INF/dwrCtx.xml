@@ -440,6 +440,7 @@
 		<property name="sysInfos" ref="systemInformationUtils"></property>
 		<property name="summaryService" ref="summaryService"></property>
 		<property name="userMenuTreeService" ref="UserMenuTreeService"></property>
+		<property name="ledgerSerivce" ref="ledgerSerivce"></property>
 		<dwr:remote javascript="DataExportService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
 	<bean id="MedicalExamPrintService" class="cn.net.tongfang.web.service.MedicalExamPrintService">
@@ -546,11 +547,7 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="SummaryChartService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
-	<bean id="printerService" class=" cn.net.tongfang.web.service.PrinterService">
-		<aop:scoped-proxy />
-		<property name="sessionFactory" ref="sessionFactory" />
-		<dwr:remote javascript="printerService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
-	</bean>	
+
 
 	<bean id="mapService" class="cn.net.tongfang.web.service.map.MapService">
 		<aop:scoped-proxy />
@@ -569,13 +566,24 @@
 		<aop:scoped-proxy />
 		<property name="birthReportWithMonthService" ref="BirthReportWithMonthService" />
 	</bean>	
-	
-	<bean id="TcmService"
+		<bean id="TcmService"
 		class="cn.net.tongfang.web.service.tcm.TcmService">
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="TcmService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
+	
+	<bean id="printerService" class=" cn.net.tongfang.web.service.PrinterService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="printerService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
+	<bean id="ledgerSerivce" class=" cn.net.tongfang.web.service.LedgerSerivce">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="ledgerSerivce" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
+	</bean>
+
 	<bean id="TaskService" class="cn.net.tongfang.web.service.task.TaskService">
 		<property name="sessionFactory" ref="sessionFactory" />
 		<property name="taskUtil" ref="TaskUtil" />
