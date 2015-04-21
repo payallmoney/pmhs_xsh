@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import cn.net.tongfang.framework.security.vo.*;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -27,17 +29,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
-import cn.net.tongfang.framework.security.vo.District;
-import cn.net.tongfang.framework.security.vo.ExamBaseinfo;
-import cn.net.tongfang.framework.security.vo.ExamCrud;
-import cn.net.tongfang.framework.security.vo.ExamExamcfg;
-import cn.net.tongfang.framework.security.vo.ExamExamcfgFileno;
-import cn.net.tongfang.framework.security.vo.ExamItemcfg;
-import cn.net.tongfang.framework.security.vo.ExamItems;
-import cn.net.tongfang.framework.security.vo.ExamItemsId;
-import cn.net.tongfang.framework.security.vo.ExamQueryCfg;
-import cn.net.tongfang.framework.security.vo.ExamQuerySql;
-import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.util.FileNoGen;
 
@@ -78,6 +69,11 @@ public class CommonExamService extends HibernateDaoSupport {
 		hbtTypeMap.put("date", Hibernate.TIMESTAMP);
 		hbtTypeMap.put("number", Hibernate.BIG_DECIMAL);
 	}
+
+	private static Map<Integer, List> orgmap = new HashMap();
+	private static Map<Integer, String> orgidtocode = new HashMap();
+	private static Map<String, Map> orgcodemap = new HashMap();
+	private static Map<Integer, List> orgempmap = new HashMap();
 
 	public Map newExam(String examname) throws Exception {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -1301,7 +1297,7 @@ public class CommonExamService extends HibernateDaoSupport {
 	
 	private Class getTypeClass(String type){
 		Map<String ,Class> typemap = new HashMap();
-		typemap.put("string",  String.class);
+		typemap.put("string", String.class);
 		typemap.put("date",  java.sql.Timestamp.class);
 		typemap.put("int",  Long.class);
 		return typemap.get(type);
@@ -1471,6 +1467,31 @@ public class CommonExamService extends HibernateDaoSupport {
 	}
 
 
+
+	public List getCurrentOrgListnew() throws Exception {
+		try {
+			TaxempDetail emp = SecurityManager.currentOperator();
+			List ret = new ArrayList();
+			int rootid = emp.getOrgId();
+			System.out.println("rootid==" + rootid);
+			if (!orgidtocode.containsKey(rootid)) {
+				initOrgMap();
+			}
+			String code = orgidtocode.get(rootid);
+			System.out.println("code===" + code);
+			int m = code.length() / 3;
+			Map curr = orgcodemap;
+			for (int i = 1; i <= m; i++) {
+				curr = (Map) curr.get(code.substring(0, (i ) * 3));
+			}
+			System.out.println("curr==" + new Gson().toJson(curr));
+			return getorglistnew(curr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	public String getCurrentUser() throws Exception {
 		return SecurityManager.currentOperator().getTaxempname();
 	}
@@ -1534,4 +1555,134 @@ public class CommonExamService extends HibernateDaoSupport {
 		return ret;
 	}
 
+
+	public Map<String, List> getAllDistrict(String orgid) {
+		return commonExamUtil.getAllDistrict();
+	}
+
+
+	public String getCurrentRoot(String orgid) {
+		if (orgid == null) {
+			String[] orgids = SecurityManager.currentOperator().getDistrictId().split(",");
+			orgid = "";
+			for (int i = 0; i < orgids.length; i++) {
+				orgid += ",root" + orgids[i];
+			}
+			orgid = orgid.substring(1);
+		}
+		return orgid;
+	}
+
+	private List getSubOrg(int orgid, String space) {
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId=" + orgid);
+		System.out.println("=====orgid=======" + orgid);
+		List ret = new ArrayList();
+		for (int i = 0; i < lists.size(); i++) {
+			Organization org = (Organization) lists.get(i);
+			List all = new ArrayList();
+			all.add(org.getId());
+			all.add("" + space + "|  " + org.getName());
+			ret.add(all);
+			ret.addAll(getSubOrg(org.getId(), space + "--"));
+		}
+		return ret;
+	}
+
+	private void initOrgMap() {
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId=0");
+		Map ret = new HashMap();
+		String space = "";
+		for (int i = 0; i < lists.size(); i++) {
+			Organization org = (Organization) lists.get(i);
+			String code = inttostring(i);
+			orgidtocode.put(org.getId(), code);
+			Map orgmap = new HashMap();
+			orgmap.put("data", org);
+			Map child = getSubOrgnew(org.getId(), code);
+			orgmap.put("child", child);
+			ret.put(code, orgmap);
+		}
+		orgcodemap = ret;
+	}
+
+	public Map getPersonMap() {
+		if (orgempmap != null && orgempmap.size() <= 0) {
+			List<SamTaxempcode> lists = getHibernateTemplate().find("from SamTaxempcode order by org_id");
+			Map ret = new HashMap();
+			for (int i = 0; i < lists.size(); i++) {
+				SamTaxempcode org = (SamTaxempcode) lists.get(i);
+				if (!ret.containsKey(org.getOrgId())) {
+					ret.put(org.getOrgId(), new ArrayList());
+				}
+				List list = (List) ret.get(org.getOrgId());
+				list.add(org);
+			}
+			orgempmap = ret;
+		}
+		return orgempmap;
+	}
+
+
+	private Map getSubOrgnew(int orgid, String parentcode) {
+		List<Organization> lists = getHibernateTemplate().find("from Organization where parentId=" + orgid);
+		Map ret = new HashMap();
+		for (int i = 0; i < lists.size(); i++) {
+			String code = parentcode + inttostring(i);
+			Organization org = (Organization) lists.get(i);
+			orgidtocode.put(org.getId(), code);
+			Map orgmap = new HashMap();
+			orgmap.put("data", org);
+			Map child = getSubOrgnew(org.getId(), code);
+			orgmap.put("child", child);
+			ret.put(code, orgmap);
+		}
+		return ret;
+	}
+
+	private String inttostring(int i) {
+		return ("000" + i).substring(("000" + i).length() - 3);
+	}
+
+	public List getorglistnew(Map curr) throws Exception {
+		try {
+			System.out.println("curr==" + curr.get("data"));
+			List ret = new ArrayList();
+			Organization org = (Organization) curr.get("data");
+			Map item = new HashMap();
+			item.put("id",org.getId());
+			item.put("name", org.getName());
+			item.put("parent", org.getName());
+			ret.add(item);
+			Map childs = (Map) curr.get("child");
+			for (Iterator iter = childs.keySet().iterator(); iter.hasNext(); ) {
+				Object key = iter.next();
+				Map child = (Map) childs.get(key);
+				ret.addAll(getorglistnew(child));
+			}
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public List getCurrentOrgList() throws Exception {
+		List ret = new ArrayList();
+		int rootid = SecurityManager.currentOperator().getOrgId();
+		if (!orgmap.containsKey(rootid)) {
+			List all = new ArrayList();
+			all.add("");
+			all.add("全部");
+			ret.add(all);
+			List root = new ArrayList();
+			root.add(rootid);
+			root.add(SecurityManager.currentOperator().getOrg().getName());
+			ret.add(root);
+			ret.addAll(getSubOrg(rootid, "-|--"));
+			orgmap.put(rootid, ret);
+			return ret;
+		} else {
+			return orgmap.get(rootid);
+		}
+	}
 }

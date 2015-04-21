@@ -1,13 +1,16 @@
 package cn.net.tongfang.web.service.task;
 
+import cn.net.tongfang.framework.security.SecurityManager;
 import cn.net.tongfang.framework.security.bo.Condition;
 import cn.net.tongfang.framework.security.bo.QryCondition;
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.*;
+import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.SmsUtil;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
+import cn.net.tongfang.web.service.commonexam.CommonExamUtil;
 import com.google.gson.Gson;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -48,7 +51,21 @@ public class TaskService extends HibernateDaoSupport {
         typemap.put("d", GregorianCalendar.DAY_OF_MONTH);
     }
 
+    private static Map<String, Map<String, String>> queryParam = new HashMap();
+
+    static {
+        Gson gs = new Gson();
+        queryParam.put("name", gs.fromJson("{key:'hf.name',text:'姓名',opt:'like', sql:'\\'%?%\\'',type:'string',inlist:'true' }", Map.class));
+        queryParam.put("fileno", gs.fromJson("{key:'info.fileNo',text:'档案编码',opt:'=' , sql:'\\'?\\'',type:'string',inlist:'true' }", Map.class));
+        queryParam.put("idnumber", gs.fromJson("{key:'info.idnumber',text:'身份证号',opt:'=' , sql:'\\'?\\'',type:'string',inlist:'true' }", Map.class));
+        queryParam.put("begindate", gs.fromJson("{key:'vo.smsdate',text:'日期起',opt:'>=' , sql:'convert(date,\\'?\\')',type:'date',inlist:'false' }", Map.class));
+        queryParam.put("enddate", gs.fromJson("{key:'vo.smsdate',text:'日期止',opt:'<' , sql:'dateadd(day,1,convert(date,\\'?\\'))',type:'date',inlist:'false' }", Map.class));
+        queryParam.put("district", gs.fromJson("{key:'info.fileNo',text:'行政区划',opt:'like' , sql:'\\'?%\\'',type:'district',inlist:'false' }", Map.class));
+    }
+
     private TaskUtil taskUtil;
+    private CommonExamUtil examUtil;
+
 
     // @Cacheable(cacheName = "messageCache")
     public List<CodTelUpdateCol> getTelRule() {
@@ -850,7 +867,7 @@ public class TaskService extends HibernateDaoSupport {
 
     // 短信发送任务启动
     public String smsStartSend() throws Exception {
-    	System.out.println("============启动任务生成");
+        System.out.println("============启动任务生成");
         if (!taskUtil.isStarted()) {
             taskUtil.setStarted(true);
 
@@ -884,16 +901,13 @@ public class TaskService extends HibernateDaoSupport {
             intMap.put("vo.status", null);
             Map dateMap = new HashMap();
             dateMap.put("vo.smsdate", null);
-            getSession()
-                    .createSQLQuery(
-                            "update Task_Log set personname = hf.name from Task_Log vo, HealthFile hf where vo.fileno = hf.fileNo and vo.personname is null and querytype='0' ")
-                    .executeUpdate();
+            dateMap.put("convert(date,vo.smsdate)", null);
             StringBuilder where = new StringBuilder(" where vo.fileno = info.fileNo and vo.querytype='0' and vo.examid = rule.id ");
             List params = new ArrayList();
             if (StringUtils.hasText(qryCond.getDistrict())) {
                 String dist = qryCond.getDistrict();
-                if(dist.substring(dist.length()-2).equals("00")){
-                    dist = dist.substring(0,dist.length()-2);
+                if (dist.substring(dist.length() - 2).equals("00")) {
+                    dist = dist.substring(0, dist.length() - 2);
                 }
                 where.append(" and vo.fileno like '" + dist + "%' ");
             }
@@ -920,7 +934,8 @@ public class TaskService extends HibernateDaoSupport {
                             where.append(" and " + key + obj.getOpt() + "  ? ");
                             System.out.println("============"
                                     + new Date(Long.parseLong(value)));
-                            params.add(new Date(Long.parseLong(value)));
+                            Timestamp st = BusiUtils.parseDate(value);
+                            params.add(st);
                         } else {
                             where.append(" and " + key + " = ? ");
                             params.add(value);
@@ -949,8 +964,8 @@ public class TaskService extends HibernateDaoSupport {
             for (int i = 0; i < params.size(); i++) {
                 query.setParameter(i, params.get(i));
             }
-            System.out.println("pp.getStart()==="+pp.getStart());
-            System.out.println("pp.getLimit()==="+pp.getLimit());
+            System.out.println("pp.getStart()===" + pp.getStart());
+            System.out.println("pp.getLimit()===" + pp.getLimit());
             query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
 
             List<Object[]> list = query.list();
@@ -963,6 +978,96 @@ public class TaskService extends HibernateDaoSupport {
                 data.put("birthday", info.getBirthday());
                 data.put("idnumber", info.getIdnumber());
                 System.out.println("===================" + new Gson().toJson(data));
+                data.put("inputpage", rule.getInputpage());
+                retlist.add(data);
+            }
+
+            return new PagingResult<Map>(totalSize, retlist);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
+    }
+
+    public List getQueryParams() {
+        List<Map<String,String>> ret = new ArrayList();
+        for(String key : queryParam.keySet()){
+            Map<String,String> item = new HashMap();
+            String inlist = queryParam.get(key).get("inlist");
+            if("true".equals(inlist)) {
+                String text = queryParam.get(key).get("text");
+                item.put("key", key);
+                item.put("text", text);
+                ret.add(item);
+            }
+        }
+        return ret;
+    }
+
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+    public PagingResult<Map> queryLogsnew(Map paramsmap, PagingParam pp)
+            throws Exception {
+        Map<String, Object> condition = (Map<String, Object> )paramsmap;
+        System.out.println("===========================");
+        System.out.println(new Gson().toJson(condition));
+        System.out.println("===========================");
+        try {
+            if (pp == null)
+                pp = new PagingParam();
+            StringBuilder where = new StringBuilder(" where vo.fileno = info.fileNo and info.fileNo = hf.fileNo and vo.querytype='0' and vo.examid = rule.id ");
+            List params = new ArrayList();
+            for (String key : condition.keySet()) {
+                if (queryParam.containsKey(key) && condition.get(key)!=null && StringUtils.hasText(String.valueOf(condition.get(key)))) {
+                    Map<String, String> item = queryParam.get(key);
+                    String keystr = item.get("key");
+                    String opt = item.get("opt");
+                    String type = item.get("type");
+                    String sql = item.get("sql");
+                    System.out.println("key==="+key);
+
+                    String value =String.valueOf( condition.get(key));
+                    if("district".equals(type)){
+                        while("00".equals(value.substring(value.length()-2))){
+                            value = value.substring(0,value.length()-2);
+                        }
+                    }
+                    where.append(" and "+keystr+" "+opt+" " + sql.replaceAll("\\?",value) + " ");
+                }
+            }
+            // 这里的返回结果是用js进行的解密,所以没写解密的代码
+            String selectcol = " select  vo,info,rule ";
+            String fromstr = " from TaskLog vo ,HealthFile hf , PersonalInfo info,TaskRule rule  " +where ;
+            String orderby = " order by vo.smsdate desc,vo.fileno ";
+            String counthql =   "select count(*)   " + fromstr  ;
+            String hql = selectcol+fromstr+orderby;
+            System.out.println(hql);
+            Query countquery = getSession().createQuery(counthql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                countquery.setParameter(i, params.get(i));
+            }
+            List ret = countquery.list();
+            int totalSize = 0;
+            if (ret != null && ret.size() > 0) {
+                totalSize = ((Long) ret.get(0)).intValue();
+            }
+
+            Query query = getSession().createQuery(hql);
+            for (int i = 0; i < params.size(); i++) {
+                query.setParameter(i, params.get(i));
+            }
+            query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+
+            List<Object[]> list = query.list();
+            List<Map> retlist = new ArrayList();
+            for (Object[] objs : list) {
+                TaskLog log = (TaskLog) objs[0];
+                Map data = BeanUtils.describe(log);
+                PersonalInfo info = (PersonalInfo) objs[1];
+                TaskRule rule = (TaskRule) objs[2];
+                data.put("birthday", info.getBirthday());
+                data.put("idnumber", info.getIdnumber());
                 data.put("inputpage", rule.getInputpage());
                 retlist.add(data);
             }
@@ -991,10 +1096,10 @@ public class TaskService extends HibernateDaoSupport {
                 "from TaskLog where status = " + SmsUtil.IS_SENDED_FALSE + "");
         String exceptStr = "";
 
-        System.out.println("sendinglist.size()==="+sendinglist.size());
-        int count = 0 ;
+        System.out.println("sendinglist.size()===" + sendinglist.size());
+        int count = 0;
         for (TaskLog log : sendinglist) {
-            System.out.println( (count++)+"   /"+ sendinglist.size());
+            System.out.println((count++) + "   /" + sendinglist.size());
             if (taskUtil.isStarted()) {
                 int result = 0;
                 Serializable id = null;
@@ -1246,13 +1351,13 @@ public class TaskService extends HibernateDaoSupport {
 
     //TODO 获得默认值
     public Map getDefault(String url, String name) {
-        TaskDefaultValue  val  = (TaskDefaultValue)(getHibernateTemplate().find(" from TaskDefaultValue where urlname = ? and empcode = ? and name = ?  ",
+        TaskDefaultValue val = (TaskDefaultValue) (getHibernateTemplate().find(" from TaskDefaultValue where urlname = ? and empcode = ? and name = ?  ",
                 new String[]{url, cn.net.tongfang.framework.security.SecurityManager.currentOperator().getUsername(),
                         name})).get(0);
-        List cfglist = getHibernateTemplate().find(" from TaskDefaults where urlname = ?    ",url);
+        List cfglist = getHibernateTemplate().find(" from TaskDefaults where urlname = ?    ", url);
         Map ret = new HashMap();
-        ret.put("val",val);
-        ret.put("cfglist",cfglist);
+        ret.put("val", val);
+        ret.put("cfglist", cfglist);
         return ret;
     }
 
@@ -1272,34 +1377,35 @@ public class TaskService extends HibernateDaoSupport {
 
         return ret;
     }
+
     //TODO 查询未完成任务
-    private long queryUncompleteTaskData(String type,int status) throws Exception{
+    private long queryUncompleteTaskData(String type, int status) throws Exception {
         Map ret = new HashMap();
         TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
         String sqlext = "";
         List<Object> params = new ArrayList();
         params.add(user.getOrgId());
         Timestamp today = new Timestamp(new Date().getTime());
-        if("curmonth".equals(type)){
-            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+        if ("curmonth".equals(type)) {
+            sqlext = " and a.smsdate >= ? and a.smsdate < ?";
             Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.MONTH).getTime());
             Timestamp end = new Timestamp(DateUtils.addMonths(DateUtils.truncate(today, Calendar.MONTH), 1).getTime());
             params.add(begin);
             params.add(end);
-        }else  if("curday".equals(type)){
-            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+        } else if ("curday".equals(type)) {
+            sqlext = " and a.smsdate >= ? and a.smsdate < ?";
             Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.DATE).getTime());
             Timestamp end = new Timestamp(DateUtils.addDays(DateUtils.truncate(today, Calendar.DATE), 1).getTime());
             params.add(begin);
             params.add(end);
-        }else  if("curweek".equals(type)){
-            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+        } else if ("curweek".equals(type)) {
+            sqlext = " and a.smsdate >= ? and a.smsdate < ?";
             Timestamp begin = new Timestamp(DateUtils.addWeeks(DateUtils.truncate(today, Calendar.DAY_OF_WEEK), -1).getTime());
             Timestamp end = new Timestamp(DateUtils.truncate(today, Calendar.DAY_OF_WEEK).getTime());
             params.add(begin);
             params.add(end);
-        }else  if("lastweek".equals(type)){
-            sqlext =  " and a.smsdate >= ? and a.smsdate < ?";
+        } else if ("lastweek".equals(type)) {
+            sqlext = " and a.smsdate >= ? and a.smsdate < ?";
             int dayofweek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             System.out.println(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
             Timestamp begin = new Timestamp(DateUtils.addDays(DateUtils.truncate(today, Calendar.DATE), -dayofweek - 7).getTime());
@@ -1307,72 +1413,73 @@ public class TaskService extends HibernateDaoSupport {
             params.add(begin);
             params.add(end);
         }
-        if (status>-1){
-            sqlext+=" and a.status = ? ";
+        if (status > -1) {
+            sqlext += " and a.status = ? ";
             params.add(status);
         }
         System.out.println(params.toArray());
-        return (Long)  getHibernateTemplate().find("select count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
-                "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname and  emp.orgId = ?   " + sqlext, params.toArray() ).get(0);
+        return (Long) getHibernateTemplate().find("select count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
+                "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname and  emp.orgId = ?   " + sqlext, params.toArray()).get(0);
     }
+
     //TODO 查询未完成任务
-    public Map queryUncompleteTask(String type,int status) throws Exception{
+    public Map queryUncompleteTask(String type, int status) throws Exception {
         Map ret = new HashMap();
-        long taskcount = queryUncompleteTaskData(type,status);
-        ret.put("taskcount",taskcount);
+        long taskcount = queryUncompleteTaskData(type, status);
+        ret.put("taskcount", taskcount);
         ret.put("success", true);
         return ret;
     }
 
     //TODO 查询图表数据
-    public Map queryChatData() throws Exception{
+    public Map queryChatData() throws Exception {
         Map ret = new HashMap();
         TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-        ret.put("monthcompelete", queryUncompleteTaskData("curmonth",2));
-        ret.put("monthuncompelete", queryUncompleteTaskData("curmonth",1));
-        ret.put("daycompelete", queryUncompleteTaskData("curday",2));
-        ret.put("dayuncompelete", queryUncompleteTaskData("curday",1));
-        ret.put("lastweekcompelete", queryUncompleteTaskData("lastweek",2));
-        ret.put("lastweekuncompelete", queryUncompleteTaskData("lastweek",1));
+        ret.put("monthcompelete", queryUncompleteTaskData("curmonth", 2));
+        ret.put("monthuncompelete", queryUncompleteTaskData("curmonth", 1));
+        ret.put("daycompelete", queryUncompleteTaskData("curday", 2));
+        ret.put("dayuncompelete", queryUncompleteTaskData("curday", 1));
+        ret.put("lastweekcompelete", queryUncompleteTaskData("lastweek", 2));
+        ret.put("lastweekuncompelete", queryUncompleteTaskData("lastweek", 1));
 
         Timestamp today = new Timestamp(new Date().getTime());
         Timestamp begin = new Timestamp(DateUtils.truncate(today, Calendar.MONTH).getTime());
         Timestamp end = new Timestamp(DateUtils.addMonths(DateUtils.truncate(today, Calendar.MONTH), 1).getTime());
         List<Object[]> uncompletedata = getHibernateTemplate().find("select day(a.smsdate), count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
                 "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname " +
-                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ? and a.status = 1 group by day(a.smsdate) " , new Object[]{user.getOrgId(),begin,end} );
+                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ? and a.status = 1 group by day(a.smsdate) ", new Object[]{user.getOrgId(), begin, end});
         List<Object[]> completedata = getHibernateTemplate().find("select day(a.smsdate), count(*) from  TaskLog a , HealthFile b,SamTaxempcode  emp " +
                 "where a.fileno = b.fileNo and b.inputPersonId  = emp.loginname " +
                 "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ? and a.status = 2 group by day(a.smsdate) ", new Object[]{user.getOrgId(), begin, end});
-        int dayofmonth =Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        int dayofmonth = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         List uncomplete = new ArrayList();
         List complete = new ArrayList();
         List days = new ArrayList();
         boolean flag = false;
         System.out.println(dayofmonth);
-        for(int i = 0 ; i < dayofmonth ; i++){
-            days.add((i+1)+"日");
+        for (int i = 0; i < dayofmonth; i++) {
+            days.add((i + 1) + "日");
             flag = false;
-            for(int j = 0 ; j <uncompletedata.size();j++){
-                if((Integer)(uncompletedata.get(j)[0]) == i+1){
-                    uncomplete .add(uncompletedata.get(j)[1]);
+            for (int j = 0; j < uncompletedata.size(); j++) {
+                if ((Integer) (uncompletedata.get(j)[0]) == i + 1) {
+                    uncomplete.add(uncompletedata.get(j)[1]);
                     flag = true;
                     break;
                 }
             }
-            if(!flag){
-                uncomplete .add(0);
+            if (!flag) {
+                uncomplete.add(0);
             }
             flag = false;
-            for(int j = 0 ; j <completedata.size();j++){
-                if((Integer)(uncompletedata.get(j)[0]) == i+1){
-                    complete .add(completedata.get(j)[1]);
+            for (int j = 0; j < completedata.size(); j++) {
+                if ((Integer) (uncompletedata.get(j)[0]) == i + 1) {
+                    complete.add(completedata.get(j)[1]);
                     flag = true;
                     break;
                 }
             }
-            if(!flag){
-                complete .add(0);
+            if (!flag) {
+                complete.add(0);
             }
         }
         System.out.println(begin);
@@ -1380,22 +1487,95 @@ public class TaskService extends HibernateDaoSupport {
         List catdata = getHibernateTemplate().find("select cat.name, sum(case when a.status = 1 then 1 else 0 end )," +
                 "sum(case when a.status = 2 then 1 else 0 end )  from  TaskLog a ,TaskCat  cat, HealthFile b,SamTaxempcode  emp " +
                 "where a.fileno = b.fileNo and b.inputPersonId   = emp.loginname and a.parentid = cat.id  " +
-                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ?   group by cat.name " , new Object[]{user.getOrgId(),begin,end} );
-        ret.put ("catdata",catdata);
-        ret.put ("uncomplete",uncomplete);
-        ret.put ("complete",complete);
-        ret.put ("days",days);
+                "and  emp.orgId = ?  and a.smsdate >= ? and a.smsdate < ?   group by cat.name ", new Object[]{user.getOrgId(), begin, end});
+        ret.put("catdata", catdata);
+        ret.put("uncomplete", uncomplete);
+        ret.put("complete", complete);
+        ret.put("days", days);
         ret.put("success", true);
         return ret;
     }
 
     //TODO 更新任务标志
-    public Map updateTaskCompelte(String taskid) throws Exception{
+    public Map updateTaskCompelte(String taskid) throws Exception {
         Map ret = new HashMap();
-        System.out.println("=========taskid============"+taskid);
-        getHibernateTemplate().bulkUpdate(" update TaskLog set sendtime=getdate() ,status=2  where id = ? ",taskid);
+        System.out.println("=========taskid============" + taskid);
+        getHibernateTemplate().bulkUpdate(" update TaskLog set sendtime=getdate() ,status=2  where id = ? ", taskid);
         ret.put("success", true);
         return ret;
     }
 
+    public String getCurrentUser() throws Exception {
+        return SecurityManager.currentOperator().getTaxempname();
+    }
+
+
+    public List getCurrentDistrict() throws Exception {
+        try {
+            List ret = new ArrayList();
+            String key = SecurityManager.currentOperator().getDistrictId();
+            String id = key;
+            if ("00".equals(key.substring(key.length() - 2))) {
+                id = key.substring(0, key.length() - 2);
+            }
+            String vlaue = (String) examUtil.getDistrictMap().get(id);
+            Map distmap = examUtil.getDistrictMap();
+            Map root = new HashMap();
+            root.put("id", key);
+            root.put("text", vlaue);
+//            root.put("parent", "#");
+            List child = getSubDistrict(key);
+            if (child == null || child.size() == 0) {
+                root.put("haschild", false);
+                ret.add(root);
+            } else {
+                root.put("haschild", true);
+                root.put("children", child);
+                ret.add(root);
+            }
+            return ret;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
+
+    private List getSubDistrict(String distid) throws Exception {
+        List ret = new ArrayList();
+        Map distmap = examUtil.getDistrictMap();
+        List<District> sublist = examUtil.getDistrict(distid);
+        if (sublist != null) {
+            for (District d : sublist) {
+                Map item = getNodeFromDistrict(d);
+                List child = getSubDistrict(d.getId());
+                if (child == null || child.size() == 0) {
+                    item.put("haschild", false);
+                    ret.add(item);
+                } else {
+                    item.put("haschild", true);
+                    item.put("children", child);
+                    ret.add(item);
+                }
+            }
+            return ret;
+        } else {
+            return null;
+        }
+    }
+
+    private Map getNodeFromDistrict(District d) throws Exception {
+        Map ret = new HashMap();
+        ret.put("id", d.getId());
+        ret.put("text", d.getName());
+//        ret.put("parent",d.getParentId());
+        return ret;
+    }
+
+    public CommonExamUtil getExamUtil() {
+        return examUtil;
+    }
+
+    public void setExamUtil(CommonExamUtil examUtil) {
+        this.examUtil = examUtil;
+    }
 }

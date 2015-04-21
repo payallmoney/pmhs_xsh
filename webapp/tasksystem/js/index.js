@@ -5,6 +5,8 @@ var app =
     angular.module('tasksystem', [
         'ngRoute',
         'ui.grid',
+        'ui.grid.autoResize',
+        'ui.grid.resizeColumns',
         'ui.grid.pagination',
         'ui.grid.selection',
         'ui.utils',
@@ -28,7 +30,7 @@ var app =
             checklogin: function () {
                 var deferred = $q.defer();
                 if (!logined) {
-                    CommonExamService.getCurrentUser({
+                    TaskService.getCurrentUser({
                         callback: function (data) {
                             console.log("data==", data)
                             if (data == null) {
@@ -44,7 +46,7 @@ var app =
                         }
                     });
                 } else {
-                    CommonExamService.getCurrentUser({
+                    TaskService.getCurrentUser({
                         callback: function (data) {
                             user = data;
                             deferred.resolve(data);

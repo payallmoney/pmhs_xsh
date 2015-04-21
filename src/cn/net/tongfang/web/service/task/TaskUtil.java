@@ -4,9 +4,12 @@ import cn.net.tongfang.framework.security.vo.TaskRule;
 import cn.net.tongfang.framework.security.vo.TaskStatus;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 

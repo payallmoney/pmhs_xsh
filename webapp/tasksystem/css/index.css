@@ -179,3 +179,43 @@ li.jstree-leaf>a>i.jstree-icon.jstree-themeicon{
     height:100%;
     border:none;
 }
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.selectable {
+    -webkit-touch-callout:initial;
+    -webkit-user-select: initial;
+    -khtml-user-select: initial;
+    -moz-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+.ui-grid-cell-contents{
+    -webkit-touch-callout:initial;
+    -webkit-user-select: initial;
+    -khtml-user-select: initial;
+    -moz-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+
+.sidebar-header-wrapper{
+    z-index:124;
+}
+.page-sidebar .sidebar-header-wrapper .searchhelper {
+    z-index:124;
+}
+
+.navbar{
+    z-index: 0;
+}
+.topbar.navbar{
+    z-index:200;
+}

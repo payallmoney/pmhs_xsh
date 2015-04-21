@@ -24,14 +24,16 @@
 
 		<dwr:convert type="integer" class="java.lang.Integer" />
 		<dwr:convert type="timestamp" class="java.sql.Timestamp" />
-		<!-- <dwr:convert type="boolean" class="java.lang.Boolean"/> <dwr:convert 
+		<!-- <dwr:convert type="boolean" class="java.lang.Boolean"/> <dwr:convert
 			type="string" class="java.lang.String"/> -->
 
 		<dwr:convert type="bean" class="cn.net.tongfang.framework.demo.*" />
 
 		<dwr:convert type="bean"
+			class="java.util.*" />
+		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.bo.*" />
-			<dwr:convert type="bean"
+		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.bo.NewQryCondition" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.vo.*" />
@@ -40,7 +42,7 @@
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.util.service.vo.*" />
 		<dwr:convert type="bean" class="cn.net.tongfang.web.service.bo.*" />
-        <dwr:convert type="bean" class="cn.net.tongfang.web.service.*" />
+		<dwr:convert type="bean" class="cn.net.tongfang.web.service.*" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.demo.service.vo.*" />
 
@@ -578,16 +580,24 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="printerService" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
+	
+	<bean id="poolService"
+		class="cn.net.tongfang.web.service.pool.PoolService">
+		<aop:scoped-proxy />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<dwr:remote javascript="poolService"></dwr:remote>
+	</bean>
 	<bean id="ledgerSerivce" class=" cn.net.tongfang.web.service.LedgerSerivce">
 		<aop:scoped-proxy />
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="ledgerSerivce" ><dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 	</bean>
-
 	<bean id="TaskService" class="cn.net.tongfang.web.service.task.TaskService">
 		<property name="sessionFactory" ref="sessionFactory" />
 		<property name="taskUtil" ref="TaskUtil" />
+		<property name="examUtil" ref="commonExamUtil" />
 		<dwr:remote javascript="TaskService"> <dwr:filter class="cn.net.tongfang.web.util.DWRTimeoutFilter"/></dwr:remote>
 		<aop:scoped-proxy />
 	</bean>
+	
 </beans>

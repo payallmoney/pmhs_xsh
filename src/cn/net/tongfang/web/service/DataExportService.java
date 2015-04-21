@@ -1,9 +1,11 @@
 package cn.net.tongfang.web.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.CallableStatement;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,9 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
@@ -57,6 +59,8 @@ import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.SamTaxempcode;
 import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
+import cn.net.tongfang.framework.security.vo.TchildrenLedger;
+import cn.net.tongfang.framework.security.vo.TwomanLedger;
 import cn.net.tongfang.framework.security.vo.VisitAfterBorn;
 import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
 import cn.net.tongfang.framework.security.vo.WomanLastMedicalExamRecord;
@@ -69,6 +73,7 @@ import cn.net.tongfang.framework.util.service.ModuleMgr;
 import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.BirthCertifiQry;
+import cn.net.tongfang.web.service.bo.ChildrenLedgerBO;
 
 import com.csvreader.CsvWriter;
 import com.google.gson.Gson;
@@ -175,7 +180,7 @@ public class DataExportService extends HibernateDaoSupport {
 	private SystemInformationUtils sysInfos;
 	private SummaryService summaryService;
 	private ModuleMgr userMenuTreeService;
-
+	private LedgerSerivce ledgerSerivce;
 	public void setSysInfos(SystemInformationUtils sysInfos) {
 		this.sysInfos = sysInfos;
 	}
@@ -190,6 +195,10 @@ public class DataExportService extends HibernateDaoSupport {
 
 	public void setUserMenuTreeService(ModuleMgr userMenuTreeService) {
 		this.userMenuTreeService = userMenuTreeService;
+	}
+	
+	public void setLedgerSerivce(LedgerSerivce ledgerSerivce) {
+		this.ledgerSerivce = ledgerSerivce;
 	}
 
 	/**
@@ -279,7 +288,409 @@ public class DataExportService extends HibernateDaoSupport {
 		}
 		return fileName;
 	}
+	
+	/**
+	 * 孕产妇台账数据导出
+	 * @param data
+	 * @param township
+	 * @param years
+	 * @return
+	 */
+	public String womanLedger(ChildrenLedgerBO data,String township,String years){
+		List list = ledgerSerivce.getWomanLedger(data);
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		String fileName = DateToStr(new Date()) + "_"
+				+ user.getUsername() + "_woman.xls";
+		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
 
+		WritableWorkbook wwb = null;
+		Workbook rwb = null;
+		jxl.Cell cell = null;
+		try {
+			// 创建输入流
+			InputStream stream = new FileInputStream(getWebRootAbsolutePath() + "data/womanLegder.xls");
+			// 获取Excel文件对象
+			rwb = Workbook.getWorkbook(stream);
+			// 获取文件的指定工作表 默认的第一个
+			jxl.Sheet sheet = rwb.getSheet(0);
+
+			wwb = Workbook.createWorkbook(file);
+			WritableSheet s = wwb.createSheet("sheet1", 1000000);
+			//标题
+			for (int i = 0; i < sheet.getRows(); i++) {
+				String[] str = new String[sheet.getColumns()];
+				for (int j = 0; j < sheet.getColumns(); j++) {
+					cell = sheet.getCell(j, i);
+					str[j] = cell.getContents();
+					cell = sheet.getCell(j, i);
+					str[j] = cell.getContents();
+					if(i == 0){
+						s.addCell(new Label(j,i,township + " 乡（镇） " + years + "年孕产妇基本情况登记台账"));
+						s.mergeCells(0, 0, 57, 0);
+						break;
+					}else if(i == 1){
+						if((j >= 0 && j <= 15) || (j >= 38 && j <= 43) || (j >= 48 && j <= 50) || j == 56 || j == 57){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(j, 1, j, 2);
+						}else if(j >= 16 && j <= 25){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(16, 1, 25, 1);
+						}else if(j >= 26 && j <= 29){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(26, 1, 29, 1);
+						}else if(j >= 30 && j <= 33){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(30, 1, 33, 1);
+						}else if(j >= 34 && j <= 37){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(34, 1, 37, 1);
+						}else if(j >= 44 && j <= 47){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(44, 1, 47, 1);
+						}else if(j >= 51 && j <= 52){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(51, 1, 52, 1);
+						}else if(j >= 53 && j <= 55){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(53, 1, 55, 1);
+						}
+					}else if(i == 2){
+						if(j >= 16 && j <= 25){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 26 && j <= 29){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 30 && j <= 33){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 34 && j <= 37){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 44 && j <= 47){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 51 && j <= 52){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 53 && j <= 55){
+							s.addCell(new Label(j,i,str[j]));
+						}
+					}
+
+				}
+			}
+			//内容 
+			int rowIndex = 3;
+			int serial = 1;
+			for(Object obj : list){
+				TwomanLedger o = (TwomanLedger) obj;
+				s.addCell(new Label(0, rowIndex,String.valueOf(serial)));
+				s.addCell(new Label(1, rowIndex,eraseNull(o.getBuildUnit())));
+				s.addCell(new Label(2, rowIndex,eraseNull(o.getName())));
+				s.addCell(new Label(3, rowIndex,eraseNull(o.getHusbandName())));
+				s.addCell(new Label(4, rowIndex,eraseNull(o.getCurrentAddress())));
+				s.addCell(new Label(5, rowIndex,eraseNull(o.getResidenceAddress())));
+				s.addCell(new Label(6, rowIndex,eraseNull(o.getFarmStatus())));
+				s.addCell(new Label(7, rowIndex,eraseNull(o.getOccupation())));
+				s.addCell(new Label(8, rowIndex,eraseNull(String.valueOf(o.getAge()))));
+				s.addCell(new Label(9, rowIndex,eraseNull(String.valueOf(o.getGravidity()))));
+				s.addCell(new Label(10, rowIndex,eraseNull(String.valueOf(o.getParity()))));
+				s.addCell(new Label(11, rowIndex,formatDate2Str(o.getLastMenses())));
+				s.addCell(new Label(12, rowIndex,formatDate2Str(o.getEdc())));
+				s.addCell(new Label(13, rowIndex,formatDate2Str(o.getBuildDate())));
+				s.addCell(new Label(14, rowIndex,eraseNull(o.getWeeks())));
+				s.addCell(new Label(15, rowIndex,""));
+				s.addCell(new Label(16, rowIndex,formatDate2Str(o.getVisitDate())));
+				String beforeVisitDate = o.getBeforeVisitDate();
+				String[] beforeVisitDateArray = null;
+				if(beforeVisitDate != null)
+					beforeVisitDateArray = beforeVisitDate.split(",");
+				if(beforeVisitDateArray != null){
+					for(int i = 0;i<10;i++){
+						if(i < beforeVisitDateArray.length && beforeVisitDateArray[i] != ""){
+							s.addCell(new Label(17 + i, rowIndex,eraseNull(beforeVisitDateArray[i])));
+						}else{
+							s.addCell(new Label(17 + i, rowIndex,""));
+						}
+					}
+				}else{
+					for(int i = 0;i<10;i++){
+						s.addCell(new Label(17 + i, rowIndex,""));
+					}
+				}
+				s.addCell(new Label(27, rowIndex,""));
+				s.addCell(new Label(28, rowIndex,""));
+				s.addCell(new Label(29, rowIndex,""));
+				s.addCell(new Label(30, rowIndex,formatDate2Str(o.getHivdetectDate())));
+				s.addCell(new Label(31, rowIndex,formatDate2Str(o.getSyphilisDetectDate())));
+				s.addCell(new Label(32, rowIndex,formatDate2Str(o.getHepatitisBdetectDate())));
+				s.addCell(new Label(33, rowIndex,""));
+				s.addCell(new Label(34, rowIndex,""));
+				s.addCell(new Label(35, rowIndex,""));
+				s.addCell(new Label(36, rowIndex,""));
+				s.addCell(new Label(37, rowIndex,""));
+				
+				if(o.getChildbirthYear() != null && o.getChildbirthMonth() != null && o.getChildbirthDay() != null){
+					s.addCell(new Label(38, rowIndex,o.getChildbirthYear() + "年" + o.getChildbirthMonth() + "月" + o.getChildbirthDay() + "日"));
+				}else{
+					s.addCell(new Label(38, rowIndex,""));
+				}
+				s.addCell(new Label(39, rowIndex,eraseNull(o.getSex())));
+				s.addCell(new Label(40, rowIndex,eraseNull(o.getBorthAddressCategory())));
+				s.addCell(new Label(41, rowIndex,eraseNull(o.getChildbirthWay())));
+				s.addCell(new Label(42, rowIndex,eraseNull(o.getDeliverWay())));
+				s.addCell(new Label(43, rowIndex,""));
+				String afterVisitDateDate = o.getAfterVisitDate();
+				String[] afterVisitDateArray = null;
+				if(afterVisitDateDate != null)
+					afterVisitDateArray = afterVisitDateDate.split(",");
+				if(afterVisitDateArray != null){
+					for(int i = 0;i<4;i++){
+						if(i < afterVisitDateArray.length && afterVisitDateArray[i] != ""){
+							s.addCell(new Label(44 + i, rowIndex,afterVisitDateArray[i].substring(0,10)));
+						}else{
+							s.addCell(new Label(44 + i, rowIndex,""));
+						}
+					}
+				}else{
+					for(int i = 0;i<4;i++){
+						s.addCell(new Label(44 + i, rowIndex,""));
+					}
+				}
+				s.addCell(new Label(49, rowIndex,eraseNull(o.getIsSystemManager())));
+				for(int i =0;i<8;i++){
+					s.addCell(new Label(50 + i, rowIndex,""));
+				}
+				s.addCell(new Label(59, rowIndex,eraseNull(o.getTel())));
+				
+//				for(int i=0;i<58;i++){
+//					if(i == 0){
+//						Label lab = new Label(i, rowIndex,
+//								isNull(String.valueOf( i + 1)));
+//						s.addCell(lab);
+//					}else if(i == 15 || (i >= 27 && i <= 29) || (i >= 33 && i <= 37) || i == 43 || (i >= 49 && i <= 56)){
+//						Label lab = new Label(i, rowIndex,"");
+//						s.addCell(lab);
+//					}else{
+//						Label lab = new Label(i, rowIndex,
+//								isNull(String.valueOf(l.get(i))));
+//						s.addCell(lab);
+//					}
+//				}
+				serial = serial + 1;
+				rowIndex = rowIndex + 1;
+			}
+			
+			wwb.write();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (RowsExceededException e) {
+			e.printStackTrace();
+		} catch (WriteException e) {
+			e.printStackTrace();
+		} catch (BiffException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				wwb.close();
+				rwb.close();
+			} catch (WriteException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		return getDownloadURL() + fileName;
+	}
+	
+	private String eraseNull(String value){
+		if(value == null){
+			return "";
+		}
+		return value;
+	}
+	
+	private String formatDate2Str(Timestamp date){
+		if(date == null){
+			return "";
+		}
+		SimpleDateFormat format = new SimpleDateFormat("Y-m-d");
+		return format.format(date);
+	}
+	
+	private String eraseDoubleNull(Double value){
+		if(value == null){
+			return "";
+		}
+		return String.valueOf(value);
+	}
+	/**
+	 * 儿童台账数据导出
+	 * @param data
+	 * @param township
+	 * @param years
+	 * @return
+	 */
+	public String childrenLedger(ChildrenLedgerBO data,String township,String years){
+		List list = ledgerSerivce.getChildrenLedger(data);
+		
+		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager
+				.currentOperator();
+		String fileName = DateToStr(new Date()) + "_"
+				+ user.getUsername() + "_children.xls";
+		File file = new File(getWebRootAbsolutePath() + "data/" + fileName);
+
+		WritableWorkbook wwb = null;
+		Workbook rwb = null;
+		jxl.Cell cell = null;
+		try {
+			// 创建输入流
+			InputStream stream = new FileInputStream(getWebRootAbsolutePath() + "data/childrenLegder.xls");
+			// 获取Excel文件对象
+			rwb = Workbook.getWorkbook(stream);
+			// 获取文件的指定工作表 默认的第一个
+			jxl.Sheet sheet = rwb.getSheet(0);
+
+			wwb = Workbook.createWorkbook(file);
+			WritableSheet s = wwb.createSheet("sheet1", 1000000);
+			//标题
+			for (int i = 0; i < sheet.getRows(); i++) {
+				String[] str = new String[sheet.getColumns()];
+				for (int j = 0; j < sheet.getColumns(); j++) {
+					cell = sheet.getCell(j, i);
+					str[j] = cell.getContents();
+					if(i == 0){
+						s.addCell(new Label(j,i,township + " 乡（镇） " + years + "年儿童基本情况登记台帐"));
+						s.mergeCells(0, 0, 49, 0);
+						break;
+					}else if(i == 1){
+						if((j >= 0 && j <= 13) || (j >= 17 && j <= 20) || j == 29 || j == 48 || j == 49){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(j, 1, j, 2);
+						}else if(j >= 14 && j <= 16){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(14, 1, 16, 1);
+						}else if(j >= 21 && j <= 25){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(21, 1, 25, 1);
+						}else if(j >= 26 && j <= 28){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(26, 1, 28, 1);
+						}else if(j >= 30 && j <= 47){
+							s.addCell(new Label(j,i,str[j]));
+							s.mergeCells(30, 1, 47, 1);
+						}
+					}else if(i == 2){
+						if(j >= 14 && j <= 16){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 21 && j <= 25){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 26 && j <= 28){
+							s.addCell(new Label(j,i,str[j]));
+						}else if(j >= 30 && j <= 47){
+							s.addCell(new Label(j,i,str[j]));
+						}
+					}
+
+				}
+			}
+			//内容 
+			int rowIndex = 3;
+			int serial = 1;
+			for(Object obj : list){
+				TchildrenLedger o = (TchildrenLedger) obj;
+				s.addCell(new Label(0, rowIndex,String.valueOf(serial)));
+				s.addCell(new Label(1, rowIndex,eraseNull(o.getBuildUnits())));
+				s.addCell(new Label(2, rowIndex,eraseNull(o.getName())));
+				s.addCell(new Label(3, rowIndex,eraseNull(o.getFatherName())));
+				s.addCell(new Label(4, rowIndex,eraseNull(o.getMotherName())));
+				s.addCell(new Label(5, rowIndex,eraseNull(o.getCurrentAddress())));
+				s.addCell(new Label(6, rowIndex,eraseNull(o.getResidenceAddress())));
+				s.addCell(new Label(7, rowIndex,eraseNull(o.getFarmStatus())));
+				s.addCell(new Label(8, rowIndex,formatDate2Str(o.getBuildDate())));
+				s.addCell(new Label(9, rowIndex,formatDate2Str(o.getBirthday())));
+				s.addCell(new Label(10, rowIndex,eraseNull(o.getSex())));
+				s.addCell(new Label(11, rowIndex,eraseDoubleNull(o.getWeight())));
+				s.addCell(new Label(12, rowIndex,eraseDoubleNull(o.getHeight())));
+				s.addCell(new Label(13, rowIndex,""));
+				s.addCell(new Label(14, rowIndex,eraseNull(o.getFeedMethod01())));
+				s.addCell(new Label(15, rowIndex,eraseNull(o.getFeedMethod02())));
+				s.addCell(new Label(16, rowIndex,eraseNull(o.getFeedMethod03())));
+				s.addCell(new Label(17, rowIndex,""));
+				s.addCell(new Label(18, rowIndex,""));
+				s.addCell(new Label(19, rowIndex,""));		
+				s.addCell(new Label(20, rowIndex,eraseNull(o.getHighRiskRemark())));
+				s.addCell(new Label(21, rowIndex,""));
+				s.addCell(new Label(22, rowIndex,""));
+				s.addCell(new Label(23, rowIndex,""));
+				s.addCell(new Label(24, rowIndex,""));
+				s.addCell(new Label(25, rowIndex,""));
+				s.addCell(new Label(26, rowIndex,""));
+				s.addCell(new Label(27, rowIndex,""));
+				s.addCell(new Label(28, rowIndex,""));
+				s.addCell(new Label(29, rowIndex,""));
+				s.addCell(new Label(30, rowIndex,eraseNull(String.valueOf(o.getOneMonth()))));
+				s.addCell(new Label(31, rowIndex,eraseNull(String.valueOf(o.getTwoMonth()))));
+				s.addCell(new Label(32, rowIndex,eraseNull(String.valueOf(o.getThreeMonth()))));
+				s.addCell(new Label(33, rowIndex,eraseNull(String.valueOf(o.getFourMonth()))));
+				s.addCell(new Label(34, rowIndex,eraseNull(String.valueOf(o.getFiveMonth()))));
+				s.addCell(new Label(35, rowIndex,eraseNull(String.valueOf(o.getSixMonth()))));
+				s.addCell(new Label(36, rowIndex,eraseNull(String.valueOf(o.getEightMonth()))));
+				s.addCell(new Label(37, rowIndex,eraseNull(String.valueOf(o.getTenMonth()))));
+				s.addCell(new Label(38, rowIndex,eraseNull(String.valueOf(o.getTwelveMonth()))));
+				s.addCell(new Label(39, rowIndex,eraseNull(String.valueOf(o.getFifteenMonth()))));
+				s.addCell(new Label(40, rowIndex,eraseNull(String.valueOf(o.getEighteenMonth()))));
+				s.addCell(new Label(41, rowIndex,eraseNull(String.valueOf(o.getTwentyOneMonth()))));
+				s.addCell(new Label(42, rowIndex,eraseNull(String.valueOf(o.getTwentyFourMonth()))));
+				s.addCell(new Label(43, rowIndex,eraseNull(String.valueOf(o.getThirtyMonth()))));
+				s.addCell(new Label(44, rowIndex,eraseNull(String.valueOf(o.getThreeYear()))));
+				s.addCell(new Label(45, rowIndex,eraseNull(String.valueOf(o.getFourYear()))));
+				s.addCell(new Label(46, rowIndex,eraseNull(String.valueOf(o.getFiveYear()))));
+				s.addCell(new Label(47, rowIndex,eraseNull(String.valueOf(o.getSixYear()))));
+				s.addCell(new Label(48, rowIndex,"是"));
+				s.addCell(new Label(49, rowIndex,""));
+				
+//				for(int i=0;i<50;i++){
+//					if(i == 0){
+//						Label lab = new Label(i, rowIndex,
+//								isNull(String.valueOf( i + 1)));
+//						s.addCell(lab);
+//					}else if(i == 13 || (i >= 17 && i <= 19) || (i >= 21 && i <= 29) || i == 49){
+//						Label lab = new Label(i, rowIndex,"");
+//						s.addCell(lab);
+//					}else if(i == 48){
+//						Label lab = new Label(i, rowIndex,"是");
+//						s.addCell(lab);
+//					}else{
+//						Label lab = new Label(i, rowIndex,
+//								isNull(String.valueOf(l.get(i))));
+//						s.addCell(lab);
+//					}
+//				}
+				serial = serial + 1;
+				rowIndex = rowIndex + 1;
+			}
+			
+			wwb.write();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (RowsExceededException e) {
+			e.printStackTrace();
+		} catch (WriteException e) {
+			e.printStackTrace();
+		} catch (BiffException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				wwb.close();
+				rwb.close();
+			} catch (WriteException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		return getDownloadURL() + fileName;
+	}
+	
 	public String dataExportChildFile(String disNo, String filterKey,
 			String filterVal) throws Exception {
 		List params = new ArrayList();
@@ -2198,12 +2609,6 @@ public class DataExportService extends HibernateDaoSupport {
 			PreparedStatement stmt =  conn.prepareStatement(sql);
 			if(sql.indexOf("?")>0){
 				stmt.setString(1, "9999999999");
-			}
-			if(DataExportService.isproc(main.getSql())){
-				int paramsnum = Integer.parseInt(main.getOrderby());
-				for(int i = 1 ;i <paramsnum ;i++){
-					stmt.setObject(i+1, null);
-				}
 			}
 			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData rsMetaData = rs.getMetaData();
