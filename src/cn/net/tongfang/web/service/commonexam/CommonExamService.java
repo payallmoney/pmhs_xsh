@@ -316,6 +316,27 @@ public class CommonExamService extends HibernateDaoSupport {
 
     public List getCurrentOrgList() throws Exception {
         List ret = new ArrayList();
+        List checklist = this.getSession().createSQLQuery("select 1 from xk_user where username='"+SecurityManager.currentOperator().getUsername()+"'").list();
+        if(checklist.size()>0){
+            SQLQuery query = this.getSession().createSQLQuery(
+                    "select a.id ,a.name " +
+                            " from  Organization a , map_org_wechat b " +
+                            " where a.id = b.orgid  ");
+            query.addScalar("id", Hibernate.LONG);
+            query.addScalar("name", Hibernate.STRING);
+            List<Object[]> list = query.list();
+            List all = new ArrayList();
+            all.add("");
+            all.add("全部");
+            ret.add(all);
+            for (Object[] district : list) {
+                List root = new ArrayList();
+                root.add(""+district[0]);
+                root.add(district[1]);
+                ret.add(root);
+            }
+            return ret;
+        }
         int rootid = SecurityManager.currentOperator().getOrgId();
         if (!orgmap.containsKey(rootid)) {
             List all = new ArrayList();
